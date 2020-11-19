@@ -1,0 +1,60 @@
+{
+  "name": "ts-luxon",
+  "version": "2.0.0",
+  "license": "MIT",
+  "description": "Immutable date wrapper",
+  "author": "Tony Samperi",
+  "keywords": [
+    "date",
+    "immutable"
+  ],
+  "repository": "https://github.com/tonysamperi/ts-luxon",
+  "main": "dist/ts-luxon.umd.js",
+  "module": "dist/ts-luxon.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist/**",
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build:watch": "rollup -c rollup.config.js -w",
+    "build": "rollup -c rollup.config.js",
+    "test": "jest",
+    "lint": "tsc lint",
+    "docs": "npx tsc -t es6 --outDir transpiled && esdoc -c docs/index.js",
+    "site": "cp -r site dist",
+    "benchmark": "echo todo benchmarks/datetime.ts",
+    "codecov": "codecov",
+    "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "devDependencies": {
+    "benchmark": "^2.0.0",
+    "codecov": "^3.0.0",
+    "esdoc": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "husky": "^4.0.0",
+    "jest": "^26.6.3",
+    "rollup": "~2.33.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "ts-jest": "^26.4.4",
+    "tslib": "^2.0.0",
+    "typescript": "^3.0.0"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "rollup-plugin-typescript2": "^0.29.0"
+  }
+}
