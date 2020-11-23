@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker run -it --rm -v $(pwd):/luxon -w /luxon tonysamperi/ts-luxon npm $@
+docker run -it --rm -v $(pwd):/tsLuxonTests -w /tsLuxonTests tonysamperi/ts-luxon npm $@
