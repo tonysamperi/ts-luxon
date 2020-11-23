@@ -1,36 +1,12 @@
 import { Info } from "../../src";
+import { months_EN, months_IT, days_IT } from "../helpers";
 
 //------
 // .months()
 //------
 
 test("Info.months lists all the months", () => {
-  expect(Info.months("long")).toEqual([
-    // "January",
-    // "February",
-    // "March",
-    // "April",
-    // "May",
-    // "June",
-    // "July",
-    // "August",
-    // "September",
-    // "October",
-    // "November",
-    // "December"
-    "gennaio",
-    "febbraio",
-    "marzo",
-    "aprile",
-    "maggio",
-    "giugno",
-    "luglio",
-    "agosto",
-    "settembre",
-    "ottobre",
-    "novembre",
-    "dicembre"
-  ]);
+  expect(Info.months("long")).toEqual(months_IT);
 
   expect(Info.months("short", { locale: "en" })).toEqual([
     "Jan",
@@ -176,52 +152,14 @@ test("Info.months respects the locale", () => {
 });
 
 test("Info.months defaults to long names", () => {
-  expect(Info.months()).toEqual([
-    // "January",
-    // "February",
-    // "March",
-    // "April",
-    // "May",
-    // "June",
-    // "July",
-    // "August",
-    // "September",
-    // "October",
-    // "November",
-    // "December",
-    "gennaio",
-    "febbraio",
-    "marzo",
-    "aprile",
-    "maggio",
-    "giugno",
-    "luglio",
-    "agosto",
-    "settembre",
-    "ottobre",
-    "novembre",
-    "dicembre"
-  ]);
+  expect(Info.months()).toEqual(months_IT);
 });
 
 //------
 // .monthsFormat()
 //------
 test("Info.monthsFormat lists all the months", () => {
-  expect(Info.monthsFormat("long", { locale: "en" })).toEqual([
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ]);
+  expect(Info.monthsFormat("long", { locale: "en" })).toEqual(months_EN);
 
   // this passes, but is wrong. These are the same as the standalone values
   expect(Info.monthsFormat("long", { locale: "ru" })).toEqual([
@@ -271,39 +209,14 @@ test("Info.monthsFormat lists all the months", () => {
 });
 
 test("Info.monthsFormat defaults to long names", () => {
-  expect(Info.monthsFormat()).toEqual([
-    // "January",
-    //     // "February",
-    //     // "March",
-    //     // "April",
-    //     // "May",
-    //     // "June",
-    //     // "July",
-    //     // "August",
-    //     // "September",
-    //     // "October",
-    //     // "November",
-    //     // "December"
-    "gennaio",
-    "febbraio",
-    "marzo",
-    "aprile",
-    "maggio",
-    "giugno",
-    "luglio",
-    "agosto",
-    "settembre",
-    "ottobre",
-    "novembre",
-    "dicembre"
-  ]);
+  expect(Info.monthsFormat(void 0, { locale: "it-IT" })).toEqual(months_IT);
 });
 
 //------
 // .weekdays()
 //------
 test("Info.weekdays lists all the weekdays", () => {
-  expect(Info.weekdays("long", { locale: "en" })).toEqual([
+  expect(Info.weekdays("long", { locale: "en-US" })).toEqual([
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -313,7 +226,7 @@ test("Info.weekdays lists all the weekdays", () => {
     "Sunday"
   ]);
 
-  expect(Info.weekdays("short", { locale: "en" })).toEqual([
+  expect(Info.weekdays("short", { locale: "en-US" })).toEqual([
     "Mon",
     "Tue",
     "Wed",
@@ -337,22 +250,15 @@ test("Info.weekdays lists all the weekdays", () => {
 });
 
 test("Info.weekdays defaults to long names", () => {
-  expect(Info.weekdays()).toEqual([
-    // "Monday",
-    // "Tuesday",
-    // "Wednesday",
-    // "Thursday",
-    // "Friday",
-    // "Saturday",
-    // "Sunday"
-    "lunedì",
-    "martedì",
-    "mercoledì",
-    "giovedì",
-    "venerdì",
-    "sabato",
-    "domenica"
-  ]);
+  expect(Info.weekdays()).toEqual(days_IT);
+  // "Monday",
+  // "Tuesday",
+  // "Wednesday",
+  // "Thursday",
+  // "Friday",
+  // "Saturday",
+  // "Sunday"
+
 });
 
 //------
@@ -381,22 +287,7 @@ test("Info.weekdaysFormat lists all the weekdays", () => {
 });
 
 test("Info.weekdaysFormat defaults to long names", () => {
-  expect(Info.weekdaysFormat()).toEqual([
-    // "Monday",
-    // "Tuesday",
-    // "Wednesday",
-    // "Thursday",
-    // "Friday",
-    // "Saturday",
-    // "Sunday"
-    "lunedì",
-    "martedì",
-    "mercoledì",
-    "giovedì",
-    "venerdì",
-    "sabato",
-    "domenica"
-  ]);
+  expect(Info.weekdaysFormat(void 0, { locale: "it-IT" })).toEqual(days_IT);
 });
 
 //------
@@ -424,7 +315,7 @@ test("Info.eras lists both eras", () => {
   expect(Info.eras("short")).toEqual(expectedShort);
   expect(Info.eras("long")).toEqual([
     // "Before Christ", "Anno Domini" // US
-    "avanti Cristo", "dopo Cristo", // IT
+    "avanti Cristo", "dopo Cristo" // IT
   ]);
   expect(Info.eras("short", { locale: "fr" })).toEqual(["av. J.-C.", "ap. J.-C."]);
   expect(Info.eras("long", { locale: "fr" })).toEqual(["avant Jésus-Christ", "après Jésus-Christ"]);

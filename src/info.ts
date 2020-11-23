@@ -77,10 +77,7 @@ export class Info {
    * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
    * @return {[string]}
    */
-  static months(
-    length: UnitLength = "long",
-    { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}
-  ) {
+  static months(length: UnitLength = "long", { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}) {
     return Locale.create(locale, numberingSystem, outputCalendar).months(length);
   }
 
@@ -96,10 +93,7 @@ export class Info {
    * @param {string} [options.outputCalendar='gregory'] - the calendar
    * @return {[string]}
    */
-  static monthsFormat(
-    length: UnitLength = "long",
-    { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}
-  ) {
+  static monthsFormat(length: UnitLength = "long", { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}) {
     return Locale.create(locale, numberingSystem, outputCalendar).months(length, true);
   }
 
