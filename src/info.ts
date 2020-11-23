@@ -1,7 +1,7 @@
-import DateTime from "./datetime";
+import { DateTime } from "./datetime";
 import { Settings } from "./settings";
-import Locale from "./impl/locale";
-import IANAZone from "./zones/IANAZone";
+import { Locale } from "./impl/locale";
+import { IANAZone } from "./zones/IANAZone";
 import { normalizeZone } from "./impl/zoneUtil";
 
 import { hasFormatToParts, hasIntl, hasRelative } from "./impl/util";
@@ -25,8 +25,8 @@ export class Info {
       return false;
     }
     const proto = DateTime.now()
-      .setZone(zoneObj)
-      .set({ month: 12 });
+    .setZone(zoneObj)
+    .set({ month: 12 });
 
     return !zoneObj.isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
   }

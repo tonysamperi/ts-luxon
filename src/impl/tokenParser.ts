@@ -1,12 +1,12 @@
 import { parseMillis, isUndefined, untruncateYear, signedOffset } from "./util";
-import Formatter, { FormatToken } from "./formatter";
-import FixedOffsetZone from "../zones/fixedOffsetZone";
-import IANAZone from "../zones/IANAZone";
+import { Formatter, FormatToken } from "./formatter";
+import { FixedOffsetZone } from "../zones/fixedOffsetZone";
+import { IANAZone } from "../zones/IANAZone";
 import { digitRegex, parseDigits } from "./digits";
-import Locale from "./locale";
+import { Locale } from "./locale";
 import { GenericDateTime, ExplainedFormat } from "../types/datetime";
-import Zone from "../zone";
-import DateTime from "../datetime";
+import { Zone } from "../zone";
+import { DateTime } from "../datetime";
 import { ConflictingSpecificationError } from "../errors";
 
 const MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
@@ -41,9 +41,9 @@ function fixListRegex(s: string) {
 
 function stripInsensitivities(s: string) {
   return s
-    .replace(/\./g, "") // ignore dots that were made optional
-    .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
-    .toLowerCase();
+  .replace(/\./g, "") // ignore dots that were made optional
+  .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
+  .toLowerCase();
 }
 
 function oneOf(strings: string[], startIndex: number): CoreUnitParser {
@@ -201,18 +201,17 @@ function unitForToken(token: FormatToken, loc: Locale) {
 
   const unit = unitate(token);
 
-  if (unit === null)
+  if (unit === null) {
     return {
       invalidReason: MISSING_FTP
     };
+  }
 
   return { ...unit, token };
 }
 
-const partTypeStyleToTokenVal: Record<
-  Intl.DateTimeFormatPartTypes,
-  Record<string, string> | undefined
-> = {
+const partTypeStyleToTokenVal: Record<Intl.DateTimeFormatPartTypes,
+  Record<string, string> | undefined> = {
   literal: undefined, // Never used
   dayPeriod: undefined, // Never used
   era: undefined, // TODO investigate
@@ -348,9 +347,11 @@ function dateTimeFromMatches(
   let zone;
   if (!isUndefined(matches.Z)) {
     zone = new FixedOffsetZone(matches.Z as number);
-  } else if (!isUndefined(matches.z)) {
+  }
+  else if (!isUndefined(matches.z)) {
     zone = IANAZone.create(matches.z as string);
-  } else {
+  }
+  else {
     zone = null;
   }
 
@@ -361,7 +362,8 @@ function dateTimeFromMatches(
   if (!isUndefined(matches.h)) {
     if (matches.h < 12 && matches.a === 1) {
       matches.h = (matches.h as number) + 12;
-    } else if (matches.h === 12 && matches.a === 0) {
+    }
+    else if (matches.h === 12 && matches.a === 0) {
       matches.h = 0;
     }
   }
@@ -437,7 +439,8 @@ export function explainFromTokens(locale: Locale, input: string, format: string)
 
   if (disqualifyingUnit) {
     return { input, tokens, invalidReason: disqualifyingUnit.invalidReason };
-  } else {
+  }
+  else {
     const regexString = buildRegex(units as UnitParser[]),
       regex = RegExp(regexString, "i"),
       [rawMatches, matches] = match(input, regex, units as UnitParser[]),

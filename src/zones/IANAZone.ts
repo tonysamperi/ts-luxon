@@ -1,5 +1,5 @@
 import { formatOffset, parseZoneInfo, isUndefined, ianaRegex, objToLocalTS } from "../impl/util";
-import Zone from "../zone";
+import { Zone} from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
 

@@ -1,9 +1,9 @@
 import * as English from "./english";
 import * as Formats from "./formats";
 import { hasFormatToParts, padStart } from "./util";
-import Locale from "./locale";
-import DateTime from "../datetime";
-import Duration from "../duration";
+import {Locale} from "./locale";
+import { DateTime } from "../datetime";
+import { Duration} from "../duration";
 import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";

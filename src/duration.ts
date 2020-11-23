@@ -1,6 +1,6 @@
 import { asNumber, isUndefined, isNumber, normalizeObject, roundTo } from "./impl/util";
-import Locale from "./impl/locale";
-import Formatter from "./impl/formatter";
+import { Locale } from "./impl/locale";
+import { Formatter } from "./impl/formatter";
 import { parseISODuration } from "./impl/regexParser";
 import { InvalidArgumentError, InvalidUnitError, UnparsableStringError } from "./errors";
 import {
@@ -22,12 +22,11 @@ interface NormalizedDurationObject {
   seconds?: number;
   milliseconds?: number;
 }
+
 type NormalizedDurationUnit = keyof NormalizedDurationObject;
 
 type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
-type ConversionMatrix = Readonly<
-  { [key in ConversionMatrixUnit]: { [key in NormalizedDurationUnit]?: number } }
->;
+type ConversionMatrix = Readonly<{ [key in ConversionMatrixUnit]: { [key in NormalizedDurationUnit]?: number } }>;
 
 // unit conversion constants
 const lowOrderMatrix = {
@@ -257,7 +256,9 @@ export class Duration {
    */
   static fromObject(obj: DurationObject, options: DurationOptions = {}) {
     if (obj === undefined || obj === null || typeof obj !== "object") {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError(
         `Duration.fromObject: argument expected to be an object, got ${
           obj === null ? "null" : typeof obj
@@ -269,7 +270,9 @@ export class Duration {
     try {
       values = normalizeObject(obj as Record<string, number>, Duration.normalizeUnit);
     } catch (error) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw error;
     }
 
@@ -301,8 +304,11 @@ export class Duration {
     const parsed = parseISODuration(text);
     if (parsed) {
       return Duration.fromObject(parsed, options);
-    } else {
-      if (options.nullOnInvalid) return null;
+    }
+    else {
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new UnparsableStringError("ISO 8601", text);
     }
   }
@@ -334,7 +340,9 @@ export class Duration {
     };
     const normalized = pluralMapping[(unit ? unit.toLowerCase() : unit) as DurationUnit];
 
-    if (!normalized) throw new InvalidUnitError(unit);
+    if (!normalized) {
+      throw new InvalidUnitError(unit);
+    }
 
     return normalized;
   }
@@ -411,19 +419,36 @@ export class Duration {
   toISO() {
     // we could use the formatter, but this is an easier way to get the minimum string
     let s = "P";
-    if (this.years !== 0) s += this.years + "Y";
-    if (this.months !== 0 || this.quarters !== 0) s += this.months + this.quarters * 3 + "M";
-    if (this.weeks !== 0) s += this.weeks + "W";
-    if (this.days !== 0) s += this.days + "D";
-    if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0)
+    if (this.years !== 0) {
+      s += this.years + "Y";
+    }
+    if (this.months !== 0 || this.quarters !== 0) {
+      s += this.months + this.quarters * 3 + "M";
+    }
+    if (this.weeks !== 0) {
+      s += this.weeks + "W";
+    }
+    if (this.days !== 0) {
+      s += this.days + "D";
+    }
+    if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) {
       s += "T";
-    if (this.hours !== 0) s += this.hours + "H";
-    if (this.minutes !== 0) s += this.minutes + "M";
+    }
+    if (this.hours !== 0) {
+      s += this.hours + "H";
+    }
+    if (this.minutes !== 0) {
+      s += this.minutes + "M";
+    }
     if (this.seconds !== 0 || this.milliseconds !== 0)
-      // this will handle "floating point madness" by removing extra decimal places
-      // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
+    // this will handle "floating point madness" by removing extra decimal places
+    // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
+    {
       s += roundTo(this.seconds + this.milliseconds / 1000, 3) + "S";
-    if (s === "P") s += "T0S";
+    }
+    if (s === "P") {
+      s += "T0S";
+    }
     return s;
   }
 
@@ -593,7 +618,9 @@ export class Duration {
 
         // plus anything that's already in this unit
         const unitValue = vals[k];
-        if (isNumber(unitValue)) own += unitValue;
+        if (isNumber(unitValue)) {
+          own += unitValue;
+        }
 
         const i = Math.trunc(own);
         built[k] = i;
@@ -612,7 +639,8 @@ export class Duration {
           }
         }
         // otherwise, keep it in the wings to boil it later
-      } else if (isNumber(vals[k])) {
+      }
+      else if (isNumber(vals[k])) {
         accumulated[k] = vals[k];
       }
     }
@@ -629,7 +657,7 @@ export class Duration {
             ? (accumulated[key] as number)
             : // lastUnit could be 'milliseconds' but so would then be the unique key in accumulated
               // Cast to ConversionMatrixUnit is hence safe here
-              acc / (this.matrix[lastUnit as ConversionMatrixUnit][unit] as number));
+            acc / (this.matrix[lastUnit as ConversionMatrixUnit][unit] as number));
       }
     }
 
@@ -765,13 +793,18 @@ export class Duration {
 }
 
 export type DurationLike = Duration | DurationObject;
+
 /**
  * @private
  */
 export function friendlyDuration(duration: DurationLike | unknown) {
-  if (Duration.isDuration(duration)) return duration;
+  if (Duration.isDuration(duration)) {
+    return duration;
+  }
 
-  if (typeof duration === "object" && duration !== null) return Duration.fromObject(duration);
+  if (typeof duration === "object" && duration !== null) {
+    return Duration.fromObject(duration);
+  }
 
   throw new InvalidArgumentError(
     `Unknown duration argument ${duration} of type ${typeof duration}`

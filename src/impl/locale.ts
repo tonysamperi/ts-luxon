@@ -1,13 +1,14 @@
 import { hasFormatToParts, hasIntl, padStart, roundTo, hasRelative } from "./util";
 import * as English from "./english";
-import Settings from "../settings";
-import DateTime from "../datetime";
-import Formatter from "./formatter";
+import { Settings } from "../settings";
+import { DateTime } from "../datetime";
+import { Formatter } from "./formatter";
 
 import { StringUnitLength, UnitLength } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "../types/locale";
 
 let intlDTCache: Record<string, Intl.DateTimeFormat> = {};
+
 function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {}) {
   const key = JSON.stringify([locString, options]);
   let dtf = intlDTCache[key];
@@ -19,6 +20,7 @@ function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {
 }
 
 let intlNumCache: Record<string, Intl.NumberFormat> = {};
+
 function getCachedINF(locString: string, options: Intl.NumberFormatOptions) {
   const key = JSON.stringify([locString, options]);
   let inf = intlNumCache[key];
@@ -30,6 +32,7 @@ function getCachedINF(locString: string, options: Intl.NumberFormatOptions) {
 }
 
 let intlRelCache: Record<string, Intl.RelativeTimeFormat> = {};
+
 function getCachedRTF(locale: Intl.BCP47LanguageTag, options: Intl.RelativeTimeFormatOptions = {}) {
   const key = JSON.stringify([locale, options]);
   let inf = intlRelCache[key];
@@ -41,15 +44,18 @@ function getCachedRTF(locale: Intl.BCP47LanguageTag, options: Intl.RelativeTimeF
 }
 
 let sysLocaleCache: string | undefined;
+
 function systemLocale() {
   if (sysLocaleCache) {
     return sysLocaleCache;
-  } else if (hasIntl()) {
+  }
+  else if (hasIntl()) {
     const computedSys = new Intl.DateTimeFormat().resolvedOptions().locale;
     // node sometimes defaults to "und". Override that because that is dumb
     sysLocaleCache = !computedSys || computedSys === "und" ? "en-US" : computedSys;
     return sysLocaleCache;
-  } else {
+  }
+  else {
     sysLocaleCache = "en-US";
     return sysLocaleCache;
   }
@@ -67,7 +73,8 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
   const uIndex = localeStr.indexOf("-u-");
   if (uIndex === -1) {
     return [localeStr];
-  } else {
+  }
+  else {
     let options: Intl.ResolvedDateTimeFormatOptions;
     const smaller = localeStr.substring(0, uIndex);
     try {
@@ -99,10 +106,12 @@ function intlConfigString(
         localeStr += `-nu-${numberingSystem}`;
       }
       return localeStr;
-    } else {
+    }
+    else {
       return localeStr;
     }
-  } else {
+  }
+  else {
     // arbitrary value, should never be used, all subsequent uses of this.intl are protected by an hasIntl check
     return "";
   }
@@ -137,9 +146,11 @@ function listStuff<T extends UnitLength>(
 
   if (mode === "error") {
     return [];
-  } else if (mode === "en") {
+  }
+  else if (mode === "en") {
     return englishFn(length);
-  } else {
+  }
+  else {
     return intlFn(length);
   }
 }
@@ -163,7 +174,9 @@ class PolyNumberFormatter {
 
     if (!forceSimple && hasIntl()) {
       const intlOpts: Intl.NumberFormatOptions = { useGrouping: false };
-      if (this.padTo > 0) intlOpts.minimumIntegerDigits = this.padTo;
+      if (this.padTo > 0) {
+        intlOpts.minimumIntegerDigits = this.padTo;
+      }
       this.inf = getCachedINF(intl, intlOpts);
     }
   }
@@ -172,7 +185,8 @@ class PolyNumberFormatter {
     if (this.inf) {
       const fixed = this.floor ? Math.floor(i) : i;
       return this.inf.format(fixed);
-    } else {
+    }
+    else {
       // to match the browser's numberformatter defaults
       const fixed = this.floor ? Math.floor(i) : roundTo(i, 3);
       return padStart(fixed, this.padTo);
@@ -207,12 +221,15 @@ class PolyDateFormatter {
       z = "UTC";
       if (options.timeZoneName) {
         this.dt = dt;
-      } else {
+      }
+      else {
         this.dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.toMillis() + dt.offset * 60 * 1000);
       }
-    } else if (dt.zone.type === "system") {
+    }
+    else if (dt.zone.type === "system") {
       this.dt = dt;
-    } else {
+    }
+    else {
       this.dt = dt;
       z = dt.zone.name;
     }
@@ -229,7 +246,8 @@ class PolyDateFormatter {
   format() {
     if (this.dtf) {
       return this.dtf.format(this.dt.toJSDate());
-    } else {
+    }
+    else {
       const tokenFormat = English.formatString(this.options),
         loc = Locale.create("en-US");
       return Formatter.create(loc).formatDateTimeFromString(this.dt, tokenFormat);
@@ -239,7 +257,8 @@ class PolyDateFormatter {
   formatToParts() {
     if (this.dtf && hasFormatToParts()) {
       return this.dtf.formatToParts(this.dt.toJSDate());
-    } else {
+    }
+    else {
       // This is kind of a cop out. We actually could do this for English. However, we couldn't do it for intl strings
       // and IMO it's too weird to have an uncanny valley like that
       return [];
@@ -249,7 +268,8 @@ class PolyDateFormatter {
   resolvedOptions() {
     if (this.dtf) {
       return this.dtf.resolvedOptions();
-    } else {
+    }
+    else {
       return {
         locale: "en-US",
         numberingSystem: "latn",
@@ -281,7 +301,8 @@ class PolyRelFormatter {
   format(count: number, unit: Intl.RelativeTimeFormatUnit) {
     if (this.rtf) {
       return this.rtf.format(count, unit);
-    } else {
+    }
+    else {
       return English.formatRelativeTime(
         unit,
         count,
@@ -294,7 +315,8 @@ class PolyRelFormatter {
   formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit) {
     if (this.rtf) {
       return this.rtf.formatToParts(count, unit);
-    } else {
+    }
+    else {
       return [];
     }
   }
@@ -380,7 +402,8 @@ export class Locale {
   private supportsFastNumbers() {
     if (this.numberingSystem && this.numberingSystem !== "latn") {
       return false;
-    } else {
+    }
+    else {
       return (
         this.numberingSystem === "latn" ||
         !this.locale ||
@@ -408,9 +431,11 @@ export class Locale {
 
     if (!hasFTP && !(isActuallyEn && hasNoWeirdness) && !defaultOK) {
       return "error";
-    } else if (!hasFTP || (isActuallyEn && hasNoWeirdness)) {
+    }
+    else if (!hasFTP || (isActuallyEn && hasNoWeirdness)) {
       return "en";
-    } else {
+    }
+    else {
       return "intl";
     }
   }
@@ -418,7 +443,8 @@ export class Locale {
   clone(alts: LocaleOptions, defaultToEN = false) {
     if (!alts || Object.getOwnPropertyNames(alts).length === 0) {
       return this;
-    } else {
+    }
+    else {
       return Locale.create(
         alts.locale || this.specifiedLocale,
         alts.numberingSystem || this.numberingSystem,
@@ -450,8 +476,8 @@ export class Locale {
   weekdays(length: StringUnitLength, format = false, defaultOK = true) {
     return listStuff(this, length, defaultOK, English.weekdays, len => {
       const intl = format
-          ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
-          : { weekday: len },
+        ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
+        : { weekday: len },
         formatStr = format ? "format" : "standalone";
       if (!this.weekdaysCache[formatStr][len]) {
         this.weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
@@ -510,7 +536,9 @@ export class Locale {
         (m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === field.toLowerCase()
       );
 
-    if (!matching) throw new Error(`Invalid extract field ${field}`);
+    if (!matching) {
+      throw new Error(`Invalid extract field ${field}`);
+    }
     return matching.value;
   }
 

@@ -7,9 +7,9 @@ import {
   isUndefined
 } from "./util";
 import * as English from "./english";
-import FixedOffsetZone from "../zones/fixedOffsetZone";
-import IANAZone from "../zones/IANAZone";
-import Zone from "../zone";
+import { FixedOffsetZone } from "../zones/fixedOffsetZone";
+import { IANAZone } from "../zones/IANAZone";
+import { Zone } from "../zone";
 import { GenericDateTime } from "../types/datetime";
 
 /*
@@ -36,14 +36,14 @@ function combineRegexes(...regexes: RegExp[]) {
 function combineExtractors(...extractors: CombinableExtractor[]) {
   const combinedExtractor = (match: RegExpExecArray) =>
     extractors
-      .reduce<CombinableParseResult>(
-        ([mergedVals, mergedZone, cursor], ex) => {
-          const [val, zone, next] = ex(match, cursor);
-          return [Object.assign(mergedVals, val), mergedZone || zone, next];
-        },
-        [{}, null, 1]
-      )
-      .slice(0, 2) as ParseResult;
+    .reduce<CombinableParseResult>(
+      ([mergedVals, mergedZone, cursor], ex) => {
+        const [val, zone, next] = ex(match, cursor);
+        return [Object.assign(mergedVals, val), mergedZone || zone, next];
+      },
+      [{}, null, 1]
+    )
+    .slice(0, 2) as ParseResult;
   return combinedExtractor;
 }
 
@@ -187,11 +187,12 @@ function fromStrings(
   secondStr: string
 ) {
   let weekday;
-  if (weekdayStr)
+  if (weekdayStr) {
     weekday =
       weekdayStr.length > 3
         ? English.weekdaysLong.indexOf(weekdayStr) + 1
         : English.weekdaysShort.indexOf(weekdayStr) + 1;
+  }
 
   const year =
     yearStr.length === 2 ? untruncateYear(parseInteger(yearStr) as number) : parseInteger(yearStr);
@@ -230,9 +231,11 @@ function extractRFC2822(match: RegExpExecArray): ParseResult {
   let offset;
   if (obsOffset) {
     offset = obsOffsets[obsOffset];
-  } else if (milOffset) {
+  }
+  else if (milOffset) {
     offset = 0;
-  } else {
+  }
+  else {
     offset = signedOffset(offHourStr, offMinuteStr);
   }
 
@@ -242,9 +245,9 @@ function extractRFC2822(match: RegExpExecArray): ParseResult {
 function preprocessRFC2822(s: string) {
   // Remove comments and folding whitespace and replace multiple-spaces with a single space
   return s
-    .replace(/\([^)]*\)|[\n\t]/g, " ")
-    .replace(/(\s\s+)/g, " ")
-    .trim();
+  .replace(/\([^)]*\)|[\n\t]/g, " ")
+  .replace(/(\s\s+)/g, " ")
+  .trim();
 }
 
 // http date
@@ -312,7 +315,9 @@ export function parseHTTPDate(s: string) {
 
 export function parseISODuration(s: string) {
   const m = isoDuration.exec(s);
-  if (m !== null) return extractISODuration(m);
+  if (m !== null) {
+    return extractISODuration(m);
+  }
 
   return undefined;
 }

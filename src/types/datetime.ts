@@ -1,6 +1,6 @@
 import { NumberingSystem, LocaleOptions } from "./locale";
-import DateTime from "../datetime";
-import Zone from "../zone";
+import { DateTime } from "../datetime";
+import { Zone} from "../zone";
 import { FormatToken } from "../impl/formatter";
 
 export interface SetZoneOptions {
