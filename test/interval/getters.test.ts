@@ -1,6 +1,6 @@
 import { Interval } from "../../src";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 const todayFrom = (h1: number, h2: number) =>
   Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));

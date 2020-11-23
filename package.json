@@ -24,6 +24,7 @@
   "scripts": {
     "build:watch": "rollup -c rollup.config.js -w",
     "build": "rollup -c rollup.config.js",
+    "_est": "jasmine",
     "test": "jest",
     "lint": "tsc lint",
     "docs": "npx tsc -t es6 --outDir transpiled && esdoc -c docs/index.js",

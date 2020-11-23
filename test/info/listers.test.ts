@@ -6,18 +6,30 @@ import { Info } from "../../src";
 
 test("Info.months lists all the months", () => {
   expect(Info.months("long")).toEqual([
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
+    // "January",
+    // "February",
+    // "March",
+    // "April",
+    // "May",
+    // "June",
+    // "July",
+    // "August",
+    // "September",
+    // "October",
+    // "November",
+    // "December"
+    "gennaio",
+    "febbraio",
+    "marzo",
+    "aprile",
+    "maggio",
+    "giugno",
+    "luglio",
+    "agosto",
+    "settembre",
+    "ottobre",
+    "novembre",
+    "dicembre"
   ]);
 
   expect(Info.months("short", { locale: "en" })).toEqual([
@@ -165,18 +177,30 @@ test("Info.months respects the locale", () => {
 
 test("Info.months defaults to long names", () => {
   expect(Info.months()).toEqual([
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
+    // "January",
+    // "February",
+    // "March",
+    // "April",
+    // "May",
+    // "June",
+    // "July",
+    // "August",
+    // "September",
+    // "October",
+    // "November",
+    // "December",
+    "gennaio",
+    "febbraio",
+    "marzo",
+    "aprile",
+    "maggio",
+    "giugno",
+    "luglio",
+    "agosto",
+    "settembre",
+    "ottobre",
+    "novembre",
+    "dicembre"
   ]);
 });
 
@@ -248,18 +272,30 @@ test("Info.monthsFormat lists all the months", () => {
 
 test("Info.monthsFormat defaults to long names", () => {
   expect(Info.monthsFormat()).toEqual([
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
+    // "January",
+    //     // "February",
+    //     // "March",
+    //     // "April",
+    //     // "May",
+    //     // "June",
+    //     // "July",
+    //     // "August",
+    //     // "September",
+    //     // "October",
+    //     // "November",
+    //     // "December"
+    "gennaio",
+    "febbraio",
+    "marzo",
+    "aprile",
+    "maggio",
+    "giugno",
+    "luglio",
+    "agosto",
+    "settembre",
+    "ottobre",
+    "novembre",
+    "dicembre"
   ]);
 });
 
@@ -302,13 +338,20 @@ test("Info.weekdays lists all the weekdays", () => {
 
 test("Info.weekdays defaults to long names", () => {
   expect(Info.weekdays()).toEqual([
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
+    // "Monday",
+    // "Tuesday",
+    // "Wednesday",
+    // "Thursday",
+    // "Friday",
+    // "Saturday",
+    // "Sunday"
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
   ]);
 });
 
@@ -339,13 +382,20 @@ test("Info.weekdaysFormat lists all the weekdays", () => {
 
 test("Info.weekdaysFormat defaults to long names", () => {
   expect(Info.weekdaysFormat()).toEqual([
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
+    // "Monday",
+    // "Tuesday",
+    // "Wednesday",
+    // "Thursday",
+    // "Friday",
+    // "Saturday",
+    // "Sunday"
+    "lunedì",
+    "martedì",
+    "mercoledì",
+    "giovedì",
+    "venerdì",
+    "sabato",
+    "domenica"
   ]);
 });
 
@@ -366,9 +416,16 @@ test("Info.meridiems defaults to the current locale", () => {
 //------
 
 test("Info.eras lists both eras", () => {
-  expect(Info.eras()).toEqual(["BC", "AD"]);
-  expect(Info.eras("short")).toEqual(["BC", "AD"]);
-  expect(Info.eras("long")).toEqual(["Before Christ", "Anno Domini"]);
+  const expectedShort = [
+    // "BC", "AD" // US
+    "a.C.", "d.C." // IT
+  ];
+  expect(Info.eras()).toEqual(expectedShort);
+  expect(Info.eras("short")).toEqual(expectedShort);
+  expect(Info.eras("long")).toEqual([
+    // "Before Christ", "Anno Domini" // US
+    "avanti Cristo", "dopo Cristo", // IT
+  ]);
   expect(Info.eras("short", { locale: "fr" })).toEqual(["av. J.-C.", "ap. J.-C."]);
   expect(Info.eras("long", { locale: "fr" })).toEqual(["avant Jésus-Christ", "après Jésus-Christ"]);
 });

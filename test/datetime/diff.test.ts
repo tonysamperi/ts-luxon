@@ -1,6 +1,6 @@
 import { DateTime } from "../../src";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 import { GenericDateTime } from "../../src/types/datetime";
 import { DurationUnit } from "../../src/types/duration";
 

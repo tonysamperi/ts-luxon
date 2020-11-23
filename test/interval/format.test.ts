@@ -1,8 +1,10 @@
-import { DateTime } from "../../src";
+import { DateTime, Interval } from "../../src";
 
-const fromISOs = (s: string, e: string) =>
-    DateTime.fromISO(s, { setZone: true }).until(DateTime.fromISO(e, { setZone: true })),
-  interval = fromISOs("1982-05-25T09:00Z", "1983-10-14T13:30Z");
+const fromISOs = (s: string, e: string): Interval => {
+
+  return DateTime.fromISO(s, { setZone: !0, locale: "en-US" }).until(DateTime.fromISO(e, { setZone: !0, locale: "en-US" }));
+};
+const interval = fromISOs("1982-05-25T09:00Z", "1983-10-14T13:30Z");
 
 //------
 // .toString()

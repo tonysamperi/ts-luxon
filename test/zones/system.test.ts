@@ -1,5 +1,5 @@
 import { SystemZone } from "../../src";
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 test("SystemZone.instance returns a singleton", () => {
   expect(SystemZone.instance).toBe(SystemZone.instance);

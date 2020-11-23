@@ -1,6 +1,6 @@
 import { Info } from "../../src";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 //------
 // Info.months()

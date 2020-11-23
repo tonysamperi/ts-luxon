@@ -1,7 +1,7 @@
 import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings, Zone } from "../../src";
 import { InvalidZoneError } from "../../src/errors";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 //------
 // .hasDST()

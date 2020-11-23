@@ -11,7 +11,7 @@ import {
 
 import Settings from "../../src/settings";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 const withDefaultLocale = Helpers.withDefaultLocale,
   withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem,

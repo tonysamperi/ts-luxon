@@ -1,6 +1,6 @@
 import { DateTime, Interval, Duration } from "../../src";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fromISO(e)),
   todayFrom = (h1: number, h2: number) =>

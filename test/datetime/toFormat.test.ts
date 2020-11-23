@@ -11,10 +11,11 @@ const dt = DateTime.fromObject(
       millisecond: 123
     },
     {
-      zone: "utc"
+      zone: "utc",
+      locale: "en-US"
     }
   ),
-  ny = dt.setZone("America/New_York", { keepLocalTime: true });
+  ny = dt.setZone("America/New_York", { keepLocalTime: !0 });
 
 //------
 // #toFormat()

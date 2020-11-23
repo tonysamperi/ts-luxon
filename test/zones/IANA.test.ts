@@ -1,5 +1,5 @@
 import { FixedOffsetZone, IANAZone } from "../../src";
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 test("IANAZone.create returns a singleton per zone name", () => {
   expect(IANAZone.create("UTC")).toBe(IANAZone.create("UTC"));

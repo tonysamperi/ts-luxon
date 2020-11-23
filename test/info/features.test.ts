@@ -1,6 +1,6 @@
 import { Info } from "../../src";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 test("Info.features shows this environment supports all the features", () => {
   expect(Info.features().intl).toBe(true);

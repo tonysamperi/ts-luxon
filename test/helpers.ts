@@ -1,9 +1,8 @@
 import { DateTime, Settings, Duration } from "../src";
-import { NumberingSystem, CalendarSystem } from "../src/types/locale";
-import { ZoneLike } from "../src/types/zone";
-// import { Intl.RelativeTimeFormat } from "../src/types/intl";
+import { NumberingSystem, CalendarSystem } from "../dist/types/locale";
+import { ZoneLike } from "../dist/types/zone";
 
-const withoutIntl = function(name: string, f: Function) {
+const withoutIntl = (name: string, f: Function) => {
   const fullName = `With no Intl support, ${name}`;
   test(fullName, () => {
     const intl = Intl;
@@ -20,7 +19,7 @@ const withoutIntl = function(name: string, f: Function) {
   });
 };
 
-const withoutFTP = function(name: string, f: Function) {
+const withoutFTP = (name: string, f: Function) => {
   const fullName = `With no FormatToParts support, ${name}`;
   test(fullName, () => {
     const { formatToParts } = Intl.DateTimeFormat.prototype;
@@ -35,7 +34,7 @@ const withoutFTP = function(name: string, f: Function) {
   });
 };
 
-const withoutRTF = function(name: string, f: Function) {
+const withoutRTF = (name: string, f: Function) => {
   const fullName = `With no RelativeTimeFormat support, ${name}`;
   test(fullName, () => {
     // @ts-ignore
@@ -53,7 +52,7 @@ const withoutRTF = function(name: string, f: Function) {
   });
 };
 
-const withoutZones = function(name: string, f: Function) {
+const withoutZones = (name: string, f: Function) => {
   const fullName = `With no time zone support, ${name}`;
   test(fullName, () => {
     const { DateTimeFormat } = Intl;
@@ -77,7 +76,7 @@ const withoutZones = function(name: string, f: Function) {
   });
 };
 
-const withNow = function(name: string, dt: DateTime, f: Function) {
+const withNow = (name: string, dt: DateTime, f: Function) => {
   test(name, () => {
     const previousNow = Settings.now;
 
@@ -90,7 +89,7 @@ const withNow = function(name: string, dt: DateTime, f: Function) {
   });
 };
 
-const withDefaultZone = function(zone: ZoneLike, f: Function) {
+const withDefaultZone = (zone: ZoneLike, f: Function) => {
   const previousDefaultZone = Settings.defaultZone;
   try {
     Settings.setDefaultZone(zone);
@@ -100,7 +99,7 @@ const withDefaultZone = function(zone: ZoneLike, f: Function) {
   }
 };
 
-const withDefaultLocale = function(locale: string | undefined, f: Function) {
+const withDefaultLocale = (locale: string | undefined, f: Function) => {
   const previousDefaultLocale = Settings.defaultLocale;
   try {
     Settings.defaultLocale = locale;
@@ -110,10 +109,7 @@ const withDefaultLocale = function(locale: string | undefined, f: Function) {
   }
 };
 
-const withDefaultNumberingSystem = function(
-  numberingSystem: NumberingSystem | undefined,
-  f: Function
-) {
+const withDefaultNumberingSystem = (numberingSystem: NumberingSystem | undefined, f: Function) => {
   const previousNumberingSystem = Settings.defaultNumberingSystem;
   try {
     Settings.defaultNumberingSystem = numberingSystem;
@@ -123,10 +119,7 @@ const withDefaultNumberingSystem = function(
   }
 };
 
-const withDefaultOutputCalendar = function(
-  outputCalendar: CalendarSystem | undefined,
-  f: Function
-) {
+const withDefaultOutputCalendar = (outputCalendar: CalendarSystem | undefined, f: Function) => {
   const previousOutputCalendar = Settings.defaultOutputCalendar;
   try {
     Settings.defaultOutputCalendar = outputCalendar;
@@ -136,13 +129,11 @@ const withDefaultOutputCalendar = function(
   }
 };
 
-const atHour = function(hour: number) {
-  return DateTime.fromObject({ year: 2017, month: 5, day: 25 })
-    .startOf("day")
-    .set({ hour });
+const atHour = (hour: number) => {
+  return DateTime.fromObject({ year: 2017, month: 5, day: 25 }).startOf("day").set({ hour });
 };
 
-const conversionAccuracy = function(duration: Duration) {
+const conversionAccuracy = (duration: Duration) => {
   const fourWeeks = {
     years: 0,
     quarters: 0,
@@ -154,11 +145,11 @@ const conversionAccuracy = function(duration: Duration) {
     seconds: 0,
     milliseconds: 0
   };
-  const isCasual = duration.set(fourWeeks).normalize().months === 1;
-  return isCasual ? "casual" : "longterm";
+
+  return duration.set(fourWeeks).normalize().months === 1 ? "casual" : "longterm";
 };
 
-const Helpers = {
+export const Helpers = {
   withoutIntl,
   withoutFTP,
   withoutRTF,
@@ -171,5 +162,3 @@ const Helpers = {
   atHour,
   conversionAccuracy
 };
-
-export default Helpers;

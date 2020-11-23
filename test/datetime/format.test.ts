@@ -1,5 +1,5 @@
 import { DateTime } from "../../src";
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 const dtMaker = () =>
     DateTime.fromObject(
@@ -13,7 +13,8 @@ const dtMaker = () =>
         millisecond: 123
       },
       {
-        zone: "utc"
+        zone: "utc",
+        locale: "en-US"
       }
     ),
   dt = dtMaker();

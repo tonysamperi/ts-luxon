@@ -1,7 +1,7 @@
 import { DateTime, Settings } from "../../src";
 import { InvalidZoneError } from "../../src/errors";
 
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 
 const millis = 391147200000,
   // 1982-05-25T04:00:00.000Z
@@ -246,8 +246,11 @@ test("Etc/GMT zones work even though V8 does not support them", () => {
 //------
 
 test("The local zone does local stuff", () => {
-  expect(DateTime.local(2016, 8, 6).offsetNameLong).toBe("Eastern Daylight Time");
-  expect(DateTime.local(2016, 8, 6).offsetNameShort).toBe("EDT");
+  const dto = DateTime.local(2016, 8, 6);
+  const fixedDto = DateTime.now()
+  dto.setLocale("en-US");
+  expect(dto.offsetNameLong).toBe("Eastern Daylight Time");
+  expect(dto.offsetNameShort).toBe("EDT");
 });
 
 test("Setting the default zone results in a different creation zone", () => {

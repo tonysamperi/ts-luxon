@@ -5,7 +5,7 @@ import {
   MismatchedWeekdayError,
   UnitOutOfRangeError
 } from "../../src/errors";
-import Helpers from "../helpers";
+import {Helpers} from "../helpers";
 import { GregorianDateTime } from "../../src/types/datetime";
 
 //------
