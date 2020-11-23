@@ -1,4 +1,4 @@
-import { DateTime, Interval, Duration } from "ts-luxon";
+import { DateTime, Interval, Duration } from "../../src";
 
 import {Helpers} from "../helpers";
 

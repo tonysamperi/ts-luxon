@@ -1,5 +1,5 @@
-import { DateTime, Duration } from "ts-luxon";
-import { InvalidArgumentError } from "ts-luxon/errors";
+import { DateTime, Duration } from "../../src";
+import { InvalidArgumentError } from "../../src/errors";
 
 function createDateTime() {
   return DateTime.fromObject({

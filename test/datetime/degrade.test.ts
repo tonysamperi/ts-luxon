@@ -1,5 +1,5 @@
-import { DateTime } from "ts-luxon/";
-import { InvalidZoneError, UnparsableStringError } from "ts-luxon/errors";
+import { DateTime } from "../../src";
+import { InvalidZoneError, UnparsableStringError } from "../../src/errors";
 import { Helpers } from "../helpers";
 
 //------
@@ -160,7 +160,8 @@ Helpers.withoutFTP("DateTime#offsetNameLong still works", () => {
         day: 6
       },
       {
-        zone: "America/New_York"
+        zone: "America/New_York",
+        locale: "en-US"
       }
     ).offsetNameLong
   ).toBe("Eastern Daylight Time");

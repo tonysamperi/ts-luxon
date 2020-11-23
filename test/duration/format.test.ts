@@ -1,4 +1,4 @@
-import { Duration } from "ts-luxon";
+import { Duration } from "../../src";
 
 const dur = () =>
   Duration.fromObject({

@@ -1,5 +1,5 @@
-import { DateTime, Interval, Duration } from "ts-luxon";
-import { InvalidArgumentError } from "ts-luxon/errors";
+import { DateTime, Interval, Duration } from "../../src";
+import { InvalidArgumentError } from "../../src/errors";
 
 //------
 // .fromObject()

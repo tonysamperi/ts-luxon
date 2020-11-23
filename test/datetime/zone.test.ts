@@ -1,5 +1,5 @@
-import { DateTime, Settings } from "ts-luxon";
-import { InvalidZoneError } from "ts-luxon/errors";
+import { DateTime, Settings } from "../../src";
+import { InvalidZoneError } from "../../src/errors";
 
 import { Helpers } from "../helpers";
 
@@ -155,9 +155,8 @@ test("DateTime#setZone accepts IANA zone names", () => {
   // this will only work in Chrome/V8 for now
   const zoned = dt().setZone("Europe/Paris");
   expect(zoned.zoneName).toBe("Europe/Paris");
-  // not convinced this is universal. Could also be 'CEDT'
-  expect(zoned.offsetNameShort).toBe("GMT+2");
-  expect(zoned.offsetNameLong).toBe("Central European Summer Time");
+  expect(zoned.offsetNameShort).toBe("CEST"); // TODO: check if this is universal
+  expect(zoned.offsetNameLong).toBe("Ora legale dell’Europa centrale"); // "Central European Summer Time"
   expect(zoned.valueOf()).toBe(millis);
   expect(zoned.hour).toBe(6); // cedt is +2
 });
@@ -246,9 +245,9 @@ test("Etc/GMT zones work even though V8 does not support them", () => {
 //------
 
 test("The local zone does local stuff", () => {
-  const dto = DateTime.local(2016, 8, 6, { locale: "en-US" });
-  expect(dto.offsetNameLong).toBe("Eastern Daylight Time");
-  expect(dto.offsetNameShort).toBe("EDT");
+  const dto = DateTime.local(2016, 8, 6);
+  expect(dto.offsetNameLong).toBe("Ora legale dell’Europa centrale"); // Eastern Daylight Time
+  expect(dto.offsetNameShort).toBe("CEST"); // EDT
 });
 
 test("Setting the default zone results in a different creation zone", () => {

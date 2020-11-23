@@ -1,4 +1,4 @@
-import { DateTime } from "ts-luxon";
+import { DateTime } from "../../src";
 import {
   UnitOutOfRangeError,
   InvalidArgumentError,
@@ -6,8 +6,8 @@ import {
   InvalidZoneError,
   ConflictingSpecificationError,
   InvalidUnitError
-} from "ts-luxon/errors";
-import { Settings } from "ts-luxon/settings";
+} from "../../src/errors";
+import { Settings } from "../../src/settings";
 import { Helpers } from "../helpers";
 
 const withDefaultLocale = Helpers.withDefaultLocale;

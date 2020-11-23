@@ -1,5 +1,5 @@
-import { DateTime } from "ts-luxon";
-import Settings from "ts-luxon/settings";
+import { DateTime } from "../../src";
+import { Settings} from "../../src/settings";
 
 const dateTime = DateTime.fromJSDate(new Date(1982, 4, 25, 9, 23, 54, 123)),
   utc = DateTime.fromMillis(Date.UTC(1982, 4, 25, 9, 23, 54, 123)).toUTC();

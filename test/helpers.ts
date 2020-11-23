@@ -5,7 +5,7 @@ import {
   NumberingSystem,
   CalendarSystem,
   ZoneLike
-} from "ts-luxon";
+} from "../src";
 
 const withoutIntl = (name: string, f: Function) => {
   const fullName = `With no Intl support, ${name}`;

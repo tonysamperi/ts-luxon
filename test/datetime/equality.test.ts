@@ -1,4 +1,4 @@
-import { DateTime } from "ts-luxon";
+import { DateTime } from "../../src";
 
 test("equals self", () => {
   const l = DateTime.now();

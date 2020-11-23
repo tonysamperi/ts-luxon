@@ -1,4 +1,4 @@
-import { Info } from "ts-luxon";
+import { Info } from "../../src";
 
 import {Helpers} from "../helpers";
 

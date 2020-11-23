@@ -1,5 +1,5 @@
-import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings, Zone } from "ts-luxon";
-import { InvalidZoneError } from "ts-luxon/errors";
+import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings, Zone } from "../../src";
+import { InvalidZoneError } from "../../src/errors";
 
 import {Helpers} from "../helpers";
 

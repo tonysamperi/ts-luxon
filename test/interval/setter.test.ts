@@ -1,4 +1,4 @@
-import { Interval } from "ts-luxon";
+import { Interval } from "../../src";
 
 import {Helpers} from "../helpers";
 

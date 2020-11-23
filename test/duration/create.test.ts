@@ -1,5 +1,5 @@
-import { Duration } from "ts-luxon";
-import { InvalidArgumentError, InvalidUnitError } from "ts-luxon/errors";
+import { Duration } from "../../src";
+import { InvalidArgumentError, InvalidUnitError } from "../../src/errors";
 import {Helpers} from "../helpers";
 
 //------

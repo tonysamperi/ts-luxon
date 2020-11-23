@@ -1,6 +1,6 @@
-import { Interval } from "ts-luxon";
-import { UnparsableStringError } from "ts-luxon/errors";
-import { GregorianDateTime } from "ts-luxon/types/datetime";
+import { Interval } from "../../src";
+import { UnparsableStringError } from "../../src/errors";
+import { GregorianDateTime } from "../../src/types/datetime";
 
 //------
 // .fromISO()
