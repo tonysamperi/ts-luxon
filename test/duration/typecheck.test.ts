@@ -1,4 +1,4 @@
-import { Duration } from "../../src";
+import { Duration } from "ts-luxon";
 
 //------
 // #isDuration

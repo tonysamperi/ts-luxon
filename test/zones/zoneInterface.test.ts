@@ -1,5 +1,5 @@
 /* global test expect */
-import { Zone } from "../../src";
+import { Zone } from "ts-luxon";
 
 test("You can instantiate Zone directly", () => {
   // @ts-expect-error

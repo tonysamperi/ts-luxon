@@ -1,5 +1,5 @@
-import { DateTime } from "../../src";
-import { InvalidUnitError } from "../../src/errors";
+import { DateTime } from "ts-luxon";
+import { InvalidUnitError } from "ts-luxon/errors";
 
 const dt = DateTime.fromJSDate(new Date(1982, 4, 25, 9, 23, 54, 123));
 

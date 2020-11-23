@@ -1,5 +1,5 @@
-import { DateTime } from "../../src/";
-import { InvalidZoneError, UnparsableStringError } from "../../src/errors";
+import { DateTime } from "ts-luxon/";
+import { InvalidZoneError, UnparsableStringError } from "ts-luxon/errors";
 import { Helpers } from "../helpers";
 
 //------

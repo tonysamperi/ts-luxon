@@ -1,4 +1,4 @@
-import { formatRelativeTime } from "../../src/impl/english";
+import { formatRelativeTime } from "ts-luxon/impl/english";
 
 test("today", () => {
   expect(formatRelativeTime("days", 0, "auto")).toBe("today");

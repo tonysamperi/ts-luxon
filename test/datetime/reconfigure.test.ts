@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 
 const dt = DateTime.fromObject(
   {},

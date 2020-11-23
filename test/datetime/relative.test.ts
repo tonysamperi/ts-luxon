@@ -1,4 +1,4 @@
-import DateTime from "../../src/datetime";
+import DateTime from "ts-luxon/datetime";
 
 import {Helpers} from "../helpers";
 

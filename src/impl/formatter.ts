@@ -63,7 +63,7 @@ interface FormatterOptions extends Intl.DateTimeFormatOptions {
  * @private
  */
 
-export default class Formatter {
+export class Formatter {
   // Private readonly fields
   private options: Readonly<FormatterOptions>;
   private loc: Locale;

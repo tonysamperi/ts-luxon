@@ -8,7 +8,7 @@ let singleton: FixedOffsetZone | undefined;
  * A zone with a fixed offset (meaning no DST)
  * @implements {Zone}
  */
-export default class FixedOffsetZone extends Zone {
+export class FixedOffsetZone extends Zone {
   private readonly fixed: number;
 
   /**

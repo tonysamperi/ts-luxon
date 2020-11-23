@@ -1,14 +1,14 @@
-import Duration from "../duration";
-import DateTime from "../datetime";
+import { Duration } from "../duration";
+import { DateTime } from "../datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "../types/duration";
 import { ThrowOnInvalid } from "../types/common";
 
 function dayDiff(earlier: DateTime, later: DateTime) {
   const utcDayStart = (dt: DateTime) =>
       dt
-        .toUTC(0, { keepLocalTime: true })
-        .startOf("days")
-        .valueOf(),
+      .toUTC(0, { keepLocalTime: true })
+      .startOf("days")
+      .valueOf(),
     ms = utcDayStart(later) - utcDayStart(earlier);
   return Math.floor(Duration.fromMillis(ms).as("days"));
 }
@@ -46,7 +46,8 @@ function highOrderDiffs(
       if (highWater > later) {
         cursor = cursor.plus({ [unit]: delta - 1 });
         delta -= 1;
-      } else {
+      }
+      else {
         cursor = highWater;
       }
 
@@ -57,12 +58,7 @@ function highOrderDiffs(
   return [cursor, results, highWater, lowestOrder];
 }
 
-export default function(
-  earlier: DateTime,
-  later: DateTime,
-  units: DurationUnit[],
-  options: DurationOptions & ThrowOnInvalid
-) {
+export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], options: DurationOptions & ThrowOnInvalid) => {
   // eslint-disable-next-line prefer-const
   let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
 
@@ -90,9 +86,10 @@ export default function(
 
   if (lowerOrderUnits.length > 0) {
     return Duration.fromMillis(remainingMillis, options)
-      .shiftTo(...lowerOrderUnits)
-      .plus(duration);
-  } else {
+    .shiftTo(...lowerOrderUnits)
+    .plus(duration);
+  }
+  else {
     return duration;
   }
-}
+};

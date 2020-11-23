@@ -1,6 +1,6 @@
-import { Duration } from "../../src";
-import { UnparsableStringError } from "../../src/errors";
-import { DurationObject } from "../../src/types/duration";
+import { Duration } from "ts-luxon";
+import { UnparsableStringError } from "ts-luxon/errors";
+import { DurationObject } from "ts-luxon/types/duration";
 
 //------
 // #fromISO()

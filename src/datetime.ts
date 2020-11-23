@@ -1,10 +1,10 @@
-import Duration, { friendlyDuration, DurationLike } from "./duration";
-import Interval from "./interval";
-import Settings from "./settings";
-import Info from "./info";
-import Formatter from "./impl/formatter";
-import FixedOffsetZone from "./zones/fixedOffsetZone";
-import Locale from "./impl/locale";
+import { Duration, friendlyDuration, DurationLike } from "./duration";
+import { Interval } from "./interval";
+import { Settings } from "./settings";
+import { Info } from "./info";
+import { Formatter } from "./impl/formatter";
+import { FixedOffsetZone } from "./zones/fixedOffsetZone";
+import { Locale } from "./impl/locale";
 import {
   isUndefined,
   maybeArray,
@@ -20,7 +20,7 @@ import {
   objToLocalTS
 } from "./impl/util";
 import { normalizeZone } from "./impl/zoneUtil";
-import diff from "./impl/diff";
+import { diff } from "./impl/diff";
 import { parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL } from "./impl/regexParser";
 import { parseFromTokens, explainFromTokens } from "./impl/tokenParser";
 import {
@@ -44,8 +44,8 @@ import {
   UnparsableStringError,
   InvalidZoneError
 } from "./errors";
-import SystemZone from "./zones/systemZone";
-import Zone from "./zone";
+import { SystemZone } from "./zones/systemZone";
+import { Zone } from "./zone";
 import {
   DateTimeOptions,
   ToISOTimeOptions,
@@ -134,9 +134,13 @@ function parseDataToDateTime(
         setZone: undefined
       }),
       inst = DateTime.fromObject(parsed, opts);
-    if (inst !== null) return setZone ? inst : inst.setZone(zone);
+    if (inst !== null) {
+      return setZone ? inst : inst.setZone(zone);
+    }
   }
-  if (options.nullOnInvalid) return null;
+  if (options.nullOnInvalid) {
+    return null;
+  }
   throw new UnparsableStringError(format, text);
 }
 
@@ -184,7 +188,8 @@ function toTechTimeFormat(
 
   if (includeZone) {
     fmt += "z";
-  } else if (includeOffset) {
+  }
+  else if (includeOffset) {
     fmt += format === "basic" ? "ZZZ" : "ZZ";
   }
 
@@ -273,7 +278,9 @@ function normalizeUnit(unit: string) {
   };
   const normalized = pluralMapping[unit.toLowerCase()];
 
-  if (!normalized) throw new InvalidUnitError(unit);
+  if (!normalized) {
+    throw new InvalidUnitError(unit);
+  }
 
   return normalized;
 }
@@ -283,7 +290,8 @@ function lastOpts(argList: unknown[]): [DateTimeOptions, number[]] {
     const options = argList[argList.length - 1] as {};
     const args = Array.from(argList).slice(0, argList.length - 1);
     return [options, args as number[]];
-  } else {
+  }
+  else {
     return [{}, Array.from(argList) as number[]];
   }
 }
@@ -329,7 +337,7 @@ interface Config extends DateTimeConfig {
  *
  * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
  */
-export default class DateTime {
+export class DateTime {
   // Private readonly fields
   private readonly ts: number;
   private _zone: Readonly<Zone>;
@@ -362,11 +370,14 @@ export default class DateTime {
     if (config.old !== undefined && config.old.ts === this.ts && config.old.zone.equals(zone)) {
       o = config.old.o;
       c = config.old.c;
-    } else {
+    }
+    else {
       o = zone.offset(this.ts);
       c = tsToObj(this.ts, o);
     }
-    if (Number.isNaN(c.year)) throw new InvalidArgumentError("invalid timestamp");
+    if (Number.isNaN(c.year)) {
+      throw new InvalidArgumentError("invalid timestamp");
+    }
 
     /**
      * @access private
@@ -494,7 +505,9 @@ export default class DateTime {
    */
   static fromJSDate(date: Date, options: DateTimeOptions = {}) {
     if (!isDate(date) || Number.isNaN(date.valueOf())) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError("date argument must be a valid Date");
     }
 
@@ -521,14 +534,18 @@ export default class DateTime {
    */
   static fromMillis(milliseconds: number, options: DateTimeOptions = {}) {
     if (!isNumber(milliseconds)) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError(
         `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
       );
     }
     if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
       // this isn't perfect because because we can still end up out of range because of additional shifting, but it's a start
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError("Timestamp out of range");
     }
 
@@ -555,7 +572,9 @@ export default class DateTime {
    */
   static fromSeconds(seconds: number, options: DateTimeOptions = {}) {
     if (!isNumber(seconds)) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError("fromSeconds requires a numerical input");
     }
 
@@ -608,7 +627,9 @@ export default class DateTime {
       normalized = normalizeObject(object, normalizeUnit);
       offsetProvis = zoneToUse.offset(tsNow);
     } catch (error) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw error;
     }
 
@@ -626,14 +647,18 @@ export default class DateTime {
     // otherwise just use weeks or ordinals or gregorian, depending on what's specified
 
     if ((containsGregor || containsOrdinal) && definiteWeekDef) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new ConflictingSpecificationError(
         "Can't mix weekYear/weekNumber units with year/month/day or ordinals"
       );
     }
 
     if (containsGregorMD && containsOrdinal) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new ConflictingSpecificationError("Can't mix ordinal dates with month/day");
     }
 
@@ -644,7 +669,8 @@ export default class DateTime {
     if (useWeekData) {
       const objNow = gregorianToWeek(gregorianNow);
       DateTime.normalizeWithDefaults(objNow, normalized, orderedWeekUnits, defaultWeekUnitValues);
-    } else if (containsOrdinal) {
+    }
+    else if (containsOrdinal) {
       const objNow = gregorianToOrdinal(gregorianNow);
       DateTime.normalizeWithDefaults(
         objNow,
@@ -652,7 +678,8 @@ export default class DateTime {
         orderedOrdinalUnits,
         defaultOrdinalUnitValues
       );
-    } else {
+    }
+    else {
       DateTime.normalizeWithDefaults(gregorianNow, normalized, orderedUnits, defaultUnitValues);
     }
 
@@ -660,22 +687,26 @@ export default class DateTime {
     let error: UnitError;
     if (useWeekData) {
       error = hasInvalidWeekData(normalized as WeekDateTime);
-    } else if (containsOrdinal) {
+    }
+    else if (containsOrdinal) {
       error = hasInvalidOrdinalData(normalized as OrdinalDateTime);
-    } else {
+    }
+    else {
       error = hasInvalidGregorianData(normalized as GregorianDateTime);
     }
     error = error || hasInvalidTimeData(normalized as TimeObject);
 
     if (error) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new UnitOutOfRangeError(error[0], error[1]);
     }
 
     // compute the actual time
     const gregorian = useWeekData
-        ? weekToGregorian(normalized as WeekDateTime)
-        : containsOrdinal
+      ? weekToGregorian(normalized as WeekDateTime)
+      : containsOrdinal
         ? ordinalToGregorian(normalized as OrdinalDateTime)
         : (normalized as GregorianDateTime),
       ts = objToTS(gregorian, offsetProvis, zoneToUse)[0],
@@ -687,7 +718,9 @@ export default class DateTime {
 
     // gregorian data + weekday serves only to validate
     if (normalized.weekday && containsGregor && object.weekday !== inst.weekday) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new MismatchedWeekdayError(normalized.weekday, inst.toISO());
     }
 
@@ -794,22 +827,27 @@ export default class DateTime {
    */
   static fromFormat(text: string, format: string, options: DateTimeWithZoneOptions = {}) {
     if (isUndefined(text) || isUndefined(format)) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new InvalidArgumentError("fromFormat requires an input string and a format");
     }
 
     const localeToUse = Locale.create(
-        options.locale,
-        options.numberingSystem,
-        options.outputCalendar,
-        true /* defaultToEN */
+      options.locale,
+      options.numberingSystem,
+      options.outputCalendar,
+      true /* defaultToEN */
       ),
       [vals, parsedZone, invalid] = parseFromTokens(localeToUse, text, format);
 
     if (invalid) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw new UnparsableStringError(format, text);
-    } else {
+    }
+    else {
       // Not invalid, vals and parsedZone are not undefined
       return parseDataToDateTime(
         vals as GenericDateTime | null,
@@ -1224,9 +1262,11 @@ export default class DateTime {
     zone = normalizeZone(zone, Settings.defaultZone);
     if (zone.equals(this.zone)) {
       return this;
-    } else if (!zone.isValid) {
+    }
+    else if (!zone.isValid) {
       throw new InvalidZoneError(zone.name);
-    } else {
+    }
+    else {
       let newTS = this.ts;
       if (keepLocalTime) {
         const offsetGuess = zone.offset(this.ts);
@@ -1281,9 +1321,11 @@ export default class DateTime {
     let mixed;
     if (settingWeekStuff) {
       mixed = weekToGregorian(Object.assign(gregorianToWeek(this.c), normalized));
-    } else if (!isUndefined(normalized.ordinal)) {
+    }
+    else if (!isUndefined(normalized.ordinal)) {
       mixed = ordinalToGregorian(Object.assign(gregorianToOrdinal(this.c), normalized));
-    } else {
+    }
+    else {
       mixed = Object.assign(this.toObject(), normalized);
 
       // if we didn't set the day but we ended up on an overflow date,
@@ -1320,7 +1362,7 @@ export default class DateTime {
    * See {@link DateTime#plus}
    * @param {Duration|Object} duration - The amount to subtract. Either a Luxon Duration or the object argument to Duration.fromObject()
    @return {DateTime}
-  */
+   */
   minus(duration: DurationLike) {
     const dur = friendlyDuration(duration).negate();
     return this.clone(this.adjustTime(dur));
@@ -1388,8 +1430,8 @@ export default class DateTime {
    */
   endOf(unit: DurationUnit) {
     return this.plus({ [unit]: 1 })
-      .startOf(unit)
-      .minus({ milliseconds: 1 });
+    .startOf(unit)
+    .minus({ milliseconds: 1 });
   }
 
   // OUTPUT
@@ -1504,11 +1546,11 @@ export default class DateTime {
    * @return {string}
    */
   toISOTime({
-    suppressMilliseconds = false,
-    suppressSeconds = false,
-    includeOffset = true,
-    format = "extended"
-  }: ToISOTimeOptions = {}) {
+              suppressMilliseconds = false,
+              suppressSeconds = false,
+              includeOffset = true,
+              format = "extended"
+            }: ToISOTimeOptions = {}) {
     return toTechTimeFormat(this, {
       suppressSeconds,
       suppressMilliseconds,
@@ -1692,9 +1734,13 @@ export default class DateTime {
     let units;
     try {
       units = maybeArray(unit).map(Duration.normalizeUnit);
-      if (units.length === 0) throw new InvalidArgumentError("At least one unit must be specified");
+      if (units.length === 0) {
+        throw new InvalidArgumentError("At least one unit must be specified");
+      }
     } catch (error) {
-      if (options.nullOnInvalid) return null;
+      if (options.nullOnInvalid) {
+        return null;
+      }
       throw error;
     }
 
@@ -1743,7 +1789,8 @@ export default class DateTime {
   hasSame(other: DateTime, unit: DurationUnit) {
     if (Duration.normalizeUnit(unit) === "milliseconds") {
       return this.valueOf() === other.valueOf();
-    } else {
+    }
+    else {
       const inputMs = other.valueOf();
       return this.startOf(unit).valueOf() <= inputMs && inputMs <= this.endOf(unit).valueOf();
     }
@@ -1839,7 +1886,9 @@ export default class DateTime {
     if (!dateTimes.every(DateTime.isDateTime)) {
       throw new InvalidArgumentError("min requires all arguments be DateTimes");
     }
-    if (dateTimes.length === 0) return undefined;
+    if (dateTimes.length === 0) {
+      return undefined;
+    }
     return bestBy(dateTimes, i => i.valueOf(), Math.min);
   }
 
@@ -1854,7 +1903,9 @@ export default class DateTime {
     if (!dateTimes.every(DateTime.isDateTime)) {
       throw new InvalidArgumentError("max requires all arguments be DateTimes");
     }
-    if (dateTimes.length === 0) return undefined;
+    if (dateTimes.length === 0) {
+      return undefined;
+    }
     return bestBy(dateTimes, i => i.valueOf(), Math.max);
   }
 
@@ -2109,13 +2160,16 @@ export default class DateTime {
 
       const invalid = hasInvalidGregorianData(obj) || hasInvalidTimeData(obj);
       if (invalid) {
-        if (options.nullOnInvalid) return null;
+        if (options.nullOnInvalid) {
+          return null;
+        }
         throw new UnitOutOfRangeError(invalid[0], invalid[1]);
       }
 
       const offsetProvis = zone.offset(tsNow);
       ts = objToTS(obj, offsetProvis, zone)[0];
-    } else {
+    }
+    else {
       ts = tsNow;
     }
 
@@ -2177,9 +2231,11 @@ export default class DateTime {
       const v = normalized[u];
       if (!isUndefined(v)) {
         foundFirst = true;
-      } else if (foundFirst) {
+      }
+      else if (foundFirst) {
         normalized[u] = defaultValues[u];
-      } else {
+      }
+      else {
         normalized[u] = objNow[u];
       }
     }
@@ -2193,7 +2249,9 @@ export default class DateTime {
       format = (c: number, unit: Intl.RelativeTimeFormatUnit) => {
         c = roundTo(c, round || options.calendary ? 0 : 2, true);
         const rtfOptions: Intl.RelativeTimeFormatOptions = { numeric: options.numeric };
-        if (options.style) rtfOptions.style = options.style;
+        if (options.style) {
+          rtfOptions.style = options.style;
+        }
         const formatter = end.loc.clone(options).relFormatter(rtfOptions);
         return formatter.format(c, unit);
       },
@@ -2201,11 +2259,15 @@ export default class DateTime {
         if (options.calendary) {
           if (!end.hasSame(start, unit)) {
             return end
-              .startOf(unit)
-              .diff(start.startOf(unit), unit)
-              .get(unit);
-          } else return 0;
-        } else {
+            .startOf(unit)
+            .diff(start.startOf(unit), unit)
+            .get(unit);
+          }
+          else {
+            return 0;
+          }
+        }
+        else {
           return end.diff(start, unit).get(unit);
         }
       };

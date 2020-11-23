@@ -1,4 +1,4 @@
-import { Interval, DateTime } from "../../src";
+import { Interval, DateTime } from "ts-luxon";
 
 //------
 // #isInterval

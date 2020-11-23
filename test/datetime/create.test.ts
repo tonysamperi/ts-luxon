@@ -1,5 +1,4 @@
-import { DateTime } from "../../src";
-
+import { DateTime } from "ts-luxon";
 import {
   UnitOutOfRangeError,
   InvalidArgumentError,
@@ -7,16 +6,14 @@ import {
   InvalidZoneError,
   ConflictingSpecificationError,
   InvalidUnitError
-} from "../../src/errors";
+} from "ts-luxon/errors";
+import { Settings } from "ts-luxon/settings";
+import { Helpers } from "../helpers";
 
-import Settings from "../../src/settings";
-
-import {Helpers} from "../helpers";
-
-const withDefaultLocale = Helpers.withDefaultLocale,
-  withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem,
-  withDefaultOutputCalendar = Helpers.withDefaultOutputCalendar,
-  withDefaultZone = Helpers.withDefaultZone;
+const withDefaultLocale = Helpers.withDefaultLocale;
+const withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem;
+const withDefaultOutputCalendar = Helpers.withDefaultOutputCalendar;
+const withDefaultZone = Helpers.withDefaultZone;
 
 //------
 // .now()
@@ -457,7 +454,7 @@ test("DateTime.fromObject() sets all the fields", () => {
   expect(dateTime.millisecond).toBe(123);
 });
 
-test('DateTime.fromObject() accepts a zone option of "utc"', () => {
+test("DateTime.fromObject() accepts a zone option of \"utc\"", () => {
   const dateTime = DateTime.fromObject(baseObject, { zone: "utc" });
 
   expect(dateTime.isOffsetFixed).toBe(true);
@@ -470,7 +467,7 @@ test('DateTime.fromObject() accepts a zone option of "utc"', () => {
   expect(dateTime.millisecond).toBe(123);
 });
 
-test('DateTime.fromObject() accepts "utc-8" as the zone option', () => {
+test("DateTime.fromObject() accepts \"utc-8\" as the zone option", () => {
   const dateTime = DateTime.fromObject(baseObject, { zone: "utc-8" });
 
   expect(dateTime.isOffsetFixed).toBe(true);
@@ -484,7 +481,7 @@ test('DateTime.fromObject() accepts "utc-8" as the zone option', () => {
   expect(dateTime.millisecond).toBe(123);
 });
 
-test('DateTime.fromObject() accepts "America/Los_Angeles" as the zone option', () => {
+test("DateTime.fromObject() accepts \"America/Los_Angeles\" as the zone option", () => {
   const dateTime = DateTime.fromObject(baseObject, { zone: "America/Los_Angeles" });
 
   expect(dateTime.isOffsetFixed).toBe(false);

@@ -1,6 +1,11 @@
-import { DateTime, Settings, Duration } from "../src";
-import { NumberingSystem, CalendarSystem } from "../dist/types/locale";
-import { ZoneLike } from "../dist/types/zone";
+import {
+  DateTime,
+  Settings,
+  Duration,
+  NumberingSystem,
+  CalendarSystem,
+  ZoneLike
+} from "ts-luxon";
 
 const withoutIntl = (name: string, f: Function) => {
   const fullName = `With no Intl support, ${name}`;

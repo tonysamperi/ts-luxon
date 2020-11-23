@@ -74,7 +74,7 @@ let ianaZoneCache: Record<string, IANAZone> = {};
  * A zone identified by an IANA identifier, like America/New_York
  * @implements {Zone}
  */
-export default class IANAZone extends Zone {
+export class IANAZone extends Zone {
   private readonly zoneName: string;
   private readonly valid: boolean;
 

@@ -1,7 +1,7 @@
-import { DateTime, Settings } from "../../src";
-import { InvalidZoneError } from "../../src/errors";
+import { DateTime, Settings } from "ts-luxon";
+import { InvalidZoneError } from "ts-luxon/errors";
 
-import {Helpers} from "../helpers";
+import { Helpers } from "../helpers";
 
 const millis = 391147200000,
   // 1982-05-25T04:00:00.000Z
@@ -40,8 +40,8 @@ test("DateTime#utc(offset) sets dt in UTC+offset 'mode'", () => {
 //------
 test("DateTime#toDefaultZone() sets the DateTime back to default zone", () => {
   const rezoned = dt()
-      .toUTC()
-      .toDefaultZone(),
+    .toUTC()
+    .toDefaultZone(),
     expected = new Date(millis).getHours();
   expect(rezoned.isOffsetFixed).toBe(false);
   expect(rezoned.valueOf()).toBe(millis);
@@ -60,8 +60,8 @@ test("DateTime#toDefaultZone() returns the default time zone", () => {
 //------
 test("DateTime#toSystemZone() sets the zone back to system zone", () => {
   const rezoned = dt()
-      .toUTC()
-      .toSystemZone(),
+    .toUTC()
+    .toSystemZone(),
     expected = new Date(millis).getHours();
   expect(rezoned.isOffsetFixed).toBe(false);
   expect(rezoned.valueOf()).toBe(millis);
@@ -116,14 +116,14 @@ test("DateTime#setZone accepts 'default' and uses the default zone", () => {
   });
 });
 
-test('DateTime#setZone accepts "utc"', () => {
+test("DateTime#setZone accepts \"utc\"", () => {
   const zoned = DateTime.local().setZone("utc");
   expect(zoned.offset).toBe(0);
   expect(zoned.offsetNameShort).toBe("UTC");
   expect(zoned.offsetNameLong).toBe("UTC");
 });
 
-test('DateTime#setZone accepts "utc+3"', () => {
+test("DateTime#setZone accepts \"utc+3\"", () => {
   const zoned = DateTime.local().setZone("utc+3");
   expect(zoned.zone.name).toBe("UTC+3");
   expect(zoned.offset).toBe(3 * 60);
@@ -131,7 +131,7 @@ test('DateTime#setZone accepts "utc+3"', () => {
   expect(zoned.offsetNameLong).toBe("UTC+3");
 });
 
-test('DateTime#setZone accepts "utc-3"', () => {
+test("DateTime#setZone accepts \"utc-3\"", () => {
   const zoned = DateTime.local().setZone("utc-3");
   expect(zoned.zone.name).toBe("UTC-3");
   expect(zoned.offset).toBe(-3 * 60);
@@ -139,7 +139,7 @@ test('DateTime#setZone accepts "utc-3"', () => {
   expect(zoned.offsetNameLong).toBe("UTC-3");
 });
 
-test('DateTime#setZone accepts "utc-3:30"', () => {
+test("DateTime#setZone accepts \"utc-3:30\"", () => {
   const zoned = DateTime.local().setZone("utc-3:30");
   expect(zoned.zone.name).toBe("UTC-3:30");
   expect(zoned.offset).toBe(-3 * 60 - 30);
@@ -164,8 +164,8 @@ test("DateTime#setZone accepts IANA zone names", () => {
 
 test("DateTime#setZone accepts a keepLocalTime option", () => {
   const zoned = dt()
-    .toUTC()
-    .setZone("America/Los_Angeles", { keepLocalTime: true });
+  .toUTC()
+  .setZone("America/Los_Angeles", { keepLocalTime: true });
   expect(zoned.zoneName).toBe("America/Los_Angeles");
   expect(zoned.year).toBe(1982);
   expect(zoned.month).toBe(5);
@@ -246,9 +246,7 @@ test("Etc/GMT zones work even though V8 does not support them", () => {
 //------
 
 test("The local zone does local stuff", () => {
-  const dto = DateTime.local(2016, 8, 6);
-  const fixedDto = DateTime.now()
-  dto.setLocale("en-US");
+  const dto = DateTime.local(2016, 8, 6, { locale: "en-US" });
   expect(dto.offsetNameLong).toBe("Eastern Daylight Time");
   expect(dto.offsetNameShort).toBe("EDT");
 });

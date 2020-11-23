@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 
 const dateTime = DateTime.fromJSDate(new Date(1982, 4, 25, 9, 23, 54, 123));
 

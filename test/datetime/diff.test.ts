@@ -1,8 +1,8 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 
 import {Helpers} from "../helpers";
-import { GenericDateTime } from "../../src/types/datetime";
-import { DurationUnit } from "../../src/types/duration";
+import { GenericDateTime } from "ts-luxon/types/datetime";
+import { DurationUnit } from "ts-luxon/types/duration";
 
 //------
 // diff

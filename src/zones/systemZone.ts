@@ -1,5 +1,5 @@
 import { formatOffset, parseZoneInfo, hasIntl } from "../impl/util";
-import Zone from "../zone";
+import { Zone} from "../zone";
 import { ZoneOffsetFormat, ZoneOffsetOptions } from "../types/zone";
 
 let singleton: SystemZone | null = null;
@@ -8,7 +8,7 @@ let singleton: SystemZone | null = null;
  * Represents the system's local zone for this Javascript environment.
  * @implements {Zone}
  */
-export default class SystemZone extends Zone {
+export class SystemZone extends Zone {
   /**
    * Get a singleton instance of the system's local zone
    * @return {SystemZone}

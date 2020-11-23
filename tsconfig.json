@@ -1,9 +1,17 @@
 {
-  "include": ["src", "types"],
+  "include": [
+    "src",
+    "types"
+  ],
+  "exclude": [
+    "test"
+  ],
   "compilerOptions": {
     "module": "esnext",
     "target": "es5",
-    "lib": ["es5"],
+    "lib": [
+      "es5"
+    ],
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
@@ -15,7 +23,8 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "*": ["src/*", "node_modules/*"]
+      "ts-luxon": ["./dist"],
+      "ts-luxon/*": ["./dist/*"]
     },
     "esModuleInterop": true,
     "outDir": "dist/lib"

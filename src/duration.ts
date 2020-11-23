@@ -185,7 +185,7 @@ interface Config {
  *
  * There are more methods documented below. In addition, for more information on subtler topics like internationalization and validity, see the external documentation.
  */
-export default class Duration {
+export class Duration {
   // Private readonly fields
   private values: Readonly<NormalizedDurationObject>;
   private loc: Locale;

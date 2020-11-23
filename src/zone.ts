@@ -11,7 +11,7 @@ function silenceUnusedWarning(...args: unknown[]) {
  * An abstract Zone class
  * @interface
  */
-export default abstract class Zone {
+export abstract class Zone {
   /**
    * The type of zone
    * @abstract

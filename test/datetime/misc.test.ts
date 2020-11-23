@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 
 // you hate to see a class like this, but here we are
 

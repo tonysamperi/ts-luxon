@@ -6,7 +6,8 @@
     "rootDir": "./test",
     "baseUrl": "./",
     "paths": {
-      "ts-luxon": "./dist"
+      "ts-luxon": ["../dist"],
+      "ts-luxon/*": ["../dist/*"]
     }
   },
   "exclude": [

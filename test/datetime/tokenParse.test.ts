@@ -1,12 +1,12 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 import {
   ConflictingSpecificationError,
   UnparsableStringError,
   MismatchedWeekdayError,
   UnitOutOfRangeError
-} from "../../src/errors";
+} from "ts-luxon/errors";
 import {Helpers} from "../helpers";
-import { GregorianDateTime } from "../../src/types/datetime";
+import { GregorianDateTime } from "ts-luxon/types/datetime";
 
 //------
 // .fromFormat

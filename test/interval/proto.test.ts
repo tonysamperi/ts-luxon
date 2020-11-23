@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime } from "ts-luxon";
 
 test("Interval prototype properties should not throw when addressed", () => {
   const i = DateTime.fromISO("2018-01-01").until(DateTime.fromISO("2018-01-02"));

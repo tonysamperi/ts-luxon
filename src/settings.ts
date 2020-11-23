@@ -1,6 +1,6 @@
-import SystemZone from "./zones/systemZone";
-import IANAZone from "./zones/IANAZone";
-import Locale from "./impl/locale";
+import { SystemZone } from "./zones/systemZone";
+import { IANAZone } from "./zones/IANAZone";
+import { Locale } from "./impl/locale";
 
 import { normalizeZone } from "./impl/zoneUtil";
 import { NumberingSystem, CalendarSystem } from "./types/locale";
@@ -15,7 +15,7 @@ let now = () => Date.now(),
 /**
  * Settings contains static getters and setters that control Luxon's overall behavior. Luxon is a simple library with few options, but the ones it does have live here.
  */
-export default class Settings {
+export class Settings {
   /**
    * Get the callback for returning the current timestamp.
    * @type {function}

@@ -1,4 +1,4 @@
-import { Duration } from "../../src";
+import { Duration } from "ts-luxon";
 import {Helpers} from "../helpers";
 
 const dur = Duration.fromObject(

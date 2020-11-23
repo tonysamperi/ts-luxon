@@ -315,7 +315,7 @@ type EraCache = Partial<Record<StringUnitLength, string[]>>;
 /**
  * @private
  */
-export default class Locale {
+export class Locale {
   public readonly locale: string;
   public numberingSystem?: Readonly<NumberingSystem>;
   public outputCalendar?: Readonly<CalendarSystem>;

@@ -1,4 +1,4 @@
-import { FixedOffsetZone, IANAZone } from "../../src";
+import { FixedOffsetZone, IANAZone } from "ts-luxon";
 
 test("FixedOffsetZone.utcInstance returns a singleton", () => {
   expect(FixedOffsetZone.utcInstance).toBe(FixedOffsetZone.utcInstance);

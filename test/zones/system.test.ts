@@ -1,4 +1,4 @@
-import { SystemZone } from "../../src";
+import { SystemZone } from "ts-luxon";
 import {Helpers} from "../helpers";
 
 test("SystemZone.instance returns a singleton", () => {

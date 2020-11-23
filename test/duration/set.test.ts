@@ -1,4 +1,4 @@
-import { Duration } from "../../src";
+import { Duration } from "ts-luxon";
 
 //------
 // years/months/days/hours/minutes/seconds/milliseconds
