@@ -15,7 +15,9 @@ Here are some vague notes on Luxon's design philosophy:
 
 ## Building and testing
 
-Building and testing is done through npm scripts. The tests run in Node and require Node 10+ with full-icu support. This is because some of the features available in Luxon (like internationalization and time zones) need that stuff and we test it all. On any platform, if you have Node 10 installed with full-icu, you're good to go; just run npm scripts like `npm run test`. But you probably don't have that, so read on.
+Building and testing is done through npm scripts. The tests run in Node and require Node 10+ with full-icu support. This is because some of the features available in TS-Luxon (like internationalization and time zones) need that stuff and we test it all. On any platform, if you have Node 10 installed with full-icu, you're good to go; just run npm scripts like `npm run test`. But you probably don't have that, so read on.
+
+
 
 ### OSX
 
@@ -50,21 +52,29 @@ I would love to add instructions for a non-WSL install of the dev env!
 
 ### Docker
 
-In case messing with your Node environment just to run Luxon's tests is too much to ask, we've provided a Docker container. You'll need a functioning Docker environment, but the rest is easy:
+In case messing with your Node environment just to run TSLuxon's tests is too much to ask, we've provided a Docker container.
+You'll need a functioning Docker environment, but the rest is easy:
+
+Download the latest image *tonysamperi/ts-luxon* and run the following commands in the terminal:
 
 ```
-./docker/npm install
-./docker/npm run test
+# apt-get update
+# apt-get install -y git
+# mkdir /home/ts-luxon
+# cd /home/ts-luxon
+# git clone https://github.com/tonysamperi/ts-luxon
+# npm run build
+# npm run test
 ```
 
 ## Patch basics
 
-Once you're sure your bugfix or feature makes sense for Luxon, make sure you take these steps:
+Once you're sure your bugfix or feature makes sense for TSLuxon, make sure you take these steps:
 
 1.  Be sure to add tests and run them with `scripts/test`
-1.  Be sure you run `npm run lint!` before you commit. Note this will modify your source files to line up with the style guidelines.
+1.  Be sure you run `npm run lint` before you commit. Note this will modify your source files to line up with the style guidelines.
 1.  Make sure you add or ESDoc annotations appropriately. You can run `npm run docs` to generate the HTML for them. They land in the `build/docs` directory. This also builds the markdown files in `/docs` into the guide on the Luxon website.
-1.  To test Luxon in your browser, run `npm run site` and then open `build/demo/global.html`. You can access Luxon classes in the console like `window.luxon.DateTime`.
+1.  To test TSLuxon in your browser, run `npm run site` and then open `build/demo/global.html`. You can access TSLuxon classes in the console like `window.luxon.DateTime`.
 1.  To test in Node, run `npm run build` and then run something like `var DateTime = require('./build/cjs/luxon').DateTime`.
 
 Luxon uses [Husky](https://github.com/typicode/husky) to run the formatter on your code as a pre-commit hook. You should still run `npm run lint!` yourself to catch other issues, but this hook will help prevent you from failing the build with a trivial formatting error.
@@ -74,10 +84,8 @@ Luxon uses [Husky](https://github.com/typicode/husky) to run the formatter on yo
 | Command                      | Function                                |
 | ---------------------------- | --------------------------------------- |
 | `npm run build`              | Build all the distributable files       |
-| `npm run build-node`         | Build just for Node                     |
 | `npm run test`               | Run the test suite, but see notes above |
-| `npm run format`             | Run the Prettier formatter              |
-| `npm run lint!`              | Run the formatter and the linter        |
+| `npm run lint`               | Run the formatter and the linter        |
 | `npm run docs`               | Build the doc pages                     |
-| `npm run site`               | Build the Luxon website                 |
+| `npm run site`               | Build the TSLuxon website               |
 | `npm run check-doc-coverage` | Check whether there's full doc coverage |
