@@ -5,5 +5,5 @@ before_install:
   - docker pull tonysamperi/ts-luxon
   - docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
 script:
-  - docker run -it --rm -v tonysamperi/ts-luxon:latest -w /ts-luxon tonysamperi/ts-luxon npm install
-  - docker run -it --rm -v tonysamperi/ts-luxon:latest -w /ts-luxon tonysamperi/ts-luxon npm run test
+  - docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
+  - docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm install
