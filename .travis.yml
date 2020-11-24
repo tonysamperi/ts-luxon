@@ -3,11 +3,11 @@ services:
   - docker
 before_install:
   - docker pull tonysamperi/ts-luxon
-  - sudo ./docker/npm install
+  - apt-get update
+  - apt-get install -y git
+  - mkdir /home/ts-luxon
+  - cd /home/ts-luxon
+  - git clone https://github.com/tonysamperi/ts-luxon
 script:
-  - sudo ./docker/npm run build
-  - sudo ./docker/npm run lint
-  - sudo ./docker/npm run test
-  - sudo ./docker/npm run docs
-  - sudo ./docker/npm run check-doc-coverage
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run build
+  - npm run test
