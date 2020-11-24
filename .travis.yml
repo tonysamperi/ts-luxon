@@ -3,6 +3,6 @@ services:
   - docker
 before_install:
   - docker pull tonysamperi/ts-luxon
-  - docker build -t tonysamperi/ts-luxon -f ./dockerfile/Dockerfile .
+  - docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
 script:
   - docker run -e CI=true tonysamperi/ts-luxon npm run test
