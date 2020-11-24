@@ -3,11 +3,6 @@ services:
   - docker
 before_install:
   - docker pull tonysamperi/ts-luxon
-  - apt-get update
-  - apt-get install -y git
-  - mkdir /home/ts-luxon
-  - cd /home/ts-luxon
-  - git clone https://github.com/tonysamperi/ts-luxon
+  - docker build -t tonysamperi/ts-luxon -f ./dockerfile/Dockerfile .
 script:
-  - npm run build
-  - npm run test
+  - docker run -e CI=true tonysamperi/ts-luxon npm run test
