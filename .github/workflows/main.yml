@@ -35,3 +35,13 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           dockerfile: ./docker/Dockerfile
+
+      - name: Get docker container
+        run: docker pull tonysamperi/ts-luxon
+
+      - name: Install deps
+        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm install
+
+      - name: Launch Jest
+        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm run test
+
