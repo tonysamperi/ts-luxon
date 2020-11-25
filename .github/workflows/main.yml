@@ -40,11 +40,5 @@ jobs:
         run: docker pull tonysamperi/ts-luxon
 
       - name: Install deps
-        run: docker run -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm install
-
-      - name: Build TSLuxon
-        run: docker run -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm run build
-
-      - name: Launch Jest
-        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm run test
+        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
 
