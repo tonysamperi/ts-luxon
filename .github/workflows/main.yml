@@ -39,6 +39,6 @@ jobs:
       - name: Get docker container
         run: docker pull tonysamperi/ts-luxon
 
-      - name: Install deps
+      - name: Run test flow
         run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
 

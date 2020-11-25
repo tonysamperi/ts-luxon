@@ -17,7 +17,7 @@ Here are some vague notes on Luxon's design philosophy:
 
 Building and testing is done through npm scripts. The tests run in Node and require Node 10+ with full-icu support. This is because some of the features available in TS-Luxon (like internationalization and time zones) need that stuff and we test it all. On any platform, if you have Node 10 installed with full-icu, you're good to go; just run npm scripts like `npm run test`. But you probably don't have that, so read on.
 
-
+**IMPORTANT: your tests will likely fail if you're not in Italy, that's why I strongly suggest using docker for a guaranteed success!**
 
 ### OSX
 
@@ -55,12 +55,26 @@ I would love to add instructions for a non-WSL install of the dev env!
 In case messing with your Node environment just to run TSLuxon's tests is too much to ask, we've provided a Docker container.
 You'll need a functioning Docker environment, but the rest is easy:
 
-Download the latest image *tonysamperi/ts-luxon* and run the following commands in the terminal:
+ON BOTH UNIX OR WINDOWS this will build a local image with your sources
 
 ```
-# npm run build
-# npm run test
+# cd /path/to/ts-luxon-folder 
+# docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
 ```
+
+ON UNIX
+
+```
+# docker run --rm -v ${pwd}/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
+```
+
+ON WINDOWS:
+
+```
+# docker run --rm -v %CD%:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
+```
+
+If you get to the tests and all the tests passed, then you're good! :)
 
 ## Patch basics
 
