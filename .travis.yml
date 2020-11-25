@@ -1,7 +1,0 @@
-dist: focal
-services:
-  - docker
-before_install:
-  - docker pull tonysamperi/ts-luxon
-script:
-  - docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon npm install

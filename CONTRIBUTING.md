@@ -58,11 +58,6 @@ You'll need a functioning Docker environment, but the rest is easy:
 Download the latest image *tonysamperi/ts-luxon* and run the following commands in the terminal:
 
 ```
-# apt-get update
-# apt-get install -y git
-# mkdir /home/ts-luxon
-# cd /home/ts-luxon
-# git clone https://github.com/tonysamperi/ts-luxon
 # npm run build
 # npm run test
 ```

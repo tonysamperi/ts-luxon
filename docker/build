@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-docker build docker -t tonysamperi/ts-luxon
 docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
