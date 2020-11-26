@@ -1792,7 +1792,9 @@ export class DateTime {
     }
     else {
       const inputMs = other.valueOf();
-      return this.startOf(unit).valueOf() <= inputMs && inputMs <= this.endOf(unit).valueOf();
+      const otherZoneDateTime = this.setZone(other.zone, { keepLocalTime: true });
+
+      return +otherZoneDateTime.startOf(unit) <= inputMs && inputMs <= +otherZoneDateTime.endOf(unit);
     }
   }
 
