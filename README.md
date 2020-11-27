@@ -45,8 +45,8 @@ Pleas, read the CONTRIBUTING.md you can find in the master branch.
 [luxon-umd-lnk]: https://tonysamperi.github.io/ts-luxon/dist/ts-luxon.umd.js
 [luxon-umd-min-lnk]: https://tonysamperi.github.io/ts-luxon/dist/ts-luxon.umd.min.js
 
-[gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22CI+to+Docker+Hub%22
-[gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/CI%20to%20Docker%20Hub/badge.svg?branch=master
+[gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22Docker+tests%22
+[gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/Docker%20tests/badge.svg?branch=master
 
 [npm-url]: https://npmjs.org/package/ts-luxon
 [npm-version-image]: https://badge.fury.io/js/ts-luxon.svg
