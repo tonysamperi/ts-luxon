@@ -10,8 +10,7 @@
     "module": "esnext",
     "target": "es5",
     "lib": [
-      "es5",
-      "es2018.intl"
+      "es5"
     ],
     "importHelpers": true,
     "declaration": true,

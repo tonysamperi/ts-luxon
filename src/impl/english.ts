@@ -2,7 +2,8 @@ import * as Formats from "./formats";
 import { pick } from "./util";
 import { UnitLength, StringUnitLength } from "../types/common";
 import { DateTime } from "../datetime";
-import { Duration} from "../duration";
+import { Duration } from "../duration";
+import Intl from "../types/intl-2020";
 
 function stringify(obj: Record<string, unknown>) {
   return JSON.stringify(obj, Object.keys(obj).sort());
@@ -172,8 +173,8 @@ export function formatRelativeTime(
         ? unitTexts[1]
         : unitTexts[2] || unitTexts[1]
       : singular
-      ? unitTexts[0]
-      : normalizedUnit;
+        ? unitTexts[0]
+        : normalizedUnit;
   return isInPast ? `${formatValue} ${formatUnit} ago` : `in ${formatValue} ${formatUnit}`;
 }
 

@@ -65,6 +65,7 @@ import { DurationUnit, DurationOptions } from "./types/duration";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "./types/locale";
 import { ThrowOnInvalid } from "./types/common";
 import { ZoneLike } from "./types/zone";
+import Intl from "./types/intl-2020";
 
 const MAX_DATE = 8.64e15;
 

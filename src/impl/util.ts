@@ -50,7 +50,7 @@ export function hasFormatToParts() {
 
 export function hasRelative() {
   try {
-    return typeof Intl !== "undefined" && !!Intl.RelativeTimeFormat;
+    return typeof Intl !== "undefined" && !!(Intl as any).RelativeTimeFormat;
   } catch (e) {
     return false;
   }

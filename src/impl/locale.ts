@@ -3,6 +3,7 @@ import * as English from "./english";
 import { Settings } from "../settings";
 import { DateTime } from "../datetime";
 import { Formatter } from "./formatter";
+import Intl from "../types/intl-2020";
 
 import { StringUnitLength, UnitLength } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "../types/locale";
@@ -364,6 +365,7 @@ export class Locale {
 
     return this._fastNumbersCached;
   }
+
   public readonly locale: string;
   public numberingSystem?: Readonly<NumberingSystem>;
   public outputCalendar?: Readonly<CalendarSystem>;
@@ -389,6 +391,7 @@ export class Locale {
       localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale()),
       numberingSystemR = numberingSystem || Settings.defaultNumberingSystem,
       outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
+
     return new Locale(localeR, numberingSystemR, outputCalendarR, specifiedLocale);
   }
 
