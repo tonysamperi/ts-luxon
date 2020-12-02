@@ -25,8 +25,8 @@ export class Info {
       return false;
     }
     const proto = DateTime.now()
-    .setZone(zoneObj)
-    .set({ month: 12 });
+      .setZone(zoneObj)
+      .set({ month: 12 });
 
     return !zoneObj.isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
   }

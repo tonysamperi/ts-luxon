@@ -1,8 +1,10 @@
 *.log
 .DS_Store
 node_modules/
+_node_modules/
 coverage/
 dist/
 transpiled/
 .idea/
 .vscode/
+*.tgz

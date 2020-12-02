@@ -56,9 +56,9 @@ interface Config {
  */
 export class Interval {
   // Private readonly fields
-  private s: DateTime;
-  private e: DateTime;
-  private readonly isLuxonInterval: true;
+  private _s: DateTime;
+  private _e: DateTime;
+  private readonly _isLuxonInterval: true;
 
   /**
    * @private
@@ -69,15 +69,31 @@ export class Interval {
     /**
      * @access private
      */
-    this.s = config.start as DateTime;
+    this._s = config.start as DateTime;
     /**
      * @access private
      */
-    this.e = config.end as DateTime;
+    this._e = config.end as DateTime;
     /**
      * @access private
      */
-    this.isLuxonInterval = true;
+    this._isLuxonInterval = true;
+  }
+
+  /**
+   * Returns the start of the Interval
+   * @type {DateTime}
+   */
+  get start() {
+    return this._s;
+  }
+
+  /**
+   * Returns the end of the Interval
+   * @type {DateTime}
+   */
+  get end() {
+    return this._e;
   }
 
   /**
@@ -169,23 +185,76 @@ export class Interval {
    * @return {boolean}
    */
   static isInterval(o: unknown): o is Interval {
-    return (o && (o as Interval).isLuxonInterval) || false;
+    return (o && (o as Interval)._isLuxonInterval) || false;
   }
 
   /**
-   * Returns the start of the Interval
-   * @type {DateTime}
+   * Merge an array of Intervals into a equivalent minimal set of Intervals.
+   * Combines overlapping and adjacent Intervals.
+   * @param {[Interval]} intervals
+   * @return {[Interval]}
    */
-  get start() {
-    return this.s;
+  static merge(intervals: Interval[]) {
+    const [found, final] = intervals
+      .sort((a, b) => a._s.valueOf() - b._s.valueOf())
+      .reduce<[Interval[], Interval | null]>(
+        ([sofar, current], item) => {
+          if (!current) {
+            return [sofar, item];
+          }
+          else if (current.overlaps(item) || current.abutsStart(item)) {
+            return [sofar, current.union(item)];
+          }
+          else {
+            return [sofar.concat([current]), item];
+          }
+        },
+        [[], null]
+      );
+    if (final) {
+      found.push(final);
+    }
+    return found;
   }
 
   /**
-   * Returns the end of the Interval
-   * @type {DateTime}
+   * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
+   * @param {[Interval]} intervals
+   * @return {[Interval]}
    */
-  get end() {
-    return this.e;
+  static xor(intervals: Interval[]) {
+    let start: DateTime | null = null,
+      currentCount = 0;
+
+    interface IntervalBoundary {
+      time: DateTime;
+      type: "s" | "e";
+    }
+
+    const results = [],
+      ends = intervals.map(i => [
+        { time: i._s, type: "s" },
+        { time: i._e, type: "e" }
+      ]),
+      flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
+      arr = flattened.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+
+    for (const i of arr) {
+      currentCount += i.type === "s" ? 1 : -1;
+
+      if (currentCount === 1) {
+        start = i.time;
+      }
+      else {
+        if (start && start.valueOf() !== i.time.valueOf()) {
+          results.push(Interval.fromDateTimes(start, i.time));
+        }
+
+        start = null;
+      }
+    }
+
+    return Interval.merge(results);
   }
 
   /**
@@ -216,7 +285,7 @@ export class Interval {
    * @return {boolean}
    */
   hasSame(unit: DurationUnit) {
-    return this.isEmpty() || this.e.minus({ milliseconds: 1 }).hasSame(this.s, unit);
+    return this.isEmpty() || this._e.minus({ milliseconds: 1 }).hasSame(this._s, unit);
   }
 
   /**
@@ -224,7 +293,7 @@ export class Interval {
    * @return {boolean}
    */
   isEmpty() {
-    return this.s.valueOf() === this.e.valueOf();
+    return this._s.valueOf() === this._e.valueOf();
   }
 
   /**
@@ -233,7 +302,7 @@ export class Interval {
    * @return {boolean}
    */
   isAfter(dateTime: DateTime) {
-    return this.s > dateTime;
+    return this._s > dateTime;
   }
 
   /**
@@ -242,7 +311,7 @@ export class Interval {
    * @return {boolean}
    */
   isBefore(dateTime: DateTime) {
-    return this.e <= dateTime;
+    return this._e <= dateTime;
   }
 
   /**
@@ -251,7 +320,7 @@ export class Interval {
    * @return {boolean}
    */
   contains(dateTime: DateTime) {
-    return this.s <= dateTime && this.e > dateTime;
+    return this._s <= dateTime && this._e > dateTime;
   }
 
   /**
@@ -262,7 +331,7 @@ export class Interval {
    * @return {Interval}
    */
   set({ start, end }: IntervalObject) {
-    return Interval.fromDateTimes(start || this.s, end || this.e);
+    return Interval.fromDateTimes(start || this._s, end || this._e);
   }
 
   /**
@@ -274,14 +343,14 @@ export class Interval {
     const sorted = dateTimes
       .map(friendlyDateTime)
       .filter(d => this.contains(d))
-      .sort(),
-      results = [];
-    let { s } = this,
+      .sort();
+    const results = [];
+    let s = this._s,
       i = 0;
 
-    while (s < this.e) {
-      const added = sorted[i] || this.e,
-        next = +added > +this.e ? this.e : added;
+    while (s < this._e) {
+      const added = sorted[i] || this._e,
+        next = +added > +this._e ? this._e : added;
       results.push(Interval.fromDateTimes(s, next));
       s = next;
       i += 1;
@@ -303,14 +372,14 @@ export class Interval {
       return [];
     }
 
-    let { s } = this,
+    let s = this._s,
       added,
       next;
 
     const results = [];
-    while (s < this.e) {
+    while (s < this._e) {
       added = s.plus(dur);
-      next = +added > +this.e ? this.e : added;
+      next = +added > +this._e ? this._e : added;
       results.push(Interval.fromDateTimes(s, next));
       s = next;
     }
@@ -333,7 +402,7 @@ export class Interval {
    * @return {boolean}
    */
   overlaps(other: Interval) {
-    return this.e > other.s && this.s < other.e;
+    return this._e > other._s && this._s < other._e;
   }
 
   /**
@@ -342,7 +411,7 @@ export class Interval {
    * @return {boolean}
    */
   abutsStart(other: Interval) {
-    return +this.e === +other.s;
+    return +this._e === +other._s;
   }
 
   /**
@@ -351,7 +420,7 @@ export class Interval {
    * @return {boolean}
    */
   abutsEnd(other: Interval) {
-    return +other.e === +this.s;
+    return +other._e === +this._s;
   }
 
   /**
@@ -360,7 +429,7 @@ export class Interval {
    * @return {boolean}
    */
   engulfs(other: Interval) {
-    return this.s <= other.s && this.e >= other.e;
+    return this._s <= other._s && this._e >= other._e;
   }
 
   /**
@@ -369,7 +438,7 @@ export class Interval {
    * @return {boolean}
    */
   equals(other: Interval) {
-    return this.s.equals(other.s) && this.e.equals(other.e);
+    return this._s.equals(other._s) && this._e.equals(other._e);
   }
 
   /**
@@ -380,8 +449,8 @@ export class Interval {
    * @return {Interval|null}
    */
   intersection(other: Interval) {
-    const s = this.s > other.s ? this.s : other.s,
-      e = this.e < other.e ? this.e : other.e;
+    const s = this._s > other._s ? this._s : other._s,
+      e = this._e < other._e ? this._e : other._e;
 
     if (s > e) {
       return null;
@@ -398,78 +467,9 @@ export class Interval {
    * @return {Interval}
    */
   union(other: Interval) {
-    const s = this.s < other.s ? this.s : other.s,
-      e = this.e > other.e ? this.e : other.e;
+    const s = this._s < other._s ? this._s : other._s,
+      e = this._e > other._e ? this._e : other._e;
     return Interval.fromDateTimes(s, e);
-  }
-
-  /**
-   * Merge an array of Intervals into a equivalent minimal set of Intervals.
-   * Combines overlapping and adjacent Intervals.
-   * @param {[Interval]} intervals
-   * @return {[Interval]}
-   */
-  static merge(intervals: Interval[]) {
-    const [found, final] = intervals
-    .sort((a, b) => a.s.valueOf() - b.s.valueOf())
-    .reduce<[Interval[], Interval | null]>(
-      ([sofar, current], item) => {
-        if (!current) {
-          return [sofar, item];
-        }
-        else if (current.overlaps(item) || current.abutsStart(item)) {
-          return [sofar, current.union(item)];
-        }
-        else {
-          return [sofar.concat([current]), item];
-        }
-      },
-      [[], null]
-    );
-    if (final) {
-      found.push(final);
-    }
-    return found;
-  }
-
-  /**
-   * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
-   * @param {[Interval]} intervals
-   * @return {[Interval]}
-   */
-  static xor(intervals: Interval[]) {
-    let start: DateTime | null = null,
-      currentCount = 0;
-
-    interface IntervalBoundary {
-      time: DateTime;
-      type: "s" | "e";
-    }
-
-    const results = [],
-      ends = intervals.map(i => [
-        { time: i.s, type: "s" },
-        { time: i.e, type: "e" }
-      ]),
-      flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
-      arr = flattened.sort((a, b) => a.time.valueOf() - b.time.valueOf());
-
-    for (const i of arr) {
-      currentCount += i.type === "s" ? 1 : -1;
-
-      if (currentCount === 1) {
-        start = i.time;
-      }
-      else {
-        if (start && start.valueOf() !== i.time.valueOf()) {
-          results.push(Interval.fromDateTimes(start, i.time));
-        }
-
-        start = null;
-      }
-    }
-
-    return Interval.merge(results);
   }
 
   /**
@@ -479,8 +479,8 @@ export class Interval {
    */
   difference(...intervals: Interval[]) {
     return Interval.xor([this as Interval].concat(intervals))
-    .map(i => this.intersection(i))
-    .filter(i => i !== null && !i.isEmpty()) as Interval[];
+      .map(i => this.intersection(i))
+      .filter(i => i !== null && !i.isEmpty()) as Interval[];
   }
 
   /**
@@ -488,7 +488,7 @@ export class Interval {
    * @return {string}
    */
   toString() {
-    return `[${this.s.toISO()} – ${this.e.toISO()})`;
+    return `[${this._s.toISO()} – ${this._e.toISO()})`;
   }
 
   /**
@@ -498,7 +498,7 @@ export class Interval {
    * @return {string}
    */
   toISO(options: ToISOTimeOptions = {}) {
-    return `${this.s.toISO(options)}/${this.e.toISO(options)}`;
+    return `${this._s.toISO(options)}/${this._e.toISO(options)}`;
   }
 
   /**
@@ -508,7 +508,7 @@ export class Interval {
    * @return {string}
    */
   toISODate() {
-    return `${this.s.toISODate()}/${this.e.toISODate()}`;
+    return `${this._s.toISODate()}/${this._e.toISODate()}`;
   }
 
   /**
@@ -520,7 +520,7 @@ export class Interval {
    *
    */
   toISOTime(options: ToISOTimeOptions = {}) {
-    return `${this.s.toISOTime(options)}/${this.e.toISOTime(options)}`;
+    return `${this._s.toISOTime(options)}/${this._e.toISOTime(options)}`;
   }
 
   /**
@@ -531,15 +531,14 @@ export class Interval {
    * @return {string}
    */
   toFormat(dateFormat: string, options = { separator: " – " }) {
-    return `${this.s.toFormat(dateFormat)}${options.separator}${this.e.toFormat(dateFormat)}`;
+    return `${this._s.toFormat(dateFormat)}${options.separator}${this._e.toFormat(dateFormat)}`;
   }
 
   toDuration(): Duration;
+
   toDuration(unit: DurationUnit | DurationUnit[]): Duration;
-  toDuration(
-    unit: DurationUnit | DurationUnit[],
-    options: DurationOptions & ThrowOnInvalid
-  ): Duration;
+
+  toDuration(unit: DurationUnit | DurationUnit[], options: DurationOptions & ThrowOnInvalid): Duration;
   toDuration(unit: DurationUnit | DurationUnit[], options: DurationOptions): Duration | null;
   /**
    * Return a Duration representing the time spanned by this interval.
@@ -557,7 +556,7 @@ export class Interval {
    * @return {Duration}
    */
   toDuration(unit: DurationUnit | DurationUnit[] = "milliseconds", options: DurationOptions = {}) {
-    return this.e.diff(this.s, unit, options);
+    return this._e.diff(this._s, unit, options);
   }
 
   /**
@@ -568,6 +567,6 @@ export class Interval {
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
    */
   mapEndpoints(mapFn: (dt: DateTime) => DateTime) {
-    return Interval.fromDateTimes(mapFn(this.s), mapFn(this.e));
+    return Interval.fromDateTimes(mapFn(this._s), mapFn(this._e));
   }
 }

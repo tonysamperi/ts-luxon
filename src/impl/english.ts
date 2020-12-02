@@ -12,6 +12,7 @@ function stringify(obj: Record<string, unknown>) {
  * @private
  */
 
+// tslint:disable-next-line:naming-convention
 export const monthsLong = [
   "January",
   "February",
@@ -27,6 +28,7 @@ export const monthsLong = [
   "December"
 ];
 
+// tslint:disable-next-line:naming-convention
 export const monthsShort = [
   "Jan",
   "Feb",
@@ -42,6 +44,7 @@ export const monthsShort = [
   "Dec"
 ];
 
+// tslint:disable-next-line:naming-convention
 export const monthsNarrow = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 
 export function months(length: UnitLength) {
@@ -59,6 +62,7 @@ export function months(length: UnitLength) {
   }
 }
 
+// tslint:disable-next-line:naming-convention
 export const weekdaysLong = [
   "Monday",
   "Tuesday",
@@ -69,8 +73,10 @@ export const weekdaysLong = [
   "Sunday"
 ];
 
+// tslint:disable-next-line:naming-convention
 export const weekdaysShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+// tslint:disable-next-line:naming-convention
 export const weekdaysNarrow = ["M", "T", "W", "T", "F", "S", "S"];
 
 export function weekdays(length: StringUnitLength) {
@@ -84,12 +90,16 @@ export function weekdays(length: StringUnitLength) {
   }
 }
 
+// tslint:disable-next-line:naming-convention
 export const meridiems = ["AM", "PM"];
 
+// tslint:disable-next-line:naming-convention
 export const erasLong = ["Before Christ", "Anno Domini"];
 
+// tslint:disable-next-line:naming-convention
 export const erasShort = ["BC", "AD"];
 
+// tslint:disable-next-line:naming-convention
 export const erasNarrow = ["B", "A"];
 
 export function eras(length: StringUnitLength) {

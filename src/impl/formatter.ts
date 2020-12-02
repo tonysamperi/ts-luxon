@@ -1,9 +1,9 @@
 import * as English from "./english";
 import * as Formats from "./formats";
 import { hasFormatToParts, padStart } from "./util";
-import {Locale} from "./locale";
+import { Locale } from "./locale";
 import { DateTime } from "../datetime";
-import { Duration} from "../duration";
+import { Duration } from "../duration";
 import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";
@@ -16,13 +16,15 @@ function stringifyTokens(
   for (const token of splits) {
     if (token.literal) {
       s += token.val;
-    } else {
+    }
+    else {
       s += tokenToString(token.val);
     }
   }
   return s;
 }
 
+// tslint:disable-next-line:naming-convention
 const TokenToFormatOpts: Record<string, Intl.DateTimeFormatOptions> = {
   D: Formats.DATE_SHORT,
   DD: Formats.DATE_MED,
@@ -65,16 +67,16 @@ interface FormatterOptions extends Intl.DateTimeFormatOptions {
 
 export class Formatter {
   // Private readonly fields
-  private options: Readonly<FormatterOptions>;
-  private loc: Locale;
-  private systemLoc?: Locale;
+  private _options: Readonly<FormatterOptions>;
+  private _loc: Locale;
+  private _systemLoc?: Locale;
 
   static create(locale: Locale, options: FormatterOptions = {}) {
     return new Formatter(locale, options);
   }
 
   static parseFormat(format: string) {
-    let current = undefined,
+    let current,
       currentFull = "",
       bracketedLevel = 0;
 
@@ -88,9 +90,13 @@ export class Formatter {
           }
           current = undefined;
           currentFull = "";
-        } else currentFull += c;
+        }
+        else {
+          currentFull += c;
+        }
         bracketedLevel = bracketedLevel + 1;
-      } else if (c === "]") {
+      }
+      else if (c === "]") {
         bracketedLevel = bracketedLevel - 1;
         if (bracketedLevel === 0) {
           if (currentFull.length > 0) {
@@ -98,12 +104,18 @@ export class Formatter {
           }
           current = undefined;
           currentFull = "";
-        } else currentFull += c;
-      } else if (bracketedLevel > 0) {
+        }
+        else {
+          currentFull += c;
+        }
+      }
+      else if (bracketedLevel > 0) {
         currentFull += c;
-      } else if (c === current) {
+      }
+      else if (c === current) {
         currentFull += c;
-      } else {
+      }
+      else {
         if (currentFull.length > 0) {
           splits.push({ literal: false, val: currentFull });
         }
@@ -124,54 +136,54 @@ export class Formatter {
   }
 
   constructor(locale: Locale, formatOptions: FormatterOptions) {
-    this.options = formatOptions;
-    this.loc = locale;
-    this.systemLoc = undefined;
+    this._options = formatOptions;
+    this._loc = locale;
+    this._systemLoc = undefined;
   }
 
   formatWithSystemDefault(dt: DateTime, options: Intl.DateTimeFormatOptions) {
-    if (this.systemLoc === undefined) {
-      this.systemLoc = this.loc.redefaultToSystem();
+    if (this._systemLoc === undefined) {
+      this._systemLoc = this._loc.redefaultToSystem();
     }
-    const df = this.systemLoc.dtFormatter(dt, Object.assign({}, this.options, options));
+    const df = this._systemLoc.dtFormatter(dt, Object.assign({}, this._options, options));
     return df.format();
   }
 
   formatDateTime(dt: DateTime) {
-    const df = this.loc.dtFormatter(dt, this.options);
+    const df = this._loc.dtFormatter(dt, this._options);
     return df.format();
   }
 
   formatDateTimeParts(dt: DateTime) {
-    const df = this.loc.dtFormatter(dt, this.options);
+    const df = this._loc.dtFormatter(dt, this._options);
     return df.formatToParts();
   }
 
   resolvedOptions(dt: DateTime) {
-    const df = this.loc.dtFormatter(dt, this.options);
+    const df = this._loc.dtFormatter(dt, this._options);
     return df.resolvedOptions();
   }
 
   num(n: number, p = 0) {
     // we get some perf out of doing this here, annoyingly
-    if (this.options.forceSimple) {
+    if (this._options.forceSimple) {
       return padStart(n, p);
     }
 
     const options = {
       padTo: p,
-      floor: this.options.floor
+      floor: this._options.floor
     };
 
-    return this.loc.numberFormatter(options).format(n);
+    return this._loc.numberFormatter(options).format(n);
   }
 
   formatDateTimeFromString(dt: DateTime, format: string) {
-    const knownEnglish = this.loc.listingMode() === "en",
+    const knownEnglish = this._loc.listingMode() === "en",
       useDateTimeFormatter =
-        this.loc.outputCalendar && this.loc.outputCalendar !== "gregory" && hasFormatToParts(),
+        this._loc.outputCalendar && this._loc.outputCalendar !== "gregory" && hasFormatToParts(),
       string = (options: Intl.DateTimeFormatOptions, extract: Intl.DateTimeFormatPartTypes) =>
-        this.loc.extract(dt, options, extract),
+        this._loc.extract(dt, options, extract),
       formatOffset = (options: FormatterOptions & { format: ZoneOffsetFormat }) =>
         dt.isOffsetFixed && dt.offset === 0 && options.allowZ
           ? "Z"
@@ -188,14 +200,15 @@ export class Formatter {
         knownEnglish
           ? English.weekdayForDateTime(dt, length)
           : string(
-              standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
-              "weekday"
-            ),
+          standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
+          "weekday"
+          ),
       maybeMacro = (token: string) => {
         const formatOpts = Formatter.macroTokenToFormatOpts(token);
         if (formatOpts) {
           return this.formatWithSystemDefault(dt, formatOpts);
-        } else {
+        }
+        else {
           return token;
         }
       },
@@ -233,22 +246,22 @@ export class Formatter {
           // offset
           case "Z":
             // like +6
-            return formatOffset({ format: "narrow", allowZ: this.options.allowZ });
+            return formatOffset({ format: "narrow", allowZ: this._options.allowZ });
           case "ZZ":
             // like +06:00
-            return formatOffset({ format: "short", allowZ: this.options.allowZ });
+            return formatOffset({ format: "short", allowZ: this._options.allowZ });
           case "ZZZ":
             // like +0600
-            return formatOffset({ format: "techie", allowZ: this.options.allowZ });
+            return formatOffset({ format: "techie", allowZ: this._options.allowZ });
           case "ZZZZ":
             // like EST
             return (
-              dt.zone.offsetName(dt.toMillis(), { format: "short", locale: this.loc.locale }) || ""
+              dt.zone.offsetName(dt.toMillis(), { format: "short", locale: this._loc.locale }) || ""
             );
           case "ZZZZZ":
             // like Eastern Standard Time
             return (
-              dt.zone.offsetName(dt.toMillis(), { format: "long", locale: this.loc.locale }) || ""
+              dt.zone.offsetName(dt.toMillis(), { format: "long", locale: this._loc.locale }) || ""
             );
           // zone
           case "z":
@@ -411,7 +424,8 @@ export class Formatter {
         const mapped = tokenToField(token);
         if (mapped) {
           return this.num(lildur.get(mapped), token.length);
-        } else {
+        }
+        else {
           return token;
         }
       },

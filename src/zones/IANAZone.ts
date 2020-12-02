@@ -1,9 +1,9 @@
-import { formatOffset, parseZoneInfo, isUndefined, ianaRegex, objToLocalTS } from "../impl/util";
+import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS } from "../impl/util";
 import { Zone} from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
 
-const matchingRegex = RegExp(`^${ianaRegex.source}$`);
+const matchingRegex = RegExp(`^${IANA_REGEX.source}$`);
 
 let dtfCache: Record<string, Intl.DateTimeFormat> = {};
 
@@ -75,8 +75,8 @@ let ianaZoneCache: Record<string, IANAZone> = {};
  * @implements {Zone}
  */
 export class IANAZone extends Zone {
-  private readonly zoneName: string;
-  private readonly valid: boolean;
+  private readonly _zoneName: string;
+  private readonly _valid: boolean;
 
   /**
    * @param {string} name - Zone name
@@ -99,7 +99,8 @@ export class IANAZone extends Zone {
   }
 
   /**
-   * Returns whether the provided string is a valid specifier. This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
+   * Returns whether the provided string is a valid specifier.
+   * This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
    * @param {string} s - The string to check validity on
    * @example IANAZone.isValidSpecifier("America/New_York") //=> true
    * @example IANAZone.isValidSpecifier("Fantasia/Castle") //=> true
@@ -134,7 +135,7 @@ export class IANAZone extends Zone {
       const regexp = /^Etc\/GMT([+-]\d{1,2})$/i;
       const match = regexp.exec(specifier);
       if (match !== null) {
-        return -60 * parseInt(match[1]);
+        return -60 * parseInt(match[1], 10);
       }
     }
     return null;
@@ -143,9 +144,9 @@ export class IANAZone extends Zone {
   private constructor(name: string) {
     super();
     /** @private **/
-    this.zoneName = name;
+    this._zoneName = name;
     /** @private **/
-    this.valid = IANAZone.isValidZone(name);
+    this._valid = IANAZone.isValidZone(name);
   }
 
   /** @override **/
@@ -155,7 +156,7 @@ export class IANAZone extends Zone {
 
   /** @override **/
   get name() {
-    return this.zoneName;
+    return this._zoneName;
   }
 
   /** @override **/
@@ -205,6 +206,6 @@ export class IANAZone extends Zone {
 
   /** @override **/
   get isValid() {
-    return this.valid;
+    return this._valid;
   }
 }

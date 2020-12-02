@@ -1,6 +1,6 @@
 import Benchmark from "benchmark";
-import DateTime from "../src/datetime";
-import Settings from "../src/settings";
+import {DateTime} from "../src/datetime";
+import {Settings} from "../src/settings";
 
 const suite = new Benchmark.Suite();
 
@@ -55,8 +55,7 @@ suite
   .add("DateTime#toRelativeCalendar", () => {
     dt.toRelativeCalendar({ base: DateTime.now(), locale: "fi" });
   })
-  .on("cycle", event => {
-    // eslint-disable-next-line no-undef
+  .on("cycle", (event: any) => {
     console.log(String(event.target));
   })
   // eslint-disable-next-line func-names

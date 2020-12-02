@@ -13,7 +13,7 @@ const MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
 
 interface UnitParser {
   regex: RegExp;
-  deser: (_: string[]) => number | string;
+  deser: (a: string[]) => number | string;
   groups?: number;
   literal?: boolean; // TODO investigate if this shall not be merged with token.literal
   token: FormatToken;
@@ -25,7 +25,7 @@ interface InvalidUnitParser {
 
 type CoreUnitParser = Omit<UnitParser, "token">;
 
-function intUnit(regex: RegExp, post: (_: number) => number = i => i): CoreUnitParser {
+function intUnit(regex: RegExp, post: (a: number) => number = i => i): CoreUnitParser {
   return { regex, deser: ([s]) => post(parseDigits(s)) };
 }
 

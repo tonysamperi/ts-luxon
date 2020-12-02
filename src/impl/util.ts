@@ -1,8 +1,8 @@
 /*
-  This is just a junk drawer, containing anything used across multiple classes.
-  Because Luxon is small(ish), this should stay small and we won't worry about splitting
-  it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
-*/
+ This is just a junk drawer, containing anything used across multiple classes.
+ Because Luxon is small(ish), this should stay small and we won't worry about splitting
+ it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
+ */
 
 import { InvalidArgumentError } from "../errors";
 import { TimeObject, GregorianDateTime } from "../types/datetime";
@@ -62,21 +62,25 @@ export function maybeArray<T>(thing: T | T[]) {
   return Array.isArray(thing) ? thing : [thing];
 }
 
-export function bestBy<T, U>(arr: T[], by: (_: T) => U, compare: (_: U, __: U) => U) {
-  const best = arr.reduce<[U, T] | undefined>((best, next) => {
+export function bestBy<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) => U) {
+  const bestResult = arr.reduce<[U, T] | undefined>((best, next) => {
     const pair: [U, T] = [by(next), next];
     if (best === undefined) {
       return pair;
-    } else if (compare(best[0], pair[0]) === best[0]) {
+    }
+    else if (compare(best[0], pair[0]) === best[0]) {
       return best;
-    } else {
+    }
+    else {
       return pair;
     }
   }, undefined);
 
-  if (best === undefined) throw new InvalidArgumentError("bestBy expects a non empty array");
+  if (bestResult === undefined) {
+    throw new InvalidArgumentError("bestBy expects a non empty array");
+  }
 
-  return best[1];
+  return bestResult[1];
 }
 
 export function pick<T, K extends keyof T>(obj: T, keys: K[]) {
@@ -100,7 +104,8 @@ export function floorMod(x: number, n: number) {
 export function padStart(input: string | number, n = 2) {
   if (input.toString().length < n) {
     return ("0".repeat(n) + input).slice(-n);
-  } else {
+  }
+  else {
     return input.toString();
   }
 }
@@ -108,7 +113,8 @@ export function padStart(input: string | number, n = 2) {
 export function parseInteger(text: string) {
   if (isUndefined(text) || text === null || text === "") {
     return undefined;
-  } else {
+  }
+  else {
     return parseInt(text, 10);
   }
 }
@@ -117,7 +123,8 @@ export function parseMillis(fraction: string | null | undefined) {
   // Return undefined (instead of 0) in these cases, where fraction is not set
   if (isUndefined(fraction) || fraction === null || fraction === "") {
     return undefined;
-  } else {
+  }
+  else {
     const f = parseFloat("0." + fraction) * 1000;
     return Math.floor(f);
   }
@@ -169,11 +176,11 @@ export function objToLocalTS(obj: GregorianDateTime) {
 
 export function weeksInWeekYear(weekYear: number) {
   const p1 =
-      (weekYear +
-        Math.floor(weekYear / 4) -
-        Math.floor(weekYear / 100) +
-        Math.floor(weekYear / 400)) %
-      7,
+    (weekYear +
+      Math.floor(weekYear / 4) -
+      Math.floor(weekYear / 100) +
+      Math.floor(weekYear / 400)) %
+    7,
     last = weekYear - 1,
     p2 = (last + Math.floor(last / 4) - Math.floor(last / 100) + Math.floor(last / 400)) % 7;
   return p1 === 4 || p2 === 3 ? 53 : 52;
@@ -182,7 +189,10 @@ export function weeksInWeekYear(weekYear: number) {
 export function untruncateYear(year: number) {
   if (year > 99) {
     return year;
-  } else return year > 60 ? 1900 + year : 2000 + year;
+  }
+  else {
+    return year > 60 ? 1900 + year : 2000 + year;
+  }
 }
 
 // PARSING
@@ -205,8 +215,8 @@ export function parseZoneInfo(
     };
 
   const modified: Intl.DateTimeFormatOptions = Object.assign(
-      { timeZoneName: offsetFormat },
-      intlOptions
+    { timeZoneName: offsetFormat },
+    intlOptions
     ),
     intl = hasIntl();
 
@@ -215,14 +225,16 @@ export function parseZoneInfo(
       .formatToParts(date)
       .find(m => m.type.toLowerCase() === "timezonename");
     return parsed ? parsed.value : null;
-  } else if (intl) {
+  }
+  else if (intl) {
     // this probably doesn't work for all locales
     const without = new Intl.DateTimeFormat(locale, intlOptions).format(date),
       included = new Intl.DateTimeFormat(locale, modified).format(date),
-      diffed = included.substring(without.length),
-      trimmed = diffed.replace(/^[, \u200e]+/, "");
-    return trimmed;
-  } else {
+      diffed = included.substring(without.length);
+
+    return diffed.replace(/^[, \u200e]+/, "");
+  }
+  else {
     return null;
   }
 }
@@ -245,8 +257,9 @@ export function signedOffset(offHourStr: string, offMinuteStr: string) {
 
 export function asNumber(value: unknown) {
   const numericValue = Number(value);
-  if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue))
+  if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue)) {
     throw new InvalidArgumentError(`Invalid unit value ${value}`);
+  }
   return numericValue;
 }
 
@@ -256,7 +269,9 @@ export function normalizeObject<T extends string>(
 ) {
   return Object.keys(obj).reduce<Partial<Record<T, number>>>((normalized, key) => {
     const value = obj[key];
-    if (value !== undefined && value !== null) normalized[normalizer(key)] = asNumber(value);
+    if (value !== undefined && value !== null) {
+      normalized[normalizer(key)] = asNumber(value);
+    }
     return normalized;
   }, {});
 }
@@ -282,4 +297,4 @@ export function timeObject(obj: TimeObject): TimeObject {
   return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
 
-export const ianaRegex = /[A-Za-z_+-]{1,256}(:?\/[A-Za-z_+-]{1,256}(\/[A-Za-z_+-]{1,256})?)?/;
+export const IANA_REGEX = /[A-Za-z_+-]{1,256}(:?\/[A-Za-z_+-]{1,256}(\/[A-Za-z_+-]{1,256})?)?/;

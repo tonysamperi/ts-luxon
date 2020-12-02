@@ -27,8 +27,8 @@ DateTime.now().setZone('America/New_York').minus({ weeks: 1 }).endOf('day').toIS
 
 You can download the umd bundles from here:
 
-* [ts-luxon.umd.js]([luxon-umd-lnk])
-* [ts-luxon.umd.min.js]([luxon-umd-min-lnk])
+* [ts-luxon.umd.js](https://tonysamperi.github.io/ts-luxon/lib/ts-luxon.umd.js)
+* [ts-luxon.umd.min.js](https://tonysamperi.github.io/ts-luxon/lib/ts-luxon.min.umd.js)
 
 # DOCS
 
@@ -42,8 +42,6 @@ Pleas, read the CONTRIBUTING.md you can find in the master branch.
 [original-luxon]: https://github.com/moment/luxon
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg
 [license]: license.md
-[luxon-umd-lnk]: https://tonysamperi.github.io/ts-luxon/dist/ts-luxon.umd.js
-[luxon-umd-min-lnk]: https://tonysamperi.github.io/ts-luxon/dist/ts-luxon.umd.min.js
 
 [gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22Docker+tests%22
 [gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/Docker%20tests/badge.svg?branch=master

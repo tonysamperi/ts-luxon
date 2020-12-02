@@ -9,7 +9,7 @@ let singleton: FixedOffsetZone | undefined;
  * @implements {Zone}
  */
 export class FixedOffsetZone extends Zone {
-  private readonly fixed: number;
+  private readonly _fixed: number;
 
   /**
    * Get a singleton instance of UTC
@@ -53,7 +53,7 @@ export class FixedOffsetZone extends Zone {
   constructor(offset: number) {
     super();
     /** @private **/
-    this.fixed = offset;
+    this._fixed = offset;
   }
 
   /** @override **/
@@ -63,17 +63,17 @@ export class FixedOffsetZone extends Zone {
 
   /** @override **/
   get name() {
-    return this.fixed === 0 ? "UTC" : `UTC${formatOffset(this.fixed, "narrow")}`;
+    return this._fixed === 0 ? "UTC" : `UTC${formatOffset(this._fixed, "narrow")}`;
   }
 
   /** @override **/
-  offsetName(_ts?: number, _options?: ZoneOffsetOptions) {
+  offsetName(_ts_?: number, _options_?: ZoneOffsetOptions) {
     return this.name;
   }
 
   /** @override **/
-  formatOffset(_ts: number, format: ZoneOffsetFormat) {
-    return formatOffset(this.fixed, format);
+  formatOffset(_ts_: number, format: ZoneOffsetFormat) {
+    return formatOffset(this._fixed, format);
   }
 
   /** @override **/
@@ -82,13 +82,13 @@ export class FixedOffsetZone extends Zone {
   }
 
   /** @override **/
-  offset(_ts?: number) {
-    return this.fixed;
+  offset(_ts_?: number) {
+    return this._fixed;
   }
 
   /** @override **/
   equals(other: Zone): boolean {
-    return other.type === "fixed" && (other as FixedOffsetZone).fixed === this.fixed;
+    return other.type === "fixed" && (other as FixedOffsetZone)._fixed === this._fixed;
   }
 
   /** @override **/

@@ -1,5 +1,5 @@
 import { NumberingSystem } from "../types/locale";
-import { Locale} from "./locale";
+import { Locale } from "./locale";
 
 const numberingSystems: { [key in NumberingSystem]: string } = {
   arab: "[\u0660-\u0669]",
@@ -54,15 +54,17 @@ const hanidecChars = numberingSystems.hanidec.replace(/[\[|\]]/g, "").split("");
 
 export function parseDigits(str: string) {
   const intValue = parseInt(str, 10);
-  if (!isNaN(intValue)) return intValue;
+  if (!isNaN(intValue)) {
+    return intValue;
+  }
 
   let digits = "";
   for (let i = 0; i < str.length; i++) {
     const code = str.charCodeAt(i);
-
     if (str[i].search(numberingSystems.hanidec) !== -1) {
       digits += hanidecChars.indexOf(str[i]);
-    } else {
+    }
+    else {
       for (const key in numberingSystemsUTF16) {
         const [min, max] = numberingSystemsUTF16[key as NumberingSystem];
         if (code >= min && code <= max) {

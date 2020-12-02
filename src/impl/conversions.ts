@@ -43,10 +43,12 @@ export function gregorianToWeek(gregObj: GregorianDateTime): WeekDateTime {
   if (weekNumber < 1) {
     weekYear = year - 1;
     weekNumber = weeksInWeekYear(weekYear);
-  } else if (weekNumber > weeksInWeekYear(year)) {
+  }
+  else if (weekNumber > weeksInWeekYear(year)) {
     weekYear = year + 1;
     weekNumber = 1;
-  } else {
+  }
+  else {
     weekYear = year;
   }
 
@@ -64,10 +66,12 @@ export function weekToGregorian(weekData: WeekDateTime) {
   if (ordinal < 1) {
     year = weekYear - 1;
     ordinal += daysInYear(year);
-  } else if (ordinal > yearInDays) {
+  }
+  else if (ordinal > yearInDays) {
     year = weekYear + 1;
     ordinal -= daysInYear(weekYear);
-  } else {
+  }
+  else {
     year = weekYear;
   }
 
@@ -99,11 +103,16 @@ export function hasInvalidWeekData(obj: WeekDateTime): UnitError {
 
   if (!validYear) {
     return ["weekYear", obj.weekYear];
-  } else if (!validWeek) {
+  }
+  else if (!validWeek) {
     return ["weekNumber", obj.weekNumber];
-  } else if (!validWeekday) {
+  }
+  else if (!validWeekday) {
     return ["weekday", obj.weekday];
-  } else return null;
+  }
+  else {
+    return null;
+  }
 }
 
 export function hasInvalidOrdinalData(obj: OrdinalDateTime): UnitError {
@@ -112,9 +121,13 @@ export function hasInvalidOrdinalData(obj: OrdinalDateTime): UnitError {
 
   if (!validYear) {
     return ["year", obj.year];
-  } else if (!validOrdinal) {
+  }
+  else if (!validOrdinal) {
     return ["ordinal", obj.ordinal];
-  } else return null;
+  }
+  else {
+    return null;
+  }
 }
 
 export function hasInvalidGregorianData(obj: GregorianDateTime): UnitError {
@@ -124,29 +137,40 @@ export function hasInvalidGregorianData(obj: GregorianDateTime): UnitError {
 
   if (!validYear) {
     return ["year", obj.year];
-  } else if (!validMonth) {
+  }
+  else if (!validMonth) {
     return ["month", obj.month];
-  } else if (!validDay) {
+  }
+  else if (!validDay) {
     return ["day", obj.day];
-  } else return null;
+  }
+  else {
+    return null;
+  }
 }
 
 export function hasInvalidTimeData(obj: TimeObject): UnitError {
   const { hour, minute, second, millisecond } = obj;
   const validHour =
-      integerBetween(hour, 0, 23) ||
-      (hour === 24 && minute === 0 && second === 0 && millisecond === 0),
+    integerBetween(hour, 0, 23) ||
+    (hour === 24 && minute === 0 && second === 0 && millisecond === 0),
     validMinute = integerBetween(minute, 0, 59),
     validSecond = integerBetween(second, 0, 59),
     validMillisecond = integerBetween(millisecond, 0, 999);
 
   if (!validHour) {
     return ["hour", obj.hour];
-  } else if (!validMinute) {
+  }
+  else if (!validMinute) {
     return ["minute", obj.minute];
-  } else if (!validSecond) {
+  }
+  else if (!validSecond) {
     return ["second", obj.second];
-  } else if (!validMillisecond) {
+  }
+  else if (!validMillisecond) {
     return ["millisecond", obj.millisecond];
-  } else return null;
+  }
+  else {
+    return null;
+  }
 }

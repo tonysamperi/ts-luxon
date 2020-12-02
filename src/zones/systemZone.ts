@@ -29,7 +29,10 @@ export class SystemZone extends Zone {
   get name() {
     if (hasIntl()) {
       return new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    } else return "system";
+    }
+    else {
+      return "system";
+    }
   }
 
   /** @override **/

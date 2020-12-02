@@ -117,7 +117,7 @@ function intlConfigString(
   }
 }
 
-function mapMonths<T>(f: (_: DateTime) => T): T[] {
+function mapMonths<T>(f: (d: DateTime) => T): T[] {
   const ms = [];
   for (let i = 1; i <= 12; i++) {
     const dt = DateTime.utc(2016, i, 1);
@@ -126,7 +126,7 @@ function mapMonths<T>(f: (_: DateTime) => T): T[] {
   return ms;
 }
 
-function mapWeekdays<T>(f: (_: DateTime) => T): T[] {
+function mapWeekdays<T>(f: (d: DateTime) => T): T[] {
   const ms = [];
   for (let i = 1; i <= 7; i++) {
     const dt = DateTime.utc(2016, 11, 13 + i);
@@ -164,32 +164,32 @@ interface NumberFormatterOptions {
 }
 
 class PolyNumberFormatter {
-  private readonly padTo: number;
-  private readonly floor: boolean;
-  private inf?: Readonly<Intl.NumberFormat>;
+  private readonly _padTo: number;
+  private readonly _floor: boolean;
+  private _inf?: Readonly<Intl.NumberFormat>;
 
   constructor(intl: string, forceSimple: boolean, options: NumberFormatterOptions) {
-    this.padTo = options.padTo || 0;
-    this.floor = options.floor || false;
+    this._padTo = options.padTo || 0;
+    this._floor = options.floor || false;
 
     if (!forceSimple && hasIntl()) {
       const intlOpts: Intl.NumberFormatOptions = { useGrouping: false };
-      if (this.padTo > 0) {
-        intlOpts.minimumIntegerDigits = this.padTo;
+      if (this._padTo > 0) {
+        intlOpts.minimumIntegerDigits = this._padTo;
       }
-      this.inf = getCachedINF(intl, intlOpts);
+      this._inf = getCachedINF(intl, intlOpts);
     }
   }
 
   format(i: number) {
-    if (this.inf) {
-      const fixed = this.floor ? Math.floor(i) : i;
-      return this.inf.format(fixed);
+    if (this._inf) {
+      const fixed = this._floor ? Math.floor(i) : i;
+      return this._inf.format(fixed);
     }
     else {
       // to match the browser's numberformatter defaults
-      const fixed = this.floor ? Math.floor(i) : roundTo(i, 3);
-      return padStart(fixed, this.padTo);
+      const fixed = this._floor ? Math.floor(i) : roundTo(i, 3);
+      return padStart(fixed, this._padTo);
     }
   }
 }
@@ -199,12 +199,12 @@ class PolyNumberFormatter {
  */
 
 class PolyDateFormatter {
-  private options: Readonly<Intl.DateTimeFormatOptions>;
-  private dt: DateTime;
-  private dtf?: Readonly<Intl.DateTimeFormat>;
+  private _options: Readonly<Intl.DateTimeFormatOptions>;
+  private _dt: DateTime;
+  private _dtf?: Readonly<Intl.DateTimeFormat>;
 
   constructor(dt: DateTime, intl: string, options: Intl.DateTimeFormatOptions) {
-    this.options = options;
+    this._options = options;
     const hasIntlDTF = hasIntl();
 
     let z;
@@ -220,43 +220,43 @@ class PolyDateFormatter {
       // We can clean all this up when Chrome fixes this.
       z = "UTC";
       if (options.timeZoneName) {
-        this.dt = dt;
+        this._dt = dt;
       }
       else {
-        this.dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.toMillis() + dt.offset * 60 * 1000);
+        this._dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.toMillis() + dt.offset * 60 * 1000);
       }
     }
     else if (dt.zone.type === "system") {
-      this.dt = dt;
+      this._dt = dt;
     }
     else {
-      this.dt = dt;
+      this._dt = dt;
       z = dt.zone.name;
     }
 
     if (hasIntlDTF) {
-      const intlOpts: Intl.DateTimeFormatOptions = Object.assign({}, this.options);
+      const intlOpts: Intl.DateTimeFormatOptions = Object.assign({}, this._options);
       if (z) {
         intlOpts.timeZone = z;
       }
-      this.dtf = getCachedDTF(intl, intlOpts);
+      this._dtf = getCachedDTF(intl, intlOpts);
     }
   }
 
   format() {
-    if (this.dtf) {
-      return this.dtf.format(this.dt.toJSDate());
+    if (this._dtf) {
+      return this._dtf.format(this._dt.toJSDate());
     }
     else {
-      const tokenFormat = English.formatString(this.options),
+      const tokenFormat = English.formatString(this._options),
         loc = Locale.create("en-US");
-      return Formatter.create(loc).formatDateTimeFromString(this.dt, tokenFormat);
+      return Formatter.create(loc).formatDateTimeFromString(this._dt, tokenFormat);
     }
   }
 
   formatToParts() {
-    if (this.dtf && hasFormatToParts()) {
-      return this.dtf.formatToParts(this.dt.toJSDate());
+    if (this._dtf && hasFormatToParts()) {
+      return this._dtf.formatToParts(this._dt.toJSDate());
     }
     else {
       // This is kind of a cop out. We actually could do this for English. However, we couldn't do it for intl strings
@@ -266,8 +266,8 @@ class PolyDateFormatter {
   }
 
   resolvedOptions() {
-    if (this.dtf) {
-      return this.dtf.resolvedOptions();
+    if (this._dtf) {
+      return this._dtf.resolvedOptions();
     }
     else {
       return {
@@ -284,37 +284,33 @@ class PolyDateFormatter {
  * @private
  */
 class PolyRelFormatter {
-  private options: Readonly<Intl.RelativeTimeFormatOptions>;
-  private rtf?: Readonly<Intl.RelativeTimeFormat>;
+  private _options: Readonly<Intl.RelativeTimeFormatOptions>;
+  private _rtf?: Readonly<Intl.RelativeTimeFormat>;
 
-  constructor(
-    locale: Intl.BCP47LanguageTag,
-    isEnglish: boolean,
-    options: Intl.RelativeTimeFormatOptions
-  ) {
-    this.options = Object.assign({ style: "long" }, options);
+  constructor(locale: Intl.BCP47LanguageTag, isEnglish: boolean, options: Intl.RelativeTimeFormatOptions) {
+    this._options = Object.assign({ style: "long" }, options);
     if (!isEnglish && hasRelative()) {
-      this.rtf = getCachedRTF(locale, options);
+      this._rtf = getCachedRTF(locale, options);
     }
   }
 
   format(count: number, unit: Intl.RelativeTimeFormatUnit) {
-    if (this.rtf) {
-      return this.rtf.format(count, unit);
+    if (this._rtf) {
+      return this._rtf.format(count, unit);
     }
     else {
       return English.formatRelativeTime(
         unit,
         count,
-        this.options.numeric,
-        this.options.style !== "long"
+        this._options.numeric,
+        this._options.style !== "long"
       );
     }
   }
 
   formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit) {
-    if (this.rtf) {
-      return this.rtf.formatToParts(count, unit);
+    if (this._rtf) {
+      return this._rtf.formatToParts(count, unit);
     }
     else {
       return [];
@@ -338,19 +334,49 @@ type EraCache = Partial<Record<StringUnitLength, string[]>>;
  * @private
  */
 export class Locale {
+
+  private constructor(
+    locale: string,
+    numberingSystem?: NumberingSystem,
+    outputCalendar?: CalendarSystem,
+    specifiedLocale?: string
+  ) {
+    const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
+
+    this.locale = parsedLocale;
+    this.numberingSystem = numberingSystem || parsedNumberingSystem;
+    this.outputCalendar = outputCalendar || parsedOutputCalendar;
+    this._intl = intlConfigString(this.locale, this.numberingSystem, this.outputCalendar);
+
+    this._weekdaysCache = { format: {}, standalone: {} };
+    this._monthsCache = { format: {}, standalone: {} };
+    this._meridiemCache = undefined;
+    this._eraCache = {};
+
+    this._specifiedLocale = specifiedLocale;
+    this._fastNumbersCached = undefined;
+  }
+
+  get fastNumbers() {
+    if (this._fastNumbersCached === undefined) {
+      this._fastNumbersCached = this._supportsFastNumbers();
+    }
+
+    return this._fastNumbersCached;
+  }
   public readonly locale: string;
   public numberingSystem?: Readonly<NumberingSystem>;
   public outputCalendar?: Readonly<CalendarSystem>;
 
-  private readonly intl: string;
+  private readonly _intl: string;
 
-  private weekdaysCache: Readonly<WeekDaysCache>;
-  private monthsCache: Readonly<MonthCache>;
-  private meridiemCache?: Readonly<string[]>;
-  private eraCache: EraCache;
+  private _weekdaysCache: Readonly<WeekDaysCache>;
+  private _monthsCache: Readonly<MonthCache>;
+  private _meridiemCache?: Readonly<string[]>;
+  private _eraCache: EraCache;
 
-  private readonly specifiedLocale?: string;
-  private fastNumbersCached?: boolean;
+  private readonly _specifiedLocale?: string;
+  private _fastNumbersCached?: boolean;
 
   static create(
     locale?: string,
@@ -375,50 +401,6 @@ export class Locale {
 
   static fromObject({ locale, numberingSystem, outputCalendar }: LocaleOptions = {}) {
     return Locale.create(locale, numberingSystem, outputCalendar);
-  }
-
-  private constructor(
-    locale: string,
-    numberingSystem?: NumberingSystem,
-    outputCalendar?: CalendarSystem,
-    specifiedLocale?: string
-  ) {
-    const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
-
-    this.locale = parsedLocale;
-    this.numberingSystem = numberingSystem || parsedNumberingSystem;
-    this.outputCalendar = outputCalendar || parsedOutputCalendar;
-    this.intl = intlConfigString(this.locale, this.numberingSystem, this.outputCalendar);
-
-    this.weekdaysCache = { format: {}, standalone: {} };
-    this.monthsCache = { format: {}, standalone: {} };
-    this.meridiemCache = undefined;
-    this.eraCache = {};
-
-    this.specifiedLocale = specifiedLocale;
-    this.fastNumbersCached = undefined;
-  }
-
-  private supportsFastNumbers() {
-    if (this.numberingSystem && this.numberingSystem !== "latn") {
-      return false;
-    }
-    else {
-      return (
-        this.numberingSystem === "latn" ||
-        !this.locale ||
-        this.locale.startsWith("en") ||
-        (hasIntl() && Intl.DateTimeFormat(this.intl).resolvedOptions().numberingSystem === "latn")
-      );
-    }
-  }
-
-  get fastNumbers() {
-    if (this.fastNumbersCached === undefined) {
-      this.fastNumbersCached = this.supportsFastNumbers();
-    }
-
-    return this.fastNumbersCached;
   }
 
   listingMode(defaultOK = true) {
@@ -446,7 +428,7 @@ export class Locale {
     }
     else {
       return Locale.create(
-        alts.locale || this.specifiedLocale,
+        alts.locale || this._specifiedLocale,
         alts.numberingSystem || this.numberingSystem,
         alts.outputCalendar || this.outputCalendar,
         defaultToEN
@@ -466,10 +448,10 @@ export class Locale {
     return listStuff(this, length, defaultOK, English.months, len => {
       const intl = format ? { month: len, day: "numeric" } : { month: len },
         formatStr = format ? "format" : "standalone";
-      if (!this.monthsCache[formatStr][len]) {
-        this.monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
+      if (!this._monthsCache[formatStr][len]) {
+        this._monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
       }
-      return this.monthsCache[formatStr][len] as string[];
+      return this._monthsCache[formatStr][len] as string[];
     });
   }
 
@@ -479,10 +461,10 @@ export class Locale {
         ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
         : { weekday: len },
         formatStr = format ? "format" : "standalone";
-      if (!this.weekdaysCache[formatStr][len]) {
-        this.weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
+      if (!this._weekdaysCache[formatStr][len]) {
+        this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
       }
-      return this.weekdaysCache[formatStr][len] as string[];
+      return this._weekdaysCache[formatStr][len] as string[];
     });
   }
 
@@ -495,15 +477,15 @@ export class Locale {
       () => {
         // In theory there could be aribitrary day periods. We're gonna assume there are exactly two
         // for AM and PM. This is probably wrong, but it makes parsing way easier.
-        if (this.meridiemCache === undefined) {
+        if (this._meridiemCache === undefined) {
           const intl = { hour: "numeric", hour12: true };
-          this.meridiemCache = [
+          this._meridiemCache = [
             DateTime.utc(2016, 11, 13, 9),
             DateTime.utc(2016, 11, 13, 19)
           ].map(dt => this.extract(dt, intl, "dayPeriod"));
         }
 
-        return this.meridiemCache as string[];
+        return this._meridiemCache as string[];
       }
     );
   }
@@ -514,13 +496,13 @@ export class Locale {
 
       // This is utter bullshit. Different calendars are going to define eras totally differently. What I need is the minimum set of dates
       // to definitely enumerate them.
-      if (!this.eraCache[len]) {
-        this.eraCache[len] = [DateTime.utc(-40, 1, 1), DateTime.utc(2017, 1, 1)].map(dt =>
+      if (!this._eraCache[len]) {
+        this._eraCache[len] = [DateTime.utc(-40, 1, 1), DateTime.utc(2017, 1, 1)].map(dt =>
           this.extract(dt, intl, "era")
         );
       }
 
-      return this.eraCache[len] as string[];
+      return this._eraCache[len] as string[];
     });
   }
 
@@ -543,22 +525,22 @@ export class Locale {
   }
 
   numberFormatter(options: NumberFormatterOptions = {}) {
-    return new PolyNumberFormatter(this.intl, this.fastNumbers, options);
+    return new PolyNumberFormatter(this._intl, this.fastNumbers, options);
   }
 
   dtFormatter(dt: DateTime, intlOptions: Intl.DateTimeFormatOptions = {}) {
-    return new PolyDateFormatter(dt, this.intl, intlOptions);
+    return new PolyDateFormatter(dt, this._intl, intlOptions);
   }
 
   relFormatter(options: Intl.RelativeTimeFormatOptions = {}) {
-    return new PolyRelFormatter(this.intl, this.isEnglish(), options);
+    return new PolyRelFormatter(this._intl, this.isEnglish(), options);
   }
 
   isEnglish() {
     return (
       this.locale === "en" ||
       this.locale.toLowerCase() === "en-us" ||
-      (hasIntl() && new Intl.DateTimeFormat(this.intl).resolvedOptions().locale.startsWith("en-us"))
+      (hasIntl() && new Intl.DateTimeFormat(this._intl).resolvedOptions().locale.startsWith("en-us"))
     );
   }
 
@@ -568,5 +550,19 @@ export class Locale {
       this.numberingSystem === other.numberingSystem &&
       this.outputCalendar === other.outputCalendar
     );
+  }
+
+  private _supportsFastNumbers() {
+    if (this.numberingSystem && this.numberingSystem !== "latn") {
+      return false;
+    }
+    else {
+      return (
+        this.numberingSystem === "latn" ||
+        !this.locale ||
+        this.locale.startsWith("en") ||
+        (hasIntl() && Intl.DateTimeFormat(this._intl).resolvedOptions().numberingSystem === "latn")
+      );
+    }
   }
 }

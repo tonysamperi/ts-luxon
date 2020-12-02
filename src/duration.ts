@@ -26,7 +26,7 @@ interface NormalizedDurationObject {
 type NormalizedDurationUnit = keyof NormalizedDurationObject;
 
 type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
-type ConversionMatrix = Readonly<{ [key in ConversionMatrixUnit]: { [key in NormalizedDurationUnit]?: number } }>;
+type ConversionMatrix = Readonly<{ [key in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 // unit conversion constants
 const lowOrderMatrix = {
@@ -186,10 +186,10 @@ interface Config {
  */
 export class Duration {
   // Private readonly fields
-  private values: Readonly<NormalizedDurationObject>;
-  private loc: Locale;
-  private matrix: ConversionMatrix;
-  private readonly isLuxonDuration: true;
+  private _values: Readonly<NormalizedDurationObject>;
+  private _loc: Locale;
+  private _matrix: ConversionMatrix;
+  private readonly _isLuxonDuration: true;
 
   /**
    * @private
@@ -199,22 +199,23 @@ export class Duration {
     /**
      * @access private
      */
-    this.values = config.values;
+    this._values = config.values;
     /**
      * @access private
      */
-    this.loc = config.loc || Locale.create();
+    this._loc = config.loc || Locale.create();
     /**
      * @access private
      */
-    this.matrix = accurate ? accurateMatrix : casualMatrix;
+    this._matrix = accurate ? accurateMatrix : casualMatrix;
     /**
      * @access private
      */
-    this.isLuxonDuration = true;
+    this._isLuxonDuration = true;
   }
 
   static fromMillis(count: number): Duration;
+
   static fromMillis(count: number, options: DurationOptions & ThrowOnInvalid): Duration;
   static fromMillis(count: number, options: DurationOptions): Duration | null;
   /**
@@ -232,6 +233,7 @@ export class Duration {
   }
 
   static fromObject(obj: DurationObject): Duration;
+
   static fromObject(obj: DurationObject, options: DurationOptions & ThrowOnInvalid): Duration;
   static fromObject(obj: DurationObject, options: DurationOptions): Duration | null;
   /**
@@ -284,6 +286,7 @@ export class Duration {
   }
 
   static fromISO(text: string): Duration;
+
   static fromISO(text: string, options: DurationOptions & ThrowOnInvalid): Duration;
   static fromISO(text: string, options: DurationOptions): Duration | null;
   /**
@@ -353,7 +356,7 @@ export class Duration {
    * @return {boolean}
    */
   static isDuration(o: unknown): o is Duration {
-    return (o && (o as Duration).isLuxonDuration) || false;
+    return (o && (o as Duration)._isLuxonDuration) || false;
   }
 
   /**
@@ -361,7 +364,7 @@ export class Duration {
    * @type {string}
    */
   get locale() {
-    return this.loc.locale;
+    return this._loc.locale;
   }
 
   /**
@@ -370,7 +373,7 @@ export class Duration {
    * @type {NumberingSystem}
    */
   get numberingSystem() {
-    return this.loc.numberingSystem;
+    return this._loc.numberingSystem;
   }
 
   /**
@@ -394,7 +397,7 @@ export class Duration {
    * @return {string}
    */
   toFormat(format: string, options: DurationToFormatOptions = { floor: true }) {
-    return Formatter.create(this.loc, options).formatDurationFromString(this, format);
+    return Formatter.create(this._loc, options).formatDurationFromString(this, format);
   }
 
   /**
@@ -403,7 +406,7 @@ export class Duration {
    * @return {Object}
    */
   toObject(): DurationObject {
-    return Object.assign({}, this.values);
+    return Object.assign({}, this._values);
   }
 
   /**
@@ -440,10 +443,9 @@ export class Duration {
     if (this.minutes !== 0) {
       s += this.minutes + "M";
     }
-    if (this.seconds !== 0 || this.milliseconds !== 0)
-    // this will handle "floating point madness" by removing extra decimal places
-    // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
-    {
+    if (this.seconds !== 0 || this.milliseconds !== 0) {
+      // this will handle "floating point madness" by removing extra decimal places
+      // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
       s += roundTo(this.seconds + this.milliseconds / 1000, 3) + "S";
     }
     if (s === "P") {
@@ -486,12 +488,12 @@ export class Duration {
       result: NormalizedDurationObject = {};
 
     orderedUnits.forEach(unit => {
-      if (dur.values[unit] !== undefined || this.values[unit] !== undefined) {
+      if (dur._values[unit] !== undefined || this._values[unit] !== undefined) {
         result[unit] = dur.get(unit) + this.get(unit);
       }
     });
 
-    return this.clone(result);
+    return this._clone(result);
   }
 
   /**
@@ -513,11 +515,11 @@ export class Duration {
    */
   mapUnits(fn: (x: number, unit: DurationUnit) => number) {
     const result: NormalizedDurationObject = {};
-    for (const k in this.values) {
+    for (const k in this._values) {
       const unit = k as NormalizedDurationUnit;
-      result[unit] = asNumber(fn(this.values[unit] as number, unit));
+      result[unit] = asNumber(fn(this._values[unit] as number, unit));
     }
-    return this.clone(result);
+    return this._clone(result);
   }
 
   /**
@@ -541,10 +543,10 @@ export class Duration {
    */
   set(values: DurationObject) {
     const mixed = Object.assign(
-      this.values,
+      this._values,
       normalizeObject(values as Record<string, number>, Duration.normalizeUnit)
     );
-    return this.clone(mixed, false /* do not clean, merge with existing */);
+    return this._clone(mixed, false /* do not clean, merge with existing */);
   }
 
   /**
@@ -554,9 +556,9 @@ export class Duration {
    */
   reconfigure({ locale, numberingSystem, conversionAccuracy }: DurationOptions = {}) {
     const conf = {
-      values: this.values,
-      loc: this.loc.clone({ locale, numberingSystem }),
-      conversionAccuracy: conversionAccuracy || this.conversionAccuracy()
+      values: this._values,
+      loc: this._loc.clone({ locale, numberingSystem }),
+      conversionAccuracy: conversionAccuracy || this._conversionAccuracy()
     };
     return new Duration(conf);
   }
@@ -582,8 +584,8 @@ export class Duration {
   normalize() {
     // todo - this should keep the options...
     const vals = this.toObject();
-    normalizeValues(this.matrix, vals);
-    return this.clone(vals);
+    normalizeValues(this._matrix, vals);
+    return this._clone(vals);
   }
 
   /**
@@ -601,18 +603,16 @@ export class Duration {
     const built: NormalizedDurationObject = {},
       accumulated: NormalizedDurationObject = {},
       vals = this.toObject();
-    let lastUnit: NormalizedDurationUnit | undefined = undefined;
+    let lastUnit: NormalizedDurationUnit;
 
-    for (const k of orderedUnits) {
+    orderedUnits.forEach((k: NormalizedDurationUnit) => {
       if (normalizedUnits.indexOf(k) >= 0) {
         lastUnit = k;
-
         let own = 0;
-
         // anything we haven't boiled down yet should get boiled to this unit
         for (const acc in accumulated) {
           const unit = acc as ConversionMatrixUnit;
-          own += (this.matrix[unit][k] as number) * (accumulated[unit] as number);
+          own += (this._matrix[unit][k] as number) * (accumulated[unit] as number);
           delete accumulated[unit];
         }
 
@@ -629,13 +629,8 @@ export class Duration {
         // plus anything further down the chain that should be rolled up in to this
         for (const down in vals) {
           if (orderedUnits.indexOf(down as NormalizedDurationUnit) > orderedUnits.indexOf(k)) {
-            convert(
-              this.matrix,
-              vals,
-              down as NormalizedDurationUnit,
-              built,
-              k as ConversionMatrixUnit // never happens when k is milliseconds
-            );
+            // never happens when k is milliseconds
+            convert(this._matrix, vals, down as NormalizedDurationUnit, built, k as ConversionMatrixUnit);
           }
         }
         // otherwise, keep it in the wings to boil it later
@@ -643,7 +638,7 @@ export class Duration {
       else if (isNumber(vals[k])) {
         accumulated[k] = vals[k];
       }
-    }
+    });
 
     // anything leftover becomes the decimal for the last unit
     // lastUnit is defined here since units is not empty
@@ -651,17 +646,19 @@ export class Duration {
       const unit = key as NormalizedDurationUnit;
       const acc = accumulated[unit];
       if (acc !== undefined) {
-        built[lastUnit as NormalizedDurationUnit] =
-          (built[lastUnit as NormalizedDurationUnit] as number) +
+        // @ts-ignore
+        built[lastUnit as NormalizedDurationUnit] = (built[lastUnit as NormalizedDurationUnit] as number) +
+          // @ts-ignore
           (key === lastUnit
             ? (accumulated[key] as number)
             : // lastUnit could be 'milliseconds' but so would then be the unique key in accumulated
               // Cast to ConversionMatrixUnit is hence safe here
-            acc / (this.matrix[lastUnit as ConversionMatrixUnit][unit] as number));
+            // @ts-ignore
+            acc / (this._matrix[lastUnit as ConversionMatrixUnit][unit] as number));
       }
     }
 
-    return this.clone(built).normalize();
+    return this._clone(built).normalize();
   }
 
   /**
@@ -671,11 +668,11 @@ export class Duration {
    */
   negate() {
     const negated: NormalizedDurationObject = {};
-    for (const k in this.values) {
+    for (const k in this._values) {
       const unit = k as NormalizedDurationUnit;
-      negated[unit] = -(this.values[unit] as number);
+      negated[unit] = -(this._values[unit] as number);
     }
-    return this.clone(negated);
+    return this._clone(negated);
   }
 
   /**
@@ -683,7 +680,7 @@ export class Duration {
    * @type {number}
    */
   get years() {
-    return this.values.years || 0;
+    return this._values.years || 0;
   }
 
   /**
@@ -691,7 +688,7 @@ export class Duration {
    * @type {number}
    */
   get quarters() {
-    return this.values.quarters || 0;
+    return this._values.quarters || 0;
   }
 
   /**
@@ -699,7 +696,7 @@ export class Duration {
    * @type {number}
    */
   get months() {
-    return this.values.months || 0;
+    return this._values.months || 0;
   }
 
   /**
@@ -707,7 +704,7 @@ export class Duration {
    * @type {number}
    */
   get weeks() {
-    return this.values.weeks || 0;
+    return this._values.weeks || 0;
   }
 
   /**
@@ -715,7 +712,7 @@ export class Duration {
    * @type {number}
    */
   get days() {
-    return this.values.days || 0;
+    return this._values.days || 0;
   }
 
   /**
@@ -723,7 +720,7 @@ export class Duration {
    * @type {number}
    */
   get hours() {
-    return this.values.hours || 0;
+    return this._values.hours || 0;
   }
 
   /**
@@ -731,7 +728,7 @@ export class Duration {
    * @type {number}
    */
   get minutes() {
-    return this.values.minutes || 0;
+    return this._values.minutes || 0;
   }
 
   /**
@@ -739,7 +736,7 @@ export class Duration {
    * @return {number}
    */
   get seconds() {
-    return this.values.seconds || 0;
+    return this._values.seconds || 0;
   }
 
   /**
@@ -747,7 +744,7 @@ export class Duration {
    * @return {number}
    */
   get milliseconds() {
-    return this.values.milliseconds || 0;
+    return this._values.milliseconds || 0;
   }
 
   /**
@@ -757,12 +754,12 @@ export class Duration {
    * @return {boolean}
    */
   equals(other: Duration) {
-    if (!this.loc.equals(other.loc)) {
+    if (!this._loc.equals(other._loc)) {
       return false;
     }
 
     for (const u of orderedUnits) {
-      if (this.values[u] !== other.values[u]) {
+      if (this._values[u] !== other._values[u]) {
         return false;
       }
     }
@@ -774,12 +771,12 @@ export class Duration {
    * @private
    */
   // clone really means "create another instance just like this one, but with these changes"
-  private clone(values: NormalizedDurationObject, clear = true) {
+  private _clone(values: NormalizedDurationObject, clear = true) {
     // deep merge for vals
     const conf = {
-      values: clear ? values : Object.assign({}, this.values, values),
-      loc: this.loc,
-      conversionAccuracy: this.conversionAccuracy()
+      values: clear ? values : Object.assign({}, this._values, values),
+      loc: this._loc,
+      conversionAccuracy: this._conversionAccuracy()
     };
     return new Duration(conf);
   }
@@ -787,8 +784,8 @@ export class Duration {
   /**
    * @private
    */
-  private conversionAccuracy(): ConversionAccuracy {
-    return this.matrix === accurateMatrix ? "longterm" : "casual";
+  private _conversionAccuracy(): ConversionAccuracy {
+    return this._matrix === accurateMatrix ? "longterm" : "casual";
   }
 }
 

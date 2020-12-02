@@ -59,7 +59,7 @@ function highOrderDiffs(
 }
 
 export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], options: DurationOptions & ThrowOnInvalid) => {
-  // eslint-disable-next-line prefer-const
+  // tslint:disable-next-line:prefer-const
   let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
 
   const remainingMillis = later.valueOf() - cursor.valueOf();

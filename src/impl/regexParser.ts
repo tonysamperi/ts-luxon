@@ -3,7 +3,7 @@ import {
   signedOffset,
   parseInteger,
   parseMillis,
-  ianaRegex,
+  IANA_REGEX,
   isUndefined
 } from "./util";
 import * as English from "./english";
@@ -34,17 +34,17 @@ function combineRegexes(...regexes: RegExp[]) {
 }
 
 function combineExtractors(...extractors: CombinableExtractor[]) {
-  const combinedExtractor = (match: RegExpExecArray) =>
+
+  return (match: RegExpExecArray) =>
     extractors
-    .reduce<CombinableParseResult>(
-      ([mergedVals, mergedZone, cursor], ex) => {
-        const [val, zone, next] = ex(match, cursor);
-        return [Object.assign(mergedVals, val), mergedZone || zone, next];
-      },
-      [{}, null, 1]
-    )
-    .slice(0, 2) as ParseResult;
-  return combinedExtractor;
+      .reduce<CombinableParseResult>(
+        ([mergedVals, mergedZone, cursor], ex) => {
+          const [val, zone, next] = ex(match, cursor);
+          return [Object.assign(mergedVals, val), mergedZone || zone, next];
+        },
+        [{}, null, 1]
+      )
+      .slice(0, 2) as ParseResult;
 }
 
 function parse(s: string, ...patterns: ParsePattern[]) {
@@ -86,7 +86,7 @@ const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/,
   extractISOOrdinalData = simpleParse("year", "ordinal"),
   sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/, // dumbed-down version of the ISO one
   sqlTimeRegex = RegExp(
-    `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${ianaRegex.source}))?`
+    `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${IANA_REGEX.source}))?`
   ),
   sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
 
@@ -245,9 +245,9 @@ function extractRFC2822(match: RegExpExecArray): ParseResult {
 function preprocessRFC2822(s: string) {
   // Remove comments and folding whitespace and replace multiple-spaces with a single space
   return s
-  .replace(/\([^)]*\)|[\n\t]/g, " ")
-  .replace(/(\s\s+)/g, " ")
-  .trim();
+    .replace(/\([^)]*\)|[\n\t]/g, " ")
+    .replace(/(\s\s+)/g, " ")
+    .trim();
 }
 
 // http date

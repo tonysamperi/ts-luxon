@@ -338,14 +338,6 @@ interface Config extends DateTimeConfig {
  * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
  */
 export class DateTime {
-  // Private readonly fields
-  private readonly ts: number;
-  private _zone: Readonly<Zone>;
-  private loc: Locale;
-  private weekData: WeekDateTime | undefined;
-  private c: Readonly<GregorianDateTime>;
-  private readonly o: number;
-  private readonly isLuxonDateTime: true;
 
   /**
    * @access private
@@ -364,16 +356,16 @@ export class DateTime {
     /**
      * @access private
      */
-    this.ts = isUndefined(config.ts) ? Settings.now() : config.ts;
+    this._ts = isUndefined(config.ts) ? Settings.now() : config.ts;
 
     let o, c;
-    if (config.old !== undefined && config.old.ts === this.ts && config.old.zone.equals(zone)) {
+    if (config.old !== undefined && config.old.ts === this._ts && config.old.zone.equals(zone)) {
       o = config.old.o;
       c = config.old.c;
     }
     else {
-      o = zone.offset(this.ts);
-      c = tsToObj(this.ts, o);
+      o = zone.offset(this._ts);
+      c = tsToObj(this._ts, o);
     }
     if (Number.isNaN(c.year)) {
       throw new InvalidArgumentError("invalid timestamp");
@@ -382,11 +374,11 @@ export class DateTime {
     /**
      * @access private
      */
-    this.c = c;
+    this._c = c;
     /**
      * @access private
      */
-    this.o = o;
+    this._o = o;
     /**
      * @access private
      */
@@ -394,16 +386,447 @@ export class DateTime {
     /**
      * @access private
      */
-    this.loc = config.loc || Locale.create();
+    this._loc = config.loc || Locale.create();
     /**
      * @access private
      */
-    this.weekData = undefined;
+    this._weekData = undefined;
     /**
      * @access private
      */
-    this.isLuxonDateTime = true;
+    this._isLuxonDateTime = true;
   }
+
+  /**
+   * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
+   *
+   * @type {string}
+   */
+  get locale() {
+    return this._loc.locale;
+  }
+
+  /**
+   * Get the numbering system of a DateTime, such 'beng'. The numbering system is used when formatting the DateTime
+   *
+   * @type {string}
+   */
+  get numberingSystem() {
+    return this._loc.numberingSystem;
+  }
+
+  /**
+   * Get the output calendar of a DateTime, such 'islamic'. The output calendar is used when formatting the DateTime
+   *
+   * @type {string}
+   */
+  get outputCalendar() {
+    return this._loc.outputCalendar;
+  }
+
+  /**
+   * Get the time zone associated with this DateTime.
+   * @type {Zone}
+   */
+  get zone() {
+    return this._zone;
+  }
+
+  /**
+   * Get the name of the time zone.
+   * @type {string}
+   */
+  get zoneName() {
+    return this.zone.name;
+  }
+
+  /**
+   * Get the year
+   * @example DateTime.local(2017, 5, 25).year //=> 2017
+   * @type {number}
+   */
+  get year() {
+    return this._c.year;
+  }
+
+  /**
+   * Get the quarter
+   * @example DateTime.local(2017, 5, 25).quarter //=> 2
+   * @type {number}
+   */
+  get quarter() {
+    return Math.ceil(this._c.month / 3);
+  }
+
+  /**
+   * Get the month (1-12).
+   * @example DateTime.local(2017, 5, 25).month //=> 5
+   * @type {number}
+   */
+  get month() {
+    return this._c.month;
+  }
+
+  /**
+   * Get the day of the month (1-30ish).
+   * @example DateTime.local(2017, 5, 25).day //=> 25
+   * @type {number}
+   */
+  get day() {
+    return this._c.day;
+  }
+
+  /**
+   * Get the hour of the day (0-23).
+   * @example DateTime.local(2017, 5, 25, 9).hour //=> 9
+   * @type {number}
+   */
+  get hour() {
+    return this._c.hour;
+  }
+
+  /**
+   * Get the minute of the hour (0-59).
+   * @example DateTime.local(2017, 5, 25, 9, 30).minute //=> 30
+   * @type {number}
+   */
+  get minute() {
+    return this._c.minute;
+  }
+
+  /**
+   * Get the second of the minute (0-59).
+   * @example DateTime.local(2017, 5, 25, 9, 30, 52).second //=> 52
+   * @type {number}
+   */
+  get second() {
+    return this._c.second;
+  }
+
+  /**
+   * Get the millisecond of the second (0-999).
+   * @example DateTime.local(2017, 5, 25, 9, 30, 52, 654).millisecond //=> 654
+   * @type {number}
+   */
+  get millisecond() {
+    return this._c.millisecond;
+  }
+
+  /**
+   * Get the week year
+   * @see https://en.wikipedia.org/wiki/ISO_week_date
+   * @example DateTime.local(2014, 11, 31).weekYear //=> 2015
+   * @type {number}
+   */
+  get weekYear() {
+    return this._possiblyCachedWeekData().weekYear;
+  }
+
+  /**
+   * Get the week number of the week year (1-52ish).
+   * @see https://en.wikipedia.org/wiki/ISO_week_date
+   * @example DateTime.local(2017, 5, 25).weekNumber //=> 21
+   * @type {number}
+   */
+  get weekNumber() {
+    return this._possiblyCachedWeekData().weekNumber;
+  }
+
+  /**
+   * Get the day of the week.
+   * 1 is Monday and 7 is Sunday
+   * @see https://en.wikipedia.org/wiki/ISO_week_date
+   * @example DateTime.local(2014, 11, 31).weekday //=> 4
+   * @type {number}
+   */
+  get weekday() {
+    return this._possiblyCachedWeekData().weekday;
+  }
+
+  /**
+   * Get the ordinal (meaning the day of the year)
+   * @example DateTime.local(2017, 5, 25).ordinal //=> 145
+   * @type {number}
+   */
+  get ordinal() {
+    return gregorianToOrdinal(this._c).ordinal;
+  }
+
+  /**
+   * Get the human readable short month name, such as 'Oct'.
+   * Defaults to the system's locale if no locale has been specified
+   * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
+   * @type {string}
+   */
+  get monthShort() {
+    return Info.months("short", { locale: this.locale })[this.month - 1];
+  }
+
+  /**
+   * Get the human readable long month name, such as 'October'.
+   * Defaults to the system's locale if no locale has been specified
+   * @example DateTime.local(2017, 10, 30).monthLong //=> October
+   * @type {string}
+   */
+  get monthLong() {
+    return Info.months("long", { locale: this.locale })[this.month - 1];
+  }
+
+  /**
+   * Get the human readable short weekday, such as 'Mon'.
+   * Defaults to the system's locale if no locale has been specified
+   * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
+   * @type {string}
+   */
+  get weekdayShort() {
+    return Info.weekdays("short", { locale: this.locale })[this.weekday - 1];
+  }
+
+  /**
+   * Get the human readable long weekday, such as 'Monday'.
+   * Defaults to the system's locale if no locale has been specified
+   * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
+   * @type {string}
+   */
+  get weekdayLong() {
+    return Info.weekdays("long", { locale: this.locale })[this.weekday - 1];
+  }
+
+  /**
+   * Get the UTC offset of this DateTime in minutes
+   * @example DateTime.now().offset //=> -240
+   * @example DateTime.utc().offset //=> 0
+   * @type {number}
+   */
+  get offset() {
+    return this.zone.offset(this._ts);
+  }
+
+  /**
+   * Get the short human name for the zone's current offset, for example "EST" or "EDT".
+   * Defaults to the system's locale if no locale has been specified
+   * @type {string}
+   */
+  get offsetNameShort() {
+    return this.zone.offsetName(this._ts, {
+      format: "short",
+      locale: this.locale
+    });
+  }
+
+  /**
+   * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
+   * Defaults to the system's locale if no locale has been specified
+   * @type {string}
+   */
+  get offsetNameLong() {
+    return this.zone.offsetName(this._ts, {
+      format: "long",
+      locale: this.locale
+    });
+  }
+
+  /**
+   * Get whether this zone's offset ever changes, as in a DST.
+   * @type {boolean}
+   */
+  get isOffsetFixed() {
+    return this.zone.isUniversal;
+  }
+
+  /**
+   * Get whether the DateTime is in a DST.
+   * @type {boolean}
+   */
+  get isInDST() {
+    return (
+      this.offset > this.set({ month: 12 }).offset || this.offset > this.set({ month: 6 }).offset
+    );
+  }
+
+  /**
+   * Returns true if this DateTime is in a leap year, false otherwise
+   * @example DateTime.local(2016).isInLeapYear //=> true
+   * @example DateTime.local(2013).isInLeapYear //=> false
+   * @type {boolean}
+   */
+  get isInLeapYear() {
+    return isLeapYear(this.year);
+  }
+
+  /**
+   * Returns the number of days in this DateTime's month
+   * @example DateTime.local(2016, 2).daysInMonth //=> 29
+   * @example DateTime.local(2016, 3).daysInMonth //=> 31
+   * @type {number}
+   */
+  get daysInMonth() {
+    return daysInMonth(this.year, this.month);
+  }
+
+  /**
+   * Returns the number of days in this DateTime's year
+   * @example DateTime.local(2016).daysInYear //=> 366
+   * @example DateTime.local(2013).daysInYear //=> 365
+   * @type {number}
+   */
+  get daysInYear() {
+    return daysInYear(this.year);
+  }
+
+  /**
+   * Returns the number of weeks in this DateTime's year
+   * @see https://en.wikipedia.org/wiki/ISO_week_date
+   * @example DateTime.local(2004).weeksInWeekYear //=> 53
+   * @example DateTime.local(2013).weeksInWeekYear //=> 52
+   * @type {number}
+   */
+  get weeksInWeekYear() {
+    return weeksInWeekYear(this.weekYear);
+  }
+
+  // FORMAT PRESETS
+
+  /**
+   * {@link DateTime#toLocaleString} format like 10/14/1983
+   * @type {Object}
+   */
+  static readonly DATE_SHORT = Formats.DATE_SHORT;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_MED = Formats.DATE_MED;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_MED_WITH_WEEKDAY = Formats.DATE_MED_WITH_WEEKDAY;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_FULL = Formats.DATE_FULL;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_HUGE = Formats.DATE_HUGE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_SIMPLE = Formats.TIME_SIMPLE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_SECONDS = Formats.TIME_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_LONG_OFFSET = Formats.TIME_WITH_LONG_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_SIMPLE = Formats.TIME_24_SIMPLE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_SECONDS = Formats.TIME_24_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_SHORT_OFFSET = Formats.TIME_24_WITH_SHORT_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_LONG_OFFSET = Formats.TIME_24_WITH_LONG_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_SHORT = Formats.DATETIME_SHORT;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_SHORT_WITH_SECONDS = Formats.DATETIME_SHORT_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED = Formats.DATETIME_MED;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED_WITH_SECONDS = Formats.DATETIME_MED_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED_WITH_WEEKDAY = Formats.DATETIME_MED_WITH_WEEKDAY;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_FULL = Formats.DATETIME_FULL;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_FULL_WITH_SECONDS = Formats.DATETIME_FULL_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_HUGE = Formats.DATETIME_HUGE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_HUGE_WITH_SECONDS = Formats.DATETIME_HUGE_WITH_SECONDS;
+
+  // Private readonly fields
+  private readonly _ts: number;
+  private _zone: Readonly<Zone>;
+  private _loc: Locale;
+  private _weekData: WeekDateTime | undefined;
+  private _c: Readonly<GregorianDateTime>;
+  private readonly _o: number;
+  private readonly _isLuxonDateTime: true;
 
   // CONSTRUCT
 
@@ -451,7 +874,7 @@ export class DateTime {
   static local(...args: (number | DateTimeOptions)[]) {
     const [options, values] = lastOpts(args),
       [year, month, day, hour, minute, second, millisecond] = values;
-    return DateTime.quickDT({ year, month, day, hour, minute, second, millisecond }, options);
+    return DateTime._quickDT({ year, month, day, hour, minute, second, millisecond }, options);
   }
 
   static utc(...args: number[]): DateTime;
@@ -486,7 +909,7 @@ export class DateTime {
       [year, month, day, hour, minute, second, millisecond] = values;
 
     options.zone = FixedOffsetZone.utcInstance;
-    return DateTime.quickDT({ year, month, day, hour, minute, second, millisecond }, options);
+    return DateTime._quickDT({ year, month, day, hour, minute, second, millisecond }, options);
   }
 
   static fromJSDate(date: Date): DateTime;
@@ -519,6 +942,7 @@ export class DateTime {
   }
 
   static fromMillis(milliseconds: number): DateTime;
+
   static fromMillis(milliseconds: number, options: DateTimeOptions & ThrowOnInvalid): DateTime;
   static fromMillis(milliseconds: number, options: DateTimeOptions): DateTime | null;
   /**
@@ -557,6 +981,7 @@ export class DateTime {
   }
 
   static fromSeconds(seconds: number): DateTime;
+
   static fromSeconds(seconds: number, options: DateTimeOptions & ThrowOnInvalid): DateTime;
   static fromSeconds(seconds: number, options: DateTimeOptions): DateTime | null;
   /**
@@ -668,11 +1093,11 @@ export class DateTime {
     const gregorianNow = tsToObj(tsNow, offsetProvis);
     if (useWeekData) {
       const objNow = gregorianToWeek(gregorianNow);
-      DateTime.normalizeWithDefaults(objNow, normalized, orderedWeekUnits, defaultWeekUnitValues);
+      DateTime._normalizeWithDefaults(objNow, normalized, orderedWeekUnits, defaultWeekUnitValues);
     }
     else if (containsOrdinal) {
       const objNow = gregorianToOrdinal(gregorianNow);
-      DateTime.normalizeWithDefaults(
+      DateTime._normalizeWithDefaults(
         objNow,
         normalized,
         orderedOrdinalUnits,
@@ -680,7 +1105,7 @@ export class DateTime {
       );
     }
     else {
-      DateTime.normalizeWithDefaults(gregorianNow, normalized, orderedUnits, defaultUnitValues);
+      DateTime._normalizeWithDefaults(gregorianNow, normalized, orderedUnits, defaultUnitValues);
     }
 
     // make sure the values we have are in range
@@ -894,7 +1319,169 @@ export class DateTime {
    * @return {boolean}
    */
   static isDateTime(o: unknown): o is DateTime {
-    return (o && (o as DateTime).isLuxonDateTime) || false;
+    return (o && (o as DateTime)._isLuxonDateTime) || false;
+  }
+
+  static min(): undefined;
+  static min(...dateTimes: DateTime[]): DateTime;
+  /**
+   * Return the min of several date times
+   * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
+   * @return {DateTime} the min DateTime, or undefined if called with no arguments
+   */
+  static min(...dateTimes: DateTime[]) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
+      throw new InvalidArgumentError("min requires all arguments be DateTimes");
+    }
+    if (dateTimes.length === 0) {
+      return undefined;
+    }
+    return bestBy(dateTimes, i => i.valueOf(), Math.min);
+  }
+
+  static max(): undefined;
+  static max(...dateTimes: DateTime[]): DateTime;
+  /**
+   * Return the max of several date times
+   * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
+   * @return {DateTime} the max DateTime, or undefined if called with no arguments
+   */
+  static max(...dateTimes: DateTime[]) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
+      throw new InvalidArgumentError("max requires all arguments be DateTimes");
+    }
+    if (dateTimes.length === 0) {
+      return undefined;
+    }
+    return bestBy(dateTimes, i => i.valueOf(), Math.max);
+  }
+
+  // MISC
+
+  /**
+   * Explain how a string would be parsed by fromFormat()
+   * @param {string} text - the string to parse
+   * @param {string} format - the format the string is expected to be in (see description)
+   * @param {Object} options - options taken by fromFormat()
+   * @return {Object}
+   */
+  static fromFormatExplain(text: string, format: string, options: DateTimeOptions = {}) {
+    const localeToUse = Locale.create(
+      options.locale,
+      options.numberingSystem,
+      options.outputCalendar,
+      true /* defaultToEN */
+    );
+
+    return explainFromTokens(localeToUse, text, format);
+  }
+
+  /**
+   * @private
+   */
+  // this is a dumbed down version of fromObject() that runs about 60% faster
+  // but doesn't do any validation, makes a bunch of assumptions about what units
+  // are present, and so on.
+  private static _quickDT(obj: GregorianDateTime, options: DateTimeOptions) {
+    const zone = normalizeZone(options.zone, Settings.defaultZone),
+      loc = Locale.fromObject(options),
+      tsNow = Settings.now();
+
+    let ts;
+
+    // assume we have the higher-order units
+    if (!isUndefined(obj.year)) {
+      for (const u of orderedUnits) {
+        if (isUndefined(obj[u])) {
+          obj[u] = defaultUnitValues[u];
+        }
+      }
+
+      const invalid = hasInvalidGregorianData(obj) || hasInvalidTimeData(obj);
+      if (invalid) {
+        if (options.nullOnInvalid) {
+          return null;
+        }
+        throw new UnitOutOfRangeError(invalid[0], invalid[1]);
+      }
+
+      const offsetProvis = zone.offset(tsNow);
+      ts = objToTS(obj, offsetProvis, zone)[0];
+    }
+    else {
+      ts = tsNow;
+    }
+
+    return new DateTime({ ts, zone, loc });
+  }
+
+  /**
+   * @private
+   */
+  private static _normalizeWithDefaults<T>(
+    objNow: T,
+    normalized: Partial<T>,
+    units: Array<keyof T>,
+    defaultValues: Partial<T>
+  ) {
+    // set default values for missing stuff in object
+    let foundFirst = false;
+    for (const u of units) {
+      const v = normalized[u];
+      if (!isUndefined(v)) {
+        foundFirst = true;
+      }
+      else if (foundFirst) {
+        normalized[u] = defaultValues[u];
+      }
+      else {
+        normalized[u] = objNow[u];
+      }
+    }
+  }
+
+  /**
+   * @private
+   */
+  private static _diffRelative(start: DateTime, end: DateTime, options: DiffRelativeOptions) {
+    const round = isUndefined(options.round) ? true : options.round,
+      format = (c: number, unit: Intl.RelativeTimeFormatUnit) => {
+        c = roundTo(c, round || options.calendary ? 0 : 2, true);
+        const rtfOptions: Intl.RelativeTimeFormatOptions = { numeric: options.numeric };
+        if (options.style) {
+          rtfOptions.style = options.style;
+        }
+        const formatter = end._loc.clone(options).relFormatter(rtfOptions);
+        return formatter.format(c, unit);
+      },
+      differ = (unit: Intl.RelativeTimeFormatUnit) => {
+        if (options.calendary) {
+          if (!end.hasSame(start, unit)) {
+            return end
+              .startOf(unit)
+              .diff(start.startOf(unit), unit)
+              .get(unit);
+          }
+          else {
+            return 0;
+          }
+        }
+        else {
+          return end.diff(start, unit).get(unit);
+        }
+      };
+
+    if (options.unit) {
+      return format(differ(options.unit), options.unit);
+    }
+
+    for (const unit of options.units) {
+      const count = differ(unit);
+      if (Math.abs(count) >= 1) {
+        return format(count, unit);
+      }
+    }
+    return format(0, options.units[options.units.length - 1]);
   }
 
   // INFO
@@ -911,300 +1498,12 @@ export class DateTime {
   }
 
   /**
-   * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
-   *
-   * @type {string}
-   */
-  get locale() {
-    return this.loc.locale;
-  }
-
-  /**
-   * Get the numbering system of a DateTime, such 'beng'. The numbering system is used when formatting the DateTime
-   *
-   * @type {string}
-   */
-  get numberingSystem() {
-    return this.loc.numberingSystem;
-  }
-
-  /**
-   * Get the output calendar of a DateTime, such 'islamic'. The output calendar is used when formatting the DateTime
-   *
-   * @type {string}
-   */
-  get outputCalendar() {
-    return this.loc.outputCalendar;
-  }
-
-  /**
-   * Get the time zone associated with this DateTime.
-   * @type {Zone}
-   */
-  get zone() {
-    return this._zone;
-  }
-
-  /**
-   * Get the name of the time zone.
-   * @type {string}
-   */
-  get zoneName() {
-    return this.zone.name;
-  }
-
-  /**
-   * Get the year
-   * @example DateTime.local(2017, 5, 25).year //=> 2017
-   * @type {number}
-   */
-  get year() {
-    return this.c.year;
-  }
-
-  /**
-   * Get the quarter
-   * @example DateTime.local(2017, 5, 25).quarter //=> 2
-   * @type {number}
-   */
-  get quarter() {
-    return Math.ceil(this.c.month / 3);
-  }
-
-  /**
-   * Get the month (1-12).
-   * @example DateTime.local(2017, 5, 25).month //=> 5
-   * @type {number}
-   */
-  get month() {
-    return this.c.month;
-  }
-
-  /**
-   * Get the day of the month (1-30ish).
-   * @example DateTime.local(2017, 5, 25).day //=> 25
-   * @type {number}
-   */
-  get day() {
-    return this.c.day;
-  }
-
-  /**
-   * Get the hour of the day (0-23).
-   * @example DateTime.local(2017, 5, 25, 9).hour //=> 9
-   * @type {number}
-   */
-  get hour() {
-    return this.c.hour;
-  }
-
-  /**
-   * Get the minute of the hour (0-59).
-   * @example DateTime.local(2017, 5, 25, 9, 30).minute //=> 30
-   * @type {number}
-   */
-  get minute() {
-    return this.c.minute;
-  }
-
-  /**
-   * Get the second of the minute (0-59).
-   * @example DateTime.local(2017, 5, 25, 9, 30, 52).second //=> 52
-   * @type {number}
-   */
-  get second() {
-    return this.c.second;
-  }
-
-  /**
-   * Get the millisecond of the second (0-999).
-   * @example DateTime.local(2017, 5, 25, 9, 30, 52, 654).millisecond //=> 654
-   * @type {number}
-   */
-  get millisecond() {
-    return this.c.millisecond;
-  }
-
-  /**
-   * Get the week year
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2014, 11, 31).weekYear //=> 2015
-   * @type {number}
-   */
-  get weekYear() {
-    return this.possiblyCachedWeekData().weekYear;
-  }
-
-  /**
-   * Get the week number of the week year (1-52ish).
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2017, 5, 25).weekNumber //=> 21
-   * @type {number}
-   */
-  get weekNumber() {
-    return this.possiblyCachedWeekData().weekNumber;
-  }
-
-  /**
-   * Get the day of the week.
-   * 1 is Monday and 7 is Sunday
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2014, 11, 31).weekday //=> 4
-   * @type {number}
-   */
-  get weekday() {
-    return this.possiblyCachedWeekData().weekday;
-  }
-
-  /**
-   * Get the ordinal (meaning the day of the year)
-   * @example DateTime.local(2017, 5, 25).ordinal //=> 145
-   * @type {number}
-   */
-  get ordinal() {
-    return gregorianToOrdinal(this.c).ordinal;
-  }
-
-  /**
-   * Get the human readable short month name, such as 'Oct'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
-   * @type {string}
-   */
-  get monthShort() {
-    return Info.months("short", { locale: this.locale })[this.month - 1];
-  }
-
-  /**
-   * Get the human readable long month name, such as 'October'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).monthLong //=> October
-   * @type {string}
-   */
-  get monthLong() {
-    return Info.months("long", { locale: this.locale })[this.month - 1];
-  }
-
-  /**
-   * Get the human readable short weekday, such as 'Mon'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
-   * @type {string}
-   */
-  get weekdayShort() {
-    return Info.weekdays("short", { locale: this.locale })[this.weekday - 1];
-  }
-
-  /**
-   * Get the human readable long weekday, such as 'Monday'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
-   * @type {string}
-   */
-  get weekdayLong() {
-    return Info.weekdays("long", { locale: this.locale })[this.weekday - 1];
-  }
-
-  /**
-   * Get the UTC offset of this DateTime in minutes
-   * @example DateTime.now().offset //=> -240
-   * @example DateTime.utc().offset //=> 0
-   * @type {number}
-   */
-  get offset() {
-    return this.zone.offset(this.ts);
-  }
-
-  /**
-   * Get the short human name for the zone's current offset, for example "EST" or "EDT".
-   * Defaults to the system's locale if no locale has been specified
-   * @type {string}
-   */
-  get offsetNameShort() {
-    return this.zone.offsetName(this.ts, {
-      format: "short",
-      locale: this.locale
-    });
-  }
-
-  /**
-   * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
-   * Defaults to the system's locale if no locale has been specified
-   * @type {string}
-   */
-  get offsetNameLong() {
-    return this.zone.offsetName(this.ts, {
-      format: "long",
-      locale: this.locale
-    });
-  }
-
-  /**
-   * Get whether this zone's offset ever changes, as in a DST.
-   * @type {boolean}
-   */
-  get isOffsetFixed() {
-    return this.zone.isUniversal;
-  }
-
-  /**
-   * Get whether the DateTime is in a DST.
-   * @type {boolean}
-   */
-  get isInDST() {
-    return (
-      this.offset > this.set({ month: 12 }).offset || this.offset > this.set({ month: 6 }).offset
-    );
-  }
-
-  /**
-   * Returns true if this DateTime is in a leap year, false otherwise
-   * @example DateTime.local(2016).isInLeapYear //=> true
-   * @example DateTime.local(2013).isInLeapYear //=> false
-   * @type {boolean}
-   */
-  get isInLeapYear() {
-    return isLeapYear(this.year);
-  }
-
-  /**
-   * Returns the number of days in this DateTime's month
-   * @example DateTime.local(2016, 2).daysInMonth //=> 29
-   * @example DateTime.local(2016, 3).daysInMonth //=> 31
-   * @type {number}
-   */
-  get daysInMonth() {
-    return daysInMonth(this.year, this.month);
-  }
-
-  /**
-   * Returns the number of days in this DateTime's year
-   * @example DateTime.local(2016).daysInYear //=> 366
-   * @example DateTime.local(2013).daysInYear //=> 365
-   * @type {number}
-   */
-  get daysInYear() {
-    return daysInYear(this.year);
-  }
-
-  /**
-   * Returns the number of weeks in this DateTime's year
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2004).weeksInWeekYear //=> 53
-   * @example DateTime.local(2013).weeksInWeekYear //=> 52
-   * @type {number}
-   */
-  get weeksInWeekYear() {
-    return weeksInWeekYear(this.weekYear);
-  }
-
-  /**
    * Returns the resolved Intl options for this DateTime.
    * This is useful in understanding the behavior of formatting methods
    * @return {Object}
    */
   resolvedLocaleOptions() {
-    const { locale, numberingSystem: ns, calendar } = Formatter.create(this.loc).resolvedOptions(
+    const { locale, numberingSystem: ns, calendar } = Formatter.create(this._loc).resolvedOptions(
       this
     );
     const numberingSystem = ns as NumberingSystem;
@@ -1267,13 +1566,13 @@ export class DateTime {
       throw new InvalidZoneError(zone.name);
     }
     else {
-      let newTS = this.ts;
+      let newTS = this._ts;
       if (keepLocalTime) {
-        const offsetGuess = zone.offset(this.ts);
+        const offsetGuess = zone.offset(this._ts);
         const asObj = this.toObject();
         newTS = objToTS(asObj, offsetGuess, zone)[0];
       }
-      return this.clone({ ts: newTS, zone });
+      return this._clone({ ts: newTS, zone });
     }
   }
 
@@ -1287,8 +1586,8 @@ export class DateTime {
    * @return {DateTime}
    */
   reconfigure(options: LocaleOptions) {
-    const loc = this.loc.clone(options);
-    return this.clone({ loc });
+    const loc = this._loc.clone(options);
+    return this._clone({ loc });
   }
 
   /**
@@ -1320,10 +1619,10 @@ export class DateTime {
 
     let mixed;
     if (settingWeekStuff) {
-      mixed = weekToGregorian(Object.assign(gregorianToWeek(this.c), normalized));
+      mixed = weekToGregorian(Object.assign(gregorianToWeek(this._c), normalized));
     }
     else if (!isUndefined(normalized.ordinal)) {
-      mixed = ordinalToGregorian(Object.assign(gregorianToOrdinal(this.c), normalized));
+      mixed = ordinalToGregorian(Object.assign(gregorianToOrdinal(this._c), normalized));
     }
     else {
       mixed = Object.assign(this.toObject(), normalized);
@@ -1335,8 +1634,8 @@ export class DateTime {
       }
     }
 
-    const [ts, o] = objToTS(mixed, this.o, this.zone);
-    return this.clone({ ts, o });
+    const [ts, o] = objToTS(mixed, this._o, this.zone);
+    return this._clone({ ts, o });
   }
 
   /**
@@ -1354,7 +1653,7 @@ export class DateTime {
    */
   plus(duration: DurationLike) {
     const dur = friendlyDuration(duration);
-    return this.clone(this.adjustTime(dur));
+    return this._clone(this._adjustTime(dur));
   }
 
   /**
@@ -1365,7 +1664,7 @@ export class DateTime {
    */
   minus(duration: DurationLike) {
     const dur = friendlyDuration(duration).negate();
-    return this.clone(this.adjustTime(dur));
+    return this._clone(this._adjustTime(dur));
   }
 
   /**
@@ -1430,8 +1729,8 @@ export class DateTime {
    */
   endOf(unit: DurationUnit) {
     return this.plus({ [unit]: 1 })
-    .startOf(unit)
-    .minus({ milliseconds: 1 });
+      .startOf(unit)
+      .minus({ milliseconds: 1 });
   }
 
   // OUTPUT
@@ -1450,7 +1749,7 @@ export class DateTime {
    * @return {string}
    */
   toFormat(format: string, options: LocaleOptions = {}) {
-    return Formatter.create(this.loc.redefaultToEN(options)).formatDateTimeFromString(this, format);
+    return Formatter.create(this._loc.redefaultToEN(options)).formatDateTimeFromString(this, format);
   }
 
   /**
@@ -1470,7 +1769,7 @@ export class DateTime {
    * @return {string}
    */
   toLocaleString(options: Intl.DateTimeFormatOptions = Formats.DATE_SHORT) {
-    return Formatter.create(this.loc, options).formatDateTime(this);
+    return Formatter.create(this._loc, options).formatDateTime(this);
   }
 
   /**
@@ -1487,7 +1786,7 @@ export class DateTime {
    *                                   //=> ]
    */
   toLocaleParts(options: Intl.DateTimeFormatOptions = {}) {
-    return Formatter.create(this.loc, options).formatDateTimeParts(this);
+    return Formatter.create(this._loc, options).formatDateTimeParts(this);
   }
 
   /**
@@ -1645,7 +1944,7 @@ export class DateTime {
    * @return {number}
    */
   toMillis() {
-    return this.ts;
+    return this._ts;
   }
 
   /**
@@ -1653,7 +1952,7 @@ export class DateTime {
    * @return {number}
    */
   toSeconds() {
-    return this.ts / 1000;
+    return this._ts / 1000;
   }
 
   /**
@@ -1678,7 +1977,7 @@ export class DateTime {
    * @return {Object}
    */
   toObject() {
-    return Object.assign({}, this.c) as GregorianDateTime;
+    return Object.assign({}, this._c) as GregorianDateTime;
   }
 
   /**
@@ -1686,7 +1985,7 @@ export class DateTime {
    * @return {Date}
    */
   toJSDate() {
-    return new Date(this.ts);
+    return new Date(this._ts);
   }
 
   // COMPARE
@@ -1809,7 +2108,7 @@ export class DateTime {
     return (
       this.valueOf() === other.valueOf() &&
       this.zone.equals(other.zone) &&
-      this.loc.equals(other.loc)
+      this._loc.equals(other._loc)
     );
   }
 
@@ -1834,7 +2133,7 @@ export class DateTime {
   toRelative(options: ToRelativeOptions = {}) {
     const base = options.base || DateTime.fromObject({}, { zone: this.zone });
     const padding = options.padding ? (this < base ? -options.padding : options.padding) : 0;
-    return DateTime.diffRelative(
+    return DateTime._diffRelative(
       base,
       this.plus({ milliseconds: padding }),
       Object.assign(options, {
@@ -1866,7 +2165,7 @@ export class DateTime {
    * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
    */
   toRelativeCalendar(options: ToRelativeCalendarOptions = {}) {
-    return DateTime.diffRelative(
+    return DateTime._diffRelative(
       options.base || DateTime.fromObject({}, { zone: this.zone }),
       this,
       Object.assign(options, {
@@ -1877,250 +2176,18 @@ export class DateTime {
     );
   }
 
-  static min(): undefined;
-  static min(...dateTimes: DateTime[]): DateTime;
-  /**
-   * Return the min of several date times
-   * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
-   * @return {DateTime} the min DateTime, or undefined if called with no arguments
-   */
-  static min(...dateTimes: DateTime[]) {
-    if (!dateTimes.every(DateTime.isDateTime)) {
-      throw new InvalidArgumentError("min requires all arguments be DateTimes");
-    }
-    if (dateTimes.length === 0) {
-      return undefined;
-    }
-    return bestBy(dateTimes, i => i.valueOf(), Math.min);
-  }
-
-  static max(): undefined;
-  static max(...dateTimes: DateTime[]): DateTime;
-  /**
-   * Return the max of several date times
-   * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
-   * @return {DateTime} the max DateTime, or undefined if called with no arguments
-   */
-  static max(...dateTimes: DateTime[]) {
-    if (!dateTimes.every(DateTime.isDateTime)) {
-      throw new InvalidArgumentError("max requires all arguments be DateTimes");
-    }
-    if (dateTimes.length === 0) {
-      return undefined;
-    }
-    return bestBy(dateTimes, i => i.valueOf(), Math.max);
-  }
-
-  // MISC
-
-  /**
-   * Explain how a string would be parsed by fromFormat()
-   * @param {string} text - the string to parse
-   * @param {string} format - the format the string is expected to be in (see description)
-   * @param {Object} options - options taken by fromFormat()
-   * @return {Object}
-   */
-  static fromFormatExplain(text: string, format: string, options: DateTimeOptions = {}) {
-    const localeToUse = Locale.create(
-      options.locale,
-      options.numberingSystem,
-      options.outputCalendar,
-      true /* defaultToEN */
-    );
-
-    return explainFromTokens(localeToUse, text, format);
-  }
-
-  // FORMAT PRESETS
-
-  /**
-   * {@link DateTime#toLocaleString} format like 10/14/1983
-   * @type {Object}
-   */
-  static get DATE_SHORT() {
-    return Formats.DATE_SHORT;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
-   * @type {Object}
-   */
-  static get DATE_MED() {
-    return Formats.DATE_MED;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
-   * @type {Object}
-   */
-  static get DATE_MED_WITH_WEEKDAY() {
-    return Formats.DATE_MED_WITH_WEEKDAY;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
-   * @type {Object}
-   */
-  static get DATE_FULL() {
-    return Formats.DATE_FULL;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
-   * @type {Object}
-   */
-  static get DATE_HUGE() {
-    return Formats.DATE_HUGE;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get TIME_SIMPLE() {
-    return Formats.TIME_SIMPLE;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get TIME_WITH_SECONDS() {
-    return Formats.TIME_WITH_SECONDS;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get TIME_WITH_SHORT_OFFSET() {
-    return Formats.TIME_WITH_SHORT_OFFSET;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get TIME_WITH_LONG_OFFSET() {
-    return Formats.TIME_WITH_LONG_OFFSET;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
-   * @type {Object}
-   */
-  static get TIME_24_SIMPLE() {
-    return Formats.TIME_24_SIMPLE;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
-   * @type {Object}
-   */
-  static get TIME_24_WITH_SECONDS() {
-    return Formats.TIME_24_WITH_SECONDS;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
-   * @type {Object}
-   */
-  static get TIME_24_WITH_SHORT_OFFSET() {
-    return Formats.TIME_24_WITH_SHORT_OFFSET;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
-   * @type {Object}
-   */
-  static get TIME_24_WITH_LONG_OFFSET() {
-    return Formats.TIME_24_WITH_LONG_OFFSET;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_SHORT() {
-    return Formats.DATETIME_SHORT;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_SHORT_WITH_SECONDS() {
-    return Formats.DATETIME_SHORT_WITH_SECONDS;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_MED() {
-    return Formats.DATETIME_MED;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_MED_WITH_SECONDS() {
-    return Formats.DATETIME_MED_WITH_SECONDS;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_MED_WITH_WEEKDAY() {
-    return Formats.DATETIME_MED_WITH_WEEKDAY;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_FULL() {
-    return Formats.DATETIME_FULL;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_FULL_WITH_SECONDS() {
-    return Formats.DATETIME_FULL_WITH_SECONDS;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_HUGE() {
-    return Formats.DATETIME_HUGE;
-  }
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static get DATETIME_HUGE_WITH_SECONDS() {
-    return Formats.DATETIME_HUGE_WITH_SECONDS;
-  }
-
   /**
    * @private
    */
-  //* *************************** *//
+  // * *************************** *//
   // Static private helper methods //
-  //* *************************** *//
+  // * *************************** *//
   // we cache week data on the DT object and this intermediates the cache
-  private possiblyCachedWeekData() {
-    if (this.weekData === undefined) {
-      this.weekData = gregorianToWeek(this.c);
+  private _possiblyCachedWeekData() {
+    if (this._weekData === undefined) {
+      this._weekData = gregorianToWeek(this._c);
     }
-    return this.weekData;
+    return this._weekData;
   }
 
   /**
@@ -2128,13 +2195,13 @@ export class DateTime {
    */
   // clone really means, "make a new object with these modifications". all "setters" really use this
   // to create a new object while only changing some of the properties
-  private clone(alts: { ts?: number; zone?: Zone; loc?: Locale; o?: number }) {
+  private _clone(alts: { ts?: number; zone?: Zone; loc?: Locale; o?: number }) {
     const current = {
-      ts: this.ts,
+      ts: this._ts,
       zone: this.zone,
-      c: this.c,
-      o: this.o,
-      loc: this.loc
+      c: this._c,
+      o: this._o,
+      loc: this._loc
     };
     return new DateTime(Object.assign({}, current, alts, { old: current }));
   }
@@ -2142,55 +2209,16 @@ export class DateTime {
   /**
    * @private
    */
-  // this is a dumbed down version of fromObject() that runs about 60% faster
-  // but doesn't do any validation, makes a bunch of assumptions about what units
-  // are present, and so on.
-  private static quickDT(obj: GregorianDateTime, options: DateTimeOptions) {
-    const zone = normalizeZone(options.zone, Settings.defaultZone),
-      loc = Locale.fromObject(options),
-      tsNow = Settings.now();
-
-    let ts;
-
-    // assume we have the higher-order units
-    if (!isUndefined(obj.year)) {
-      for (const u of orderedUnits) {
-        if (isUndefined(obj[u])) {
-          obj[u] = defaultUnitValues[u];
-        }
-      }
-
-      const invalid = hasInvalidGregorianData(obj) || hasInvalidTimeData(obj);
-      if (invalid) {
-        if (options.nullOnInvalid) {
-          return null;
-        }
-        throw new UnitOutOfRangeError(invalid[0], invalid[1]);
-      }
-
-      const offsetProvis = zone.offset(tsNow);
-      ts = objToTS(obj, offsetProvis, zone)[0];
-    }
-    else {
-      ts = tsNow;
-    }
-
-    return new DateTime({ ts, zone, loc });
-  }
-
-  /**
-   * @private
-   */
   // create a new DT instance by adding a duration, adjusting for DSTs
-  private adjustTime(dur: Duration) {
-    const previousOffset = this.o,
-      year = this.c.year + Math.trunc(dur.years),
-      month = this.c.month + Math.trunc(dur.months) + Math.trunc(dur.quarters) * 3,
-      c = Object.assign({}, this.c, {
+  private _adjustTime(dur: Duration) {
+    const previousOffset = this._o,
+      year = this._c.year + Math.trunc(dur.years),
+      month = this._c.month + Math.trunc(dur.months) + Math.trunc(dur.quarters) * 3,
+      c = Object.assign({}, this._c, {
         year,
         month,
         day:
-          Math.min(this.c.day, daysInMonth(year, month)) +
+          Math.min(this._c.day, daysInMonth(year, month)) +
           Math.trunc(dur.days) +
           Math.trunc(dur.weeks) * 7
       }),
@@ -2216,75 +2244,6 @@ export class DateTime {
     }
 
     return { ts, o };
-  }
-
-  /**
-   * @private
-   */
-  private static normalizeWithDefaults<T>(
-    objNow: T,
-    normalized: Partial<T>,
-    units: Array<keyof T>,
-    defaultValues: Partial<T>
-  ) {
-    // set default values for missing stuff in object
-    let foundFirst = false;
-    for (const u of units) {
-      const v = normalized[u];
-      if (!isUndefined(v)) {
-        foundFirst = true;
-      }
-      else if (foundFirst) {
-        normalized[u] = defaultValues[u];
-      }
-      else {
-        normalized[u] = objNow[u];
-      }
-    }
-  }
-
-  /**
-   * @private
-   */
-  private static diffRelative(start: DateTime, end: DateTime, options: DiffRelativeOptions) {
-    const round = isUndefined(options.round) ? true : options.round,
-      format = (c: number, unit: Intl.RelativeTimeFormatUnit) => {
-        c = roundTo(c, round || options.calendary ? 0 : 2, true);
-        const rtfOptions: Intl.RelativeTimeFormatOptions = { numeric: options.numeric };
-        if (options.style) {
-          rtfOptions.style = options.style;
-        }
-        const formatter = end.loc.clone(options).relFormatter(rtfOptions);
-        return formatter.format(c, unit);
-      },
-      differ = (unit: Intl.RelativeTimeFormatUnit) => {
-        if (options.calendary) {
-          if (!end.hasSame(start, unit)) {
-            return end
-            .startOf(unit)
-            .diff(start.startOf(unit), unit)
-            .get(unit);
-          }
-          else {
-            return 0;
-          }
-        }
-        else {
-          return end.diff(start, unit).get(unit);
-        }
-      };
-
-    if (options.unit) {
-      return format(differ(options.unit), options.unit);
-    }
-
-    for (const unit of options.units) {
-      const count = differ(unit);
-      if (Math.abs(count) >= 1) {
-        return format(count, unit);
-      }
-    }
-    return format(0, options.units[options.units.length - 1]);
   }
 }
 
