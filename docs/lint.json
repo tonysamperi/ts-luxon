@@ -1,0 +1,252 @@
+[
+  {
+    "name": "DateTime.local",
+    "filePath": "transpiled/datetime.js",
+    "lines": [
+      {
+        "lineNumber": 534,
+        "line": "    /**\r"
+      },
+      {
+        "lineNumber": 535,
+        "line": "     * Create a local DateTime\r"
+      },
+      {
+        "lineNumber": 536,
+        "line": "     * @param {number} [year] - The calendar year. If omitted (as in, call `local()` with no arguments), the current time will be used\r"
+      },
+      {
+        "lineNumber": 537,
+        "line": "     * @param {number} [month=1] - The month, 1-indexed\r"
+      },
+      {
+        "lineNumber": 538,
+        "line": "     * @param {number} [day=1] - The day of the month, 1-indexed\r"
+      },
+      {
+        "lineNumber": 539,
+        "line": "     * @param {number} [hour=0] - The hour of the day, in 24-hour time\r"
+      },
+      {
+        "lineNumber": 540,
+        "line": "     * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59\r"
+      },
+      {
+        "lineNumber": 541,
+        "line": "     * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59\r"
+      },
+      {
+        "lineNumber": 542,
+        "line": "     * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999\r"
+      },
+      {
+        "lineNumber": 543,
+        "line": "     * @param {Object} options - configuration options for the DateTime\r"
+      },
+      {
+        "lineNumber": 544,
+        "line": "     * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into\r"
+      },
+      {
+        "lineNumber": 545,
+        "line": "     * @param {string} [options.locale] - a locale to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 546,
+        "line": "     * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 547,
+        "line": "     * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 548,
+        "line": "     * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing\r"
+      },
+      {
+        "lineNumber": 549,
+        "line": "     * @example DateTime.local()                                  //~> now\r"
+      },
+      {
+        "lineNumber": 550,
+        "line": "     * @example DateTime.local({ zone: \"America/New_York\" })      //~> now, in US east coast time\r"
+      },
+      {
+        "lineNumber": 551,
+        "line": "     * @example DateTime.local(2017)                              //~> 2017-01-01T00:00:00\r"
+      },
+      {
+        "lineNumber": 552,
+        "line": "     * @example DateTime.local(2017, 3)                           //~> 2017-03-01T00:00:00\r"
+      },
+      {
+        "lineNumber": 553,
+        "line": "     * @example DateTime.local(2017, 3, 12, { locale: \"fr\")       //~> 2017-03-12T00:00:00, with a French locale\r"
+      },
+      {
+        "lineNumber": 554,
+        "line": "     * @example DateTime.local(2017, 3, 12, 5)                    //~> 2017-03-12T05:00:00\r"
+      },
+      {
+        "lineNumber": 555,
+        "line": "     * @example DateTime.local(2017, 3, 12, 5, { zone: \"utc\" })   //~> 2017-03-12T05:00:00, in UTC\r"
+      },
+      {
+        "lineNumber": 556,
+        "line": "     * @example DateTime.local(2017, 3, 12, 5, 45)                //~> 2017-03-12T05:45:00\r"
+      },
+      {
+        "lineNumber": 557,
+        "line": "     * @example DateTime.local(2017, 3, 12, 5, 45, 10)            //~> 2017-03-12T05:45:10\r"
+      },
+      {
+        "lineNumber": 558,
+        "line": "     * @example DateTime.local(2017, 3, 12, 5, 45, 10, 765)       //~> 2017-03-12T05:45:10.765\r"
+      },
+      {
+        "lineNumber": 559,
+        "line": "     * @return {DateTime}\r"
+      },
+      {
+        "lineNumber": 560,
+        "line": "     */\r"
+      },
+      {
+        "lineNumber": 561,
+        "line": "    static local(...args) {\r"
+      }
+    ],
+    "codeParams": [
+      "args"
+    ],
+    "docParams": [
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "millisecond",
+      "options"
+    ]
+  },
+  {
+    "name": "DateTime.utc",
+    "filePath": "transpiled/datetime.js",
+    "lines": [
+      {
+        "lineNumber": 565,
+        "line": "    /**\r"
+      },
+      {
+        "lineNumber": 566,
+        "line": "     * Create a DateTime in UTC\r"
+      },
+      {
+        "lineNumber": 567,
+        "line": "     * @param {number} [year] - The calendar year. If omitted (as in, call `utc()` with no arguments), the current time will be used\r"
+      },
+      {
+        "lineNumber": 568,
+        "line": "     * @param {number} [month=1] - The month, 1-indexed\r"
+      },
+      {
+        "lineNumber": 569,
+        "line": "     * @param {number} [day=1] - The day of the month\r"
+      },
+      {
+        "lineNumber": 570,
+        "line": "     * @param {number} [hour=0] - The hour of the day, in 24-hour time\r"
+      },
+      {
+        "lineNumber": 571,
+        "line": "     * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59\r"
+      },
+      {
+        "lineNumber": 572,
+        "line": "     * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59\r"
+      },
+      {
+        "lineNumber": 573,
+        "line": "     * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999\r"
+      },
+      {
+        "lineNumber": 574,
+        "line": "     * @param {Object} options - configuration options for the DateTime\r"
+      },
+      {
+        "lineNumber": 575,
+        "line": "     * @param {string} [options.locale] - a locale to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 576,
+        "line": "     * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 577,
+        "line": "     * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance\r"
+      },
+      {
+        "lineNumber": 578,
+        "line": "     * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing\r"
+      },
+      {
+        "lineNumber": 579,
+        "line": "     * @example DateTime.utc()                                            //~> now\r"
+      },
+      {
+        "lineNumber": 580,
+        "line": "     * @example DateTime.utc(2017)                                        //~> 2017-01-01T00:00:00Z\r"
+      },
+      {
+        "lineNumber": 581,
+        "line": "     * @example DateTime.utc(2017, 3)                                     //~> 2017-03-01T00:00:00Z\r"
+      },
+      {
+        "lineNumber": 582,
+        "line": "     * @example DateTime.utc(2017, 3, 12)                                 //~> 2017-03-12T00:00:00Z\r"
+      },
+      {
+        "lineNumber": 583,
+        "line": "     * @example DateTime.utc(2017, 3, 12, 5)                              //~> 2017-03-12T05:00:00Z\r"
+      },
+      {
+        "lineNumber": 584,
+        "line": "     * @example DateTime.utc(2017, 3, 12, 5, 45)                          //~> 2017-03-12T05:45:00Z\r"
+      },
+      {
+        "lineNumber": 585,
+        "line": "     * @example DateTime.utc(2017, 3, 12, 5, 45, { locale: \"fr\" } )       //~> 2017-03-12T05:45:00Z with a French locale\r"
+      },
+      {
+        "lineNumber": 586,
+        "line": "     * @example DateTime.utc(2017, 3, 12, 5, 45, 10)                      //~> 2017-03-12T05:45:10Z\r"
+      },
+      {
+        "lineNumber": 587,
+        "line": "     * @return {DateTime}\r"
+      },
+      {
+        "lineNumber": 588,
+        "line": "     */\r"
+      },
+      {
+        "lineNumber": 589,
+        "line": "    static utc(...args) {\r"
+      }
+    ],
+    "codeParams": [
+      "args"
+    ],
+    "docParams": [
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "millisecond",
+      "options"
+    ]
+  }
+]

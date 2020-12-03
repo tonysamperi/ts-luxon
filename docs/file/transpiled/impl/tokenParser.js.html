@@ -1,0 +1,515 @@
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">transpiled/impl/tokenParser.js | Luxon</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<style>.luxon-title {font-size: 22px; color: black;}</style><meta name="description" content="Immutable date wrapper"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Luxon"><meta property="twitter:description" content="Immutable date wrapper"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header><a href="../index.html" class="luxon-title">Luxon</a>
+  <a href="./">Manual</a>
+  
+  <a href="identifiers.html">Reference</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/tonysamperi/ts-luxon"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/datetime.js~DateTime.html">DateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/duration.js~Duration.html">Duration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/info.js~Info.html">Info</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/interval.js~Interval.html">Interval</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/settings.js~Settings.html">Settings</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-interface">I</span><span data-ice="name"><span><a href="class/transpiled/zone.js~Zone.html">Zone</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#impl">impl</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-gregorianToOrdinal">gregorianToOrdinal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidGregorianData">hasInvalidGregorianData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidOrdinalData">hasInvalidOrdinalData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidTimeData">hasInvalidTimeData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidWeekData">hasInvalidWeekData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-ordinalToGregorian">ordinalToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekToGregorian">weekToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-diff">diff</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-digitRegex">digitRegex</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDigits">parseDigits</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eraForDateTime">eraForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eras">eras</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatRelativeTime">formatRelativeTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatString">formatString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-meridiemForDateTime">meridiemForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-monthForDateTime">monthForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-months">months</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdayForDateTime">weekdayForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdays">weekdays</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseHTTPDate">parseHTTPDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseISODuration">parseISODuration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseRFC2822Date">parseRFC2822Date</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSQL">parseSQL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseFromTokens">parseFromTokens</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asNumber">asNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bestBy">bestBy</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInMonth">daysInMonth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInYear">daysInYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-floorMod">floorMod</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatOffset">formatOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasFormatToParts">hasFormatToParts</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasIntl">hasIntl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasRelative">hasRelative</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-integerBetween">integerBetween</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isDate">isDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isInteger">isInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isLeapYear">isLeapYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isNumber">isNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isString">isString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-maybeArray">maybeArray</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeObject">normalizeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-objToLocalTS">objToLocalTS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-padStart">padStart</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseInteger">parseInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseMillis">parseMillis</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseZoneInfo">parseZoneInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-pick">pick</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-roundTo">roundTo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-signedOffset">signedOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-timeObject">timeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-untruncateYear">untruncateYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weeksInWeekYear">weeksInWeekYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeZone">normalizeZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasLong">erasLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasNarrow">erasNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasShort">erasShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-meridiems">meridiems</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsNarrow">monthsNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsShort">monthsShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysLong">weekdaysLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysNarrow">weekdaysNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysShort">weekdaysShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL">DATETIME_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL_WITH_SECONDS">DATETIME_FULL_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE">DATETIME_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE_WITH_SECONDS">DATETIME_HUGE_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED">DATETIME_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_SECONDS">DATETIME_MED_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_WEEKDAY">DATETIME_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT">DATETIME_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT_WITH_SECONDS">DATETIME_SHORT_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_FULL">DATE_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_HUGE">DATE_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED">DATE_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED_WITH_WEEKDAY">DATE_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_SHORT">DATE_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_SIMPLE">TIME_24_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_LONG_OFFSET">TIME_24_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SECONDS">TIME_24_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SHORT_OFFSET">TIME_24_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_SIMPLE">TIME_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_LONG_OFFSET">TIME_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SECONDS">TIME_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SHORT_OFFSET">TIME_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-IANA_REGEX">IANA_REGEX</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#zones">zones</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/IANAZone.js~IANAZone.html">IANAZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/fixedOffsetZone.js~FixedOffsetZone.html">FixedOffsetZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/systemZone.js~SystemZone.html">SystemZone</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">transpiled/impl/tokenParser.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { parseMillis, isUndefined, untruncateYear, signedOffset } from &quot;./util&quot;;
+import { Formatter } from &quot;./formatter&quot;;
+import { FixedOffsetZone } from &quot;../zones/fixedOffsetZone&quot;;
+import { IANAZone } from &quot;../zones/IANAZone&quot;;
+import { digitRegex, parseDigits } from &quot;./digits&quot;;
+import { DateTime } from &quot;../datetime&quot;;
+import { ConflictingSpecificationError } from &quot;../errors&quot;;
+const MISSING_FTP = &quot;missing Intl.DateTimeFormat.formatToParts support&quot;;
+function intUnit(regex, post = i =&gt; i) {
+    return { regex, deser: ([s]) =&gt; post(parseDigits(s)) };
+}
+const NBSP = String.fromCharCode(160);
+const spaceOrNBSP = `( |${NBSP})`;
+const spaceOrNBSPRegExp = new RegExp(spaceOrNBSP, &quot;g&quot;);
+function fixListRegex(s) {
+    // make dots optional and also make them literal
+    // make space and non breakable space characters interchangeable
+    return s.replace(/\./g, &quot;\\.?&quot;).replace(spaceOrNBSPRegExp, spaceOrNBSP);
+}
+function stripInsensitivities(s) {
+    return s
+        .replace(/\./g, &quot;&quot;) // ignore dots that were made optional
+        .replace(spaceOrNBSPRegExp, &quot; &quot;) // interchange space and nbsp
+        .toLowerCase();
+}
+function oneOf(strings, startIndex) {
+    return {
+        regex: RegExp(strings.map(fixListRegex).join(&quot;|&quot;)),
+        deser: ([s]) =&gt; strings.findIndex(i =&gt; stripInsensitivities(s) === stripInsensitivities(i)) + startIndex
+    };
+}
+function offset(regex, groups) {
+    return { regex, deser: ([, h, m]) =&gt; signedOffset(h, m), groups };
+}
+function simple(regex) {
+    return { regex, deser: ([s]) =&gt; s };
+}
+function escapeToken(value) {
+    // eslint-disable-next-line no-useless-escape
+    return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, &quot;\\$&amp;&quot;);
+}
+function unitForToken(token, loc) {
+    const one = digitRegex(loc), two = digitRegex(loc, &quot;{2}&quot;), three = digitRegex(loc, &quot;{3}&quot;), four = digitRegex(loc, &quot;{4}&quot;), six = digitRegex(loc, &quot;{6}&quot;), oneOrTwo = digitRegex(loc, &quot;{1,2}&quot;), oneToThree = digitRegex(loc, &quot;{1,3}&quot;), oneToSix = digitRegex(loc, &quot;{1,6}&quot;), oneToNine = digitRegex(loc, &quot;{1,9}&quot;), twoToFour = digitRegex(loc, &quot;{2,4}&quot;), fourToSix = digitRegex(loc, &quot;{4,6}&quot;), literal = (t) =&gt; ({
+        regex: RegExp(escapeToken(t.val)),
+        deser: ([s]) =&gt; s,
+        literal: true
+    }), unitate = (t) =&gt; {
+        if (token.literal) {
+            return literal(t);
+        }
+        switch (t.val) {
+            // era
+            case &quot;G&quot;:
+                return oneOf(loc.eras(&quot;short&quot;, false), 0);
+            case &quot;GG&quot;:
+                return oneOf(loc.eras(&quot;long&quot;, false), 0);
+            // years
+            case &quot;y&quot;:
+                return intUnit(oneToSix);
+            case &quot;yy&quot;:
+                return intUnit(twoToFour, untruncateYear);
+            case &quot;yyyy&quot;:
+                return intUnit(four);
+            case &quot;yyyyy&quot;:
+                return intUnit(fourToSix);
+            case &quot;yyyyyy&quot;:
+                return intUnit(six);
+            // months
+            case &quot;M&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;MM&quot;:
+                return intUnit(two);
+            case &quot;MMM&quot;:
+                return oneOf(loc.months(&quot;short&quot;, true, false), 1);
+            case &quot;MMMM&quot;:
+                return oneOf(loc.months(&quot;long&quot;, true, false), 1);
+            case &quot;L&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;LL&quot;:
+                return intUnit(two);
+            case &quot;LLL&quot;:
+                return oneOf(loc.months(&quot;short&quot;, false, false), 1);
+            case &quot;LLLL&quot;:
+                return oneOf(loc.months(&quot;long&quot;, false, false), 1);
+            // dates
+            case &quot;d&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;dd&quot;:
+                return intUnit(two);
+            // ordinals
+            case &quot;o&quot;:
+                return intUnit(oneToThree);
+            case &quot;ooo&quot;:
+                return intUnit(three);
+            // time
+            case &quot;HH&quot;:
+                return intUnit(two);
+            case &quot;H&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;hh&quot;:
+                return intUnit(two);
+            case &quot;h&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;mm&quot;:
+                return intUnit(two);
+            case &quot;m&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;q&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;qq&quot;:
+                return intUnit(two);
+            case &quot;s&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;ss&quot;:
+                return intUnit(two);
+            case &quot;S&quot;:
+                return intUnit(oneToThree);
+            case &quot;SSS&quot;:
+                return intUnit(three);
+            case &quot;u&quot;:
+                return simple(oneToNine);
+            // meridiem
+            case &quot;a&quot;:
+                return oneOf(loc.meridiems(), 0);
+            // weekYear (k)
+            case &quot;kkkk&quot;:
+                return intUnit(four);
+            case &quot;kk&quot;:
+                return intUnit(twoToFour, untruncateYear);
+            // weekNumber (W)
+            case &quot;W&quot;:
+                return intUnit(oneOrTwo);
+            case &quot;WW&quot;:
+                return intUnit(two);
+            // weekdays
+            case &quot;E&quot;:
+            case &quot;c&quot;:
+                return intUnit(one);
+            case &quot;EEE&quot;:
+                return oneOf(loc.weekdays(&quot;short&quot;, false, false), 1);
+            case &quot;EEEE&quot;:
+                return oneOf(loc.weekdays(&quot;long&quot;, false, false), 1);
+            case &quot;ccc&quot;:
+                return oneOf(loc.weekdays(&quot;short&quot;, true, false), 1);
+            case &quot;cccc&quot;:
+                return oneOf(loc.weekdays(&quot;long&quot;, true, false), 1);
+            // offset/zone
+            case &quot;Z&quot;:
+            case &quot;ZZ&quot;:
+                return offset(new RegExp(`([+-]${oneOrTwo.source})(?::(${two.source}))?`), 2);
+            case &quot;ZZZ&quot;:
+                return offset(new RegExp(`([+-]${oneOrTwo.source})(${two.source})?`), 2);
+            // we don&apos;t support ZZZZ (PST) or ZZZZZ (Pacific Standard Time) in parsing
+            // because we don&apos;t have any way to figure out what they are
+            case &quot;z&quot;:
+                return simple(/[a-z_+-/]{1,256}?/i);
+            default:
+                return literal(t);
+        }
+    };
+    const unit = unitate(token);
+    if (unit === null) {
+        return {
+            invalidReason: MISSING_FTP
+        };
+    }
+    return Object.assign(Object.assign({}, unit), { token });
+}
+const partTypeStyleToTokenVal = {
+    literal: undefined,
+    dayPeriod: undefined,
+    era: undefined,
+    timeZoneName: undefined,
+    year: {
+        &quot;2-digit&quot;: &quot;yy&quot;,
+        numeric: &quot;yyyyy&quot;
+    },
+    month: {
+        numeric: &quot;M&quot;,
+        &quot;2-digit&quot;: &quot;MM&quot;,
+        short: &quot;MMM&quot;,
+        long: &quot;MMMM&quot;
+    },
+    day: {
+        numeric: &quot;d&quot;,
+        &quot;2-digit&quot;: &quot;dd&quot;
+    },
+    weekday: {
+        short: &quot;EEE&quot;,
+        long: &quot;EEEE&quot;
+    },
+    hour: {
+        numeric: &quot;h&quot;,
+        &quot;2-digit&quot;: &quot;hh&quot;
+    },
+    minute: {
+        numeric: &quot;m&quot;,
+        &quot;2-digit&quot;: &quot;mm&quot;
+    },
+    second: {
+        numeric: &quot;s&quot;,
+        &quot;2-digit&quot;: &quot;ss&quot;
+    }
+};
+function tokenForPart(part, formatOptions) {
+    const { type, value } = part;
+    if (type === &quot;literal&quot;) {
+        return {
+            literal: true,
+            val: value
+        };
+    }
+    if (type === &quot;dayPeriod&quot;) {
+        return {
+            literal: false,
+            val: &quot;a&quot;
+        };
+    }
+    const tokenVals = partTypeStyleToTokenVal[type];
+    if (tokenVals !== undefined) {
+        const style = formatOptions[type];
+        if (style) {
+            const val = tokenVals[style];
+            if (val !== undefined) {
+                return {
+                    literal: false,
+                    val
+                };
+            }
+        }
+    }
+    return undefined;
+}
+function buildRegex(units) {
+    const re = units.map(u =&gt; u.regex).reduce((f, r) =&gt; `${f}(${r.source})`, &quot;&quot;);
+    return `^${re}$`;
+}
+function match(input, regex, handlers) {
+    const matches = regex.exec(input);
+    const all = {};
+    if (matches !== null) {
+        let matchIndex = 1;
+        handlers.forEach(h =&gt; {
+            const groups = h.groups ? h.groups + 1 : 1;
+            if (!h.literal) {
+                all[h.token.val[0]] = h.deser(matches.slice(matchIndex, matchIndex + groups));
+            }
+            matchIndex += groups;
+        });
+    }
+    return [matches, all];
+}
+function dateTimeFromMatches(matches) {
+    const toField = (token) =&gt; {
+        switch (token) {
+            case &quot;S&quot;:
+                return &quot;millisecond&quot;;
+            case &quot;s&quot;:
+                return &quot;second&quot;;
+            case &quot;m&quot;:
+                return &quot;minute&quot;;
+            case &quot;h&quot;:
+            case &quot;H&quot;:
+                return &quot;hour&quot;;
+            case &quot;d&quot;:
+                return &quot;day&quot;;
+            case &quot;o&quot;:
+                return &quot;ordinal&quot;;
+            case &quot;L&quot;:
+            case &quot;M&quot;:
+                return &quot;month&quot;;
+            case &quot;y&quot;:
+                return &quot;year&quot;;
+            case &quot;E&quot;:
+            case &quot;c&quot;:
+                return &quot;weekday&quot;;
+            case &quot;W&quot;:
+                return &quot;weekNumber&quot;;
+            case &quot;k&quot;:
+                return &quot;weekYear&quot;;
+            default:
+                return null;
+        }
+    };
+    let zone;
+    if (!isUndefined(matches.Z)) {
+        zone = new FixedOffsetZone(matches.Z);
+    }
+    else if (!isUndefined(matches.z)) {
+        zone = IANAZone.create(matches.z);
+    }
+    else {
+        zone = null;
+    }
+    if (!isUndefined(matches.q)) {
+        matches.M = (matches.q - 1) * 3 + 1;
+    }
+    if (!isUndefined(matches.h)) {
+        if (matches.h &lt; 12 &amp;&amp; matches.a === 1) {
+            matches.h = matches.h + 12;
+        }
+        else if (matches.h === 12 &amp;&amp; matches.a === 0) {
+            matches.h = 0;
+        }
+    }
+    if (matches.G === 0 &amp;&amp; matches.y) {
+        matches.y = -matches.y;
+    }
+    if (!isUndefined(matches.u)) {
+        matches.S = parseMillis(matches.u) || 0;
+    }
+    const vals = Object.keys(matches).reduce((r, k) =&gt; {
+        const f = toField(k);
+        if (f) {
+            r[f] = matches[k];
+        }
+        return r;
+    }, {});
+    return [vals, zone];
+}
+let dummyDateTimeCache;
+function getDummyDateTime() {
+    if (dummyDateTimeCache === undefined) {
+        dummyDateTimeCache = DateTime.fromMillis(1555555555555);
+    }
+    return dummyDateTimeCache;
+}
+function maybeExpandMacroToken(token, locale) {
+    if (token.literal) {
+        return token;
+    }
+    const formatOpts = Formatter.macroTokenToFormatOpts(token.val);
+    if (!formatOpts) {
+        return token;
+    }
+    const formatter = Formatter.create(locale, formatOpts);
+    const parts = formatter.formatDateTimeParts(getDummyDateTime());
+    const tokens = parts.map(p =&gt; tokenForPart(p, formatOpts));
+    if (tokens.indexOf(undefined) &gt;= 0) {
+        return token;
+    }
+    return tokens;
+}
+function expandMacroTokens(tokens, locale) {
+    return Array.prototype.concat(...tokens.map(t =&gt; maybeExpandMacroToken(t, locale)));
+}
+function isInvalidUnitParser(parser) {
+    return !!parser &amp;&amp; !!parser.invalidReason;
+}
+/**
+ * @private
+ */
+export function explainFromTokens(locale, input, format) {
+    const tokens = expandMacroTokens(Formatter.parseFormat(format), locale), units = tokens.map(t =&gt; unitForToken(t, locale)), disqualifyingUnit = units.find(isInvalidUnitParser);
+    if (disqualifyingUnit) {
+        return { input, tokens, invalidReason: disqualifyingUnit.invalidReason };
+    }
+    else {
+        const regexString = buildRegex(units), regex = RegExp(regexString, &quot;i&quot;), [rawMatches, matches] = match(input, regex, units), [result, zone] = matches ? dateTimeFromMatches(matches) : [null, null];
+        if (&quot;a&quot; in matches &amp;&amp; &quot;H&quot; in matches) {
+            throw new ConflictingSpecificationError(&quot;Can&apos;t include meridiem when specifying 24-hour format&quot;);
+        }
+        return { input, tokens, regex, rawMatches, matches, result, zone };
+    }
+}
+export function parseFromTokens(locale, input, format) {
+    const { result, zone, invalidReason } = explainFromTokens(locale, input, format);
+    return [result, zone, invalidReason];
+}
+//# sourceMappingURL=tokenParser.js.map</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+
+
+<script src="https://moment.github.io/luxon/global/luxon.js"></script><script>console.log('You can try Luxon right here using the `luxon` global, like `luxon.DateTime.now()`.')</script></body></html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href>
+  <title data-ice="title">Source | Luxon</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<style>.luxon-title {font-size: 22px; color: black;}</style><meta name="description" content="Immutable date wrapper"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Luxon"><meta property="twitter:description" content="Immutable date wrapper"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header><a href="../index.html" class="luxon-title">Luxon</a>
+  <a href="./">Manual</a>
+  
+  <a href="identifiers.html">Reference</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/tonysamperi/ts-luxon"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/datetime.js~DateTime.html">DateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/duration.js~Duration.html">Duration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/info.js~Info.html">Info</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/interval.js~Interval.html">Interval</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/settings.js~Settings.html">Settings</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-interface">I</span><span data-ice="name"><span><a href="class/transpiled/zone.js~Zone.html">Zone</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#impl">impl</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-gregorianToOrdinal">gregorianToOrdinal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidGregorianData">hasInvalidGregorianData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidOrdinalData">hasInvalidOrdinalData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidTimeData">hasInvalidTimeData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidWeekData">hasInvalidWeekData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-ordinalToGregorian">ordinalToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekToGregorian">weekToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-diff">diff</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-digitRegex">digitRegex</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDigits">parseDigits</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eraForDateTime">eraForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eras">eras</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatRelativeTime">formatRelativeTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatString">formatString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-meridiemForDateTime">meridiemForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-monthForDateTime">monthForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-months">months</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdayForDateTime">weekdayForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdays">weekdays</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseHTTPDate">parseHTTPDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseISODuration">parseISODuration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseRFC2822Date">parseRFC2822Date</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSQL">parseSQL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseFromTokens">parseFromTokens</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asNumber">asNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bestBy">bestBy</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInMonth">daysInMonth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInYear">daysInYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-floorMod">floorMod</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatOffset">formatOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasFormatToParts">hasFormatToParts</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasIntl">hasIntl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasRelative">hasRelative</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-integerBetween">integerBetween</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isDate">isDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isInteger">isInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isLeapYear">isLeapYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isNumber">isNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isString">isString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-maybeArray">maybeArray</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeObject">normalizeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-objToLocalTS">objToLocalTS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-padStart">padStart</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseInteger">parseInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseMillis">parseMillis</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseZoneInfo">parseZoneInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-pick">pick</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-roundTo">roundTo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-signedOffset">signedOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-timeObject">timeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-untruncateYear">untruncateYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weeksInWeekYear">weeksInWeekYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeZone">normalizeZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasLong">erasLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasNarrow">erasNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasShort">erasShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-meridiems">meridiems</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsNarrow">monthsNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsShort">monthsShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysLong">weekdaysLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysNarrow">weekdaysNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysShort">weekdaysShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL">DATETIME_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL_WITH_SECONDS">DATETIME_FULL_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE">DATETIME_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE_WITH_SECONDS">DATETIME_HUGE_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED">DATETIME_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_SECONDS">DATETIME_MED_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_WEEKDAY">DATETIME_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT">DATETIME_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT_WITH_SECONDS">DATETIME_SHORT_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_FULL">DATE_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_HUGE">DATE_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED">DATE_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED_WITH_WEEKDAY">DATE_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_SHORT">DATE_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_SIMPLE">TIME_24_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_LONG_OFFSET">TIME_24_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SECONDS">TIME_24_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SHORT_OFFSET">TIME_24_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_SIMPLE">TIME_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_LONG_OFFSET">TIME_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SECONDS">TIME_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SHORT_OFFSET">TIME_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-IANA_REGEX">IANA_REGEX</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#zones">zones</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/IANAZone.js~IANAZone.html">IANAZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/fixedOffsetZone.js~FixedOffsetZone.html">FixedOffsetZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/systemZone.js~SystemZone.html">SystemZone</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1>Source <img data-ice="coverageBadge" src="./badge.svg"><span data-ice="totalCoverageCount" class="total-coverage-count">264/321</span></h1>
+
+<table class="files-summary" data-ice="files" data-use-coverage="true">
+  <thead>
+    <tr>
+      <td>File</td>
+      <td>Identifier</td>
+      <td class="coverage">Document</td>
+      <td style="display: none;">Size</td>
+      <td style="display: none;">Lines</td>
+      <td style="display: none;">Updated</td>
+    </tr>
+  </thead>
+  <tbody>
+    
+  <tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/datetime.js.html">transpiled/datetime.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/datetime.js~DateTime.html">DateTime</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">100/100</span></td>
+      <td style="display: none;" data-ice="size">85859 byte</td>
+      <td style="display: none;" data-ice="lines">1804</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/duration.js.html">transpiled/duration.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/duration.js~Duration.html">Duration</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">40/40</span></td>
+      <td style="display: none;" data-ice="size">25757 byte</td>
+      <td style="display: none;" data-ice="lines">667</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/errors.js.html">transpiled/errors.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">10/10</span></td>
+      <td style="display: none;" data-ice="size">2461 byte</td>
+      <td style="display: none;" data-ice="lines">88</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/conversions.js.html">transpiled/impl/conversions.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-gregorianToOrdinal">gregorianToOrdinal</a></span>
+<span><a href="function/index.html#static-function-hasInvalidGregorianData">hasInvalidGregorianData</a></span>
+<span><a href="function/index.html#static-function-hasInvalidOrdinalData">hasInvalidOrdinalData</a></span>
+<span><a href="function/index.html#static-function-hasInvalidTimeData">hasInvalidTimeData</a></span>
+<span><a href="function/index.html#static-function-hasInvalidWeekData">hasInvalidWeekData</a></span>
+<span><a href="function/index.html#static-function-ordinalToGregorian">ordinalToGregorian</a></span>
+<span><a href="function/index.html#static-function-weekToGregorian">weekToGregorian</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">4552 byte</td>
+      <td style="display: none;" data-ice="lines">119</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/diff.js.html">transpiled/impl/diff.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-diff">diff</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">2561 byte</td>
+      <td style="display: none;" data-ice="lines">67</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/digits.js.html">transpiled/impl/digits.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-digitRegex">digitRegex</a></span>
+<span><a href="function/index.html#static-function-parseDigits">parseDigits</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">2332 byte</td>
+      <td style="display: none;" data-ice="lines">74</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/english.js.html">transpiled/impl/english.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-eraForDateTime">eraForDateTime</a></span>
+<span><a href="function/index.html#static-function-eras">eras</a></span>
+<span><a href="variable/index.html#static-variable-erasLong">erasLong</a></span>
+<span><a href="variable/index.html#static-variable-erasNarrow">erasNarrow</a></span>
+<span><a href="variable/index.html#static-variable-erasShort">erasShort</a></span>
+<span><a href="function/index.html#static-function-formatRelativeTime">formatRelativeTime</a></span>
+<span><a href="function/index.html#static-function-formatString">formatString</a></span>
+<span><a href="function/index.html#static-function-meridiemForDateTime">meridiemForDateTime</a></span>
+<span><a href="variable/index.html#static-variable-meridiems">meridiems</a></span>
+<span><a href="function/index.html#static-function-monthForDateTime">monthForDateTime</a></span>
+<span><a href="function/index.html#static-function-months">months</a></span>
+<span><a href="variable/index.html#static-variable-monthsNarrow">monthsNarrow</a></span>
+<span><a href="variable/index.html#static-variable-monthsShort">monthsShort</a></span>
+<span><a href="function/index.html#static-function-weekdayForDateTime">weekdayForDateTime</a></span>
+<span><a href="function/index.html#static-function-weekdays">weekdays</a></span>
+<span><a href="variable/index.html#static-variable-weekdaysLong">weekdaysLong</a></span>
+<span><a href="variable/index.html#static-variable-weekdaysNarrow">weekdaysNarrow</a></span>
+<span><a href="variable/index.html#static-variable-weekdaysShort">weekdaysShort</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">7017 byte</td>
+      <td style="display: none;" data-ice="lines">207</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/formats.js.html">transpiled/impl/formats.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="variable/index.html#static-variable-DATETIME_FULL">DATETIME_FULL</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_FULL_WITH_SECONDS">DATETIME_FULL_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_HUGE">DATETIME_HUGE</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_HUGE_WITH_SECONDS">DATETIME_HUGE_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_MED">DATETIME_MED</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_SECONDS">DATETIME_MED_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_WEEKDAY">DATETIME_MED_WITH_WEEKDAY</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_SHORT">DATETIME_SHORT</a></span>
+<span><a href="variable/index.html#static-variable-DATETIME_SHORT_WITH_SECONDS">DATETIME_SHORT_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-DATE_FULL">DATE_FULL</a></span>
+<span><a href="variable/index.html#static-variable-DATE_HUGE">DATE_HUGE</a></span>
+<span><a href="variable/index.html#static-variable-DATE_MED">DATE_MED</a></span>
+<span><a href="variable/index.html#static-variable-DATE_MED_WITH_WEEKDAY">DATE_MED_WITH_WEEKDAY</a></span>
+<span><a href="variable/index.html#static-variable-DATE_SHORT">DATE_SHORT</a></span>
+<span><a href="variable/index.html#static-variable-TIME_24_SIMPLE">TIME_24_SIMPLE</a></span>
+<span><a href="variable/index.html#static-variable-TIME_24_WITH_LONG_OFFSET">TIME_24_WITH_LONG_OFFSET</a></span>
+<span><a href="variable/index.html#static-variable-TIME_24_WITH_SECONDS">TIME_24_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-TIME_24_WITH_SHORT_OFFSET">TIME_24_WITH_SHORT_OFFSET</a></span>
+<span><a href="variable/index.html#static-variable-TIME_SIMPLE">TIME_SIMPLE</a></span>
+<span><a href="variable/index.html#static-variable-TIME_WITH_LONG_OFFSET">TIME_WITH_LONG_OFFSET</a></span>
+<span><a href="variable/index.html#static-variable-TIME_WITH_SECONDS">TIME_WITH_SECONDS</a></span>
+<span><a href="variable/index.html#static-variable-TIME_WITH_SHORT_OFFSET">TIME_WITH_SHORT_OFFSET</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">2580 byte</td>
+      <td style="display: none;" data-ice="lines">151</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/formatter.js.html#errorLines=101,104,111,115,119,123,134,330,44,45,46,48,51">transpiled/impl/formatter.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">7 %</span><span data-ice="coverageCount" class="coverage-count">1/14</span></td>
+      <td style="display: none;" data-ice="size">14731 byte</td>
+      <td style="display: none;" data-ice="lines">361</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/locale.js.html#errorLines=127,129,130,136,139,156,171,189,192,201,211,230,232,235,243,258,259,260,261,262,263,264,265,266,267,269,275,281,287,290,303,311,314,317,326,337,352,363,372,375,378,381,386,391">transpiled/impl/locale.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">6 %</span><span data-ice="coverageCount" class="coverage-count">3/47</span></td>
+      <td style="display: none;" data-ice="size">15378 byte</td>
+      <td style="display: none;" data-ice="lines">402</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/regexParser.js.html">transpiled/impl/regexParser.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-parseHTTPDate">parseHTTPDate</a></span>
+<span><a href="function/index.html#static-function-parseISODuration">parseISODuration</a></span>
+<span><a href="function/index.html#static-function-parseRFC2822Date">parseRFC2822Date</a></span>
+<span><a href="function/index.html#static-function-parseSQL">parseSQL</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">9343 byte</td>
+      <td style="display: none;" data-ice="lines">187</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/tokenParser.js.html">transpiled/impl/tokenParser.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-parseFromTokens">parseFromTokens</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">12395 byte</td>
+      <td style="display: none;" data-ice="lines">369</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/util.js.html">transpiled/impl/util.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="variable/index.html#static-variable-IANA_REGEX">IANA_REGEX</a></span>
+<span><a href="function/index.html#static-function-asNumber">asNumber</a></span>
+<span><a href="function/index.html#static-function-bestBy">bestBy</a></span>
+<span><a href="function/index.html#static-function-daysInMonth">daysInMonth</a></span>
+<span><a href="function/index.html#static-function-daysInYear">daysInYear</a></span>
+<span><a href="function/index.html#static-function-floorMod">floorMod</a></span>
+<span><a href="function/index.html#static-function-formatOffset">formatOffset</a></span>
+<span><a href="function/index.html#static-function-hasFormatToParts">hasFormatToParts</a></span>
+<span><a href="function/index.html#static-function-hasIntl">hasIntl</a></span>
+<span><a href="function/index.html#static-function-hasRelative">hasRelative</a></span>
+<span><a href="function/index.html#static-function-integerBetween">integerBetween</a></span>
+<span><a href="function/index.html#static-function-isDate">isDate</a></span>
+<span><a href="function/index.html#static-function-isInteger">isInteger</a></span>
+<span><a href="function/index.html#static-function-isLeapYear">isLeapYear</a></span>
+<span><a href="function/index.html#static-function-isNumber">isNumber</a></span>
+<span><a href="function/index.html#static-function-isString">isString</a></span>
+<span><a href="function/index.html#static-function-maybeArray">maybeArray</a></span>
+<span><a href="function/index.html#static-function-normalizeObject">normalizeObject</a></span>
+<span><a href="function/index.html#static-function-objToLocalTS">objToLocalTS</a></span>
+<span><a href="function/index.html#static-function-padStart">padStart</a></span>
+<span><a href="function/index.html#static-function-parseInteger">parseInteger</a></span>
+<span><a href="function/index.html#static-function-parseMillis">parseMillis</a></span>
+<span><a href="function/index.html#static-function-parseZoneInfo">parseZoneInfo</a></span>
+<span><a href="function/index.html#static-function-pick">pick</a></span>
+<span><a href="function/index.html#static-function-roundTo">roundTo</a></span>
+<span><a href="function/index.html#static-function-signedOffset">signedOffset</a></span>
+<span><a href="function/index.html#static-function-timeObject">timeObject</a></span>
+<span><a href="function/index.html#static-function-untruncateYear">untruncateYear</a></span>
+<span><a href="function/index.html#static-function-weeksInWeekYear">weeksInWeekYear</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">7624 byte</td>
+      <td style="display: none;" data-ice="lines">220</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/impl/zoneUtil.js.html">transpiled/impl/zoneUtil.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="function/index.html#static-function-normalizeZone">normalizeZone</a></span></td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">1524 byte</td>
+      <td style="display: none;" data-ice="lines">46</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/info.js.html">transpiled/info.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/info.js~Info.html">Info</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">11/11</span></td>
+      <td style="display: none;" data-ice="size">8835 byte</td>
+      <td style="display: none;" data-ice="lines">170</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/interval.js.html">transpiled/interval.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/interval.js~Interval.html">Interval</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">39/39</span></td>
+      <td style="display: none;" data-ice="size">19522 byte</td>
+      <td style="display: none;" data-ice="lines">469</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/settings.js.html">transpiled/settings.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/settings.js~Settings.html">Settings</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">12/12</span></td>
+      <td style="display: none;" data-ice="size">3739 byte</td>
+      <td style="display: none;" data-ice="lines">99</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/common.js.html">transpiled/types/common.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">34 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/datetime.js.html">transpiled/types/datetime.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">36 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/duration.js.html">transpiled/types/duration.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">36 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/info.js.html">transpiled/types/info.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">32 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/interval.js.html">transpiled/types/interval.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">36 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/intl-2020.js.html">transpiled/types/intl-2020.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">178 byte</td>
+      <td style="display: none;" data-ice="lines">3</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/locale.js.html">transpiled/types/locale.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">34 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/public.js.html">transpiled/types/public.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">247 byte</td>
+      <td style="display: none;" data-ice="lines">8</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:40 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/types/zone.js.html">transpiled/types/zone.js</a></span></td>
+      <td data-ice="identifier" class="identifiers">-</td>
+      <td class="coverage"><span data-ice="coverage">-</span></td>
+      <td style="display: none;" data-ice="size">32 byte</td>
+      
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/zone.js.html">transpiled/zone.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/zone.js~Zone.html">Zone</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">9/9</span></td>
+      <td style="display: none;" data-ice="size">2741 byte</td>
+      <td style="display: none;" data-ice="lines">89</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/zones/IANAZone.js.html">transpiled/zones/IANAZone.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/zones/IANAZone.js~IANAZone.html">IANAZone</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">16/16</span></td>
+      <td style="display: none;" data-ice="size">5672 byte</td>
+      <td style="display: none;" data-ice="lines">178</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/zones/fixedOffsetZone.js.html">transpiled/zones/fixedOffsetZone.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/zones/fixedOffsetZone.js~FixedOffsetZone.html">FixedOffsetZone</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">13/13</span></td>
+      <td style="display: none;" data-ice="size">2386 byte</td>
+      <td style="display: none;" data-ice="lines">82</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+<tr data-ice="file">
+      <td data-ice="filePath"><span><a href="file/transpiled/zones/systemZone.js.html">transpiled/zones/systemZone.js</a></span></td>
+      <td data-ice="identifier" class="identifiers"><span><a href="class/transpiled/zones/systemZone.js~SystemZone.html">SystemZone</a></span></td>
+      <td class="coverage"><span data-ice="coverage">100 %</span><span data-ice="coverageCount" class="coverage-count">10/10</span></td>
+      <td style="display: none;" data-ice="size">1448 byte</td>
+      <td style="display: none;" data-ice="lines">56</td>
+      <td style="display: none;" data-ice="updated">2020-12-05 17:48:39 (UTC)</td>
+    </tr>
+</tbody>
+</table>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+
+
+<script src="https://moment.github.io/luxon/global/luxon.js"></script><script>console.log('You can try Luxon right here using the `luxon` global, like `luxon.DateTime.now()`.')</script></body></html>

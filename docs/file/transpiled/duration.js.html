@@ -1,0 +1,813 @@
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">transpiled/duration.js | Luxon</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+<style>.luxon-title {font-size: 22px; color: black;}</style><meta name="description" content="Immutable date wrapper"><meta property="twitter:card" content="summary"><meta property="twitter:title" content="Luxon"><meta property="twitter:description" content="Immutable date wrapper"></head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header><a href="../index.html" class="luxon-title">Luxon</a>
+  <a href="./">Manual</a>
+  
+  <a href="identifiers.html">Reference</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/tonysamperi/ts-luxon"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/datetime.js~DateTime.html">DateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/duration.js~Duration.html">Duration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/info.js~Info.html">Info</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/interval.js~Interval.html">Interval</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/settings.js~Settings.html">Settings</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-interface">I</span><span data-ice="name"><span><a href="class/transpiled/zone.js~Zone.html">Zone</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#impl">impl</a><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-gregorianToOrdinal">gregorianToOrdinal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidGregorianData">hasInvalidGregorianData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidOrdinalData">hasInvalidOrdinalData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidTimeData">hasInvalidTimeData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasInvalidWeekData">hasInvalidWeekData</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-ordinalToGregorian">ordinalToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekToGregorian">weekToGregorian</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-diff">diff</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-digitRegex">digitRegex</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseDigits">parseDigits</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eraForDateTime">eraForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-eras">eras</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatRelativeTime">formatRelativeTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatString">formatString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-meridiemForDateTime">meridiemForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-monthForDateTime">monthForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-months">months</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdayForDateTime">weekdayForDateTime</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weekdays">weekdays</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseHTTPDate">parseHTTPDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseISODuration">parseISODuration</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseRFC2822Date">parseRFC2822Date</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseSQL">parseSQL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseFromTokens">parseFromTokens</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asNumber">asNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bestBy">bestBy</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInMonth">daysInMonth</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-daysInYear">daysInYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-floorMod">floorMod</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatOffset">formatOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasFormatToParts">hasFormatToParts</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasIntl">hasIntl</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-hasRelative">hasRelative</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-integerBetween">integerBetween</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isDate">isDate</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isInteger">isInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isLeapYear">isLeapYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isNumber">isNumber</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-isString">isString</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-maybeArray">maybeArray</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeObject">normalizeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-objToLocalTS">objToLocalTS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-padStart">padStart</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseInteger">parseInteger</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseMillis">parseMillis</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parseZoneInfo">parseZoneInfo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-pick">pick</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-roundTo">roundTo</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-signedOffset">signedOffset</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-timeObject">timeObject</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-untruncateYear">untruncateYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-weeksInWeekYear">weeksInWeekYear</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-normalizeZone">normalizeZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasLong">erasLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasNarrow">erasNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-erasShort">erasShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-meridiems">meridiems</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsNarrow">monthsNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-monthsShort">monthsShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysLong">weekdaysLong</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysNarrow">weekdaysNarrow</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-weekdaysShort">weekdaysShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL">DATETIME_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_FULL_WITH_SECONDS">DATETIME_FULL_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE">DATETIME_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_HUGE_WITH_SECONDS">DATETIME_HUGE_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED">DATETIME_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_SECONDS">DATETIME_MED_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_MED_WITH_WEEKDAY">DATETIME_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT">DATETIME_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATETIME_SHORT_WITH_SECONDS">DATETIME_SHORT_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_FULL">DATE_FULL</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_HUGE">DATE_HUGE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED">DATE_MED</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_MED_WITH_WEEKDAY">DATE_MED_WITH_WEEKDAY</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-DATE_SHORT">DATE_SHORT</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_SIMPLE">TIME_24_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_LONG_OFFSET">TIME_24_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SECONDS">TIME_24_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_24_WITH_SHORT_OFFSET">TIME_24_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_SIMPLE">TIME_SIMPLE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_LONG_OFFSET">TIME_WITH_LONG_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SECONDS">TIME_WITH_SECONDS</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-TIME_WITH_SHORT_OFFSET">TIME_WITH_SHORT_OFFSET</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-IANA_REGEX">IANA_REGEX</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#zones">zones</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/IANAZone.js~IANAZone.html">IANAZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/fixedOffsetZone.js~FixedOffsetZone.html">FixedOffsetZone</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/transpiled/zones/systemZone.js~SystemZone.html">SystemZone</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">transpiled/duration.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { asNumber, isUndefined, isNumber, normalizeObject, roundTo } from &quot;./impl/util&quot;;
+import { Locale } from &quot;./impl/locale&quot;;
+import { Formatter } from &quot;./impl/formatter&quot;;
+import { parseISODuration } from &quot;./impl/regexParser&quot;;
+import { InvalidArgumentError, InvalidUnitError, UnparsableStringError } from &quot;./errors&quot;;
+// unit conversion constants
+const lowOrderMatrix = {
+    weeks: {
+        days: 7,
+        hours: 7 * 24,
+        minutes: 7 * 24 * 60,
+        seconds: 7 * 24 * 60 * 60,
+        milliseconds: 7 * 24 * 60 * 60 * 1000
+    },
+    days: {
+        hours: 24,
+        minutes: 24 * 60,
+        seconds: 24 * 60 * 60,
+        milliseconds: 24 * 60 * 60 * 1000
+    },
+    hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1000 },
+    minutes: { seconds: 60, milliseconds: 60 * 1000 },
+    seconds: { milliseconds: 1000 }
+}, casualMatrix = Object.assign({
+    years: {
+        quarters: 4,
+        months: 12,
+        weeks: 52,
+        days: 365,
+        hours: 365 * 24,
+        minutes: 365 * 24 * 60,
+        seconds: 365 * 24 * 60 * 60,
+        milliseconds: 365 * 24 * 60 * 60 * 1000
+    },
+    quarters: {
+        months: 3,
+        weeks: 13,
+        days: 91,
+        hours: 91 * 24,
+        minutes: 91 * 24 * 60,
+        seconds: 91 * 24 * 60 * 60,
+        milliseconds: 91 * 24 * 60 * 60 * 1000
+    },
+    months: {
+        weeks: 4,
+        days: 30,
+        hours: 30 * 24,
+        minutes: 30 * 24 * 60,
+        seconds: 30 * 24 * 60 * 60,
+        milliseconds: 30 * 24 * 60 * 60 * 1000
+    }
+}, lowOrderMatrix), daysInYearAccurate = 146097.0 / 400, daysInMonthAccurate = 146097.0 / 4800, accurateMatrix = Object.assign({
+    years: {
+        quarters: 4,
+        months: 12,
+        weeks: daysInYearAccurate / 7,
+        days: daysInYearAccurate,
+        hours: daysInYearAccurate * 24,
+        minutes: daysInYearAccurate * 24 * 60,
+        seconds: daysInYearAccurate * 24 * 60 * 60,
+        milliseconds: daysInYearAccurate * 24 * 60 * 60 * 1000
+    },
+    quarters: {
+        months: 3,
+        weeks: daysInYearAccurate / 28,
+        days: daysInYearAccurate / 4,
+        hours: (daysInYearAccurate * 24) / 4,
+        minutes: (daysInYearAccurate * 24 * 60) / 4,
+        seconds: (daysInYearAccurate * 24 * 60 * 60) / 4,
+        milliseconds: (daysInYearAccurate * 24 * 60 * 60 * 1000) / 4
+    },
+    months: {
+        weeks: daysInMonthAccurate / 7,
+        days: daysInMonthAccurate,
+        hours: daysInMonthAccurate * 24,
+        minutes: daysInMonthAccurate * 24 * 60,
+        seconds: daysInMonthAccurate * 24 * 60 * 60,
+        milliseconds: daysInMonthAccurate * 24 * 60 * 60 * 1000
+    }
+}, lowOrderMatrix);
+// units ordered by size
+const orderedUnits = [
+    &quot;years&quot;,
+    &quot;quarters&quot;,
+    &quot;months&quot;,
+    &quot;weeks&quot;,
+    &quot;days&quot;,
+    &quot;hours&quot;,
+    &quot;minutes&quot;,
+    &quot;seconds&quot;,
+    &quot;milliseconds&quot;
+];
+const reverseUnits = orderedUnits.slice(0).reverse();
+function antiTrunc(n) {
+    return n &lt; 0 ? Math.floor(n) : Math.ceil(n);
+}
+// NB: mutates parameters
+function convert(matrix, fromMap, fromUnit, toMap, toUnit) {
+    const conv = matrix[toUnit][fromUnit], raw = fromMap[fromUnit] / conv, sameSign = Math.sign(raw) === Math.sign(toMap[toUnit]), 
+    // ok, so this is wild, but see the matrix in the tests
+    added = !sameSign &amp;&amp; toMap[toUnit] !== 0 &amp;&amp; Math.abs(raw) &lt;= 1 ? antiTrunc(raw) : Math.trunc(raw);
+    toMap[toUnit] = toMap[toUnit] + added;
+    fromMap[fromUnit] = fromMap[fromUnit] - added * conv;
+}
+// NB: mutates vals parameters
+function normalizeValues(matrix, vals) {
+    let previousUnit;
+    reverseUnits.forEach(unit =&gt; {
+        if (!isUndefined(vals[unit])) {
+            if (previousUnit) {
+                convert(matrix, vals, previousUnit, vals, unit);
+            }
+            previousUnit = unit;
+        }
+    });
+}
+/**
+ * A Duration object represents a period of time, like &quot;2 months&quot; or &quot;1 day, 1 hour&quot;. Conceptually, it&apos;s just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime.plus} to add a Duration object to a DateTime, producing another DateTime.
+ *
+ * Here is a brief overview of commonly used methods and getters in Duration:
+ *
+ * * **Creation** To create a Duration, use {@link Duration.fromMillis}, {@link Duration.fromObject}, or {@link Duration.fromISO}.
+ * * **Unit values** See the {@link Duration#years}, {@link Duration.months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
+ * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
+ * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
+ * * **Output** To convert the Duration into other representations, see {@link Duration#as}, {@link Duration#toISO}, {@link Duration#toFormat}, and {@link Duration#toJSON}
+ *
+ * There are more methods documented below. In addition, for more information on subtler topics like internationalization and validity, see the external documentation.
+ */
+export class Duration {
+    /**
+     * @private
+     */
+    constructor(config) {
+        const accurate = config.conversionAccuracy === &quot;longterm&quot; || false;
+        /**
+         * @access private
+         */
+        this._values = config.values;
+        /**
+         * @access private
+         */
+        this._loc = config.loc || Locale.create();
+        /**
+         * @access private
+         */
+        this._matrix = accurate ? accurateMatrix : casualMatrix;
+        /**
+         * @access private
+         */
+        this._isLuxonDuration = true;
+    }
+    /**
+     * Create Duration from a number of milliseconds.
+     * @param {number} count of milliseconds
+     * @param {Object} options - options for parsing
+     * @param {string} [options.locale=&apos;en-US&apos;] - the locale to use
+     * @param {string} [options.numberingSystem] - the numbering system to use
+     * @param {string} [options.conversionAccuracy=&apos;casual&apos;] - the conversion system to use
+     * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+     * @return {Duration}
+     */
+    static fromMillis(count, options = {}) {
+        return Duration.fromObject({ milliseconds: count }, options);
+    }
+    /**
+     * Create a Duration from a Javascript object with keys like &apos;years&apos; and &apos;hours.
+     * If this object is empty then a zero milliseconds duration is returned.
+     * @param {Object} obj - the object to create the Duration from
+     * @param {number} obj.years
+     * @param {number} obj.quarters
+     * @param {number} obj.months
+     * @param {number} obj.weeks
+     * @param {number} obj.days
+     * @param {number} obj.hours
+     * @param {number} obj.minutes
+     * @param {number} obj.seconds
+     * @param {number} obj.milliseconds
+     * @param {Object} options - options for parsing
+     * @param {string} [options.locale=&apos;en-US&apos;] - the locale to use
+     * @param {string} [options.numberingSystem] - the numbering system to use
+     * @param {string} [options.conversionAccuracy=&apos;casual&apos;] - the conversion system to use
+     * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+     * @return {Duration}
+     */
+    static fromObject(obj, options = {}) {
+        if (obj === undefined || obj === null || typeof obj !== &quot;object&quot;) {
+            if (options.nullOnInvalid) {
+                return null;
+            }
+            throw new InvalidArgumentError(`Duration.fromObject: argument expected to be an object, got ${obj === null ? &quot;null&quot; : typeof obj}`);
+        }
+        let values;
+        try {
+            values = normalizeObject(obj, Duration.normalizeUnit);
+        }
+        catch (error) {
+            if (options.nullOnInvalid) {
+                return null;
+            }
+            throw error;
+        }
+        return new Duration({
+            values,
+            loc: Locale.fromObject(options),
+            conversionAccuracy: options.conversionAccuracy
+        });
+    }
+    /**
+     * Create a Duration from an ISO 8601 duration string.
+     * @param {string} text - text to parse
+     * @param {Object} options - options for parsing
+     * @param {string} [options.locale=&apos;en-US&apos;] - the locale to use
+     * @param {string} [options.numberingSystem] - the numbering system to use
+     * @param {string} [options.conversionAccuracy=&apos;casual&apos;] - the conversion system to use
+     * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+     * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
+     * @example Duration.fromISO(&apos;P3Y6M1W4DT12H30M5S&apos;).toObject() //=&gt; { years: 3, months: 6, weeks: 1, days: 4, hours: 12, minutes: 30, seconds: 5 }
+     * @example Duration.fromISO(&apos;PT23H&apos;).toObject() //=&gt; { hours: 23 }
+     * @example Duration.fromISO(&apos;P5Y3M&apos;).toObject() //=&gt; { years: 5, months: 3 }
+     * @return {Duration}
+     */
+    static fromISO(text, options = {}) {
+        const parsed = parseISODuration(text);
+        if (parsed) {
+            return Duration.fromObject(parsed, options);
+        }
+        else {
+            if (options.nullOnInvalid) {
+                return null;
+            }
+            throw new UnparsableStringError(&quot;ISO 8601&quot;, text);
+        }
+    }
+    /**
+     * @private
+     */
+    static normalizeUnit(unit) {
+        // TODO should be private
+        const pluralMapping = {
+            year: &quot;years&quot;,
+            years: &quot;years&quot;,
+            quarter: &quot;quarters&quot;,
+            quarters: &quot;quarters&quot;,
+            month: &quot;months&quot;,
+            months: &quot;months&quot;,
+            week: &quot;weeks&quot;,
+            weeks: &quot;weeks&quot;,
+            day: &quot;days&quot;,
+            days: &quot;days&quot;,
+            hour: &quot;hours&quot;,
+            hours: &quot;hours&quot;,
+            minute: &quot;minutes&quot;,
+            minutes: &quot;minutes&quot;,
+            second: &quot;seconds&quot;,
+            seconds: &quot;seconds&quot;,
+            millisecond: &quot;milliseconds&quot;,
+            milliseconds: &quot;milliseconds&quot;
+        };
+        const normalized = pluralMapping[(unit ? unit.toLowerCase() : unit)];
+        if (!normalized) {
+            throw new InvalidUnitError(unit);
+        }
+        return normalized;
+    }
+    /**
+     * Check if an object is a Duration. Works across context boundaries
+     * @param {Object} o
+     * @return {boolean}
+     */
+    static isDuration(o) {
+        return (o &amp;&amp; o._isLuxonDuration) || false;
+    }
+    /**
+     * Get  the locale of a Duration, such &apos;en-GB&apos;
+     * @type {string}
+     */
+    get locale() {
+        return this._loc.locale;
+    }
+    /**
+     * Get the numbering system of a Duration, such &apos;beng&apos;. The numbering system is used when formatting the Duration
+     *
+     * @type {NumberingSystem}
+     */
+    get numberingSystem() {
+        return this._loc.numberingSystem;
+    }
+    /**
+     * Returns a string representation of this Duration formatted according to the specified format string. You may use these tokens:
+     * * `S` for milliseconds
+     * * `s` for seconds
+     * * `m` for minutes
+     * * `h` for hours
+     * * `d` for days
+     * * `M` for months
+     * * `y` for years
+     * Notes:
+     * * Add padding by repeating the token, e.g. &quot;yy&quot; pads the years to two digits, &quot;hhhh&quot; pads the hours out to four digits
+     * * The duration will be converted to the set of units in the format string using {@link Duration.shiftTo} and the Durations&apos;s conversion accuracy setting.
+     * @param {string} format - the format string
+     * @param {Object} options - options
+     * @param {boolean} [options.floor=true] - whether to floor numerical values or not
+     * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat(&quot;y d s&quot;) //=&gt; &quot;1 6 2&quot;
+     * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat(&quot;yy dd sss&quot;) //=&gt; &quot;01 06 002&quot;
+     * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat(&quot;M S&quot;) //=&gt; &quot;12 518402000&quot;
+     * @return {string}
+     */
+    toFormat(format, options = { floor: true }) {
+        return Formatter.create(this._loc, options).formatDurationFromString(this, format);
+    }
+    /**
+     * Returns a Javascript object with this Duration&apos;s values.
+     * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toObject() //=&gt; { years: 1, days: 6, seconds: 2 }
+     * @return {Object}
+     */
+    toObject() {
+        return Object.assign({}, this._values);
+    }
+    /**
+     * Returns an ISO 8601-compliant string representation of this Duration.
+     * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
+     * @example Duration.fromObject({ years: 3, seconds: 45 }).toISO() //=&gt; &apos;P3YT45S&apos;
+     * @example Duration.fromObject({ months: 4, seconds: 45 }).toISO() //=&gt; &apos;P4MT45S&apos;
+     * @example Duration.fromObject({ months: 5 }).toISO() //=&gt; &apos;P5M&apos;
+     * @example Duration.fromObject({ minutes: 5 }).toISO() //=&gt; &apos;PT5M&apos;
+     * @example Duration.fromObject({ milliseconds: 6 }).toISO() //=&gt; &apos;PT0.006S&apos;
+     * @return {string}
+     */
+    toISO() {
+        // we could use the formatter, but this is an easier way to get the minimum string
+        let s = &quot;P&quot;;
+        if (this.years !== 0) {
+            s += this.years + &quot;Y&quot;;
+        }
+        if (this.months !== 0 || this.quarters !== 0) {
+            s += this.months + this.quarters * 3 + &quot;M&quot;;
+        }
+        if (this.weeks !== 0) {
+            s += this.weeks + &quot;W&quot;;
+        }
+        if (this.days !== 0) {
+            s += this.days + &quot;D&quot;;
+        }
+        if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) {
+            s += &quot;T&quot;;
+        }
+        if (this.hours !== 0) {
+            s += this.hours + &quot;H&quot;;
+        }
+        if (this.minutes !== 0) {
+            s += this.minutes + &quot;M&quot;;
+        }
+        if (this.seconds !== 0 || this.milliseconds !== 0) {
+            // this will handle &quot;floating point madness&quot; by removing extra decimal places
+            // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
+            s += roundTo(this.seconds + this.milliseconds / 1000, 3) + &quot;S&quot;;
+        }
+        if (s === &quot;P&quot;) {
+            s += &quot;T0S&quot;;
+        }
+        return s;
+    }
+    /**
+     * Returns an ISO 8601 representation of this Duration appropriate for use in JSON.
+     * @return {string}
+     */
+    toJSON() {
+        return this.toISO();
+    }
+    /**
+     * Returns an ISO 8601 representation of this Duration appropriate for use in debugging.
+     * @return {string}
+     */
+    toString() {
+        return this.toISO();
+    }
+    /**
+     * Returns an milliseconds value of this Duration.
+     * @return {number}
+     */
+    valueOf() {
+        return this.as(&quot;milliseconds&quot;);
+    }
+    /**
+     * Make this Duration longer by the specified amount. Return a newly-constructed Duration.
+     * @param {Duration|Object} duration - The amount to add. Either a Luxon Duration or the object argument to Duration.fromObject()
+     * @return {Duration}
+     */
+    plus(duration) {
+        const dur = friendlyDuration(duration), result = {};
+        orderedUnits.forEach(unit =&gt; {
+            if (dur._values[unit] !== undefined || this._values[unit] !== undefined) {
+                result[unit] = dur.get(unit) + this.get(unit);
+            }
+        });
+        return this._clone(result);
+    }
+    /**
+     * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
+     * @param {Duration|Object} duration - The amount to subtract. Either a Luxon Duration or the object argument to Duration.fromObject()
+     * @return {Duration}
+     */
+    minus(duration) {
+        const dur = friendlyDuration(duration);
+        return this.plus(dur.negate());
+    }
+    /**
+     * Scale this Duration by the specified amount. Return a newly-constructed Duration.
+     * @param {function} fn - The function to apply to each unit. Arity is 1 or 2: the value of the unit and, optionally, the unit name. Must return a number.
+     * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnit(x =&gt; x * 2) //=&gt; { hours: 2, minutes: 60 }
+     * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnit((x, u) =&gt; u === &quot;hour&quot; ? x * 2 : x) //=&gt; { hours: 2, minutes: 30 }
+     * @return {Duration}
+     */
+    mapUnits(fn) {
+        const result = {};
+        for (const k in this._values) {
+            const unit = k;
+            result[unit] = asNumber(fn(this._values[unit], unit));
+        }
+        return this._clone(result);
+    }
+    /**
+     * Get the value of unit.
+     * @param {string} unit - a unit such as &apos;minute&apos; or &apos;day&apos;
+     * @example Duration.fromObject({years: 2, days: 3}).years //=&gt; 2
+     * @example Duration.fromObject({years: 2, days: 3}).months //=&gt; 0
+     * @example Duration.fromObject({years: 2, days: 3}).days //=&gt; 3
+     * @return {number}
+     */
+    get(unit) {
+        return this[Duration.normalizeUnit(unit)];
+    }
+    /**
+     * &quot;Set&quot; the values of specified units. Non-specified units stay unchanged. Return a newly-constructed Duration.
+     * @param {Object} values - a mapping of units to numbers
+     * @example dur.set({ years: 2017 })
+     * @example dur.set({ hours: 8, minutes: 30 })
+     * @return {Duration}
+     */
+    set(values) {
+        const mixed = Object.assign(this._values, normalizeObject(values, Duration.normalizeUnit));
+        return this._clone(mixed, false /* do not clean, merge with existing */);
+    }
+    /**
+     * &quot;Set&quot; the locale and/or numberingSystem and/or conversionAccuracy. Returns a newly-constructed Duration.
+     * @example dur.reconfigure({ locale: &apos;en-GB&apos; })
+     * @return {Duration}
+     */
+    reconfigure({ locale, numberingSystem, conversionAccuracy } = {}) {
+        const conf = {
+            values: this._values,
+            loc: this._loc.clone({ locale, numberingSystem }),
+            conversionAccuracy: conversionAccuracy || this._conversionAccuracy()
+        };
+        return new Duration(conf);
+    }
+    /**
+     * Return the length of the duration in the specified unit.
+     * @param {string} unit - a unit such as &apos;minutes&apos; or &apos;days&apos;
+     * @example Duration.fromObject({years: 1}).as(&apos;days&apos;) //=&gt; 365
+     * @example Duration.fromObject({years: 1}).as(&apos;months&apos;) //=&gt; 12
+     * @example Duration.fromObject({hours: 60}).as(&apos;days&apos;) //=&gt; 2.5
+     * @return {number}
+     */
+    as(unit) {
+        return this.shiftTo(unit).get(unit);
+    }
+    /**
+     * Reduce this Duration to its canonical representation in its current units.
+     * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=&gt; { years: 15, days: 255 }
+     * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=&gt; { hours: 11, minutes: 15 }
+     * @return {Duration}
+     */
+    normalize() {
+        // todo - this should keep the options...
+        const vals = this.toObject();
+        normalizeValues(this._matrix, vals);
+        return this._clone(vals);
+    }
+    /**
+     * Convert this Duration into its representation in a different set of units.
+     * @example Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo(&apos;minutes&apos;, &apos;milliseconds&apos;).toObject() //=&gt; { minutes: 60, milliseconds: 30000 }
+     * @return {Duration}
+     */
+    shiftTo(...units) {
+        const normalizedUnits = units.map(u =&gt; Duration.normalizeUnit(u));
+        if (normalizedUnits.length === 0) {
+            return this;
+        }
+        const built = {}, accumulated = {}, vals = this.toObject();
+        let lastUnit;
+        orderedUnits.forEach((k) =&gt; {
+            if (normalizedUnits.indexOf(k) &gt;= 0) {
+                lastUnit = k;
+                let own = 0;
+                // anything we haven&apos;t boiled down yet should get boiled to this unit
+                for (const acc in accumulated) {
+                    const unit = acc;
+                    own += this._matrix[unit][k] * accumulated[unit];
+                    delete accumulated[unit];
+                }
+                // plus anything that&apos;s already in this unit
+                const unitValue = vals[k];
+                if (isNumber(unitValue)) {
+                    own += unitValue;
+                }
+                const i = Math.trunc(own);
+                built[k] = i;
+                accumulated[k] = own - i; // we&apos;d like to absorb these fractions in another unit
+                // plus anything further down the chain that should be rolled up in to this
+                for (const down in vals) {
+                    if (orderedUnits.indexOf(down) &gt; orderedUnits.indexOf(k)) {
+                        // never happens when k is milliseconds
+                        convert(this._matrix, vals, down, built, k);
+                    }
+                }
+                // otherwise, keep it in the wings to boil it later
+            }
+            else if (isNumber(vals[k])) {
+                accumulated[k] = vals[k];
+            }
+        });
+        // anything leftover becomes the decimal for the last unit
+        // lastUnit is defined here since units is not empty
+        for (const key in accumulated) {
+            const unit = key;
+            const acc = accumulated[unit];
+            if (acc !== undefined) {
+                // @ts-ignore
+                built[lastUnit] = built[lastUnit] +
+                    // @ts-ignore
+                    (key === lastUnit
+                        ? accumulated[key]
+                        : // lastUnit could be &apos;milliseconds&apos; but so would then be the unique key in accumulated
+                            // Cast to ConversionMatrixUnit is hence safe here
+                            // @ts-ignore
+                            acc / this._matrix[lastUnit][unit]);
+            }
+        }
+        return this._clone(built).normalize();
+    }
+    /**
+     * Return the negative of this Duration.
+     * @example Duration.fromObject({ hours: 1, seconds: 30 }).negate().toObject() //=&gt; { hours: -1, seconds: -30 }
+     * @return {Duration}
+     */
+    negate() {
+        const negated = {};
+        for (const k in this._values) {
+            const unit = k;
+            negated[unit] = -this._values[unit];
+        }
+        return this._clone(negated);
+    }
+    /**
+     * Get the years.
+     * @type {number}
+     */
+    get years() {
+        return this._values.years || 0;
+    }
+    /**
+     * Get the quarters.
+     * @type {number}
+     */
+    get quarters() {
+        return this._values.quarters || 0;
+    }
+    /**
+     * Get the months.
+     * @type {number}
+     */
+    get months() {
+        return this._values.months || 0;
+    }
+    /**
+     * Get the weeks
+     * @type {number}
+     */
+    get weeks() {
+        return this._values.weeks || 0;
+    }
+    /**
+     * Get the days.
+     * @type {number}
+     */
+    get days() {
+        return this._values.days || 0;
+    }
+    /**
+     * Get the hours.
+     * @type {number}
+     */
+    get hours() {
+        return this._values.hours || 0;
+    }
+    /**
+     * Get the minutes.
+     * @type {number}
+     */
+    get minutes() {
+        return this._values.minutes || 0;
+    }
+    /**
+     * Get the seconds.
+     * @return {number}
+     */
+    get seconds() {
+        return this._values.seconds || 0;
+    }
+    /**
+     * Get the milliseconds.
+     * @return {number}
+     */
+    get milliseconds() {
+        return this._values.milliseconds || 0;
+    }
+    /**
+     * Equality check
+     * Two Durations are equal iff they have the same units and the same values for each unit.
+     * @param {Duration} other
+     * @return {boolean}
+     */
+    equals(other) {
+        if (!this._loc.equals(other._loc)) {
+            return false;
+        }
+        for (const u of orderedUnits) {
+            if (this._values[u] !== other._values[u]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * @private
+     */
+    // clone really means &quot;create another instance just like this one, but with these changes&quot;
+    _clone(values, clear = true) {
+        // deep merge for vals
+        const conf = {
+            values: clear ? values : Object.assign({}, this._values, values),
+            loc: this._loc,
+            conversionAccuracy: this._conversionAccuracy()
+        };
+        return new Duration(conf);
+    }
+    /**
+     * @private
+     */
+    _conversionAccuracy() {
+        return this._matrix === accurateMatrix ? &quot;longterm&quot; : &quot;casual&quot;;
+    }
+}
+/**
+ * @private
+ */
+export function friendlyDuration(duration) {
+    if (Duration.isDuration(duration)) {
+        return duration;
+    }
+    if (typeof duration === &quot;object&quot; &amp;&amp; duration !== null) {
+        return Duration.fromObject(duration);
+    }
+    throw new InvalidArgumentError(`Unknown duration argument ${duration} of type ${typeof duration}`);
+}
+//# sourceMappingURL=duration.js.map</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+
+
+<script src="https://moment.github.io/luxon/global/luxon.js"></script><script>console.log('You can try Luxon right here using the `luxon` global, like `luxon.DateTime.now()`.')</script></body></html>
