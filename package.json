@@ -1,15 +1,15 @@
 {
-  "name": "ngx-mat-timepicker",
-  "version": "9.0.4",
+  "name": "ts-luxon",
+  "version": "2.0.2-001",
   "license": "MIT",
-  "description": "ngx-mat-timepicker is an Angular material 9+ extension to add time pickers!",
-  "homepage": "https://tonysamperi.github.io/ngx-mat-timepicker",
+  "description": "ts-luxon is luxon with sources in typescript, you can use in both javascript and typescript projects!",
+  "homepage": "https://tonysamperi.github.io/ts-luxon",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonysamperi/ngx-mat-timepicker"
+    "url": "https://github.com/tonysamperi/ts-luxon"
   },
   "bugs": {
-    "url": "https://github.com/tonysamperi/ngx-mat-timepicker/issues"
+    "url": "https://github.com/tonysamperi/ts-luxon/issues"
   },
   "author": {
     "name": "Tony Samperi",
@@ -24,9 +24,8 @@
     "ng": "ng",
     "start": "ng serve",
     "test": "ng test",
-    "build": "ng build --prod && gulp postBuild",
-    "build:alt": "ng build --prod && gulp postBuild:alt",
-    "build:demo": "ng build --prod --baseHref= ngx-mat-timepicker-repo",
+    "build": "ng build --prod",
+    "build:demo": "ng build --prod --baseHref=",
     "pack": "gulp pack",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -43,7 +42,7 @@
     "@angular/platform-browser": "~9.1.12",
     "@angular/platform-browser-dynamic": "~9.1.12",
     "rxjs": "~6.5.1",
-    "ts-luxon": "^2.0.1",
+    "ts-luxon": "^2.0.2",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
   },
@@ -57,7 +56,6 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "^5.0.0",
-    "gulp": "~4.0.2",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
