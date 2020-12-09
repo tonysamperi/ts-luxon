@@ -27,8 +27,7 @@ DateTime.now().setZone('America/New_York').minus({ weeks: 1 }).endOf('day').toIS
 
 You can download the umd bundles from here:
 
-* [ts-luxon.umd.js](https://tonysamperi.github.io/ts-luxon/lib/ts-luxon.umd.js)
-* [ts-luxon.umd.min.js](https://tonysamperi.github.io/ts-luxon/lib/ts-luxon.min.umd.js)
+* [ts-luxon.umd.js](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js)
 
 # DOCS
 

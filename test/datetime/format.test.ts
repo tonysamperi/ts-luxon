@@ -1,5 +1,5 @@
 import { DateTime } from "../../src";
-import {Helpers} from "../helpers";
+import { Helpers } from "../helpers";
 
 const dtMaker = () =>
     DateTime.fromObject(
@@ -19,16 +19,27 @@ const dtMaker = () =>
     ),
   dt = dtMaker();
 
-//------
+// ------
+// #resolveLocaleOptions()
+// ------
+test("DateTime#resolveLocaleOptions() just returns the locale settings", () => {
+  expect(dt.resolvedLocaleOptions()).toEqual({
+    locale: "en-US",
+    numberingSystem: "latn",
+    outputCalendar: "gregory"
+  });
+});
+
+// ------
 // #toJSON()
-//------
+// ------
 test("DateTime#toJSON() just does toISO", () => {
   expect(dt.toJSON()).toBe("1982-05-25T09:23:54.123Z");
 });
 
-//------
+// ------
 // #toISO()
-//------
+// ------
 test("DateTime#toISO() shows 'Z' for UTC", () => {
   expect(dt.toISO()).toBe("1982-05-25T09:23:54.123Z");
 });
@@ -62,9 +73,9 @@ test("DateTime#toISO() rounds fractional timezone minute offsets", () => {
   ).toBe("0002-06-04T10:26:13.000-05:50");
 });
 
-//------
+// ------
 // #toISODate()
-//------
+// ------
 test("DateTime#toISODate() returns ISO 8601 date", () => {
   expect(dt.toISODate()).toBe("1982-05-25");
 });
@@ -86,16 +97,16 @@ test("DateTime#toISODate() returns ISO 8601 date in format [±YYYYY]", () => {
   ).toBe("-118040-05-25");
 });
 
-//------
+// ------
 // #toISOWeekDate()
-//------
+// ------
 test("DateTime#toISOWeekDate() returns ISO 8601 date", () => {
   expect(dt.toISOWeekDate()).toBe("1982-W21-2");
 });
 
-//------
+// ------
 // #toISOTime()
-//------
+// ------
 test("DateTime#toISOTime() returns an ISO 8601 date", () => {
   expect(dt.toISOTime()).toBe("09:23:54.123Z");
 });
@@ -140,9 +151,9 @@ test("DateTime#toISOTime() can output the basic format", () => {
   expect(dt.toISOTime({ format: "basic" })).toBe("092354.123Z");
 });
 
-//------
+// ------
 // #toRFC2822()
-//------
+// ------
 
 test("DateTime#toRFC2822() returns an RFC 2822 date", () => {
   expect(dt.toUTC().toRFC2822()).toBe("Tue, 25 May 1982 09:23:54 +0000");
@@ -150,9 +161,9 @@ test("DateTime#toRFC2822() returns an RFC 2822 date", () => {
   expect(dt.set({ hour: 15 }).toRFC2822()).toBe("Tue, 25 May 1982 15:23:54 +0000");
 });
 
-//------
+// ------
 // #toHTTP()
-//------
+// ------
 
 test("DateTime#toHTTP() returns an RFC 1123 date", () => {
   expect(dt.toUTC().toHTTP()).toBe("Tue, 25 May 1982 09:23:54 GMT");
@@ -160,18 +171,18 @@ test("DateTime#toHTTP() returns an RFC 1123 date", () => {
   expect(dt.plus({ hours: 10 }).toHTTP()).toBe("Tue, 25 May 1982 19:23:54 GMT");
 });
 
-//------
+// ------
 // #toSQLDate()
-//------
+// ------
 
 test("DateTime#toSQLDate() returns SQL date", () => {
   expect(dt.toUTC().toSQLDate()).toBe("1982-05-25");
   expect(dt.setZone("America/New_York").toSQLDate()).toBe("1982-05-25");
 });
 
-//------
+// ------
 // #toSQLTime()
-//------
+// ------
 
 test("DateTime#toSQLTime() returns SQL time", () => {
   expect(dt.toUTC().toSQLTime()).toBe("09:23:54.123 Z");
@@ -190,9 +201,9 @@ test("DateTime#toSQLTime() accepts an includeZone option", () => {
   );
 });
 
-//------
+// ------
 // #toSQL()
-//------
+// ------
 
 test("DateTime#toSQL() returns SQL date time", () => {
   expect(dt.toUTC().toSQL()).toBe("1982-05-25 09:23:54.123 Z");
@@ -213,16 +224,16 @@ test("DateTime#toSQL() accepts an includeZone option", () => {
   );
 });
 
-//------
+// ------
 // #toString()
-//-------
+// -------
 test("DateTime#toString() returns the ISO time", () => {
   expect(dt.toUTC(-6 * 60).toString()).toBe("1982-05-25T03:23:54.123-06:00");
 });
 
-//------
+// ------
 // #toLocaleString()
-//-------
+// -------
 test("DateTime#toLocaleString returns a sensible string by default", () => {
   expect(dt.reconfigure({ locale: "en-US" }).toLocaleString()).toBe("5/25/1982");
 });
@@ -276,9 +287,9 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
   expect(dt.reconfigure({ locale: "es" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("9:23");
 });
 
-//------
+// ------
 // #resolvedLocaleOptions()
-//------
+// ------
 
 test("DateTime#resolvedLocaleOptions returns a thing", () => {
   const res = DateTime.now().resolvedLocaleOptions();
@@ -310,9 +321,9 @@ Helpers.withoutIntl("DateTime#resolvedLocaleOptions default values without intl"
   expect(res.numberingSystem).toBe("latn");
 });
 
-//------
+// ------
 // #toLocaleParts()
-//------
+// ------
 
 test("DateTime#toLocaleParts returns a en-US by default", () => {
   expect(dt.reconfigure({ locale: "en-US" }).toLocaleParts()).toEqual([

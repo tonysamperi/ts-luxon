@@ -1734,7 +1734,20 @@ export class DateTime {
       .minus({ milliseconds: 1 });
   }
 
-  // OUTPUT
+  /**
+   * Returns the resolved Intl options for this DateTime.
+   * This is useful in understanding the behavior of formatting methods
+   * @param {Object} opts - the same options as toLocaleString
+   * @return {Object}
+   */
+  resolvedLocaleOpts(opts = {}) {
+    const { locale, numberingSystem, calendar } = Formatter.create(
+      this._loc.clone(opts),
+      opts
+    ).resolvedOptions(this);
+
+    return { locale, numberingSystem, outputCalendar: calendar };
+  }
 
   /**
    * Returns a string representation of this DateTime formatted according to the specified format string.
