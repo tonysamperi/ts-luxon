@@ -1504,9 +1504,7 @@ export class DateTime {
    * @return {Object}
    */
   resolvedLocaleOptions() {
-    const { locale, numberingSystem: ns, calendar } = Formatter.create(this._loc).resolvedOptions(
-      this
-    );
+    const { locale, numberingSystem: ns, calendar } = Formatter.create(this._loc).resolvedOptions(this);
     const numberingSystem = ns as NumberingSystem;
     const outputCalendar = calendar as CalendarSystem;
     return { locale, numberingSystem, outputCalendar };
