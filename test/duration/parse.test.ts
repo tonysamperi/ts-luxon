@@ -2,9 +2,9 @@ import { Duration } from "../../src";
 import { UnparsableStringError } from "../../src/errors";
 import { DurationObject } from "../../src/types/duration";
 
-//------
+// ------
 // #fromISO()
-//------
+// ------
 
 const check = (s: string, obj: DurationObject) => {
   expect(Duration.fromISO(s).toObject()).toEqual(obj);
@@ -76,5 +76,13 @@ test("Duration.fromISO rejects junk", () => {
 });
 
 test("Duration.fromISO accepts a nullOnInvalid option", () => {
-  expect(Duration.fromISO("sprok", { nullOnInvalid: true })).toBe(null);
+  expect(Duration.fromISO("sprok", { nullOnInvalid: !0 })).toBe(null);
+});
+
+test("foo", () => {
+  expect(Duration.fromISO("PT54M32.5S").toObject()).toEqual({
+    minutes: 54,
+    seconds: 32,
+    milliseconds: 500
+  });
 });

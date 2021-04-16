@@ -7,5 +7,5 @@ export type NumberUnitLength = "numeric" | "2-digit";
 export type UnitLength = StringUnitLength | NumberUnitLength;
 
 export interface ThrowOnInvalid {
-  nullOnInvalid?: false;
+  nullOnInvalid?: boolean;
 }

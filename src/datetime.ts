@@ -6,6 +6,7 @@ import { Formatter } from "./impl/formatter";
 import { FixedOffsetZone } from "./zones/fixedOffsetZone";
 import { Locale } from "./impl/locale";
 import {
+  isDefined,
   isUndefined,
   maybeArray,
   isDate,
@@ -31,8 +32,7 @@ import {
   hasInvalidGregorianData,
   hasInvalidWeekData,
   hasInvalidOrdinalData,
-  hasInvalidTimeData,
-  UnitError
+  hasInvalidTimeData
 } from "./impl/conversions";
 import * as Formats from "./impl/formats";
 import {
@@ -40,9 +40,9 @@ import {
   ConflictingSpecificationError,
   InvalidUnitError,
   UnitOutOfRangeError,
-  MismatchedWeekdayError,
   UnparsableStringError,
-  InvalidZoneError
+  InvalidZoneError,
+  InvalidDateTimeError
 } from "./errors";
 import { SystemZone } from "./zones/systemZone";
 import { Zone } from "./zone";
@@ -58,15 +58,21 @@ import {
   WeekDateTime,
   OrdinalDateTime,
   GenericDateTime,
+  DateTimeWithZoneOptions,
+  DefaultUnitValues,
+  DefaultWeekUnitValues,
+  DefaultOrdinalUnitValues,
   TimeObject,
-  DateTimeWithZoneOptions
+  InnerBuildObjectConfig
 } from "./types/datetime";
 import { DurationUnit, DurationOptions } from "./types/duration";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "./types/locale";
 import { ThrowOnInvalid } from "./types/common";
 import { ZoneLike } from "./types/zone";
+import { Invalid } from "./types/invalid";
 import Intl from "./types/intl-2020";
 
+const INVALID = "Invalid DateTime";
 const MAX_DATE = 8.64e15;
 
 // find the right offset at a given local time. The o input is our guess, which determines which
@@ -198,7 +204,7 @@ function toTechTimeFormat(
 }
 
 // defaults for unspecified units in the supported calendars
-const defaultUnitValues = {
+const defaultUnitValues: DefaultUnitValues = {
     year: 0, // unused value
     month: 1,
     day: 1,
@@ -207,7 +213,7 @@ const defaultUnitValues = {
     second: 0,
     millisecond: 0
   },
-  defaultWeekUnitValues = {
+  defaultWeekUnitValues: DefaultWeekUnitValues = {
     weekNumber: 1,
     weekday: 1,
     hour: 0,
@@ -215,7 +221,7 @@ const defaultUnitValues = {
     second: 0,
     millisecond: 0
   },
-  defaultOrdinalUnitValues = {
+  defaultOrdinalUnitValues: DefaultOrdinalUnitValues = {
     ordinal: 1,
     hour: 0,
     minute: 0,
@@ -304,12 +310,13 @@ type DiffRelativeOptions = ToRelativeOptions & {
 };
 
 interface DateTimeConfig {
-  ts: number;
-  zone: Zone;
-  loc: Locale;
+  ts?: number;
+  zone?: Zone;
+  loc?: Locale;
 }
 
 interface Config extends DateTimeConfig {
+  invalid?: Invalid;
   old?: {
     ts: number;
     zone: Zone;
@@ -340,19 +347,164 @@ interface Config extends DateTimeConfig {
  */
 export class DateTime {
 
+
+  // FORMAT PRESETS
+
+  /**
+   * {@link DateTime#toLocaleString} format like 10/14/1983
+   * @type {Object}
+   */
+  static readonly DATE_SHORT = Formats.DATE_SHORT;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_MED = Formats.DATE_MED;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_MED_WITH_WEEKDAY = Formats.DATE_MED_WITH_WEEKDAY;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_FULL = Formats.DATE_FULL;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
+   * @type {Object}
+   */
+  static readonly DATE_HUGE = Formats.DATE_HUGE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_SIMPLE = Formats.TIME_SIMPLE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_SECONDS = Formats.TIME_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly TIME_WITH_LONG_OFFSET = Formats.TIME_WITH_LONG_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_SIMPLE = Formats.TIME_24_SIMPLE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_SECONDS = Formats.TIME_24_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_SHORT_OFFSET = Formats.TIME_24_WITH_SHORT_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
+   * @type {Object}
+   */
+  static readonly TIME_24_WITH_LONG_OFFSET = Formats.TIME_24_WITH_LONG_OFFSET;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_SHORT = Formats.DATETIME_SHORT;
+
+  /**
+   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_SHORT_WITH_SECONDS = Formats.DATETIME_SHORT_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED = Formats.DATETIME_MED;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED_WITH_SECONDS = Formats.DATETIME_MED_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_MED_WITH_WEEKDAY = Formats.DATETIME_MED_WITH_WEEKDAY;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_FULL = Formats.DATETIME_FULL;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_FULL_WITH_SECONDS = Formats.DATETIME_FULL_WITH_SECONDS;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_HUGE = Formats.DATETIME_HUGE;
+
+  /**
+   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+   * @type {Object}
+   */
+  static readonly DATETIME_HUGE_WITH_SECONDS = Formats.DATETIME_HUGE_WITH_SECONDS;
+
+
+  // Private readonly fields
+  private _c: Readonly<GregorianDateTime>;
+  private readonly _isLuxonDateTime: true;
+  private readonly _invalid: Invalid | null;
+  private _loc: Locale;
+  private readonly _o: number;
+  private readonly _ts: number;
+  private _weekData: WeekDateTime | undefined;
+  private _zone: Readonly<Zone>;
+
   /**
    * @access private
    */
   private constructor(config: Config) {
-    // can happen when using plus or minus with 1E8 days resulting in overflows
-    if (Number.isNaN(config.ts)) {
-      throw new InvalidArgumentError("invalid timestamp");
-    }
 
-    const zone = config.zone || Settings.defaultZone;
-    if (!zone.isValid) {
-      throw new InvalidZoneError(zone.name);
-    }
+    const zone: Zone = config.zone || Settings.defaultZone;
+
+    this._invalid =
+      config.invalid ||
+      // invalid timestamp can happen when using plus or minus with 1E8 days resulting in overflows
+      (Number.isNaN(config.ts) ? new Invalid("invalid timestamp") : null) ||
+      (!zone.isValid ? DateTime._unsupportedZone(zone) : null);
 
     /**
      * @access private
@@ -399,12 +551,38 @@ export class DateTime {
   }
 
   /**
+   * Returns an explanation of why this Duration became invalid, or null if the Duration is valid
+   * @type {string}
+   */
+  get invalidExplanation(): string | void {
+    return this._invalid ? this._invalid.explanation : void 0;
+  }
+
+  /**
+   * Returns an error code if this Duration became invalid, or null if the Duration is valid
+   * @return {string}
+   */
+  get invalidReason(): string | void {
+    return this._invalid ? this._invalid.reason : void 0;
+  }
+
+  /**
+   * Returns whether the DateTime is valid. Invalid DateTimes occur when:
+   * * The DateTime was created from invalid calendar information, such as the 13th month or February 30
+   * * The DateTime was created by an operation on another invalid date
+   * @type {boolean}
+   */
+  get isValid() {
+    return this._invalid === null;
+  }
+
+  /**
    * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
    *
    * @type {string}
    */
   get locale() {
-    return this._loc.locale;
+    return this.isValid ? this._loc.locale : void 0;
   }
 
   /**
@@ -413,7 +591,7 @@ export class DateTime {
    * @type {string}
    */
   get numberingSystem() {
-    return this._loc.numberingSystem;
+    return this.isValid ? this._loc.numberingSystem : void 0;
   }
 
   /**
@@ -516,7 +694,7 @@ export class DateTime {
   /**
    * Get the week year
    * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2014, 11, 31).weekYear //=> 2015
+   * @example DateTime.local(2014, 12, 31).weekYear //=> 2015
    * @type {number}
    */
   get weekYear() {
@@ -686,149 +864,6 @@ export class DateTime {
     return weeksInWeekYear(this.weekYear);
   }
 
-  // FORMAT PRESETS
-
-  /**
-   * {@link DateTime#toLocaleString} format like 10/14/1983
-   * @type {Object}
-   */
-  static readonly DATE_SHORT = Formats.DATE_SHORT;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
-   * @type {Object}
-   */
-  static readonly DATE_MED = Formats.DATE_MED;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
-   * @type {Object}
-   */
-  static readonly DATE_MED_WITH_WEEKDAY = Formats.DATE_MED_WITH_WEEKDAY;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
-   * @type {Object}
-   */
-  static readonly DATE_FULL = Formats.DATE_FULL;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
-   * @type {Object}
-   */
-  static readonly DATE_HUGE = Formats.DATE_HUGE;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly TIME_SIMPLE = Formats.TIME_SIMPLE;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly TIME_WITH_SECONDS = Formats.TIME_WITH_SECONDS;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly TIME_WITH_LONG_OFFSET = Formats.TIME_WITH_LONG_OFFSET;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
-   * @type {Object}
-   */
-  static readonly TIME_24_SIMPLE = Formats.TIME_24_SIMPLE;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
-   * @type {Object}
-   */
-  static readonly TIME_24_WITH_SECONDS = Formats.TIME_24_WITH_SECONDS;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
-   * @type {Object}
-   */
-  static readonly TIME_24_WITH_SHORT_OFFSET = Formats.TIME_24_WITH_SHORT_OFFSET;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
-   * @type {Object}
-   */
-  static readonly TIME_24_WITH_LONG_OFFSET = Formats.TIME_24_WITH_LONG_OFFSET;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_SHORT = Formats.DATETIME_SHORT;
-
-  /**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_SHORT_WITH_SECONDS = Formats.DATETIME_SHORT_WITH_SECONDS;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_MED = Formats.DATETIME_MED;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_MED_WITH_SECONDS = Formats.DATETIME_MED_WITH_SECONDS;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_MED_WITH_WEEKDAY = Formats.DATETIME_MED_WITH_WEEKDAY;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_FULL = Formats.DATETIME_FULL;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_FULL_WITH_SECONDS = Formats.DATETIME_FULL_WITH_SECONDS;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_HUGE = Formats.DATETIME_HUGE;
-
-  /**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */
-  static readonly DATETIME_HUGE_WITH_SECONDS = Formats.DATETIME_HUGE_WITH_SECONDS;
-
-  // Private readonly fields
-  private readonly _ts: number;
-  private _zone: Readonly<Zone>;
-  private _loc: Locale;
-  private _weekData: WeekDateTime | undefined;
-  private _c: Readonly<GregorianDateTime>;
-  private readonly _o: number;
-  private readonly _isLuxonDateTime: true;
-
   // CONSTRUCT
 
   /**
@@ -859,7 +894,7 @@ export class DateTime {
    * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @example DateTime.local()                                  //~> now
    * @example DateTime.local({ zone: "America/New_York" })      //~> now, in US east coast time
    * @example DateTime.local(2017)                              //~> 2017-01-01T00:00:00
@@ -894,7 +929,7 @@ export class DateTime {
    * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @example DateTime.utc()                                            //~> now
    * @example DateTime.utc(2017)                                        //~> 2017-01-01T00:00:00Z
    * @example DateTime.utc(2017, 3)                                     //~> 2017-03-01T00:00:00Z
@@ -924,7 +959,7 @@ export class DateTime {
    * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
+   * @param {boolean} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
    * @return {DateTime}
    */
   static fromJSDate(date: Date, options: DateTimeOptions = {}) {
@@ -954,7 +989,7 @@ export class DateTime {
    * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
+   * @param {boolean} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
    * @return {DateTime}
    */
   static fromMillis(milliseconds: number, options: DateTimeOptions = {}) {
@@ -993,7 +1028,7 @@ export class DateTime {
    * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
+   * @param {boolean} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
    * @return {DateTime}
    */
   static fromSeconds(seconds: number, options: DateTimeOptions = {}) {
@@ -1033,7 +1068,7 @@ export class DateTime {
    * @param {string} [options.locale='system's locale'] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
+   * @param {boolean} [options.nullOnInvalid=false] - return null on invalid values instead of throwing an error
    * @example DateTime.fromObject({ year: 1982, month: 5, day: 25}).toISODate() //=> '1982-05-25'
    * @example DateTime.fromObject({ year: 1982 }).toISODate() //=> '1982-01-01'
    * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }) //~> today at 10:26:06
@@ -1043,25 +1078,25 @@ export class DateTime {
    * @example DateTime.fromObject({ weekYear: 2016, weekNumber: 2, weekday: 3 }).toISODate() //=> '2016-01-13'
    * @return {DateTime}
    */
-  static fromObject(object?: GenericDateTime, options: DateTimeOptions = {}) {
-    object = object || {};
-    const zoneToUse = normalizeZone(options.zone, Settings.defaultZone);
+  static fromObject(obj: GenericDateTime = {} as GenericDateTime, options: DateTimeOptions = {}) {
 
-    const tsNow = Settings.now();
-    let normalized, offsetProvis;
-    try {
-      normalized = normalizeObject(object, normalizeUnit);
-      offsetProvis = zoneToUse.offset(tsNow);
-    } catch (error) {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw error;
+    const zoneToUse = normalizeZone(options.zone, Settings.defaultZone);
+    if (!zoneToUse.isValid) {
+
+      return DateTime.invalid(DateTime._unsupportedZone(zoneToUse));
     }
 
-    const containsOrdinal = !isUndefined(normalized.ordinal),
-      containsGregorYear = !isUndefined(normalized.year),
-      containsGregorMD = !isUndefined(normalized.month) || !isUndefined(normalized.day),
+    const tsNow = Settings.now(),
+      offsetProvis = zoneToUse.offset(tsNow),
+      normalized = normalizeObject(obj, normalizeUnit, [
+        "zone",
+        "locale",
+        "outputCalendar",
+        "numberingSystem"
+      ]),
+      containsOrdinal = isDefined(normalized.ordinal),
+      containsGregorYear = isDefined(normalized.year),
+      containsGregorMD = isDefined(normalized.month) || isDefined(normalized.day),
       containsGregor = containsGregorYear || containsGregorMD,
       definiteWeekDef = normalized.weekYear || normalized.weekNumber,
       loc = Locale.fromObject(options);
@@ -1091,66 +1126,31 @@ export class DateTime {
     const useWeekData = definiteWeekDef || (normalized.weekday && !containsGregor);
 
     // configure ourselves to deal with gregorian dates or week stuff
-    const gregorianNow = tsToObj(tsNow, offsetProvis);
+    const tmpNow: GregorianDateTime = tsToObj(tsNow, offsetProvis);
+    const config = {
+      containsGregor,
+      containsOrdinal,
+      loc,
+      normalized,
+      obj,
+      offsetProvis,
+      useWeekData,
+      zoneToUse
+    };
     if (useWeekData) {
-      const objNow = gregorianToWeek(gregorianNow);
-      DateTime._normalizeWithDefaults(objNow, normalized, orderedWeekUnits, defaultWeekUnitValues);
-    }
-    else if (containsOrdinal) {
-      const objNow = gregorianToOrdinal(gregorianNow);
-      DateTime._normalizeWithDefaults(
-        objNow,
-        normalized,
-        orderedOrdinalUnits,
-        defaultOrdinalUnitValues
+      return DateTime._buildObject<WeekDateTime>(config,
+        orderedWeekUnits,
+        defaultWeekUnitValues,
+        gregorianToWeek(tmpNow)
       );
     }
-    else {
-      DateTime._normalizeWithDefaults(gregorianNow, normalized, orderedUnits, defaultUnitValues);
-    }
-
-    // make sure the values we have are in range
-    let error: UnitError;
-    if (useWeekData) {
-      error = hasInvalidWeekData(normalized as WeekDateTime);
-    }
     else if (containsOrdinal) {
-      error = hasInvalidOrdinalData(normalized as OrdinalDateTime);
+      return DateTime._buildObject(config, orderedOrdinalUnits, defaultOrdinalUnitValues, gregorianToOrdinal(tmpNow));
     }
     else {
-      error = hasInvalidGregorianData(normalized as GregorianDateTime);
-    }
-    error = error || hasInvalidTimeData(normalized as TimeObject);
-
-    if (error) {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw new UnitOutOfRangeError(error[0], error[1]);
+      return DateTime._buildObject(config, orderedUnits, defaultUnitValues, tmpNow);
     }
 
-    // compute the actual time
-    const gregorian = useWeekData
-      ? weekToGregorian(normalized as WeekDateTime)
-      : containsOrdinal
-        ? ordinalToGregorian(normalized as OrdinalDateTime)
-        : (normalized as GregorianDateTime),
-      ts = objToTS(gregorian, offsetProvis, zoneToUse)[0],
-      inst = new DateTime({
-        ts,
-        zone: zoneToUse,
-        loc
-      });
-
-    // gregorian data + weekday serves only to validate
-    if (normalized.weekday && containsGregor && object.weekday !== inst.weekday) {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw new MismatchedWeekdayError(normalized.weekday, inst.toISO());
-    }
-
-    return inst;
   }
 
   static fromISO(text: string): DateTime;
@@ -1165,7 +1165,7 @@ export class DateTime {
    * @param {string} [options.locale='system's locale'] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - return null on invalid strings instead of throwing an error
+   * @param {boolean} [options.nullOnInvalid=false] - return null on invalid strings instead of throwing an error
    * @example DateTime.fromISO('2016-05-25T09:08:34.123')
    * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00')
    * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00', {setZone: true})
@@ -1190,7 +1190,7 @@ export class DateTime {
    * @param {string} [options.locale='system's locale'] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @example DateTime.fromRFC2822('25 Nov 2016 13:23:12 GMT')
    * @example DateTime.fromRFC2822('Fri, 25 Nov 2016 13:23:12 +0600')
    * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
@@ -1214,7 +1214,7 @@ export class DateTime {
    * @param {string} [options.locale='system's locale'] - a locale to set on the resulting DateTime instance
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @example DateTime.fromHTTP('Sun, 06 Nov 1994 08:49:37 GMT')
    * @example DateTime.fromHTTP('Sunday, 06-Nov-94 08:49:37 GMT')
    * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
@@ -1248,7 +1248,7 @@ export class DateTime {
    * @param {string} [options.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @return {DateTime}
    */
   static fromFormat(text: string, format: string, options: DateTimeWithZoneOptions = {}) {
@@ -1298,7 +1298,7 @@ export class DateTime {
    * @param {string} [options.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
    * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
    * @param {string} [options.numberingSystem] - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
    * @example DateTime.fromSQL('2017-05-15')
    * @example DateTime.fromSQL('2017-05-15 09:12:34')
    * @example DateTime.fromSQL('2017-05-15 09:12:34.342')
@@ -1312,6 +1312,28 @@ export class DateTime {
   static fromSQL(text: string, options: DateTimeWithZoneOptions = {}) {
     const [vals, parsedZone] = parseSQL(text);
     return parseDataToDateTime(vals, parsedZone, options, "SQL", text);
+  }
+
+
+  /**
+   * Create an invalid DateTime.
+   * @param {string} reason - simple string of why this DateTime is invalid. Should not contain parameters or anything else data-dependent
+   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
+   * @return {DateTime}
+   */
+  static invalid(reason: Invalid | string, explanation?: string): DateTime {
+    if (!reason) {
+      throw new InvalidArgumentError("need to specify a reason the DateTime is invalid");
+    }
+
+    const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
+
+    if (Settings.throwOnInvalid) {
+      throw new InvalidDateTimeError(invalid);
+    }
+    else {
+      return new DateTime({ invalid });
+    }
   }
 
   /**
@@ -1380,6 +1402,68 @@ export class DateTime {
   /**
    * @private
    */
+  private static _buildObject<T extends TimeObject>(config: InnerBuildObjectConfig,
+                                                    units: string[],
+                                                    defaultValues: DefaultUnitValues | DefaultOrdinalUnitValues | DefaultWeekUnitValues,
+                                                    objNow: T) {
+
+    // set default values for missing stuff
+    let foundFirst = false;
+    Object.keys(units).forEach((u: string) => {
+      // for (const u of units) {
+      const v = config.normalized[u];
+      if (!isUndefined(v)) {
+        foundFirst = true;
+      }
+      else if (foundFirst) {
+        config.normalized[u] = defaultValues[u];
+      }
+      else {
+        config.normalized[u] = (objNow as { [key: string]: any })[u];
+      }
+      // }
+    });
+
+    // make sure the values we have are in range
+    const higherOrderInvalid = config.useWeekData
+      ? hasInvalidWeekData(config.normalized as unknown as WeekDateTime)
+      : config.containsOrdinal
+        ? hasInvalidOrdinalData(config.normalized as unknown as OrdinalDateTime)
+        : hasInvalidGregorianData(config.normalized as unknown as GregorianDateTime);
+    const invalid = higherOrderInvalid || hasInvalidTimeData(config.normalized as unknown as TimeObject);
+
+    if (invalid) {
+      return DateTime.invalid(new Invalid(invalid[0]));
+    }
+
+    // compute the actual time
+    const gregorian = config.useWeekData
+      ? weekToGregorian(config.normalized as unknown as WeekDateTime)
+      : config.containsOrdinal
+        ? ordinalToGregorian(config.normalized as unknown as OrdinalDateTime)
+        : config.normalized,
+      [tsFinal /*offsetFinal*/] = objToTS(gregorian as unknown as GregorianDateTime, config.offsetProvis, config.zoneToUse),
+      inst = new DateTime({
+        ts: tsFinal,
+        zone: config.zoneToUse,
+        // o: offsetFinal, this prop doesn't exist in config...why it's there? If you used Typescript you'd know :)
+        loc: config.loc
+      });
+
+    // gregorian data + weekday serves only to validate
+    if (config.normalized.weekday && config.containsGregor && config.obj.weekday !== inst.weekday) {
+      return DateTime.invalid(
+        "mismatched weekday",
+        `you can't specify both a weekday of ${config.normalized.weekday} and a date of ${inst.toISO()}`
+      );
+    }
+
+    return inst;
+  }
+
+  /**
+   * @private
+   */
   // this is a dumbed down version of fromObject() that runs about 60% faster
   // but doesn't do any validation, makes a bunch of assumptions about what units
   // are present, and so on.
@@ -1414,31 +1498,6 @@ export class DateTime {
     }
 
     return new DateTime({ ts, zone, loc });
-  }
-
-  /**
-   * @private
-   */
-  private static _normalizeWithDefaults<T>(
-    objNow: T,
-    normalized: Partial<T>,
-    units: Array<keyof T>,
-    defaultValues: Partial<T>
-  ) {
-    // set default values for missing stuff in object
-    let foundFirst = false;
-    for (const u of units) {
-      const v = normalized[u];
-      if (!isUndefined(v)) {
-        foundFirst = true;
-      }
-      else if (foundFirst) {
-        normalized[u] = defaultValues[u];
-      }
-      else {
-        normalized[u] = objNow[u];
-      }
-    }
   }
 
   /**
@@ -1483,6 +1542,13 @@ export class DateTime {
       }
     }
     return format(0, options.units[options.units.length - 1]);
+  }
+
+  /**
+   * @private
+   */
+  private static _unsupportedZone(zone: Zone): Invalid {
+    return new Invalid("unsupported zone", `the zone "${zone.name}" is not supported`);
   }
 
   // INFO
@@ -1609,7 +1675,11 @@ export class DateTime {
    * @example dt.set({ year: 2005, ordinal: 234 })
    * @return {DateTime}
    */
-  set(values: GenericDateTime) {
+  set(values: GenericDateTime): DateTime {
+    if (!this.isValid) {
+      return this;
+    }
+
     const normalized = normalizeObject(values, normalizeUnit),
       settingWeekStuff =
         !isUndefined(normalized.weekYear) ||
@@ -1650,7 +1720,10 @@ export class DateTime {
    * @example DateTime.now().plus(Duration.fromObject({ hours: 3, minutes: 13 })) //~> in 3 hr, 13 min
    * @return {DateTime}
    */
-  plus(duration: DurationLike) {
+  plus(duration: DurationLike): DateTime {
+    if (!this.isValid) {
+      return this;
+    }
     const dur = friendlyDuration(duration);
     return this._clone(this._adjustTime(dur));
   }
@@ -1661,7 +1734,10 @@ export class DateTime {
    * @param {Duration|Object} duration - The amount to subtract. Either a Luxon Duration or the object argument to Duration.fromObject()
    @return {DateTime}
    */
-  minus(duration: DurationLike) {
+  minus(duration: DurationLike): DateTime {
+    if (!this.isValid) {
+      return this;
+    }
     const dur = friendlyDuration(duration).negate();
     return this._clone(this._adjustTime(dur));
   }
@@ -1677,6 +1753,9 @@ export class DateTime {
    * @return {DateTime}
    */
   startOf(unit: DurationUnit) {
+    if (!this.isValid) {
+      return this;
+    }
     const o: GenericDateTime = {},
       normalizedUnit = Duration.normalizeUnit(unit);
     switch (normalizedUnit) {
@@ -1760,8 +1839,10 @@ export class DateTime {
    * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
    * @return {string}
    */
-  toFormat(format: string, options: LocaleOptions = {}) {
-    return Formatter.create(this._loc.redefaultToEN(options)).formatDateTimeFromString(this, format);
+  toFormat(fmt: string, opts: LocaleOptions = {}) {
+    return this.isValid
+      ? Formatter.create(this._loc.redefaultToEN(opts)).formatDateTimeFromString(this, fmt)
+      : INVALID;
   }
 
   /**
@@ -2003,25 +2084,17 @@ export class DateTime {
   // COMPARE
 
   diff(other: DateTime, unit?: DurationUnit | DurationUnit[]): Duration;
-  diff(
-    other: DateTime,
-    unit: DurationUnit | DurationUnit[],
-    options: DurationOptions & ThrowOnInvalid
-  ): Duration;
-  diff(
-    other: DateTime,
-    unit: DurationUnit | DurationUnit[],
-    options: DurationOptions
-  ): Duration | null;
+  diff(other: DateTime, unit: DurationUnit | DurationUnit[], options: DurationOptions & ThrowOnInvalid): Duration;
+  diff(other: DateTime, unit: DurationUnit | DurationUnit[], options: DurationOptions): Duration | null;
   /**
    * Return the difference between two DateTimes as a Duration.
-   * @param {DateTime} other - the DateTime to compare this one to
+   * @param {DateTime} otherDateTime - the DateTime to compare this one to
    * @param {string|string[]} [unit=['milliseconds']] - the unit or array of units (such as 'hours' or 'days') to include in the duration.
-   * @param {Object} options - options that affect the creation of the Duration
-   * @param {string} [options.locale=locale()] - the locale to use
-   * @param {string} [options.numberingSystem=numberingSystem()] - the numbering system to use
-   * @param {string} [options.conversionAccuracy='casual'] - the conversion system to use
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+   * @param {Object} opts - options that affect the creation of the Duration
+   * @param {string} [opts.locale=locale()] - the locale to use
+   * @param {string} [opts.numberingSystem=numberingSystem()] - the numbering system to use
+   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+   * @param {boolean} [opts.nullOnInvalid=false] - whether to return `null` on error instead of throwing
    * @example
    * var i1 = DateTime.fromISO('1982-05-25T09:45'),
    *     i2 = DateTime.fromISO('1983-10-14T10:30');
@@ -2031,34 +2104,22 @@ export class DateTime {
    * i2.diff(i1, ['months', 'days', 'hours']).toObject() //=> { months: 16, days: 19, hours: 0.75 }
    * @return {Duration}
    */
-  diff(
-    other: DateTime,
-    unit: DurationUnit | DurationUnit[] = "milliseconds",
-    options: DurationOptions = {}
-  ) {
-    const durOpts = Object.assign(
-      { locale: this.locale, numberingSystem: this.numberingSystem },
-      options,
-      { nullOnInvalid: false }
-    ) as DurationOptions & ThrowOnInvalid;
+  diff(otherDateTime: DateTime, unit: DurationUnit | DurationUnit[] = "milliseconds", opts: DurationOptions = {}) {
+    if (!this.isValid || !otherDateTime.isValid) {
+      const reason: string = (this.invalidReason || otherDateTime.invalidReason) as string; // One of the two is certainly a string
 
-    let units;
-    try {
-      units = maybeArray(unit).map(Duration.normalizeUnit);
-      if (units.length === 0) {
-        throw new InvalidArgumentError("At least one unit must be specified");
-      }
-    } catch (error) {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw error;
+      return Duration.invalid(reason, "created by diffing an invalid DateTime");
     }
 
-    const otherIsLater = other.valueOf() > this.valueOf(),
-      earlier = otherIsLater ? this : other,
-      later = otherIsLater ? other : this,
-      diffed = diff(earlier, later, units, durOpts);
+    const units = maybeArray(unit).map(Duration.normalizeUnit),
+      otherIsLater = otherDateTime.valueOf() > this.valueOf(),
+      earlier = otherIsLater ? this : otherDateTime,
+      later = otherIsLater ? otherDateTime : this,
+      diffed = diff(earlier, later, units, {
+        locale: this.locale,
+        numberingSystem: this.numberingSystem,
+        ...opts
+      });
 
     return otherIsLater ? diffed.negate() : diffed;
   }
@@ -2074,10 +2135,13 @@ export class DateTime {
    * @param {string} [options.locale=locale()] - the locale to use
    * @param {string} [options.numberingSystem=numberingSystem()] - the numbering system to use
    * @param {string} [options.conversionAccuracy='casual'] - the conversion system to use
-   * @param {bool} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
    * @return {Duration}
    */
   diffNow(unit: DurationUnit | DurationUnit[] = "milliseconds", options: DurationOptions = {}) {
+    if (!this.isValid) {
+      return this;
+    }
     return this.diff(DateTime.now(), unit, options);
   }
 
@@ -2132,7 +2196,7 @@ export class DateTime {
    * @param {string} [options.style="long"] - the style of units, must be "long", "short", or "narrow"
    * @param {string} [options.unit] - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", "days", "hours", "minutes", or "seconds"
    * @param {boolean} [options.round=true] - whether to round the numbers in the output.
-   * @param {boolean} [options.padding=0] - padding in milliseconds. This allows you to round up the result if it fits inside the threshold. Don't use in combination with {round: false} because the decimal output will include the padding.
+   * @param {number} [options.padding=0] - padding in milliseconds. This allows you to round up the result if it fits inside the threshold. Don't use in combination with {round: false} because the decimal output will include the padding.
    * @param {string} [options.locale] - override the locale of this DateTime
    * @param {string} [options.numberingSystem] - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
    * @example DateTime.now().plus({ days: 1 }).toRelative() //=> "in 1 day"
@@ -2257,6 +2321,7 @@ export class DateTime {
 
     return { ts, o };
   }
+
 }
 
 export type DateTimeLike = DateTime | Date | GenericDateTime;

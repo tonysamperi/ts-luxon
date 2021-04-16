@@ -1,16 +1,14 @@
-import { DateTime } from "../../src";
-
+import { DateTime, GregorianDateTime } from "../../src";
 import {
   MismatchedWeekdayError,
   UnparsableStringError,
   UnitOutOfRangeError
 } from "../../src/errors";
 
-import { GregorianDateTime } from "../../src/types/datetime";
 
-//------
+// ------
 // .fromISO
-//-------
+// -------
 
 test("DateTime.fromISO() parses as local by default", () => {
   const dt = DateTime.fromISO("2016-05-25T09:08:34.123");
@@ -557,11 +555,12 @@ test("DateTime.fromISO() accepts some technically incorrect stuff", () => {
   });
 });
 
+const getNullValue = (): unknown => null;
+
 test("DateTime.fromISO() rejects poop", () => {
   const rejects = (s: string) => expect(() => DateTime.fromISO(s)).toThrow(UnparsableStringError);
 
-  // @ts-expect-error
-  rejects(null);
+  rejects(getNullValue() as string);
   rejects("");
   rejects(" ");
   rejects("2016-1");
@@ -587,9 +586,9 @@ test("DateTime.fromISO() accepts a nullOnInvalid argument", () => {
   expect(DateTime.fromISO("sporks", { nullOnInvalid: true })).toBe(null);
 });
 
-//------
+// ------
 // .fromRFC2822
-//-------
+// -------
 
 test("DateTime.fromRFC2822() accepts full format", () => {
   const dt = DateTime.fromRFC2822("Tue, 01 Nov 2016 13:23:12 +0630");
@@ -686,9 +685,9 @@ test("DateTime.fromRFC2822() can use a weird subset of offset abbreviations", ()
 test("DateTime.fromRFC2822() accepts a nullOnInvalid argument", () =>
   expect(DateTime.fromRFC2822("sporks", { nullOnInvalid: true })).toBe(null));
 
-//------
+// ------
 // .fromHTTP
-//-------
+// -------
 
 test("DateTime.fromHTTP() can parse RFC 1123", () => {
   const dt = DateTime.fromHTTP("Sun, 06 Nov 1994 08:49:37 GMT");
@@ -746,9 +745,9 @@ test("DateTime.fromHTTP() accepts a nullOnInvalid argument", () => {
   expect(DateTime.fromHTTP("sporks", { nullOnInvalid: true })).toBe(null);
 });
 
-//------
+// ------
 // .fromSQL
-//-------
+// -------
 
 test("DateTime.fromSQL() can parse SQL dates", () => {
   const dt = DateTime.fromSQL("2016-05-14");

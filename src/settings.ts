@@ -10,11 +10,12 @@ let now = () => Date.now(),
   defaultZone: ZoneLike | undefined,
   defaultLocale: string | undefined,
   defaultNumberingSystem: NumberingSystem | undefined,
-  defaultOutputCalendar: CalendarSystem | undefined;
+  defaultOutputCalendar: CalendarSystem | undefined,
+  throwOnInvalid: boolean = !1;
 
 /**
- * Settings contains static getters and setters that control Luxon's overall behavior.
- * Luxon is a simple library with few options, but the ones it does have live here.
+ * Settings contains static getters and setters that control TsLuxon's overall behavior.
+ * TsLuxon is a simple library with few options, but the ones it does have live here.
  */
 export class Settings {
   /**
@@ -34,20 +35,6 @@ export class Settings {
    */
   static set now(n) {
     now = n;
-  }
-
-  /**
-   * Set the default time zone to create DateTimes in. Does not affect existing instances.
-   *
-   * Use the value "system" (default) to reset this value to the system's time zone.
-   *
-   * zone can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3'.
-   *
-   * You may also supply an instance of a {@link Zone} class, or a number which will be interpreted as a UTC offset in minutes.
-   * @param {Zone | string | number} [zone='system'] - the zone value
-   */
-  static setDefaultZone(zone?: ZoneLike) {
-    defaultZone = zone;
   }
 
   /**
@@ -108,11 +95,43 @@ export class Settings {
   }
 
   /**
+   * Get whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
+   * @type {boolean}
+   */
+  static get throwOnInvalid() {
+    return throwOnInvalid;
+  }
+
+  /**
+   * Set whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
+   * @type {boolean}
+   */
+  static set throwOnInvalid(t) {
+    throwOnInvalid = t;
+  }
+
+  // Methods
+
+  /**
    * Reset Luxon's global caches. Should only be necessary in testing scenarios.
    * @return {void}
    */
   static resetCaches() {
     Locale.resetCache();
     IANAZone.resetCache();
+  }
+
+  /**
+   * Set the default time zone to create DateTimes in. Does not affect existing instances.
+   *
+   * Use the value "system" (default) to reset this value to the system's time zone.
+   *
+   * zone can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3'.
+   *
+   * You may also supply an instance of a {@link Zone} class, or a number which will be interpreted as a UTC offset in minutes.
+   * @param {Zone | string | number} [zone='system'] - the zone value
+   */
+  static setDefaultZone(zone?: ZoneLike) {
+    defaultZone = zone;
   }
 }

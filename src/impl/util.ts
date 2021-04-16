@@ -13,6 +13,9 @@ import { ZoneOffsetFormat } from "../types/zone";
  */
 
 // TYPES
+export function isDefined(o: unknown): boolean {
+  return typeof o !== "undefined";
+}
 
 export function isUndefined(o: unknown): o is undefined {
   return typeof o === "undefined";
@@ -263,17 +266,15 @@ export function asNumber(value: unknown) {
   return numericValue;
 }
 
-export function normalizeObject<T extends string>(
-  obj: Record<string, unknown>,
-  normalizer: (key: string) => T
-) {
-  return Object.keys(obj).reduce<Partial<Record<T, number>>>((normalized, key) => {
-    const value = obj[key];
-    if (value !== undefined && value !== null) {
-      normalized[normalizer(key)] = asNumber(value);
-    }
-    return normalized;
-  }, {});
+export function normalizeObject(obj: Record<string, unknown>,
+                                normalizer: (key: string) => string | number,
+                                nonUnitKeys: string[] = []): { [key: string]: number } {
+  return Object.keys(obj).reduce((acc, u: string) => {
+    !!obj[u] && nonUnitKeys.indexOf(u) < 0 && (acc[normalizer(u)] = asNumber(obj[u]));
+
+    return acc;
+  }, {} as { [key: string]: number });
+
 }
 
 export function formatOffset(offset: number, format: ZoneOffsetFormat) {

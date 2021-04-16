@@ -77,7 +77,12 @@ export function weekToGregorian(weekData: WeekDateTime) {
 
   const { month, day } = uncomputeOrdinal(year, ordinal);
 
-  return Object.assign({ year, month, day }, timeObject(weekData));
+  return {
+    year,
+    month,
+    day,
+    ...timeObject(weekData)
+  };
 }
 
 export function gregorianToOrdinal(gregData: GregorianDateTime): OrdinalDateTime {

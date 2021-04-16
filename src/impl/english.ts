@@ -51,11 +51,11 @@ export const monthsNarrow = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "
 export function months(length: UnitLength) {
   switch (length) {
     case "narrow":
-      return monthsNarrow;
+      return [...monthsNarrow];
     case "short":
-      return monthsShort;
+      return [...monthsShort];
     case "long":
-      return monthsLong;
+      return [...monthsLong];
     case "numeric":
       return ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     case "2-digit":
@@ -106,11 +106,11 @@ export const erasNarrow = ["B", "A"];
 export function eras(length: StringUnitLength) {
   switch (length) {
     case "narrow":
-      return erasNarrow;
+      return [...erasNarrow];
     case "short":
-      return erasShort;
+      return [...erasShort];
     case "long":
-      return erasLong;
+      return [...erasLong];
   }
 }
 

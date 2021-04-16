@@ -3,6 +3,7 @@ import { DateTime } from "../datetime";
 import { Zone } from "../zone";
 import { FormatToken } from "../impl/formatter";
 import Intl from "./intl-2020";
+import { Locale } from "../impl/locale";
 
 export interface SetZoneOptions {
   keepLocalTime?: boolean;
@@ -47,10 +48,11 @@ export interface ToSQLOptions {
 export type ToISOFormat = "basic" | "extended";
 
 export interface ToISOTimeOptions {
+  format?: ToISOFormat;
+  includeOffset?: boolean;
+  includePrefix?: boolean;
   suppressMilliseconds?: boolean;
   suppressSeconds?: boolean;
-  includeOffset?: boolean;
-  format?: ToISOFormat;
 }
 
 export interface DateTimeOptions extends LocaleOptions {
@@ -60,6 +62,10 @@ export interface DateTimeOptions extends LocaleOptions {
 
 export interface DateTimeWithZoneOptions extends DateTimeOptions {
   setZone?: boolean;
+}
+
+interface BaseObject {
+  [key: string]: any;
 }
 
 export interface TimeObject {
@@ -97,4 +103,42 @@ export interface ExplainedFormat {
   result?: GenericDateTime | null;
   zone?: Zone | null;
   invalidReason?: string;
+}
+
+export interface DefaultUnitValues extends BaseObject {
+  year: 0 | 1;
+  month: 0 | 1;
+  day: 0 | 1;
+  hour: 0 | 1;
+  minute: 0 | 1;
+  second: 0 | 1;
+  millisecond: 0 | 1;
+}
+
+export interface DefaultWeekUnitValues extends BaseObject {
+  weekNumber: 0 | 1;
+  weekday: 0 | 1;
+  hour: 0 | 1;
+  minute: 0 | 1;
+  second: 0 | 1;
+  millisecond: 0 | 1;
+}
+
+export interface DefaultOrdinalUnitValues extends BaseObject {
+  ordinal: 0 | 1;
+  hour: 0 | 1;
+  minute: 0 | 1;
+  second: 0 | 1;
+  millisecond: 0 | 1;
+}
+
+export interface InnerBuildObjectConfig {
+  containsGregor: boolean;
+  loc: Locale;
+  useWeekData: number | boolean;
+  containsOrdinal: boolean;
+  normalized: { [key: string]: number; };
+  obj: Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime>;
+  offsetProvis: number;
+  zoneToUse: Zone;
 }

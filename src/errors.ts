@@ -1,14 +1,15 @@
 // these aren't really private, but nor are they really useful to document
+import { Invalid } from "./types/invalid";
 
 /**
  * @private
  */
-class LuxonError extends Error {}
+class TsLuxonError extends Error {}
 
 /**
  * @private
  */
-export class UnitOutOfRangeError extends LuxonError {
+export class UnitOutOfRangeError extends TsLuxonError {
   constructor(unit: string, value: unknown) {
     super(`you specified ${value} (of type ${typeof value}) as a ${unit}, which is invalid`);
 
@@ -17,10 +18,30 @@ export class UnitOutOfRangeError extends LuxonError {
   }
 }
 
+
 /**
  * @private
  */
-export class InvalidUnitError extends LuxonError {
+export class InvalidDateTimeError extends TsLuxonError {
+  constructor(reason: Invalid) {
+    super(`Invalid DateTime: ${reason.toMessage()}`);
+  }
+}
+
+/**
+ * @private
+ */
+export class InvalidDurationError extends TsLuxonError {
+  constructor(reason: Invalid) {
+    super(`Invalid Duration: ${reason.toMessage()}`);
+  }
+}
+
+
+/**
+ * @private
+ */
+export class InvalidUnitError extends TsLuxonError {
   constructor(unit: string) {
     super(`Invalid unit ${unit}`);
     Object.setPrototypeOf(this, InvalidUnitError.prototype);
@@ -30,7 +51,7 @@ export class InvalidUnitError extends LuxonError {
 /**
  * @private
  */
-export class InvalidZoneError extends LuxonError {
+export class InvalidZoneError extends TsLuxonError {
   constructor(zoneName: string) {
     super(`${zoneName} is an invalid or unknown zone specifier`);
     Object.setPrototypeOf(this, InvalidZoneError.prototype);
@@ -40,7 +61,7 @@ export class InvalidZoneError extends LuxonError {
 /**
  * @private
  */
-export class MissingPlatformFeatureError extends LuxonError {
+export class MissingPlatformFeatureError extends TsLuxonError {
   constructor(feature: string) {
     super(`missing ${feature} support`);
     Object.setPrototypeOf(this, MissingPlatformFeatureError.prototype);
@@ -50,7 +71,7 @@ export class MissingPlatformFeatureError extends LuxonError {
 /**
  * @private
  */
-export class MismatchedWeekdayError extends LuxonError {
+export class MismatchedWeekdayError extends TsLuxonError {
   constructor(weekday: number, date: string) {
     super(`you can't specify both a weekday of ${weekday} and a date of ${date}`);
     Object.setPrototypeOf(this, MismatchedWeekdayError.prototype);
@@ -60,7 +81,7 @@ export class MismatchedWeekdayError extends LuxonError {
 /**
  * @private
  */
-export class UnparsableStringError extends LuxonError {
+export class UnparsableStringError extends TsLuxonError {
   constructor(format: string, text: string) {
     super(`can't parse ${text} into format ${format}`);
     Object.setPrototypeOf(this, UnparsableStringError.prototype);
@@ -70,7 +91,7 @@ export class UnparsableStringError extends LuxonError {
 /**
  * @private
  */
-export class ConflictingSpecificationError extends LuxonError {
+export class ConflictingSpecificationError extends TsLuxonError {
   constructor(message: string) {
     super(message);
     Object.setPrototypeOf(this, ConflictingSpecificationError.prototype);
@@ -80,7 +101,7 @@ export class ConflictingSpecificationError extends LuxonError {
 /**
  * @private
  */
-export class InvalidArgumentError extends LuxonError {
+export class InvalidArgumentError extends TsLuxonError {
   constructor(message: string) {
     super(message);
     Object.setPrototypeOf(this, InvalidArgumentError.prototype);
@@ -90,7 +111,7 @@ export class InvalidArgumentError extends LuxonError {
 /**
  * @private
  */
-export class ZoneIsAbstractError extends LuxonError {
+export class ZoneIsAbstractError extends TsLuxonError {
   constructor() {
     super("Zone is an abstract class");
     Object.setPrototypeOf(this, ZoneIsAbstractError.prototype);

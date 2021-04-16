@@ -38,16 +38,16 @@ function combineExtractors(...extractors: CombinableExtractor[]) {
   return (match: RegExpExecArray) =>
     extractors
       .reduce<CombinableParseResult>(
-        ([mergedVals, mergedZone, cursor], ex) => {
+        ([mergedValues, mergedZone, cursor], ex) => {
           const [val, zone, next] = ex(match, cursor);
-          return [Object.assign(mergedVals, val), mergedZone || zone, next];
+          return [Object.assign(mergedValues, val), mergedZone || zone, next];
         },
         [{}, null, 1]
       )
       .slice(0, 2) as ParseResult;
 }
 
-function parse(s: string, ...patterns: ParsePattern[]) {
+function parse(s: string, ...patterns: (ParsePattern)[]): ParseResult {
   if (s === undefined || s === null) {
     return [null, null];
   }
@@ -128,11 +128,15 @@ function extractIANAZone(match: RegExpExecArray, cursor: number): CombinablePars
   return [{}, zone, cursor + 1];
 }
 
+// ISO time parsing
+
+const isoTimeOnly = RegExp(`^T?${isoTimeBaseRegex.source}$`);
+
 // ISO duration parsing
 
 const isoDuration = /^-?P(?:(?:(-?\d{1,9})Y)?(?:(-?\d{1,9})M)?(?:(-?\d{1,9})W)?(?:(-?\d{1,9})D)?(?:T(?:(-?\d{1,9})H)?(?:(-?\d{1,9})M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,9}))?S)?)?)$/;
 
-function extractISODuration(match: RegExpExecArray) {
+function extractISODuration(match: RegExpExecArray): any {
   const [
     s,
     yearStr,
@@ -150,7 +154,7 @@ function extractISODuration(match: RegExpExecArray) {
   const maybeNegate = (num: number | undefined) =>
     num !== undefined && hasNegativePrefix ? -num : num;
 
-  return {
+  return [{
     years: maybeNegate(parseInteger(yearStr)),
     months: maybeNegate(parseInteger(monthStr)),
     weeks: maybeNegate(parseInteger(weekStr)),
@@ -159,10 +163,10 @@ function extractISODuration(match: RegExpExecArray) {
     minutes: maybeNegate(parseInteger(minuteStr)),
     seconds: maybeNegate(parseInteger(secondStr)),
     milliseconds: maybeNegate(parseMillis(millisecondsStr))
-  };
+  }];
 }
 
-// These are a little braindead. EDT *should* tell us that we're in, say, America/New_York
+// These are a little brain dead. EDT *should* tell us that we're in, say, America/New_York
 // and not just that we're in -240 *right now*. But since I don't think these are used that often
 // I'm just going to ignore that
 const obsOffsets: Record<string, number> = {
@@ -287,8 +291,17 @@ const extractISOOrdinalDataAndTime = combineExtractors(extractISOOrdinalData, ex
 const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffset);
 
 /**
- * @private
+ * end @private
  */
+
+export function parseHTTPDate(s: string) {
+  return parse(
+    s,
+    [rfc1123, extractRFC1123Or850],
+    [rfc850, extractRFC1123Or850],
+    [ascii, extractASCII]
+  );
+}
 
 export function parseISODate(s: string) {
   return parse(
@@ -300,26 +313,16 @@ export function parseISODate(s: string) {
   );
 }
 
+export function parseISODuration(s: string): ParseResult {
+  return parse(s, [isoDuration, extractISODuration]);
+}
+
+export function parseISOTimeOnly(s: string) {
+  return parse(s, [isoTimeOnly, combineExtractors(extractISOTime)]);
+}
+
 export function parseRFC2822Date(s: string) {
   return parse(preprocessRFC2822(s), [rfc2822, extractRFC2822]);
-}
-
-export function parseHTTPDate(s: string) {
-  return parse(
-    s,
-    [rfc1123, extractRFC1123Or850],
-    [rfc850, extractRFC1123Or850],
-    [ascii, extractASCII]
-  );
-}
-
-export function parseISODuration(s: string) {
-  const m = isoDuration.exec(s);
-  if (m !== null) {
-    return extractISODuration(m);
-  }
-
-  return undefined;
 }
 
 const sqlYmdWithTimeExtensionRegex = combineRegexes(sqlYmdRegex, sqlTimeExtensionRegex);

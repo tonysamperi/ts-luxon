@@ -215,7 +215,7 @@ export class Formatter {
       era = (length: StringUnitLength) =>
         knownEnglish ? English.eraForDateTime(dt, length) : string({ era: length }, "era"),
       tokenToString = (token: string): string => {
-        // Where possible: http://cldr.unicode.org/translation/date-time#TOC-Stand-Alone-vs.-Format-Styles
+        // Where possible: http://cldr.unicode.org/translation/date-time-1/date-time#TOC-Standalone-vs.-Format-Styles
         switch (token) {
           // ms
           case "S":

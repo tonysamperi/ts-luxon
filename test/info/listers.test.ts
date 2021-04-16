@@ -1,9 +1,9 @@
 import { Info } from "../../src";
-import { months_EN, months_IT, days_IT } from "../helpers";
+import { months_EN, months_IT, days_IT, withDefaultLocale } from "../helpers";
 
-//------
+// ------
 // .months()
-//------
+// ------
 
 test("Info.months lists all the months", () => {
   expect(Info.months("long")).toEqual(months_IT);
@@ -155,9 +155,9 @@ test("Info.months defaults to long names", () => {
   expect(Info.months()).toEqual(months_IT);
 });
 
-//------
+// ------
 // .monthsFormat()
-//------
+// ------
 test("Info.monthsFormat lists all the months", () => {
   expect(Info.monthsFormat("long", { locale: "en" })).toEqual(months_EN);
 
@@ -212,9 +212,9 @@ test("Info.monthsFormat defaults to long names", () => {
   expect(Info.monthsFormat(void 0, { locale: "it-IT" })).toEqual(months_IT);
 });
 
-//------
+// ------
 // .weekdays()
-//------
+// ------
 test("Info.weekdays lists all the weekdays", () => {
   expect(Info.weekdays("long", { locale: "en-US" })).toEqual([
     "Monday",
@@ -261,9 +261,9 @@ test("Info.weekdays defaults to long names", () => {
 
 });
 
-//------
+// ------
 // .weekdaysFormat()
-//------
+// ------
 test("Info.weekdaysFormat lists all the weekdays", () => {
   expect(Info.weekdaysFormat("long", { locale: "en" })).toEqual([
     "Monday",
@@ -290,9 +290,9 @@ test("Info.weekdaysFormat defaults to long names", () => {
   expect(Info.weekdaysFormat(void 0, { locale: "it-IT" })).toEqual(days_IT);
 });
 
-//------
+// ------
 // .meridiems()
-//------
+// ------
 test("Info.meridiems lists the meridiems", () => {
   expect(Info.meridiems({ locale: "en" })).toEqual(["AM", "PM"]);
   expect(Info.meridiems({ locale: "my" })).toEqual(["နံနက်", "ညနေ"]);
@@ -302,9 +302,9 @@ test("Info.meridiems defaults to the current locale", () => {
   expect(Info.meridiems()).toEqual(["AM", "PM"]);
 });
 
-//------
+// ------
 // .eras()
-//------
+// ------
 
 test("Info.eras lists both eras", () => {
   const expectedShort = [
@@ -319,4 +319,34 @@ test("Info.eras lists both eras", () => {
   ]);
   expect(Info.eras("short", { locale: "fr" })).toEqual(["av. J.-C.", "ap. J.-C."]);
   expect(Info.eras("long", { locale: "fr" })).toEqual(["avant Jésus-Christ", "après Jésus-Christ"]);
+});
+
+// ------
+// general
+// ------
+test("Info English lists are not mutable", () => {
+  withDefaultLocale("en-US", () => {
+    const cachingMethods = [
+      ["weekdays", "short"],
+      ["weekdays", "long"],
+      ["weekdays", "narrow"],
+      ["weekdays", "numeric"],
+      ["months", "short"],
+      ["months", "long"],
+      ["months", "narrow"],
+      ["months", "numeric"],
+      ["months", "2-digit"],
+      ["eras", "narrow"],
+      ["eras", "short"],
+      ["eras", "long"]
+    ];
+
+    for (const [method, arg] of cachingMethods) {
+      const fn = Info[method];
+      const original = [...fn(arg)];
+      fn(arg).pop();
+      const expected = fn(arg);
+      expect(expected).toEqual(original);
+    }
+  });
 });

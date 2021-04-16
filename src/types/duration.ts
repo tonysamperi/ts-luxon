@@ -5,7 +5,6 @@ export interface DurationOptions {
   locale?: string;
   numberingSystem?: NumberingSystem;
   conversionAccuracy?: ConversionAccuracy;
-  nullOnInvalid?: boolean;
 }
 
 export interface DurationObject {
@@ -33,4 +32,5 @@ export type DurationUnit = keyof DurationObject;
 
 export interface DurationToFormatOptions {
   floor?: boolean;
+  round?: boolean;
 }

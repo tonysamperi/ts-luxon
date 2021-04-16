@@ -64,9 +64,7 @@ export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], 
 
   const remainingMillis = later.valueOf() - cursor.valueOf();
 
-  const lowerOrderUnits = units.filter(
-    u => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0
-  );
+  const lowerOrderUnits = units.filter(u => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0);
 
   if (lowerOrderUnits.length === 0) {
     // if there are no low order units, there is at least one high order unit
@@ -76,18 +74,14 @@ export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], 
     }
 
     if (highWater !== cursor) {
-      results[lowestOrder as DurationUnit] =
-        (results[lowestOrder as DurationUnit] as number) +
-        remainingMillis / (highWater.valueOf() - cursor.valueOf());
+      results[lowestOrder as DurationUnit] = (results[lowestOrder as DurationUnit] as number) + remainingMillis / (highWater.valueOf() - cursor.valueOf());
     }
   }
 
   const duration = Duration.fromObject(results, options);
 
   if (lowerOrderUnits.length > 0) {
-    return Duration.fromMillis(remainingMillis, options)
-    .shiftTo(...lowerOrderUnits)
-    .plus(duration);
+    return Duration.fromMillis(remainingMillis, options).shiftTo(...lowerOrderUnits).plus(duration);
   }
   else {
     return duration;

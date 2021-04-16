@@ -17,9 +17,9 @@ const dt = DateTime.fromObject(
   ),
   ny = dt.setZone("America/New_York", { keepLocalTime: !0 });
 
-//------
+// ------
 // #toFormat()
-//------
+// ------
 
 test("DateTime#toFormat accepts the locale from the DateTime or the options", () => {
   expect(dt.setLocale("fr").toFormat("LLLL")).toBe("mai");

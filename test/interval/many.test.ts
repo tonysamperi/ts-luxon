@@ -6,9 +6,9 @@ const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fr
   todayFrom = (h1: number, h2: number) =>
     Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));
 
-//-------
+// -------
 // #equals()
-//-------
+// -------
 test("Interval#equals returns true iff the times are the same", () => {
   const s = "2016-10-14",
     e = "2016-10-15",
@@ -22,9 +22,9 @@ test("Interval#equals returns true iff the times are the same", () => {
   expect(first.equals(fromISOs(s2, e2))).toBeFalsy();
 });
 
-//-------
+// -------
 // #union()
-//-------
+// -------
 test("Interval#union returns an interval spanning a later interval", () => {
   expect(
     todayFrom(5, 8)
@@ -81,9 +81,9 @@ test("Interval#union spans adjacent intervals", () => {
   ).toBeTruthy();
 });
 
-//-------
+// -------
 // #intersection()
-//-------
+// -------
 // todo - is this what should happen here? Seems annoying.
 test("Interval#intersection returns null if there's no intersection", () => {
   expect(todayFrom(5, 8).intersection(todayFrom(3, 4))).toBe(null);
@@ -99,9 +99,9 @@ test("Interval#intersection returns empty for adjacent intervals", () => {
   expect(intersection !== null && intersection.isEmpty()).toBeTruthy();
 });
 
-//-------
+// -------
 // .merge()
-//-------
+// -------
 test("Interval.merge returns the minimal set of intervals", () => {
   const list = [
       todayFrom(5, 8),
@@ -122,9 +122,9 @@ test("Interval.merge returns empty for an empty input", () => {
   expect(Interval.merge([])).toEqual([]);
 });
 
-//-------
+// -------
 // .xor()
-//-------
+// -------
 function xor(items: Interval[], expected: Interval[]) {
   const result = Interval.xor(items);
   expect(result.length).toBe(expected.length);
@@ -175,14 +175,14 @@ test("Interval.xor handles funny adjacency cases", () => {
   xor([todayFrom(5, 9), todayFrom(9, 11), todayFrom(9, 12), todayFrom(5, 9)], [todayFrom(11, 12)]);
 });
 
-//-------
+// -------
 // #difference()
-//-------
+// -------
 function diff(interval: Interval, items: Interval[], expected: Interval[]) {
   const result = interval.difference(...items);
   expect(result.length).toBe(expected.length);
   let index = 0;
-  result.forEach(diff => expect(diff.equals(expected[index++])).toBeTruthy());
+  result.forEach(resDiff => expect(resDiff.equals(expected[index++])).toBeTruthy());
   return result;
 }
 
@@ -220,9 +220,9 @@ test("Interval#difference allows holes", () => {
   );
 });
 
-//-------
+// -------
 // #engulfs()
-//-------
+// -------
 test("Interval#engulfs", () => {
   const i = todayFrom(9, 12);
 
@@ -236,9 +236,9 @@ test("Interval#engulfs", () => {
   expect(i.engulfs(todayFrom(9, 12))).toBeTruthy(); // equal
 });
 
-//-------
+// -------
 // #abutsStart()
-//-------
+// -------
 test("Interval#abutsStart", () => {
   expect(todayFrom(9, 10).abutsStart(todayFrom(10, 11))).toBeTruthy();
   expect(todayFrom(9, 10).abutsStart(todayFrom(11, 12))).toBeFalsy();
@@ -246,9 +246,9 @@ test("Interval#abutsStart", () => {
   expect(todayFrom(9, 10).abutsStart(todayFrom(9, 10))).toBeFalsy();
 });
 
-//-------
+// -------
 // #abutsEnd()
-//-------
+// -------
 test("Interval#abutsEnd", () => {
   expect(todayFrom(9, 11).abutsEnd(todayFrom(8, 9))).toBeTruthy();
   expect(todayFrom(9, 11).abutsEnd(todayFrom(8, 10))).toBeFalsy();
@@ -256,9 +256,9 @@ test("Interval#abutsEnd", () => {
   expect(todayFrom(9, 11).abutsEnd(todayFrom(9, 11))).toBeFalsy();
 });
 
-//-------
+// -------
 // #splitAt()
-//-------
+// -------
 test("Interval#splitAt breaks up the interval", () => {
   const split = todayFrom(8, 13).splitAt(Helpers.atHour(9), Helpers.atHour(11));
   expect(split.length).toBe(3);
@@ -287,9 +287,9 @@ test("Interval#splitAt ignores times outside the interval", () => {
   expect(oneAfterOneDuring[1]).toEqual(todayFrom(11, 13));
 });
 
-//-------
+// -------
 // #splitBy()
-//-------
+// -------
 test("Interval#splitBy accepts an object", () => {
   const split = todayFrom(8, 13).splitBy({ hours: 2 });
   expect(split.length).toBe(3);
@@ -311,9 +311,34 @@ test("Interval#split by returns [] for durations of length 0", () => {
   expect(split).toEqual([]);
 });
 
-//-------
+test("Interval#split by works across varying length months", () => {
+  Helpers.withDefaultZone("Europe/London", () => {
+    const start = DateTime.fromISO("2019-12-30T00:00:00.000+00:00");
+    const end = DateTime.fromISO("2020-05-02T23:30:00.000+00:00");
+    const interval = Interval.fromDateTimes(start, end);
+
+    const months = interval.splitBy(Duration.fromISO("P1M"));
+    expect(months.length).toEqual(5);
+
+    for (let i = 0; i < months.length; i++) {
+      const month = months[i];
+      const expectedStart = start.plus({ month: i });
+      const expectedEnd = start.plus({ month: i + 1 });
+
+      expect(month.start).toEqual(expectedStart);
+
+      if (expectedEnd > end) {
+        expect(month.end).toEqual(end);
+      } else {
+        expect(month.end).toEqual(expectedEnd);
+      }
+    }
+  });
+});
+
+// -------
 // #divideEqually()
-//-------
+// -------
 test("Interval#divideEqually should split a 4 hour period into 4 contiguous 1-hour parts", () => {
   const split = todayFrom(5, 9).divideEqually(4);
   expect(split.length).toBe(4);

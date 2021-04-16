@@ -104,7 +104,7 @@ const withDefaultZone = (zone: ZoneLike, f: Function) => {
   }
 };
 
-const withDefaultLocale = (locale: string | undefined, f: Function) => {
+export const withDefaultLocale = (locale: string | undefined, f: Function) => {
   const previousDefaultLocale = Settings.defaultLocale;
   try {
     Settings.defaultLocale = locale;
