@@ -5,7 +5,7 @@ import { IANAZone } from "./zones/IANAZone";
 import { normalizeZone } from "./impl/zoneUtil";
 
 import { hasFormatToParts, hasIntl, hasRelative } from "./impl/util";
-import { StringUnitLength, UnitLength } from "./types/common";
+import { StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common";
 import { InfoOptions, InfoCalendarOptions, InfoUnitOptions, Features } from "./types/info";
 import { ZoneLike } from "./types/zone";
 
@@ -110,9 +110,7 @@ export class Info {
    * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
    * @return {[string]}
    */
-  static weekdays(
-    length: StringUnitLength = "long",
-    { locale, numberingSystem }: InfoUnitOptions = {}
+  static weekdays(length: WeekUnitLengths = "long", { locale, numberingSystem }: InfoUnitOptions = {}
   ) {
     return Locale.create(locale, numberingSystem).weekdays(length);
   }

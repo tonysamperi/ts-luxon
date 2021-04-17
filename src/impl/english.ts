@@ -80,14 +80,16 @@ export const weekdaysShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 // tslint:disable-next-line:naming-convention
 export const weekdaysNarrow = ["M", "T", "W", "T", "F", "S", "S"];
 
-export function weekdays(length: StringUnitLength) {
+export function weekdays(length: StringUnitLength | "numeric"): string[] {
   switch (length) {
     case "narrow":
-      return weekdaysNarrow;
+      return [...weekdaysNarrow];
     case "short":
-      return weekdaysShort;
+      return [...weekdaysShort];
     case "long":
-      return weekdaysLong;
+      return [...weekdaysLong];
+    case "numeric":
+      return ["1", "2", "3", "4", "5", "6", "7"];
   }
 }
 

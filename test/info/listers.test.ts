@@ -1,5 +1,6 @@
-import { Info } from "../../src";
+import { Info, WeekUnitLengths } from "../../src";
 import { months_EN, months_IT, days_IT, withDefaultLocale } from "../helpers";
+import { UnitLength } from "ts-luxon";
 
 // ------
 // .months()
@@ -326,27 +327,23 @@ test("Info.eras lists both eras", () => {
 // ------
 test("Info English lists are not mutable", () => {
   withDefaultLocale("en-US", () => {
+    const strUnitLength: UnitLength[] = [
+      "narrow", "short", "long", "numeric", "2-digit"
+    ];
     const cachingMethods = [
-      ["weekdays", "short"],
-      ["weekdays", "long"],
-      ["weekdays", "narrow"],
-      ["weekdays", "numeric"],
-      ["months", "short"],
-      ["months", "long"],
-      ["months", "narrow"],
-      ["months", "numeric"],
-      ["months", "2-digit"],
-      ["eras", "narrow"],
-      ["eras", "short"],
-      ["eras", "long"]
+      { method: Info.weekdays, args: strUnitLength.slice(0, 3) as WeekUnitLengths[] },
+      { method: Info.months, args: strUnitLength.slice() },
+      { method: Info.eras, args: strUnitLength.slice(0, 2) }
     ];
 
-    for (const [method, arg] of cachingMethods) {
-      const fn = Info[method];
-      const original = [...fn(arg)];
-      fn(arg).pop();
-      const expected = fn(arg);
-      expect(expected).toEqual(original);
-    }
+    cachingMethods.forEach((item) => {
+      const fn = item.method;
+      item.args.forEach((arg: UnitLength) => {
+        const original = [...fn(arg)];
+        fn(arg).pop(); // change result to see if original is changed as well
+        const expected = fn(arg);
+        expect(expected).toEqual(original);
+      });
+    });
   });
 });

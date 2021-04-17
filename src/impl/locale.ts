@@ -5,7 +5,7 @@ import { DateTime } from "../datetime";
 import { Formatter } from "./formatter";
 import Intl from "../types/intl-2020";
 
-import { StringUnitLength, UnitLength } from "../types/common";
+import { StringUnitLength, UnitLength, WeekUnitLengths } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "../types/locale";
 
 let intlDTCache: Record<string, Intl.DateTimeFormat> = {};
@@ -325,8 +325,8 @@ interface MonthCache {
 }
 
 interface WeekDaysCache {
-  format: Partial<Record<StringUnitLength, string[]>>;
-  standalone: Partial<Record<StringUnitLength, string[]>>;
+  format: Partial<Record<WeekUnitLengths, string[]>>;
+  standalone: Partial<Record<WeekUnitLengths, string[]>>;
 }
 
 type EraCache = Partial<Record<StringUnitLength, string[]>>;
@@ -458,7 +458,7 @@ export class Locale {
     });
   }
 
-  weekdays(length: StringUnitLength, format = false, defaultOK = true) {
+  weekdays(length: WeekUnitLengths, format = false, defaultOK = true) {
     return listStuff(this, length, defaultOK, English.weekdays, len => {
       const intl = format
         ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
