@@ -7,16 +7,16 @@ const millis = 391147200000,
   // 1982-05-25T04:00:00.000Z
   dt = () => DateTime.fromMillis(millis);
 
-//------
+// ------
 // defaults
-//------
+// ------
 test("setZone defaults to system's time zone", () => {
   expect(dt().isOffsetFixed).toBe(false);
 });
 
-//------
+// ------
 // #toUTC()
-//------
+// ------
 test("DateTime#utc() puts the dt in UTC 'mode'", () => {
   const zoned = dt().toUTC();
   expect(zoned.valueOf()).toBe(millis);
@@ -35,9 +35,9 @@ test("DateTime#utc(offset) sets dt in UTC+offset 'mode'", () => {
   expect(zoned.isInDST).toBe(false);
 });
 
-//------
+// ------
 // #toDefaultZone()
-//------
+// ------
 test("DateTime#toDefaultZone() sets the DateTime back to default zone", () => {
   const rezoned = dt()
     .toUTC()
@@ -55,9 +55,9 @@ test("DateTime#toDefaultZone() returns the default time zone", () => {
   });
 });
 
-//------
+// ------
 // #toSystemZone()
-//------
+// ------
 test("DateTime#toSystemZone() sets the zone back to system zone", () => {
   const rezoned = dt()
     .toUTC()
@@ -78,9 +78,9 @@ test("DateTime#toSystemZone() is independent of the default zone", () => {
   });
 });
 
-//------
+// ------
 // #setZone()
-//------
+// ------
 test("DateTime#setZone setZone sets the TZ to the specified zone", () => {
   const zoned = dt().setZone("America/Los_Angeles");
 
@@ -210,9 +210,9 @@ test("DateTime#setZone works for dates before 1970 with milliseconds", () => {
   expect(offset).toBe(-300);
 });
 
-//------
+// ------
 // #isInDST()
-//------
+// ------
 test("DateTime#isInDST() returns false for pre-DST times", () => {
   const zoned = dt().setZone("America/Los_Angeles");
   expect(zoned.set({ month: 1 }).isInDST).toBe(false);
@@ -228,9 +228,9 @@ test("DateTime#isInDST() returns false for post-DST times", () => {
   expect(zoned.set({ month: 12 }).isInDST).toBe(false);
 });
 
-//------
+// ------
 // Etc/GMT zones
-//------
+// ------
 test("Etc/GMT zones work even though V8 does not support them", () => {
   let zoned = DateTime.local().setZone("Etc/GMT+8");
   expect(zoned.zoneName).toBe("UTC-8");
@@ -240,9 +240,9 @@ test("Etc/GMT zones work even though V8 does not support them", () => {
   expect(zoned.zoneName).toBe("UTC");
 });
 
-//------
+// ------
 // default zone
-//------
+// ------
 
 test("The local zone does local stuff", () => {
   const dto = DateTime.local(2016, 8, 6);

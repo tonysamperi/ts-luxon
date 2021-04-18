@@ -1,8 +1,8 @@
 import { Duration } from "../../src";
 
-//------
+// ------
 // #isDuration
-//-------
+// -------
 test("Duration#isDuration return true for valid duration", () => {
   const dur = Duration.fromObject({ hours: 1 });
   expect(Duration.isDuration(dur)).toBe(true);

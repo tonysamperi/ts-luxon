@@ -3,9 +3,9 @@ import { InvalidZoneError } from "../../src/errors";
 
 import {Helpers} from "../helpers";
 
-//------
+// ------
 // .hasDST()
-//------
+// ------
 
 test("Info.hasDST returns true for America/New_York", () => {
   expect(Info.hasDST("America/New_York")).toBe(true);
@@ -32,9 +32,9 @@ test("Info.hasDST uses the default zone when none is specified", () => {
   });
 });
 
-//------
+// ------
 // .isValidIANAZone()
-//------
+// ------
 
 test("Info.isValidIANAZone returns true for valid zones", () => {
   expect(Info.isValidIANAZone("America/Cancun")).toBe(true);
@@ -60,9 +60,9 @@ test("Info.isValidIANAZone returns false for well-specified but invalid zones li
   expect(Info.isValidIANAZone("America/Indiana/Blork")).toBe(false);
 });
 
-//------
+// ------
 // .normalizeZone()
-//------
+// ------
 
 test("Info.normalizeZone returns Zone objects unchanged", () => {
   const fixedOffsetZone = FixedOffsetZone.instance(5);

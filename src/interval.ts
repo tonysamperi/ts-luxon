@@ -1,21 +1,24 @@
 import { DateTime, DateTimeLike } from "./datetime";
 import { Duration, friendlyDuration, DurationLike } from "./duration";
-import { InvalidArgumentError, UnparsableStringError } from "./errors";
+import { InvalidArgumentError, InvalidIntervalError, UnparsableStringError } from "./errors";
 import { ToISOTimeOptions, DateTimeWithZoneOptions } from "./types/datetime";
 import { DurationUnit, DurationOptions } from "./types/duration";
 import { IntervalObject } from "./types/interval";
 import { ThrowOnInvalid } from "./types/common";
+import { Invalid } from "./types/invalid";
+import { Settings } from "./settings";
 
 // checks if the start is equal to or before the end
-function validateStartEnd(start: DateTime | null, end: DateTime | null) {
-  if (!DateTime.isDateTime(start)) {
-    throw new InvalidArgumentError("Must pass a DateTime as the start");
+function validateStartEnd(start?: DateTime, end?: DateTime): Interval | void {
+  if (!start || !start.isValid) {
+    return Interval.invalid("missing or invalid start");
   }
-  else if (!DateTime.isDateTime(end)) {
-    throw new InvalidArgumentError("Must pass a DateTime as the end");
+  else if (!end || !end.isValid) {
+    return Interval.invalid("missing or invalid end");
   }
   else if (end < start) {
-    throw new InvalidArgumentError(
+    return Interval.invalid(
+      "end before start",
       `The end of an interval must be after its start, but you had start=${start.toISO()} and end=${end.toISO()}`
     );
   }
@@ -38,8 +41,9 @@ function friendlyDateTime(dateTimeish: DateTimeLike) {
 }
 
 interface Config {
-  start: DateTime | null;
-  end: DateTime | null;
+  invalid?: Invalid;
+  start?: DateTime;
+  end?: DateTime;
 }
 
 /**
@@ -55,7 +59,25 @@ interface Config {
  * * **Output** To convert the Interval into other representations, see {@link Interval#toString}, {@link Interval#toISO}, {@link Interval#toISODate}, {@link Interval#toISOTime}, {@link Interval#toFormat}, and {@link Interval#toDuration}.
  */
 export class Interval {
+
+  /**
+   * Returns an error code if this Interval is invalid, or null if the Interval is valid
+   * @type {string}
+   */
+  get invalidReason() {
+    return this._invalid ? this._invalid.reason : null;
+  }
+
+  /**
+   * Returns whether this Interval's end is at least its start, meaning that the Interval isn't 'backwards'.
+   * @type {boolean}
+   */
+  get isValid() {
+    return this.invalidReason === null;
+  }
+
   // Private readonly fields
+  private _invalid: Invalid | null;
   private _s: DateTime;
   private _e: DateTime;
   private readonly _isLuxonInterval: true;
@@ -64,8 +86,6 @@ export class Interval {
    * @private
    */
   private constructor(config: Config) {
-    validateStartEnd(config.start, config.end);
-
     /**
      * @access private
      */
@@ -74,6 +94,10 @@ export class Interval {
      * @access private
      */
     this._e = config.end as DateTime;
+    /**
+     * @access private
+     */
+    this._invalid = config.invalid || null;
     /**
      * @access private
      */
@@ -106,7 +130,9 @@ export class Interval {
     const builtStart = friendlyDateTime(start),
       builtEnd = friendlyDateTime(end);
 
-    return new Interval({
+    const validateError = validateStartEnd(builtStart, builtEnd);
+
+    return validateError || new Interval({
       start: builtStart,
       end: builtEnd
     });
@@ -124,7 +150,7 @@ export class Interval {
 
     return new Interval({
       start: dt,
-      end: dt ? dt.plus(dur) : null
+      end: dt ? dt.plus(dur) : void 0
     });
   }
 
@@ -139,7 +165,7 @@ export class Interval {
       dt = friendlyDateTime(end);
 
     return new Interval({
-      start: dt ? dt.minus(dur) : null,
+      start: dt ? dt.minus(dur) : void 0,
       end: dt
     });
   }
@@ -177,6 +203,27 @@ export class Interval {
       }
     }
     throw new UnparsableStringError("ISO 8601", text);
+  }
+
+  /**
+   * Create an invalid Interval.
+   * @param {string} reason - simple string of why this Interval is invalid. Should not contain parameters or anything else data-dependent
+   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
+   * @return {Interval}
+   */
+  static invalid(reason: string | Invalid, explanation?: string) {
+    if (!reason) {
+      throw new InvalidArgumentError("need to specify a reason the Interval is invalid");
+    }
+
+    const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
+
+    if (Settings.throwOnInvalid) {
+      throw new InvalidIntervalError(invalid);
+    }
+    else {
+      return new Interval({ invalid });
+    }
   }
 
   /**
@@ -393,6 +440,9 @@ export class Interval {
    * @return {[Interval]}
    */
   divideEqually(numberOfParts: number) {
+    if (!this.isValid) {
+      return [];
+    }
     return this.splitBy({ milliseconds: this.length() / numberOfParts }).slice(0, numberOfParts);
   }
 

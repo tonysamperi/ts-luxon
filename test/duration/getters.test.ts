@@ -12,9 +12,9 @@ const dur = Duration.fromObject({
   weeks: 8
 });
 
-//------
+// ------
 // years/months/days/hours/minutes/seconds/milliseconds
-//------
+// ------
 
 test("Duration#years returns the years", () => {
   expect(dur.years).toBe(1);

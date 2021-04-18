@@ -12,9 +12,9 @@ const dur = () =>
     milliseconds: 7
   });
 
-//------
+// ------
 // #toISO()
-//------
+// ------
 test("Duration#toISO fills out every field", () => {
   expect(dur().toISO()).toBe("P1Y2M1W3DT4H5M6.007S");
 });
@@ -57,25 +57,25 @@ test("Duration#toISO handles mixed negative/positive numbers in seconds/millisec
   expect(Duration.fromObject({ seconds: -17, milliseconds: 548 }).toISO()).toBe("PT-16.452S");
 });
 
-//------
+// ------
 // #toJSON()
-//------
+// ------
 
 test("Duration#toJSON returns the ISO representation", () => {
   expect(dur().toJSON()).toBe(dur().toISO());
 });
 
-//------
+// ------
 // #toString()
-//------
+// ------
 
 test("Duration#toString returns the ISO representation", () => {
   expect(dur().toString()).toBe(dur().toISO());
 });
 
-//------
+// ------
 // #toFormat()
-//------
+// ------
 test("Duration#toFormat('S') returns milliseconds", () => {
   expect(dur().toFormat("S")).toBe("37598706007");
 

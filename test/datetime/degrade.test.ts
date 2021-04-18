@@ -2,9 +2,9 @@ import { DateTime } from "../../src";
 import { InvalidZoneError, UnparsableStringError } from "../../src/errors";
 import { Helpers } from "../helpers";
 
-//------
+// ------
 // No Intl support
-//-------
+// -------
 Helpers.withoutIntl("DateTime#toFormat returns English", () => {
   expect(DateTime.local(2014, 8, 6).toFormat("ccc")).toBe("Wed");
   expect(
@@ -107,9 +107,9 @@ Helpers.withoutIntl("DateTime#toLocaleString can use fixed-offset zones", () => 
   ).toBe("May 15, 2017, 5:30 AM");
 });
 
-//------
+// ------
 // No FTP support
-//-------
+// -------
 
 Helpers.withoutFTP("DateTime#toLocaleString is unaffected", () => {
   expect(
@@ -171,9 +171,9 @@ Helpers.withoutFTP("DateTime#toLocaleParts returns an empty array", () => {
   expect(DateTime.now().toLocaleParts()).toEqual([]);
 });
 
-//------
+// ------
 // No Zone support
-//-------
+// -------
 
 Helpers.withoutZones("DateTime#toLocaleString is unaffected", () => {
   expect(

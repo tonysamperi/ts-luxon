@@ -1,8 +1,8 @@
 import { DateTime } from "../../src";
 
-//------
+// ------
 // min
-//-------
+// -------
 test("DateTime.min returns the only dateTime if solo", () => {
   const m = DateTime.min(DateTime.fromJSDate(new Date(1982, 5, 25)));
   expect(m).toBeTruthy();
@@ -44,9 +44,9 @@ test("DateTime.min throws if you don't pass it DateTimes", () => {
   expect(() => DateTime.min(notADt, notADt)).toThrow();
 });
 
-//------
+// ------
 // max
-//-------
+// -------
 test("DateTime.max returns the only dateTime if solo", () => {
   const m = DateTime.max(DateTime.fromJSDate(new Date(1982, 5, 25)));
   expect(m).toBeTruthy();

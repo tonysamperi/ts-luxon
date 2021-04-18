@@ -2,9 +2,9 @@ import { Info } from "../../src";
 
 import {Helpers} from "../helpers";
 
-//------
+// ------
 // Info.months()
-//------
+// ------
 Helpers.withoutFTP("Info.months lists 2-digit months in English without FTP support", () => {
   expect(Info.months("2-digit", { locale: "fr" })).toEqual([
     "01",
@@ -90,9 +90,9 @@ Helpers.withoutFTP("Info.months lists narrow months in English without FTP suppo
   ]);
 });
 
-//------
+// ------
 // Info.weekdays()
-//------
+// ------
 Helpers.withoutFTP("Info.weekdays lists the long weekdays in English without FTP support", () => {
   expect(Info.weekdays("long", { locale: "fr" })).toEqual([
     "Monday",
@@ -121,16 +121,16 @@ Helpers.withoutFTP("Info.weekdays lists the narrow weekdays in English without F
   expect(Info.weekdays("narrow", { locale: "fr" })).toEqual(["M", "T", "W", "T", "F", "S", "S"]);
 });
 
-//------
+// ------
 // Info.meridiems()
-//------
+// ------
 Helpers.withoutFTP("Info.meridiems lists all the meridiems in English without FTP support", () => {
   expect(Info.meridiems({ locale: "en" })).toEqual(["AM", "PM"]);
 });
 
-//------
+// ------
 // Info.eras()
-//------
+// ------
 
 Helpers.withoutFTP("Info.eras lists all the eras in English without FTP support", () => {
   expect(Info.eras()).toEqual(["BC", "AD"]);

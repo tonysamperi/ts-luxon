@@ -2,9 +2,9 @@ import { DateTime } from "../../src";
 
 const dateTime = DateTime.fromJSDate(new Date(1982, 4, 25, 9, 23, 54, 123));
 
-//------
+// ------
 // #toObject
-//-------
+// -------
 test("DateTime#toObject returns the object", () => {
   expect(dateTime.toObject()).toEqual({
     year: 1982,

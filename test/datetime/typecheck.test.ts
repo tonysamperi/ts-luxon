@@ -1,8 +1,8 @@
 import { DateTime } from "../../src";
 
-//------
+// ------
 // #isDateTime()
-//------
+// ------
 test("DateTime#isDateTime return true for valid DateTime", () => {
   const dt = DateTime.now();
   expect(DateTime.isDateTime(dt)).toBe(true);

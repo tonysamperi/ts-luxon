@@ -2,9 +2,9 @@ import { DateTime} from "../../src/datetime";
 
 import {Helpers} from "../helpers";
 
-//------
+// ------
 // #toRelative()
-//-------
+// -------
 
 test("DateTime#toRelative works down through the units", () => {
   const base = DateTime.fromObject({ year: 1983, month: 10, day: 14 });
@@ -97,9 +97,9 @@ Helpers.withoutRTF("DateTime#toRelative falls back to English", () => {
   ).toBe("in 1 month");
 });
 
-//------
+// ------
 // #toRelativeCalendar()
-//-------
+// -------
 
 test("DateTime#toRelativeCalendar uses the calendar", () => {
   const base = DateTime.fromObject({ year: 1983, month: 10, day: 14, hour: 23, minute: 59 });

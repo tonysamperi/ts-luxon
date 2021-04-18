@@ -14,9 +14,9 @@ function createDateTime() {
   });
 }
 
-//------
+// ------
 // #plus()
-//------
+// ------
 test("DateTime#plus({ years: 1 }) adds a year", () => {
   const i = createDateTime().plus({ years: 1 });
   expect(i.year).toBe(2011);
@@ -144,9 +144,9 @@ test("DateTime#plus supports positive and negative duration units", () => {
   expect(d.plus({ years: 0.5, days: -1.5 })).toEqual(d.plus({ years: 0.5 }).plus({ days: -1.5 }));
 });
 
-//------
+// ------
 // #minus()
-//------
+// ------
 test("DateTime#minus({ years: 1 }) subtracts a year", () => {
   const dt = createDateTime().minus({ years: 1 });
   expect(dt.year).toBe(2009);
@@ -233,9 +233,9 @@ test("DateTime#minus supports positive and negative duration units", () => {
   );
 });
 
-//------
+// ------
 // #startOf()
-//------
+// ------
 test("DateTime#startOf('year') goes to the start of the year", () => {
   const dt = createDateTime().startOf("year");
 
@@ -356,9 +356,9 @@ test("DateTime#startOf('week') goes to the start of the week", () => {
   expect(dt.millisecond).toBe(0);
 });
 
-//------
+// ------
 // #endOf()
-//------
+// ------
 test("DateTime#endOf('year') goes to the start of the year", () => {
   const dt = createDateTime().endOf("year");
 

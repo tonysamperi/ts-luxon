@@ -1,10 +1,9 @@
 import { DateTime, Interval, Duration } from "../../src";
 
-import {Helpers} from "../helpers";
+import { Helpers } from "../helpers";
 
 const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fromISO(e)),
-  todayFrom = (h1: number, h2: number) =>
-    Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));
+  todayFrom = (h1: number, h2: number) => Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));
 
 // -------
 // #equals()
@@ -104,13 +103,13 @@ test("Interval#intersection returns empty for adjacent intervals", () => {
 // -------
 test("Interval.merge returns the minimal set of intervals", () => {
   const list = [
-      todayFrom(5, 8),
-      todayFrom(4, 7),
-      todayFrom(10, 11),
-      todayFrom(11, 12),
-      todayFrom(13, 15)
-    ],
-    results = Interval.merge(list);
+    todayFrom(5, 8),
+    todayFrom(4, 7),
+    todayFrom(10, 11),
+    todayFrom(11, 12),
+    todayFrom(13, 15)
+  ];
+  const results = Interval.merge(list);
 
   expect(results.length).toBe(3);
   expect(results[0] && results[0].equals(todayFrom(4, 8))).toBeTruthy();
@@ -329,7 +328,8 @@ test("Interval#split by works across varying length months", () => {
 
       if (expectedEnd > end) {
         expect(month.end).toEqual(end);
-      } else {
+      }
+      else {
         expect(month.end).toEqual(expectedEnd);
       }
     }
@@ -356,8 +356,8 @@ test("Interval#divideEqually should split a 1m30s into 3 30-second parts", () =>
 });
 
 test("Interval#divideEqually always gives you the right number of parts", () => {
-  const int = Interval.after(Helpers.atHour(9), { minutes: 7 }),
-    split = int.divideEqually(17);
+  const int = Interval.after(Helpers.atHour(9), { minutes: 7 });
+  const split = int.divideEqually(17);
   expect(split.length).toBe(17);
 });
 

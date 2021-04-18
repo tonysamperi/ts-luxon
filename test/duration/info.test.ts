@@ -13,9 +13,9 @@ const dur = Duration.fromObject(
   }
 );
 
-//------
+// ------
 // #toObject
-//-------
+// -------
 test("Duration#toObject returns the object", () => {
   expect(dur.toObject()).toEqual({
     years: 1,

@@ -8,9 +8,9 @@ import {
 import {Helpers} from "../helpers";
 import { GregorianDateTime } from "../../src/types/datetime";
 
-//------
+// ------
 // .fromFormat
-//-------
+// -------
 test("DateTime.fromFormat() parses basic times", () => {
   const i = DateTime.fromFormat("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS");
   expect(i.year).toBe(1982);
@@ -676,9 +676,9 @@ test("DateTime.fromFormat accepts a nullOnInvalid option", () => {
   expect(DateTime.fromFormat("gorp", "spurp", { nullOnInvalid: true })).toBeNull();
 });
 
-//------
+// ------
 // .fromFormatExplain
-//-------
+// -------
 
 function checkObjectKeyCount(o: unknown, count: number) {
   expect(o).toBeInstanceOf(Object);

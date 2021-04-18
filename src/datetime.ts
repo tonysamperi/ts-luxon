@@ -1409,10 +1409,10 @@ export class DateTime {
 
     // set default values for missing stuff
     let foundFirst = false;
-    Object.keys(units).forEach((u: string) => {
+    units.forEach((u: string) => {
       // for (const u of units) {
       const v = config.normalized[u];
-      if (!isUndefined(v)) {
+      if (isDefined(v)) {
         foundFirst = true;
       }
       else if (foundFirst) {
@@ -2078,7 +2078,7 @@ export class DateTime {
    * @return {Date}
    */
   toJSDate() {
-    return new Date(this._ts);
+    return new Date(this.isValid ? this._ts : NaN);
   }
 
   // COMPARE

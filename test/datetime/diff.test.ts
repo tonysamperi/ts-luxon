@@ -4,9 +4,9 @@ import {Helpers} from "../helpers";
 import { GenericDateTime } from "../../src/types/datetime";
 import { DurationUnit } from "../../src/types/duration";
 
-//------
+// ------
 // diff
-//-------
+// -------
 const diffFromObjs = (
   o1: GenericDateTime,
   o2: GenericDateTime,
@@ -283,9 +283,9 @@ test("DateTime#diff results works when needing to backtrack months", () => {
   expect(diff.days).toBe(1);
 });
 
-//------
+// ------
 // diffNow
-//-------
+// -------
 
 Helpers.withNow("DateTime#diffNow defaults to milliseconds", DateTime.local(2017, 5, 15), () => {
   const dt = DateTime.local(2014, 8, 6),

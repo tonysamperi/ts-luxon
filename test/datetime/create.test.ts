@@ -15,9 +15,9 @@ const withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem;
 const withDefaultOutputCalendar = Helpers.withDefaultOutputCalendar;
 const withDefaultZone = Helpers.withDefaultZone;
 
-//------
+// ------
 // .now()
-//------
+// ------
 test("DateTime.now has today's date", () => {
   const date = new Date(),
     now = DateTime.now();
@@ -42,9 +42,9 @@ test("DateTime.now accepts the default time zone", () => {
   withDefaultZone("Europe/Paris", () => expect(DateTime.now().zoneName).toBe("Europe/Paris"));
 });
 
-//------
+// ------
 // .local()
-//------
+// ------
 test("DateTime.local() has today's date", () => {
   const date = new Date(),
     now = DateTime.local();
@@ -207,9 +207,9 @@ test("DateTime.local uses the default time zone", () => {
   withDefaultZone("Europe/Paris", () => expect(DateTime.local().zoneName).toBe("Europe/Paris"));
 });
 
-//------
+// ------
 // .utc()
-//-------
+// -------
 test("DateTime.utc() is in utc", () => {
   const now = DateTime.utc();
   expect(now.offset).toBe(0);
@@ -322,9 +322,9 @@ test("DateTime.utc accepts an options hash in any position", () => {
   });
 });
 
-//------
+// ------
 // .fromJSDate()
-//-------
+// -------
 test("DateTime.fromJSDate(date) clones the date", () => {
   const date = new Date(1982, 4, 25),
     dateTime = DateTime.fromJSDate(date),
@@ -367,9 +367,9 @@ test("DateTime.fromJSDate(date) throw errors for invalid values", () => {
   expect(() => DateTime.fromJSDate("2019-04-16T11:32:32Z")).toThrow(InvalidArgumentError);
 });
 
-//------
+// ------
 // .fromMillis()
-//-------
+// -------
 test("DateTime.fromMillis(ms) has a value of ms", () => {
   const bigValue = 391147200000;
   expect(DateTime.fromMillis(bigValue).valueOf()).toBe(bigValue);
@@ -401,9 +401,9 @@ test("DateTime.fromMillis(ms) does not accept out-of-bounds numbers", () => {
   expect(() => DateTime.fromMillis(8.64e15 + 1)).toThrow(InvalidArgumentError);
 });
 
-//------
+// ------
 // .fromSeconds()
-//-------
+// -------
 test("DateTime.fromSeconds(seconds) has a value of 1000 * seconds", () => {
   const seconds = 391147200;
   expect(DateTime.fromSeconds(seconds).valueOf()).toBe(1000 * seconds);
@@ -428,9 +428,9 @@ test("DateTime.fromSeconds(seconds) throws InvalidArgumentError for non-numeric 
   expect(() => DateTime.fromSeconds("slurp")).toThrow(InvalidArgumentError);
 });
 
-//------
+// ------
 // .fromObject()
-//-------
+// -------
 const baseObject = {
   year: 1982,
   month: 5,

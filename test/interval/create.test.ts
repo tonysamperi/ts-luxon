@@ -1,9 +1,12 @@
-import { DateTime, Interval, Duration } from "../../src";
-import { InvalidArgumentError } from "../../src/errors";
+import { DateTime, Interval, Duration, Settings } from "../../src";
+import { Helpers } from "../helpers";
 
-//------
+const withThrowOnInvalid = Helpers.setUnset("throwOnInvalid");
+
+
+// ------
 // .fromObject()
-//-------
+// -------
 test("Interval.fromDateTimes creates an interval from datetimes", () => {
   const start = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
     end = DateTime.fromObject({ year: 2016, month: 5, day: 27 }),
@@ -35,17 +38,25 @@ test("Interval.fromDateTimes creates an interval from Dates", () => {
   expect(int.end.toJSDate()).toEqual(end);
 });
 
-test("Interval.fromDateTimes rejects missing or invalid arguments", () => {
-  const validDate = DateTime.fromObject({ year: 2016, month: 5, day: 25 });
-  // @ts-expect-error
-  expect(() => Interval.fromDateTimes(validDate, null)).toThrow(InvalidArgumentError);
-  // @ts-expect-error
-  expect(() => Interval.fromDateTimes(null, validDate)).toThrow(InvalidArgumentError);
-  expect(() => Interval.fromDateTimes(validDate.plus({ days: 1 }), validDate)).toThrow(
-    InvalidArgumentError
+test("Interval.fromDateTimes results in an invalid Interval if the endpoints are invalid", () => {
+  const validDate = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
+    invalidDate = DateTime.invalid("because");
+
+  expect(Interval.fromDateTimes(validDate, invalidDate).invalidReason).toBe(
+    "missing or invalid end"
   );
+  expect(Interval.fromDateTimes(invalidDate, validDate).invalidReason).toBe(
+    "missing or invalid start"
+  );
+
+  expect(Interval.fromDateTimes(validDate.plus({ days: 1 }), validDate).invalidReason).toBe(
+    "end before start"
+  );
+});
+
+test("Interval.fromDateTimes throws with invalid input", () => {
   // @ts-expect-error
-  expect(() => Interval.fromDateTimes(DateTime.now(), true)).toThrow(InvalidArgumentError);
+  expect(() => Interval.fromDateTimes(DateTime.now(), true)).toThrow();
 });
 
 test("Interval.fromDateTimes throws with start date coming after end date", () => {
@@ -56,12 +67,14 @@ test("Interval.fromDateTimes throws with start date coming after end date", () =
     }).toJSDate(),
     end = DateTime.fromObject({ year: 2016, month: 5, day: 27 }).toJSDate();
 
-  expect(() => Interval.fromDateTimes(end, start)).toThrow();
+  withThrowOnInvalid(true, () => {
+    expect(() => Interval.fromDateTimes(end, start)).toThrow();
+  });
 });
 
-//------
+// ------
 // .after()
-//-------
+// -------
 test("Interval.after takes a duration", () => {
   const start = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
     int = Interval.after(start, Duration.fromObject({ days: 3 }));
@@ -78,9 +91,9 @@ test("Interval.after an object", () => {
   expect(int.end.day).toBe(28);
 });
 
-//------
+// ------
 // .before()
-//-------
+// -------
 test("Interval.before takes a duration", () => {
   const end = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
     int = Interval.before(end, Duration.fromObject({ days: 3 }));
@@ -95,4 +108,25 @@ test("Interval.before takes a number and unit", () => {
 
   expect(int.start.day).toBe(22);
   expect(int.end).toBe(end);
+});
+
+// ------
+// .invalid()
+// -------
+test("Interval.invalid produces invalid Intervals", () => {
+  expect(Interval.invalid("because").isValid).toBe(false);
+});
+
+test("Interval.invalid throws if throwOnInvalid is set", () => {
+  try {
+    Settings.throwOnInvalid = true;
+    expect(() => Interval.invalid("because")).toThrow();
+  } finally {
+    Settings.throwOnInvalid = false;
+  }
+});
+
+test("Interval.invalid throws if no reason is specified", () => {
+  // @ts-expect-error
+  expect(() => Interval.invalid()).toThrow();
 });

@@ -1,3 +1,10 @@
 {
-  "extends": ["tslint:recommended"]
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "one-variable-per-declaration": false,
+    "variable-name": {
+      "severity": "warn"
+    },
+    "ban-types": false
+  }
 }

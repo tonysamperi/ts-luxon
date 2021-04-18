@@ -1,8 +1,8 @@
 import { Duration } from "../../src";
 
-//------
+// ------
 // years/months/days/hours/minutes/seconds/milliseconds
-//-------
+// -------
 const dur = () =>
   Duration.fromObject({
     years: 1,

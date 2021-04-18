@@ -1,8 +1,8 @@
 import { Duration } from "../../src";
 
-//------
+// ------
 // #shiftTo()
-//-------
+// -------
 test("Duration#shiftTo rolls milliseconds up hours and minutes", () => {
   const dur = Duration.fromMillis(5760000);
   expect(dur.shiftTo("hours").hours).toBe(1.6);
@@ -75,9 +75,9 @@ test("Duration#shiftTo does not normalize values", () => {
   ).toEqual({ days: 400 });
 });
 
-//------
+// ------
 // #normalize()
-//-------
+// -------
 test("Duration#normalize rebalances negative units", () => {
   const dur = Duration.fromObject({ years: 2, days: -2 }).normalize();
   expect(dur.toObject()).toEqual({ years: 1, days: 363 });
@@ -187,18 +187,18 @@ test("Duration#normalize can convert all unit pairs", () => {
   }
 });
 
-//------
+// ------
 // #as()
-//-------
+// -------
 
 test("Duration#as shifts to one unit and returns it", () => {
   const dur = Duration.fromMillis(5760000);
   expect(dur.as("hours")).toBe(1.6);
 });
 
-//------
+// ------
 // #valueOf()
-//-------
+// -------
 
 test("Duration#valueOf value of zero duration", () => {
   const dur = Duration.fromObject({});

@@ -9,9 +9,9 @@ const dt = DateTime.fromObject(
   }
 );
 
-//------
+// ------
 // #reconfigure()
-//------
+// ------
 test("DateTime#reconfigure() sets the locale", () => {
   const recon = dt.reconfigure({ locale: "it" });
   expect(recon.locale).toBe("it");

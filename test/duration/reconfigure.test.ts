@@ -14,9 +14,9 @@ const dur = Duration.fromObject(
   }
 );
 
-//------
+// ------
 // #reconfigure()
-//------
+// ------
 
 test("Duration#reconfigure() sets the locale", () => {
   const recon = dur.reconfigure({ locale: "it" });

@@ -4,7 +4,8 @@ import { Invalid } from "./types/invalid";
 /**
  * @private
  */
-class TsLuxonError extends Error {}
+class TsLuxonError extends Error {
+}
 
 /**
  * @private
@@ -37,6 +38,14 @@ export class InvalidDurationError extends TsLuxonError {
   }
 }
 
+/**
+ * @private
+ */
+export class InvalidIntervalError extends TsLuxonError {
+  constructor(reason: Invalid) {
+    super(`Invalid Interval: ${reason.toMessage()}`);
+  }
+}
 
 /**
  * @private

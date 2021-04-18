@@ -204,7 +204,21 @@ export const days_EN = [
   "Sunday"
 ];
 
+export const setUnset = (prop: "throwOnInvalid") => {
+  return (value: any, callback: Function) => {
+    const existing = Settings[prop];
+    try {
+      Settings[prop] = value;
+      callback();
+    } finally {
+      Settings[prop] = existing;
+    }
+  };
+};
+
 export const Helpers = {
+  atHour,
+  setUnset,
   withoutIntl,
   withoutFTP,
   withoutRTF,
@@ -214,6 +228,5 @@ export const Helpers = {
   withDefaultLocale,
   withDefaultNumberingSystem,
   withDefaultOutputCalendar,
-  atHour,
   conversionAccuracy
 };

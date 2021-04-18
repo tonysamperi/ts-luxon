@@ -2,9 +2,9 @@ import { Duration } from "../../src";
 import { InvalidArgumentError, InvalidUnitError } from "../../src/errors";
 import {Helpers} from "../helpers";
 
-//------
+// ------
 // .fromObject()
-//-------
+// -------
 test("Duration.fromObject sets all the values", () => {
   const dur = Duration.fromObject({
     years: 1,

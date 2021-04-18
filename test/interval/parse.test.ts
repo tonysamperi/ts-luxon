@@ -2,9 +2,9 @@ import { Interval } from "../../src";
 import { UnparsableStringError } from "../../src/errors";
 import { GregorianDateTime } from "../../src/types/datetime";
 
-//------
+// ------
 // .fromISO()
-//------
+// ------
 
 test("Interval.fromISO can parse a variety of ISO formats", () => {
   const check = (s: string, obj1: GregorianDateTime, obj2: GregorianDateTime) => {

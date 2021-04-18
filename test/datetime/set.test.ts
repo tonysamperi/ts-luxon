@@ -3,9 +3,9 @@ import { InvalidUnitError } from "../../src/errors";
 
 const dt = DateTime.fromJSDate(new Date(1982, 4, 25, 9, 23, 54, 123));
 
-//------
+// ------
 // year/month/day/hour/minute/second/millisecond
-//-------
+// -------
 test("DateTime#set() sets Gregorian fields", () => {
   expect(dt.set({ year: 2012 }).year).toBe(2012);
   expect(dt.set({ month: 2 }).month).toBe(2);
@@ -31,9 +31,9 @@ test("DateTime#set({ year }) doesn't wrap leap years", () => {
   expect(moved.day).toBe(28);
 });
 
-//------
+// ------
 // weekYear/weekNumber/weekday
-//------
+// ------
 
 test("DateTime#set({ weekYear }) sets the date to the same weekNumber/weekday of the target weekYear", () => {
   const modified = dt.set({ weekYear: 2017 });
@@ -85,9 +85,9 @@ test("DateTime#set({ weekday }) handles week year edge cases", () => {
   endOfWeekIs("2028-01-01", "2028-01-02");
 });
 
-//------
+// ------
 // year/ordinal
-//------
+// ------
 test("DateTime#set({ ordinal }) sets the date to the ordinal within the current year", () => {
   const modified = dt.set({ ordinal: 200 });
   expect(modified.year).toBe(1982);
@@ -99,9 +99,9 @@ test("DateTime#set({ ordinal }) sets the date to the ordinal within the current 
   expect(modified.millisecond).toBe(123);
 });
 
-//------
+// ------
 // set multiple things
-//------
+// ------
 
 test("DateTime.set does units in increasing size", () => {
   const modified = dt.set({ day: 31, month: 3 });
@@ -109,9 +109,9 @@ test("DateTime.set does units in increasing size", () => {
   expect(modified.day).toBe(31);
 });
 
-//------
+// ------
 // set invalid things
-//------
+// ------
 test("DateTime#set throws for invalid units", () => {
   // @ts-expect-error
   expect(() => dt.set({ glorb: 200 })).toThrow(InvalidUnitError);
