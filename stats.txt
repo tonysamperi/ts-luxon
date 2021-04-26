@@ -1,8 +1,8 @@
 *********************************************************************
 
-Test Suites: 7 failed, 44 passed, 51 total
-Tests:       35 failed, 808 passed, 843 total
+Test Suites: 6 failed, 45 passed, 51 total
+Tests:       18 failed, 825 passed, 843 total
 Snapshots:   0 total
-Time:        13.336 s
+Time:        14.437 s
 
 *********************************************************************

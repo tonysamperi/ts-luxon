@@ -55,6 +55,7 @@ export class Settings {
       defaultZone = null;
     }
     else {
+      // @ts-ignore
       defaultZone = normalizeZone(z);
     }
   }
