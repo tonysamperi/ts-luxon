@@ -118,9 +118,7 @@ test("DateTime#set throws for invalid units", () => {
 });
 
 test("DateTime#set throws for metadata", () => {
-  // @ts-expect-error
   expect(() => dt.set({ zone: "UTC" })).toThrow();
-  // @ts-expect-error
   expect(() => dt.set({ locale: "be" })).toThrow();
   // @ts-expect-error
   expect(() => dt.set({ invalid: true })).toThrow();

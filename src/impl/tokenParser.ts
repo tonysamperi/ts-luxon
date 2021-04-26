@@ -41,9 +41,9 @@ function fixListRegex(s: string) {
 
 function stripInsensitivities(s: string) {
   return s
-  .replace(/\./g, "") // ignore dots that were made optional
-  .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
-  .toLowerCase();
+    .replace(/\./g, "") // ignore dots that were made optional
+    .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
+    .toLowerCase();
 }
 
 function oneOf(strings: string[], startIndex: number): CoreUnitParser {
@@ -67,7 +67,7 @@ function escapeToken(value: string) {
   return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
 
-function unitForToken(token: FormatToken, loc: Locale) {
+function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidReason: string } {
   const one = digitRegex(loc),
     two = digitRegex(loc, "{2}"),
     three = digitRegex(loc, "{3}"),
@@ -199,13 +199,9 @@ function unitForToken(token: FormatToken, loc: Locale) {
       }
     };
 
-  const unit = unitate(token);
-
-  if (unit === null) {
-    return {
-      invalidReason: MISSING_FTP
-    };
-  }
+  const unit = unitate(token) || {
+    invalidReason: MISSING_FTP
+  };
 
   return { ...unit, token };
 }

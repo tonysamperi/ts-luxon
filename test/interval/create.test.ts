@@ -1,8 +1,5 @@
 import { DateTime, Interval, Duration, Settings } from "../../src";
-import { Helpers } from "../helpers";
-
-const withThrowOnInvalid = Helpers.setUnset("throwOnInvalid");
-
+import { withThrowOnInvalid } from "../helpers";
 
 // ------
 // .fromObject()

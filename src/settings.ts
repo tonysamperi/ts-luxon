@@ -1,13 +1,13 @@
-import { SystemZone } from "./zones/systemZone";
 import { IANAZone } from "./zones/IANAZone";
 import { Locale } from "./impl/locale";
 
 import { normalizeZone } from "./impl/zoneUtil";
 import { NumberingSystem, CalendarSystem } from "./types/locale";
-import { ZoneLike } from "./types/zone";
+import { LocalZone } from "./zones/localZone";
+import { Zone } from "./zone";
 
 let now = () => Date.now(),
-  defaultZone: ZoneLike | undefined,
+  defaultZone: Zone | null,
   defaultLocale: string | undefined,
   defaultNumberingSystem: NumberingSystem | undefined,
   defaultOutputCalendar: CalendarSystem | undefined,
@@ -38,12 +38,33 @@ export class Settings {
   }
 
   /**
-   * Get the default time zone object currently used to create DateTimes. Does not affect existing instances.
-   * The default value is the system's time zone (the one set on the machine that runs this code).
+   * Get the default time zone object to create DateTimes in. Does not affect existing instances.
    * @type {Zone}
    */
-  static get defaultZone() {
-    return normalizeZone(defaultZone, SystemZone.instance);
+  static get defaultZone(): Zone {
+    return defaultZone || LocalZone.instance;
+  }
+
+
+  /**
+   * Set the default time zone to create DateTimes in. Does not affect existing instances.
+   * @type {string}
+   */
+  static set defaultZoneName(z: string | null) {
+    if (!z) {
+      defaultZone = null;
+    }
+    else {
+      defaultZone = normalizeZone(z);
+    }
+  }
+
+  /**
+   * Get the default time zone to create DateTimes in.
+   * @type {string}
+   */
+  static get defaultZoneName() {
+    return Settings.defaultZone.name;
   }
 
   /**
@@ -121,17 +142,4 @@ export class Settings {
     IANAZone.resetCache();
   }
 
-  /**
-   * Set the default time zone to create DateTimes in. Does not affect existing instances.
-   *
-   * Use the value "system" (default) to reset this value to the system's time zone.
-   *
-   * zone can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3'.
-   *
-   * You may also supply an instance of a {@link Zone} class, or a number which will be interpreted as a UTC offset in minutes.
-   * @param {Zone | string | number} [zone='system'] - the zone value
-   */
-  static setDefaultZone(zone?: ZoneLike) {
-    defaultZone = zone;
-  }
 }

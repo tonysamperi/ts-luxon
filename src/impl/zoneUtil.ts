@@ -11,7 +11,7 @@ import { InvalidZoneError } from "../errors";
 import { isUndefined, isString, isNumber } from "./util";
 import { ZoneLike } from "../types/zone";
 
-export const normalizeZone = (input: ZoneLike, defaultZone: Zone) => {
+export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
   if (isUndefined(input) || input === null) {
     return defaultZone;
   }

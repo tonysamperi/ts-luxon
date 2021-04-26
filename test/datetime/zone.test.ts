@@ -1,7 +1,7 @@
 import { DateTime, Settings } from "../../src";
-import { InvalidZoneError } from "../../src/errors";
 
 import { Helpers } from "../helpers";
+
 
 const millis = 391147200000,
   // 1982-05-25T04:00:00.000Z
@@ -10,7 +10,7 @@ const millis = 391147200000,
 // ------
 // defaults
 // ------
-test("setZone defaults to system's time zone", () => {
+test("setZone defaults to local", () => {
   expect(dt().isOffsetFixed).toBe(false);
 });
 
@@ -35,46 +35,27 @@ test("DateTime#utc(offset) sets dt in UTC+offset 'mode'", () => {
   expect(zoned.isInDST).toBe(false);
 });
 
-// ------
-// #toDefaultZone()
-// ------
-test("DateTime#toDefaultZone() sets the DateTime back to default zone", () => {
-  const rezoned = dt()
-    .toUTC()
-    .toDefaultZone(),
-    expected = new Date(millis).getHours();
-  expect(rezoned.isOffsetFixed).toBe(false);
-  expect(rezoned.valueOf()).toBe(millis);
-  expect(rezoned.hour).toBe(expected);
+test("DateTime#utc maintains invalidity", () => {
+  expect(DateTime.invalid("because").toUTC().isValid).toBe(false);
 });
 
-test("DateTime#toDefaultZone() returns the default time zone", () => {
+// ------
+// #toLocal()
+// ------
+test("DateTime#toLocal() sets the calendar back to local", () => {
+  const relocaled = dt()
+    .toUTC()
+    .toLocal(),
+    expected = new Date(millis).getHours();
+  expect(relocaled.isOffsetFixed).toBe(false);
+  expect(relocaled.valueOf()).toBe(millis);
+  expect(relocaled.hour).toBe(expected);
+});
+
+test("DateTime#toLocal() accepts the default locale", () => {
   Helpers.withDefaultZone("Asia/Tokyo", () => {
     const tokyoLocal = DateTime.local();
-    expect(tokyoLocal.toDefaultZone().zoneName).toBe("Asia/Tokyo");
-  });
-});
-
-// ------
-// #toSystemZone()
-// ------
-test("DateTime#toSystemZone() sets the zone back to system zone", () => {
-  const rezoned = dt()
-    .toUTC()
-    .toSystemZone(),
-    expected = new Date(millis).getHours();
-  expect(rezoned.isOffsetFixed).toBe(false);
-  expect(rezoned.valueOf()).toBe(millis);
-  expect(rezoned.hour).toBe(expected);
-});
-
-test("DateTime#toSystemZone() is independent of the default zone", () => {
-  const localZoneName = DateTime.local().zoneName;
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    const tokyoLocal = DateTime.local();
-    Helpers.withDefaultZone("UTC", () =>
-      expect(tokyoLocal.toSystemZone().zoneName).toBe(localZoneName)
-    );
+    Helpers.withDefaultZone("UTC", () => expect(tokyoLocal.toLocal().zoneName).toBe("UTC"));
   });
 });
 
@@ -93,37 +74,32 @@ test("DateTime#setZone setZone sets the TZ to the specified zone", () => {
   expect(zoned.isInDST).toBe(true);
 });
 
-test("DateTime#setZone accepts 'system'", () => {
-  const zoned = DateTime.utc().setZone("system");
+test('DateTime#setZone accepts "local"', () => {
+  const zoned = DateTime.utc().setZone("local");
   expect(zoned.offset).toBe(DateTime.local().offset);
 });
 
-test("DateTime#setZone accepts 'system' and ignores the default zone", () => {
-  const localZoneName = DateTime.local().zoneName;
+test('DateTime#setZone accepts "local" and uses the default zone', () => {
   Helpers.withDefaultZone("Europe/Paris", () => {
-    expect(DateTime.utc().setZone("system").zoneName).toBe(localZoneName);
+    expect(DateTime.utc().setZone("local").zoneName).toBe("Europe/Paris");
   });
 });
 
-test("DateTime#setZone accepts 'default'", () => {
-  const zoned = DateTime.utc().setZone("default");
-  expect(zoned.offset).toBe(DateTime.local().offset);
-});
-
-test("DateTime#setZone accepts 'default' and uses the default zone", () => {
-  Helpers.withDefaultZone("Europe/Paris", () => {
-    expect(DateTime.utc().setZone("default").zoneName).toBe("Europe/Paris");
-  });
-});
-
-test("DateTime#setZone accepts \"utc\"", () => {
+test('DateTime#setZone accepts "utc"', () => {
   const zoned = DateTime.local().setZone("utc");
   expect(zoned.offset).toBe(0);
   expect(zoned.offsetNameShort).toBe("UTC");
   expect(zoned.offsetNameLong).toBe("UTC");
 });
 
-test("DateTime#setZone accepts \"utc+3\"", () => {
+test('DateTime#setZone accepts "gmt"', () => {
+  const zoned = DateTime.local().setZone("gmt");
+  expect(zoned.offset).toBe(0);
+  expect(zoned.offsetNameShort).toBe("UTC");
+  expect(zoned.offsetNameLong).toBe("UTC");
+});
+
+test('DateTime#setZone accepts "utc+3"', () => {
   const zoned = DateTime.local().setZone("utc+3");
   expect(zoned.zone.name).toBe("UTC+3");
   expect(zoned.offset).toBe(3 * 60);
@@ -131,7 +107,7 @@ test("DateTime#setZone accepts \"utc+3\"", () => {
   expect(zoned.offsetNameLong).toBe("UTC+3");
 });
 
-test("DateTime#setZone accepts \"utc-3\"", () => {
+test('DateTime#setZone accepts "utc-3"', () => {
   const zoned = DateTime.local().setZone("utc-3");
   expect(zoned.zone.name).toBe("UTC-3");
   expect(zoned.offset).toBe(-3 * 60);
@@ -139,7 +115,7 @@ test("DateTime#setZone accepts \"utc-3\"", () => {
   expect(zoned.offsetNameLong).toBe("UTC-3");
 });
 
-test("DateTime#setZone accepts \"utc-3:30\"", () => {
+test('DateTime#setZone accepts "utc-3:30"', () => {
   const zoned = DateTime.local().setZone("utc-3:30");
   expect(zoned.zone.name).toBe("UTC-3:30");
   expect(zoned.offset).toBe(-3 * 60 - 30);
@@ -148,23 +124,28 @@ test("DateTime#setZone accepts \"utc-3:30\"", () => {
 });
 
 test("DateTime#setZone does not accept dumb things", () => {
-  expect(() => DateTime.local().setZone("utc-yo")).toThrow(InvalidZoneError);
+  Helpers.withDefaultZone("local", () => {
+    const zoned = DateTime.local().setZone("utc-yo");
+    // this is questionable; should this be invalid instead?
+    expect(zoned.zone.type).toBe("local");
+  });
 });
 
 test("DateTime#setZone accepts IANA zone names", () => {
   // this will only work in Chrome/V8 for now
   const zoned = dt().setZone("Europe/Paris");
   expect(zoned.zoneName).toBe("Europe/Paris");
-  expect(zoned.offsetNameShort).toBe("CEST"); // TODO: check if this is universal
-  expect(zoned.offsetNameLong).toBe("Ora legale dell’Europa centrale"); // "Central European Summer Time"
+  // not convinced this is universal. Could also be 'CEDT'
+  expect(zoned.offsetNameShort).toBe("GMT+2");
+  expect(zoned.offsetNameLong).toBe("Central European Summer Time");
   expect(zoned.valueOf()).toBe(millis);
   expect(zoned.hour).toBe(6); // cedt is +2
 });
 
 test("DateTime#setZone accepts a keepLocalTime option", () => {
   const zoned = dt()
-  .toUTC()
-  .setZone("America/Los_Angeles", { keepLocalTime: true });
+    .toUTC()
+    .setZone("America/Los_Angeles", { keepLocalTime: true });
   expect(zoned.zoneName).toBe("America/Los_Angeles");
   expect(zoned.year).toBe(1982);
   expect(zoned.month).toBe(5);
@@ -199,7 +180,9 @@ test("DateTime#setZone with keepLocalTime handles zones with very different offs
 });
 
 test("DateTime#setZone rejects jibberish", () => {
-  expect(() => dt().setZone("blorp")).toThrow(InvalidZoneError);
+  const zoned = dt().setZone("blorp");
+  expect(zoned.isValid).toBe(false);
+  expect(zoned.invalidReason).toBe("unsupported zone");
 });
 
 // #650
@@ -229,6 +212,27 @@ test("DateTime#isInDST() returns false for post-DST times", () => {
 });
 
 // ------
+// #invalid
+// ------
+
+// these functions got tested in the individual zones, but let's do invalid DateTimes
+
+test("DateTime#offset returns NaN for invalid times", () => {
+  const zoned = DateTime.invalid("because");
+  expect(zoned.isInDST).toBeFalsy();
+});
+
+test("DateTime#offsetNameLong returns null for invalid times", () => {
+  const zoned = DateTime.invalid("because");
+  expect(zoned.offsetNameLong).toBe(null);
+});
+
+test("DateTime#offsetNameShort returns null for invalid times", () => {
+  const zoned = DateTime.invalid("because");
+  expect(zoned.offsetNameShort).toBe(null);
+});
+
+// ------
 // Etc/GMT zones
 // ------
 test("Etc/GMT zones work even though V8 does not support them", () => {
@@ -241,14 +245,17 @@ test("Etc/GMT zones work even though V8 does not support them", () => {
 });
 
 // ------
-// default zone
+// local zone
 // ------
 
 test("The local zone does local stuff", () => {
-  const dto = DateTime.local(2016, 8, 6);
-  expect(dto.offsetNameLong).toBe("Ora legale dell’Europa centrale"); // Eastern Daylight Time
-  expect(dto.offsetNameShort).toBe("CEST"); // EDT
+  expect(DateTime.local(2016, 8, 6).offsetNameLong).toBe("Eastern Daylight Time");
+  expect(DateTime.local(2016, 8, 6).offsetNameShort).toBe("EDT");
 });
+
+// ------
+// default zone
+// ------
 
 test("Setting the default zone results in a different creation zone", () => {
   Helpers.withDefaultZone("Asia/Tokyo", () => {
@@ -257,34 +264,18 @@ test("Setting the default zone results in a different creation zone", () => {
   });
 });
 
-test("Setting the default zone to undefined gives you back a system zone", () => {
-  const sysZone = Settings.defaultZone.name;
+test("Setting the default zone to 'local' gives you back a local zone", () => {
+  const localZone = Settings.defaultZoneName;
   Helpers.withDefaultZone("Asia/Tokyo", () => {
-    Settings.setDefaultZone(undefined);
-    expect(DateTime.local().zoneName).toBe(sysZone);
+    Settings.defaultZoneName = "local";
+    expect(DateTime.local().zoneName).toBe(localZone);
   });
 });
 
-test("Setting the default zone to null gives you back a system zone", () => {
-  const sysZone = Settings.defaultZone.name;
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    Settings.setDefaultZone(null);
-    expect(DateTime.local().zoneName).toBe(sysZone);
-  });
-});
+// ------
+// invalid
+// ------
 
-test("Setting the default zone to 'default' gives you back the default zone", () => {
-  const defaultZone = Settings.defaultZone.name;
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    Settings.setDefaultZone("default");
-    expect(DateTime.local().zoneName).toBe(defaultZone);
-  });
-});
-
-test("Setting the default zone to 'system' gives you back a system zone", () => {
-  const sysZone = Settings.defaultZone.name;
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    Settings.setDefaultZone("system");
-    expect(DateTime.local().zoneName).toBe(sysZone);
-  });
+test("invalid DateTimes have no zone", () => {
+  expect(DateTime.invalid("because").zoneName).toBe(null);
 });

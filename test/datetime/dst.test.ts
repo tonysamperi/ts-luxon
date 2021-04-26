@@ -1,7 +1,7 @@
 import { DateTime, Settings } from "../../src";
 
 const local = (year: number, month: number, day: number, hour: number) =>
-  DateTime.fromObject({ year, month, day, hour }, { zone: "America/New_York" });
+  DateTime.fromObject({ year, month, day, hour, zone: "America/New_York" });
 
 test("Hole dates are bumped forward", () => {
   const d = local(2017, 3, 12, 2);
@@ -80,9 +80,9 @@ test("Start of a 0:00->1:00 DST day is 1:00", () => {
     {
       year: 2017,
       month: 10,
-      day: 15
-    },
-    { zone: "America/Sao_Paulo" }
+      day: 15,
+      zone: "America/Sao_Paulo"
+    }
   ).startOf("day");
   expect(d.day).toBe(15);
   expect(d.hour).toBe(1);
@@ -95,9 +95,9 @@ test("End of a 0:00->1:00 DST day is 23:59", () => {
     {
       year: 2017,
       month: 10,
-      day: 15
-    },
-    { zone: "America/Sao_Paulo" }
+      day: 15,
+      zone: "America/Sao_Paulo"
+    }
   ).endOf("day");
   expect(d.day).toBe(15);
   expect(d.hour).toBe(23);

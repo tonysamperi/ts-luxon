@@ -270,7 +270,7 @@ export function normalizeObject(obj: Record<string, unknown>,
                                 normalizer: (key: string) => string | number,
                                 nonUnitKeys: string[] = []): { [key: string]: number } {
   return Object.keys(obj).reduce((acc, u: string) => {
-    !!obj[u] && nonUnitKeys.indexOf(u) < 0 && (acc[normalizer(u)] = asNumber(obj[u]));
+    nonUnitKeys.indexOf(u) < 0 && obj[u] !== void 0 && obj[u] !== null && (acc[normalizer(u)] = asNumber(obj[u]));
 
     return acc;
   }, {} as { [key: string]: number });

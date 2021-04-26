@@ -2,7 +2,7 @@ import { asNumber, isUndefined, isNumber, normalizeObject, roundTo } from "./imp
 import { Locale } from "./impl/locale";
 import { Formatter } from "./impl/formatter";
 import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser";
-import { InvalidArgumentError, InvalidDurationError, InvalidUnitError, UnparsableStringError } from "./errors";
+import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from "./errors";
 import {
   DurationObject,
   DurationOptions,
@@ -197,7 +197,7 @@ interface Config {
  *
  * There are more methods documented below. In addition, for more information on subtler topics like internationalization and validity, see the external documentation.
  */
-export class Duration {
+export class Duration implements NormalizedDurationObject {
 
   /**
    * Returns the conversion system to use
@@ -317,10 +317,6 @@ export class Duration {
     }
   }
 
-  static fromMillis(count: number): Duration;
-
-  static fromMillis(count: number, options: DurationOptions & ThrowOnInvalid): Duration;
-  static fromMillis(count: number, options: DurationOptions): Duration | null;
   /**
    * Create Duration from a number of milliseconds.
    * @param {number} count of milliseconds
@@ -331,17 +327,17 @@ export class Duration {
    * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
    * @return {Duration}
    */
-  static fromMillis(count: number, options: DurationOptions = {}) {
-    return Duration.fromObject({ milliseconds: count }, options);
+  static fromMillis(count: number): Duration;
+  static fromMillis(count: number, options: DurationOptions & ThrowOnInvalid): Duration;
+  static fromMillis(count: number, options: DurationOptions): Duration | null;
+  static fromMillis(count: number, opts: DurationOptions = {}) {
+    return Duration.fromObject(Object.assign({ milliseconds: count }, opts));
   }
 
-  static fromObject(obj: DurationObject): Duration;
-  static fromObject(obj: DurationObject, options: DurationOptions & ThrowOnInvalid): Duration;
-  static fromObject(obj: DurationObject, options: DurationOptions): Duration | null;
   /**
-   * Create a Duration from a Javascript object with keys like 'years' and 'hours.
+   * Create a Duration from a JavaScript object with keys like 'years' and 'hours.
    * If this object is empty then a zero milliseconds duration is returned.
-   * @param {Object} obj - the object to create the Duration from
+   * @param {Object} obj - the object to create the DateTime from
    * @param {number} obj.years
    * @param {number} obj.quarters
    * @param {number} obj.months
@@ -351,74 +347,55 @@ export class Duration {
    * @param {number} obj.minutes
    * @param {number} obj.seconds
    * @param {number} obj.milliseconds
-   * @param {Object} options - options for parsing
-   * @param {string} [options.locale='en-US'] - the locale to use
-   * @param {string} [options.numberingSystem] - the numbering system to use
-   * @param {string} [options.conversionAccuracy='casual'] - the conversion system to use
-   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+   * @param {string} [obj.locale='en-US'] - the locale to use
+   * @param {string} obj.numberingSystem - the numbering system to use
+   * @param {string} [obj.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  static fromObject(obj: DurationObject, options: DurationOptions & ThrowOnInvalid = {}): Duration | null {
-    if (obj === undefined || obj === null || typeof obj !== "object") {
-      if (options.nullOnInvalid) {
-        return null;
-      }
+  static fromObject(obj: (DurationObject & DurationOptions & ThrowOnInvalid) | null): Duration {
+    if (obj == null || typeof obj !== "object") {
       throw new InvalidArgumentError(
         `Duration.fromObject: argument expected to be an object, got ${
           obj === null ? "null" : typeof obj
         }`
       );
     }
-
-    let values;
-    try {
-      values = normalizeObject(obj as Record<string, number>, Duration.normalizeUnit, [
+    return new Duration({
+      values: normalizeObject(obj as Record<string, any>, Duration.normalizeUnit, [
         "locale",
         "numberingSystem",
         "conversionAccuracy",
         "zone" // a bit of debt; it's super inconvenient internally not to be able to blindly pass this
-      ]);
-    } catch (error) {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw error;
-    }
-
-    return new Duration({
-      values,
-      loc: Locale.fromObject(options),
-      conversionAccuracy: options.conversionAccuracy
+      ]),
+      loc: Locale.fromObject(obj),
+      conversionAccuracy: obj.conversionAccuracy
     });
   }
 
-  static fromISO(text: string): Duration;
-  static fromISO(text: string, options: DurationOptions & ThrowOnInvalid): Duration;
-  static fromISO(text: string, options: DurationOptions): Duration | null;
   /**
    * Create a Duration from an ISO 8601 duration string.
    * @param {string} text - text to parse
-   * @param {Object} options - options for parsing
-   * @param {string} [options.locale='en-US'] - the locale to use
-   * @param {string} [options.numberingSystem] - the numbering system to use
-   * @param {string} [options.conversionAccuracy='casual'] - the conversion system to use
-   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on failed parsing instead of throwing
+   * @param {Object} opts - options for parsing
+   * @param {string} [opts.locale='en-US'] - the locale to use
+   * @param {string} opts.numberingSystem - the numbering system to use
+   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
    * @example Duration.fromISO('P3Y6M1W4DT12H30M5S').toObject() //=> { years: 3, months: 6, weeks: 1, days: 4, hours: 12, minutes: 30, seconds: 5 }
    * @example Duration.fromISO('PT23H').toObject() //=> { hours: 23 }
    * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
    * @return {Duration}
    */
-  static fromISO(text: string, options: DurationOptions & ThrowOnInvalid = {}) {
-    const parsed = parseISODuration(text)[0] as DurationObject;
+  static fromISO(text: string): Duration;
+  static fromISO(text: string, opts: DurationOptions & ThrowOnInvalid): Duration;
+  static fromISO(text: string, opts: DurationOptions): Duration | null;
+  static fromISO(text: string, opts: DurationOptions & ThrowOnInvalid = {}) {
+    const [parsed] = parseISODuration(text);
     if (parsed) {
-      return Duration.fromObject(parsed, options);
+      const obj = Object.assign(parsed, opts);
+      return Duration.fromObject(obj);
     }
     else {
-      if (options.nullOnInvalid) {
-        return null;
-      }
-      throw new UnparsableStringError("ISO 8601", text);
+      return Duration.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
     }
   }
 
@@ -457,9 +434,8 @@ export class Duration {
   /**
    * @private
    */
-  static normalizeUnit(unit: string) {
-    // TODO should be private
-    const pluralMapping: { [key in DurationUnit]: NormalizedDurationUnit } = {
+  static normalizeUnit(unit: string): keyof NormalizedDurationObject {
+    const normalized: NormalizedDurationUnit = {
       year: "years",
       years: "years",
       quarter: "quarters",
@@ -478,8 +454,7 @@ export class Duration {
       seconds: "seconds",
       millisecond: "milliseconds",
       milliseconds: "milliseconds"
-    };
-    const normalized = pluralMapping[(unit ? unit.toLowerCase() : unit) as DurationUnit];
+    }[unit as DurationUnit] as NormalizedDurationUnit;
 
     if (!normalized) {
       throw new InvalidUnitError(unit);
@@ -511,7 +486,7 @@ export class Duration {
   toFormat(fmt: string, opts: DurationToFormatOptions = { floor: true }) {
     // reverse-compat since 1.2; we always round down now, never up, and we do it by default
     const fmtOpts = Object.assign({}, opts, {
-      floor: !!opts.round && !!opts.floor
+      floor: opts.round !== false && opts.floor !== false
     });
     return this.isValid
       ? Formatter.create(this._loc, fmtOpts).formatDurationFromString(this, fmt)
@@ -744,7 +719,7 @@ export class Duration {
    * @example dur.reconfigure({ locale: 'en-GB' })
    * @return {Duration}
    */
-  reconfigure({ locale, numberingSystem, conversionAccuracy }: DurationOptions = {}) {
+  reconfigure({ locale, numberingSystem, conversionAccuracy }: DurationOptions = {}): Duration {
     const conf = {
       values: this._values,
       loc: this._loc.clone({ locale, numberingSystem }),
@@ -988,15 +963,13 @@ export function friendlyDuration(durationish: DurationLike): Duration {
   if (isNumber(durationish)) {
     return Duration.fromMillis(durationish);
   }
-  else if (durationish instanceof Duration) {
+  else if (Duration.isDuration(durationish)) {
     return durationish;
   }
   else if (typeof durationish === "object") {
-    return Duration.fromObject(durationish);
+    return Duration.fromObject(durationish) as Duration;
   }
   else {
-    throw new InvalidArgumentError(
-      `Unknown duration argument ${durationish} of type ${typeof durationish}`
-    );
+    throw new InvalidArgumentError(`Unknown duration argument ${durationish} of type ${typeof durationish}`);
   }
 }

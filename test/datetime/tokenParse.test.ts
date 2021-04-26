@@ -1,12 +1,6 @@
-import { DateTime } from "../../src";
-import {
-  ConflictingSpecificationError,
-  UnparsableStringError,
-  MismatchedWeekdayError,
-  UnitOutOfRangeError
-} from "../../src/errors";
-import {Helpers} from "../helpers";
-import { GregorianDateTime } from "../../src/types/datetime";
+import { DateTime, DateTimeWithZoneOptions } from "../../src";
+import { ConflictingSpecificationError } from "../../src/errors";
+import { Helpers } from "../helpers";
 
 // ------
 // .fromFormat
@@ -81,8 +75,8 @@ test("DateTime.fromFormat() makes dots optional and handles non breakable spaces
     expect(d.second).toBe(0);
   }
 
+  // Meridiem for this locale is "a. m." or "p. m.", with a non breakable space
   Helpers.withDefaultLocale("es-ES", () => {
-    // Meridiem for this locale is "a. m." or "p. m.", with a non breakable space
     parseMeridiem("10:45 a. m.", true);
     parseMeridiem("10:45 a. m", true);
     parseMeridiem("10:45 a m.", true);
@@ -108,29 +102,29 @@ test("DateTime.fromFormat() makes dots optional and handles non breakable spaces
 });
 
 test("DateTime.fromFormat() parses variable-digit years", () => {
-  expect(() => DateTime.fromFormat("", "y")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("", "y").isValid).toBe(false);
   expect(DateTime.fromFormat("2", "y").year).toBe(2);
   expect(DateTime.fromFormat("22", "y").year).toBe(22);
   expect(DateTime.fromFormat("222", "y").year).toBe(222);
   expect(DateTime.fromFormat("2222", "y").year).toBe(2222);
   expect(DateTime.fromFormat("22222", "y").year).toBe(22222);
   expect(DateTime.fromFormat("222222", "y").year).toBe(222222);
-  expect(() => DateTime.fromFormat("2222222", "y")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("2222222", "y").isValid).toBe(false);
 });
 
 test("DateTime.fromFormat() with yyyyy optionally parses extended years", () => {
-  expect(() => DateTime.fromFormat("222", "yyyyy")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("222", "yyyyy").isValid).toBe(false);
   expect(DateTime.fromFormat("2222", "yyyyy").year).toBe(2222);
   expect(DateTime.fromFormat("22222", "yyyyy").year).toBe(22222);
   expect(DateTime.fromFormat("222222", "yyyyy").year).toBe(222222);
-  expect(() => DateTime.fromFormat("2222222", "yyyyy")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("2222222", "yyyyy").isValid).toBe(false);
 });
 
 test("DateTime.fromFormat() with yyyyyy strictly parses extended years", () => {
-  expect(() => DateTime.fromFormat("2222", "yyyyyy")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("2222", "yyyyyy").isValid).toBe(false);
   expect(DateTime.fromFormat("222222", "yyyyyy").year).toBe(222222);
   expect(DateTime.fromFormat("022222", "yyyyyy").year).toBe(22222);
-  expect(() => DateTime.fromFormat("2222222", "yyyyyy")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("2222222", "yyyyyy").isValid).toBe(false);
 });
 
 test("DateTime.fromFormat() defaults yy to the right century", () => {
@@ -154,17 +148,17 @@ test("DateTime.fromFormat() parses milliseconds", () => {
   expect(DateTime.fromFormat("1", "S").millisecond).toBe(1);
   expect(DateTime.fromFormat("12", "S").millisecond).toBe(12);
   expect(DateTime.fromFormat("123", "S").millisecond).toBe(123);
-  expect(() => DateTime.fromFormat("1234", "S")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("1234", "S").isValid).toBe(false);
 
   expect(DateTime.fromFormat("1", "S").millisecond).toBe(1);
   expect(DateTime.fromFormat("12", "S").millisecond).toBe(12);
   expect(DateTime.fromFormat("123", "S").millisecond).toBe(123);
 
-  expect(() => DateTime.fromFormat("1", "SSS")).toThrow(UnparsableStringError);
-  expect(() => DateTime.fromFormat("12", "SSS")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("1", "SSS").isValid).toBe(false);
+  expect(DateTime.fromFormat("12", "SSS").isValid).toBe(false);
   expect(DateTime.fromFormat("123", "SSS").millisecond).toBe(123);
   expect(DateTime.fromFormat("023", "SSS").millisecond).toBe(23);
-  expect(() => DateTime.fromFormat("1234", "SSS")).toThrow(UnparsableStringError);
+  expect(DateTime.fromFormat("1234", "SSS").isValid).toBe(false);
 });
 
 test("DateTime.fromFormat() parses fractional seconds", () => {
@@ -264,18 +258,18 @@ test("DateTime.fromFormat() parses format month names", () => {
 });
 
 test("DateTime.fromFormat() parses quarters", () => {
-  const i = DateTime.fromFormat("1982Q2", "yyyy[Q]q");
+  const i = DateTime.fromFormat("1982Q2", "yyyy'Q'q");
   expect(i.year).toBe(1982);
   expect(i.month).toBe(4);
   expect(i.quarter).toBe(2);
-  expect(DateTime.fromFormat("2019Q1", "yyyy[Q]q").month).toBe(1);
-  expect(DateTime.fromFormat("2019Q2", "yyyy[Q]q").month).toBe(4);
-  expect(DateTime.fromFormat("2019Q3", "yyyy[Q]q").month).toBe(7);
-  expect(DateTime.fromFormat("2019Q4", "yyyy[Q]q").month).toBe(10);
-  expect(DateTime.fromFormat("2019Q01", "yyyy[Q]qq").month).toBe(1);
-  expect(DateTime.fromFormat("2019Q02", "yyyy[Q]qq").month).toBe(4);
-  expect(DateTime.fromFormat("2019Q03", "yyyy[Q]qq").month).toBe(7);
-  expect(DateTime.fromFormat("2019Q04", "yyyy[Q]qq").month).toBe(10);
+  expect(DateTime.fromFormat("2019Q1", "yyyy'Q'q").month).toBe(1);
+  expect(DateTime.fromFormat("2019Q2", "yyyy'Q'q").month).toBe(4);
+  expect(DateTime.fromFormat("2019Q3", "yyyy'Q'q").month).toBe(7);
+  expect(DateTime.fromFormat("2019Q4", "yyyy'Q'q").month).toBe(10);
+  expect(DateTime.fromFormat("2019Q01", "yyyy'Q'qq").month).toBe(1);
+  expect(DateTime.fromFormat("2019Q02", "yyyy'Q'qq").month).toBe(4);
+  expect(DateTime.fromFormat("2019Q03", "yyyy'Q'qq").month).toBe(7);
+  expect(DateTime.fromFormat("2019Q04", "yyyy'Q'qq").month).toBe(10);
 });
 
 test("DateTime.fromFormat() makes trailing periods in month names optional", () => {
@@ -288,11 +282,10 @@ test("DateTime.fromFormat() makes trailing periods in month names optional", () 
 });
 
 test("DateTime.fromFormat() does not match arbitrary stuff with those periods", () => {
-  expect(() =>
-    DateTime.fromFormat("janvQ 25 1982", "LLL dd yyyy", {
-      locale: "fr"
-    })
-  ).toThrow(UnparsableStringError);
+  const i = DateTime.fromFormat("janvQ 25 1982", "LLL dd yyyy", {
+    locale: "fr"
+  });
+  expect(i.isValid).toBe(false);
 });
 
 test("DateTime.fromFormat() uses case-insensitive matching", () => {
@@ -304,30 +297,33 @@ test("DateTime.fromFormat() uses case-insensitive matching", () => {
   expect(i.day).toBe(25);
 });
 
+test("DateTime.fromFormat() parses offsets", () => {
+});
+
 test("DateTime.fromFormat() validates weekday numbers", () => {
-  const d = DateTime.fromFormat("2, 05/25/1982", "E, LL/dd/yyyy");
+  let d = DateTime.fromFormat("2, 05/25/1982", "E, LL/dd/yyyy");
   expect(d.year).toBe(1982);
   expect(d.month).toBe(5);
   expect(d.day).toBe(25);
 
-  expect(() => DateTime.fromFormat("1, 05/25/1982", "E, LL/dd/yyyy")).toThrow(
-    MismatchedWeekdayError
-  );
+  d = DateTime.fromFormat("1, 05/25/1982", "E, LL/dd/yyyy");
+  expect(d.isValid).toBeFalsy();
 });
 
 test("DateTime.fromFormat() validates weekday names", () => {
   let d = DateTime.fromFormat("Tuesday, 05/25/1982", "EEEE, LL/dd/yyyy");
+  expect(d.isValid).toBe(true);
   expect(d.year).toBe(1982);
   expect(d.month).toBe(5);
   expect(d.day).toBe(25);
 
-  expect(() => DateTime.fromFormat("Monday, 05/25/1982", "EEEE, LL/dd/yyyy")).toThrow(
-    MismatchedWeekdayError
-  );
+  d = DateTime.fromFormat("Monday, 05/25/1982", "EEEE, LL/dd/yyyy");
+  expect(d.isValid).toBeFalsy();
 
   d = DateTime.fromFormat("mardi, 05/25/1982", "EEEE, LL/dd/yyyy", {
     locale: "fr"
   });
+  expect(d.isValid).toBe(true);
   expect(d.year).toBe(1982);
   expect(d.month).toBe(5);
   expect(d.day).toBe(25);
@@ -371,11 +367,11 @@ test("DateTime.fromFormat() parses ordinals", () => {
 test("DateTime.fromFormat() throws on mixed units", () => {
   expect(() => {
     DateTime.fromFormat("2017 34", "yyyy WW");
-  }).toThrow(ConflictingSpecificationError);
+  }).toThrow();
 
   expect(() => {
     DateTime.fromFormat("2017 05 340", "yyyy MM ooo");
-  }).toThrow(ConflictingSpecificationError);
+  }).toThrow();
 });
 
 test("DateTime.fromFormat() accepts weekYear by itself", () => {
@@ -420,7 +416,7 @@ test("DateTime.fromFormat() allows regex content", () => {
 });
 
 test("DateTime.fromFormat() allows literals", () => {
-  const i = DateTime.fromFormat("1982/05/25 hello 09:10:11.445", "yyyy/MM/dd [hello] HH:mm:ss.SSS");
+  const i = DateTime.fromFormat("1982/05/25 hello 09:10:11.445", "yyyy/MM/dd 'hello' HH:mm:ss.SSS");
 
   expect(i.year).toBe(1982);
   expect(i.month).toBe(5);
@@ -431,21 +427,21 @@ test("DateTime.fromFormat() allows literals", () => {
   expect(i.millisecond).toBe(445);
 });
 
-test("DateTime.fromFormat() rejects gibberish", () => {
-  expect(() => DateTime.fromFormat("Splurk", "EEEE")).toThrow(UnparsableStringError);
+test("DateTime.fromFormat() returns invalid when unparsed", () => {
+  expect(DateTime.fromFormat("Splurk", "EEEE").isValid).toBe(false);
 });
 
-test("DateTime.fromFormat() rejects invalid quarter value", () => {
-  expect(() => DateTime.fromFormat("2019Qaa", "yyyy[Q]qq")).toThrow(UnparsableStringError);
-  expect(() => DateTime.fromFormat("2019Q00", "yyyy[Q]qq")).toThrow(UnitOutOfRangeError);
-  expect(() => DateTime.fromFormat("2019Q0", "yyyy[Q]q")).toThrow(UnitOutOfRangeError);
-  expect(() => DateTime.fromFormat("2019Q5", "yyyy[Q]q")).toThrow(UnitOutOfRangeError);
+test("DateTime.fromFormat() returns invalid when quarter value is not valid", () => {
+  expect(DateTime.fromFormat("2019Qaa", "yyyy'Q'qq").isValid).toBe(false);
+  expect(DateTime.fromFormat("2019Q00", "yyyy'Q'qq").isValid).toBe(false);
+  expect(DateTime.fromFormat("2019Q0", "yyyy'Q'q").isValid).toBe(false);
+  expect(DateTime.fromFormat("2019Q1", "yyyy'Q'q").isValid).toBe(true);
+  expect(DateTime.fromFormat("2019Q5", "yyyy'Q'q").isValid).toBe(false);
 });
 
-test("DateTime.fromFormat() rejects out-of-range values", () => {
-  // todo - these are actually several different kinds of errors. clean this up
-  const rejects = (s: string, fmt: string, options = {}) =>
-    expect(() => DateTime.fromFormat(s, fmt, options)).toThrow();
+test("DateTime.fromFormat() returns invalid for out-of-range values", () => {
+  const rejects = (s: string, fmt: string, opts: DateTimeWithZoneOptions = {} as DateTimeWithZoneOptions) =>
+    expect(DateTime.fromFormat(s, fmt, opts).isValid).toBeFalsy();
 
   rejects("8, 05/25/1982", "E, MM/dd/yyyy", { locale: "fr" });
   rejects("Tuesday, 05/25/1982", "EEEE, MM/dd/yyyy", { locale: "fr" });
@@ -474,11 +470,13 @@ test("DateTime.fromFormat() parses IANA zones", () => {
     "1982/05/25 09:10:11.445 Asia/Tokyo",
     "yyyy/MM/dd HH:mm:ss.SSS z"
   ).toUTC();
+  expect(d.isValid).toBe(true);
   expect(d.offset).toBe(0);
   expect(d.hour).toBe(0);
   expect(d.minute).toBe(10);
 
   d = DateTime.fromFormat("1982/05/25 09:10:11.445 UTC", "yyyy/MM/dd HH:mm:ss.SSS z").toUTC();
+  expect(d.isValid).toBe(true);
   expect(d.offset).toBe(0);
   expect(d.hour).toBe(9);
   expect(d.minute).toBe(10);
@@ -494,131 +492,70 @@ test("DateTime.fromFormat() with setZone parses IANA zones and sets it", () => {
   expect(d.minute).toBe(10);
 });
 
-test("DateTime.fromFormat() with setZone falls back to provided zone if no zone is found", () => {
-  const d = DateTime.fromFormat("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS", {
-    setZone: true,
-    zone: "Europe/Rome"
-  });
-  expect(d.zoneName).toBe("Europe/Rome");
-  expect(d.offset).toBe(2 * 60);
-  expect(d.hour).toBe(9);
-  expect(d.minute).toBe(10);
-});
-
-test("DateTime.fromFormat() with setZone falls back to default zone if no zone is found", () => {
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    const d = DateTime.fromFormat("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS", {
-      setZone: true
-    });
-    expect(d.zoneName).toBe("Asia/Tokyo");
-    expect(d.offset).toBe(9 * 60);
-    expect(d.hour).toBe(9);
-    expect(d.minute).toBe(10);
-  });
-});
-
 test("DateTime.fromFormat() parses fixed offsets", () => {
-  const formats = [
-    ["Z", "-4"],
-    ["ZZ", "-4:00"],
-    ["ZZZ", "-0400"]
-  ];
+  const formats = [["Z", "-4"], ["ZZ", "-4:00"], ["ZZZ", "-0400"]];
 
-  formats.forEach(([format, offset]) => {
-    const dt = DateTime.fromFormat(
-      `1982/05/25 09:10:11.445 ${offset}`,
-      `yyyy/MM/dd HH:mm:ss.SSS ${format}`
-    );
-    expect(dt.toUTC().hour).toBe(13);
-    expect(dt.toUTC().minute).toBe(10);
-  });
+  for (const i in formats) {
+    if (Object.prototype.hasOwnProperty.call(formats, i)) {
+      const [format, example] = formats[i],
+        dt = DateTime.fromFormat(
+          `1982/05/25 09:10:11.445 ${example}`,
+          `yyyy/MM/dd HH:mm:ss.SSS ${format}`
+        );
+      expect(dt.toUTC().hour).toBe(13);
+      expect(dt.toUTC().minute).toBe(10);
+    }
+  }
 });
 
 test("DateTime.fromFormat() with setZone parses fixed offsets and sets it", () => {
-  const formats = [
-    ["Z", "-4"],
-    ["ZZ", "-4:00"],
-    ["ZZZ", "-0400"]
-  ];
+  const formats = [["Z", "-4"], ["ZZ", "-4:00"], ["ZZZ", "-0400"]];
 
-  formats.forEach(([format, offset]) => {
-    const dt = DateTime.fromFormat(
-      `1982/05/25 09:10:11.445 ${offset}`,
-      `yyyy/MM/dd HH:mm:ss.SSS ${format}`,
-      { setZone: true }
-    );
-    expect(dt.offset).toBe(-4 * 60);
-    expect(dt.toUTC().hour).toBe(13);
-    expect(dt.toUTC().minute).toBe(10);
-  });
-});
-
-test("DateTime.fromFormat() does not support macro tokens with time zone", () => {
-  // Parsing time zone names like `EDT` or `Eastern Daylight Time` is not supported
-  const formats = ["ttt", "tttt", "TTT", "TTTT", "FFF", "FFFF"];
-
-  const sampleDateTime = DateTime.fromMillis(1555555555555);
-
-  for (const locale of [undefined, "en-gb", "de"]) {
-    for (const format of formats) {
-      const formatted = sampleDateTime.toFormat(format, { locale });
-      expect(() => DateTime.fromFormat(formatted, format, { locale })).toThrow(
-        UnparsableStringError
-      );
+  for (const i in formats) {
+    if (Object.prototype.hasOwnProperty.call(formats, i)) {
+      const [format, example] = formats[i],
+        dt = DateTime.fromFormat(
+          `1982/05/25 09:10:11.445 ${example}`,
+          `yyyy/MM/dd HH:mm:ss.SSS ${format}`,
+          { setZone: true }
+        );
+      expect(dt.offset).toBe(-4 * 60);
+      expect(dt.toUTC().hour).toBe(13);
+      expect(dt.toUTC().minute).toBe(10);
     }
   }
 });
 
 test("DateTime.fromFormat() parses localized macro tokens", () => {
   const formatGroups = [
-    {
-      formats: ["D", "DD", "DDD", "DDDD"],
-      expectEqual: {
-        year: true,
-        month: true,
-        day: true
-      }
-    },
-
-    {
-      formats: ["t", "T"],
-      expectEqual: {
-        hour: true,
-        minute: true
-      }
-    },
-    {
-      formats: ["tt", "TT"],
-      expectEqual: {
-        hour: true,
-        minute: true,
-        second: true
-      }
-    },
+    { formats: ["D", "DD", "DDD", "DDDD"], expectEqual: { year: true, month: true, day: true } },
+    { formats: ["t", "T"], expectEqual: { hour: true, minute: true } },
+    { formats: ["tt", "TT"], expectEqual: { hour: true, minute: true, second: true } },
     {
       formats: ["F", "FF"],
-      expectEqual: {
-        year: true,
-        month: true,
-        day: true,
-        hour: true,
-        minute: true,
-        second: true
-      }
-    }
+      expectEqual: { year: true, month: true, day: true, hour: true, minute: true, second: true }
+    },
+    // Parsing time zone names like `EDT` or `Eastern Daylight Time` is not supported
+    { formats: ["ttt", "tttt", "TTT", "TTTT", "FFF", "FFFF"], expectInvalid: true }
   ];
 
   const sampleDateTime = DateTime.fromMillis(1555555555555);
-
-  for (const { formats, expectEqual } of formatGroups) {
-    for (const locale of [undefined, "en-gb", "de"]) {
+  for (const { formats, expectEqual, expectInvalid } of formatGroups) {
+    for (const locale of [null, "en-gb", "de"]) {
       for (const format of formats) {
-        const formatted = sampleDateTime.toFormat(format, { locale });
-        const parsed = DateTime.fromFormat(formatted, format, { locale });
+        // @ts-ignore
+        const formatted: string = sampleDateTime.toFormat(format, { locale });
+        // @ts-ignore
+        const parsed: DateTime = DateTime.fromFormat(formatted, format, { locale });
 
-        for (const key of Object.keys(expectEqual)) {
-          const unit = key as keyof GregorianDateTime;
-          expect(parsed[unit]).toBe(sampleDateTime[unit]);
+        if (expectInvalid) {
+          expect(parsed.isValid).toBe(false);
+        }
+        else {
+          expect(parsed.isValid).toBe(true);
+          Object.keys(expectEqual as Record<string, boolean>).forEach((k: string) => {
+            expect(parsed[k as keyof DateTime]).toBe(sampleDateTime[k as keyof DateTime]);
+          });
         }
       }
     }
@@ -631,72 +568,72 @@ test("DateTime.fromFormat() throws if you don't provide a format", () => {
 });
 
 test("DateTime.fromFormat validates weekdays", () => {
-  expect(DateTime.fromFormat("Wed 2017-11-29 02:00", "EEE yyyy-MM-dd HH:mm")).toBeTruthy();
-  expect(() => DateTime.fromFormat("Thu 2017-11-29 02:00", "EEE yyyy-MM-dd HH:mm")).toThrow(
-    MismatchedWeekdayError
-  );
-  expect(
-    DateTime.fromFormat("Wed 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ")
-  ).toBeTruthy();
+  let dt = DateTime.fromFormat("Wed 2017-11-29 02:00", "EEE yyyy-MM-dd HH:mm");
+  expect(dt.isValid).toBe(true);
 
-  expect(
-    DateTime.fromFormat("Wed 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ", {
-      setZone: true
-    })
-  ).toBeTruthy();
+  dt = DateTime.fromFormat("Thu 2017-11-29 02:00", "EEE yyyy-MM-dd HH:mm");
+  expect(dt.isValid).toBe(false);
 
-  expect(() =>
-    DateTime.fromFormat("Tue 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ", {
-      setZone: true
-    })
-  ).toThrow(MismatchedWeekdayError);
+  dt = DateTime.fromFormat("Wed 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ");
+  expect(dt.isValid).toBe(true);
+
+  dt = DateTime.fromFormat("Wed 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ", {
+    setZone: true
+  });
+
+  expect(dt.isValid).toBe(true);
+
+  dt = DateTime.fromFormat("Tue 2017-11-29 02:00 +12:00", "EEE yyyy-MM-dd HH:mm ZZ", {
+    setZone: true
+  });
+  expect(dt.isValid).toBe(false);
 });
 
 test("DateTime.fromFormat containg special regex token", () => {
-  const ianaFormat = "yyyy-MM-dd[T]HH-mm'z'";
-  const dt = DateTime.fromFormat("2019-01-14T11-30'Indian/Maldives'", ianaFormat, {
+  const ianaFormat = "yyyy-MM-dd'T'HH-mm[z]";
+  const dt = DateTime.fromFormat("2019-01-14T11-30[Indian/Maldives]", ianaFormat, {
     setZone: true
   });
+  expect(dt.isValid).toBe(true);
   expect(dt.zoneName).toBe("Indian/Maldives");
 
   expect(
-    DateTime.fromFormat("2019-01-14T11-30(Indian/Maldives)", "yyyy-MM-dd[T]HH-mm(z)")
-  ).toBeTruthy();
+    DateTime.fromFormat("2019-01-14T11-30[[Indian/Maldives]]", "yyyy-MM-dd'T'HH-mm[[z]]").isValid
+  ).toBe(true);
 
   expect(
-    DateTime.fromFormat("2019-01-14T11-30tIndian/Maldivest", "yyyy-MM-dd[T]HH-mm[t]z[t]")
-  ).toBeTruthy();
+    DateTime.fromFormat("2019-01-14T11-30tIndian/Maldivest", "yyyy-MM-dd'T'HH-mm't'z't'").isValid
+  ).toBe(true);
 
-  expect(() =>
-    DateTime.fromFormat("2019-01-14T11-30\tIndian/Maldives\t", "yyyy-MM-dd[T]HH-mm[t]z[t]")
-  ).toThrow(UnparsableStringError);
-});
-
-test("DateTime.fromFormat accepts a nullOnInvalid option", () => {
-  expect(DateTime.fromFormat("gorp", "spurp", { nullOnInvalid: true })).toBeNull();
+  expect(
+    DateTime.fromFormat("2019-01-14T11-30\tIndian/Maldives\t", "yyyy-MM-dd'T'HH-mm't'z't'").isValid
+  ).toBe(false);
 });
 
 // ------
 // .fromFormatExplain
 // -------
 
-function checkObjectKeyCount(o: unknown, count: number) {
-  expect(o).toBeInstanceOf(Object);
-  expect(Object.keys(o as Object).length).toBe(count);
+function keyCount(o: any) {
+  return Object.keys(o).length;
 }
 
 test("DateTime.fromFormatExplain() explains success", () => {
   const ex = DateTime.fromFormatExplain("May 25, 1982 09:10:12.445", "MMMM dd, yyyy HH:mm:ss.SSS");
   expect(ex.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex.matches, 7);
-  checkObjectKeyCount(ex.result, 7);
+  expect(ex.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex.matches)).toBe(7);
+  expect(ex.result).toBeInstanceOf(Object);
+  expect(keyCount(ex.result)).toBe(7);
 });
 
 test("DateTime.fromFormatExplain() explains a bad match", () => {
   const ex = DateTime.fromFormatExplain("May 25, 1982 09:10:12.445", "MMMM dd, yyyy mmmm");
   expect(ex.rawMatches).toBeNull();
-  checkObjectKeyCount(ex.matches, 0);
-  checkObjectKeyCount(ex.result, 0);
+  expect(ex.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex.matches)).toBe(0);
+  expect(ex.result).toBeInstanceOf(Object);
+  expect(keyCount(ex.result)).toBe(0);
 });
 
 test("DateTime.fromFormatExplain() parses zone correctly", () => {
@@ -705,8 +642,10 @@ test("DateTime.fromFormatExplain() parses zone correctly", () => {
     "z d-MMMM-yyyy hh:mm:ss a EEE"
   );
   expect(ex.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex.matches, 9);
-  checkObjectKeyCount(ex.result, 7);
+  expect(ex.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex.matches)).toBe(9);
+  expect(ex.result).toBeInstanceOf(Object);
+  expect(keyCount(ex.result)).toBe(7);
   expect(ex.matches).toEqual({
     E: 1,
     M: 4,
@@ -727,8 +666,10 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     { locale: "kn", numberingSystem: "knda" }
   );
   expect(ex1.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex1.matches, 8);
-  checkObjectKeyCount(ex1.result, 6);
+  expect(ex1.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex1.matches)).toBe(8);
+  expect(ex1.result).toBeInstanceOf(Object);
+  expect(keyCount(ex1.result)).toBe(6);
   expect(ex1.matches).toEqual({
     M: 4,
     a: 1,
@@ -746,8 +687,10 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     { locale: "zh", numberingSystem: "hanidec" }
   );
   expect(ex2.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex2.matches, 8);
-  checkObjectKeyCount(ex2.result, 6);
+  expect(ex2.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex2.matches)).toBe(8);
+  expect(ex2.result).toBeInstanceOf(Object);
+  expect(keyCount(ex2.result)).toBe(6);
   expect(ex2.matches).toEqual({
     M: 4,
     a: 1,
@@ -764,8 +707,10 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     numberingSystem: "arab"
   });
   expect(ex3.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex3.matches, 7);
-  checkObjectKeyCount(ex3.result, 6);
+  expect(ex3.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex3.matches)).toBe(7);
+  expect(ex3.result).toBeInstanceOf(Object);
+  expect(keyCount(ex3.result)).toBe(6);
   expect(ex3.matches).toEqual({
     M: 4,
     a: 1,
@@ -781,24 +726,30 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     numberingSystem: "arabext"
   });
   expect(ex4.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex4.matches, 7);
-  checkObjectKeyCount(ex4.result, 6);
+  expect(ex4.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex4.matches)).toBe(7);
+  expect(ex4.result).toBeInstanceOf(Object);
+  expect(keyCount(ex4.result)).toBe(6);
 
   const ex5 = DateTime.fromFormatExplain("᭐᭓-April-᭒᭐᭑᭙ ᭐᭒:᭔᭔:᭐᭗ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     locale: "id",
     numberingSystem: "bali"
   });
   expect(ex5.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex5.matches, 7);
-  checkObjectKeyCount(ex5.result, 6);
+  expect(ex5.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex5.matches)).toBe(7);
+  expect(ex5.result).toBeInstanceOf(Object);
+  expect(keyCount(ex5.result)).toBe(6);
 
   const ex6 = DateTime.fromFormatExplain("০৩ এপ্রিল ২০১৯ ১২.৫৭", "dd MMMM yyyy hh.mm", {
     locale: "bn",
     numberingSystem: "beng"
   });
   expect(ex6.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex6.matches, 5);
-  checkObjectKeyCount(ex6.result, 5);
+  expect(ex6.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex6.matches)).toBe(5);
+  expect(ex6.result).toBeInstanceOf(Object);
+  expect(keyCount(ex6.result)).toBe(5);
   expect(ex6.matches).toEqual({
     M: 4,
     d: 3,
@@ -816,66 +767,84 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     }
   );
   expect(ex7.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex7.matches, 7);
-  checkObjectKeyCount(ex7.result, 6);
+  expect(ex7.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex7.matches)).toBe(7);
+  expect(ex7.result).toBeInstanceOf(Object);
+  expect(keyCount(ex7.result)).toBe(6);
 
   const ex8 = DateTime.fromFormatExplain("०३-April-२०१९ ०२:५३:१९ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "deva"
   });
   expect(ex8.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex8.matches, 7);
-  checkObjectKeyCount(ex8.result, 6);
+  expect(ex8.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex8.matches)).toBe(7);
+  expect(ex8.result).toBeInstanceOf(Object);
+  expect(keyCount(ex8.result)).toBe(6);
 
   const ex9 = DateTime.fromFormatExplain("૦૩-એપ્રિલ-૨૦૧૯ ૦૨:૫૫:૨૧ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     locale: "gu",
     numberingSystem: "gujr"
   });
   expect(ex9.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex9.matches, 7);
-  checkObjectKeyCount(ex9.result, 6);
+  expect(ex9.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex9.matches)).toBe(7);
+  expect(ex9.result).toBeInstanceOf(Object);
+  expect(keyCount(ex9.result)).toBe(6);
 
   const ex10 = DateTime.fromFormatExplain("០៣-April-២០១៩ ០៣:៤៩:២០ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "khmr"
   });
   expect(ex10.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex10.matches, 7);
-  checkObjectKeyCount(ex10.result, 6);
+  expect(ex10.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex10.matches)).toBe(7);
+  expect(ex10.result).toBeInstanceOf(Object);
+  expect(keyCount(ex10.result)).toBe(6);
 
   const ex11 = DateTime.fromFormatExplain("໐໓-April-໒໐໑໙ ໐໓:໕໒:໑໑ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "laoo"
   });
   expect(ex11.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex11.matches, 7);
-  checkObjectKeyCount(ex11.result, 6);
+  expect(ex11.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex11.matches)).toBe(7);
+  expect(ex11.result).toBeInstanceOf(Object);
+  expect(keyCount(ex11.result)).toBe(6);
 
   const ex12 = DateTime.fromFormatExplain("᥆᥉-April-᥈᥆᥇᥏ ᥆᥉:᥋᥉:᥇᥎ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "limb"
   });
   expect(ex12.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex12.matches, 7);
-  checkObjectKeyCount(ex12.result, 6);
+  expect(ex12.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex12.matches)).toBe(7);
+  expect(ex12.result).toBeInstanceOf(Object);
+  expect(keyCount(ex12.result)).toBe(6);
 
   const ex13 = DateTime.fromFormatExplain("൦൩-ഏപ്രിൽ-൨൦൧൯ ൦൩:൫൪:൦൮ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     locale: "ml",
     numberingSystem: "mlym"
   });
   expect(ex13.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex13.matches, 7);
-  checkObjectKeyCount(ex13.result, 6);
+  expect(ex13.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex13.matches)).toBe(7);
+  expect(ex13.result).toBeInstanceOf(Object);
+  expect(keyCount(ex13.result)).toBe(6);
 
   const ex14 = DateTime.fromFormatExplain("᠐᠓-April-᠒᠐᠑᠙ ᠐᠓:᠕᠖:᠑᠙ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "mong"
   });
   expect(ex14.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex14.matches, 7);
-  checkObjectKeyCount(ex14.result, 6);
+  expect(ex14.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex14.matches)).toBe(7);
+  expect(ex14.result).toBeInstanceOf(Object);
+  expect(keyCount(ex14.result)).toBe(6);
 
   const ex15 = DateTime.fromFormatExplain("୦୩-April-୨୦୧୯ ୦୩:୫୮:୪୩ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "orya"
   });
   expect(ex15.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex15.matches, 7);
-  checkObjectKeyCount(ex15.result, 6);
+  expect(ex15.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex15.matches)).toBe(7);
+  expect(ex15.result).toBeInstanceOf(Object);
+  expect(keyCount(ex15.result)).toBe(6);
 
   const ex16 = DateTime.fromFormatExplain(
     "௦௩-ஏப்ரல்-௨௦௧௯ ௦௪:௦௦:௪௧ பிற்பகல்",
@@ -886,8 +855,10 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     }
   );
   expect(ex16.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex16.matches, 7);
-  checkObjectKeyCount(ex16.result, 6);
+  expect(ex16.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex16.matches)).toBe(7);
+  expect(ex16.result).toBeInstanceOf(Object);
+  expect(keyCount(ex16.result)).toBe(6);
 
   const ex17 = DateTime.fromFormatExplain(
     "౦౩-ఏప్రిల్-౨౦౧౯ ౦౪:౦౧:౩౩ PM",
@@ -898,8 +869,10 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     }
   );
   expect(ex17.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex17.matches, 7);
-  checkObjectKeyCount(ex17.result, 6);
+  expect(ex17.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex17.matches)).toBe(7);
+  expect(ex17.result).toBeInstanceOf(Object);
+  expect(keyCount(ex17.result)).toBe(6);
 
   const ex18 = DateTime.fromFormatExplain(
     "๐๓-เมษายน-๒๐๑๙ ๐๔:๐๒:๒๔ หลังเที่ยง",
@@ -910,25 +883,52 @@ test("DateTime.fromFormatExplain() parses localized string with numberingSystem 
     }
   );
   expect(ex18.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex18.matches, 7);
-  checkObjectKeyCount(ex18.result, 6);
+  expect(ex18.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex18.matches)).toBe(7);
+  expect(ex18.result).toBeInstanceOf(Object);
+  expect(keyCount(ex18.result)).toBe(6);
 
   const ex19 = DateTime.fromFormatExplain("༠༣-April-༢༠༡༩ ༠༤:༠༣:༢༥ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "tibt"
   });
   expect(ex19.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex19.matches, 7);
-  checkObjectKeyCount(ex19.result, 6);
+  expect(ex19.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex19.matches)).toBe(7);
+  expect(ex19.result).toBeInstanceOf(Object);
+  expect(keyCount(ex19.result)).toBe(6);
 
   const ex20 = DateTime.fromFormatExplain("၀၃-April-၂၀၁၉ ၀၄:၁၀:၀၁ PM", "dd-MMMM-yyyy hh:mm:ss a", {
     numberingSystem: "mymr"
   });
   expect(ex20.rawMatches).toBeInstanceOf(Array);
-  checkObjectKeyCount(ex20.matches, 7);
-  checkObjectKeyCount(ex20.result, 6);
+  expect(ex20.matches).toBeInstanceOf(Object);
+  expect(keyCount(ex20.matches)).toBe(7);
+  expect(ex20.result).toBeInstanceOf(Object);
+  expect(keyCount(ex20.result)).toBe(6);
 });
 
 test("DateTime.fromFormatExplain() takes the same options as fromFormat", () => {
   const ex = DateTime.fromFormatExplain("Janv. 25 1982", "LLL dd yyyy", { locale: "fr" });
-  checkObjectKeyCount(ex.result, 3);
+  expect(keyCount(ex.result)).toBe(3);
+});
+
+// ------
+// .fromStringExplain
+// -------
+test("DateTime.fromStringExplain is an alias for DateTime.fromFormatExplain", () => {
+  const ff = DateTime.fromFormatExplain("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS"),
+    fs = DateTime.fromStringExplain("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS");
+
+  expect(ff).toEqual(fs);
+});
+
+// ------
+// .fromString
+// -------
+
+test("DateTime.fromString is an alias for DateTime.fromFormat", () => {
+  const ff = DateTime.fromFormat("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS"),
+    fs = DateTime.fromString("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS");
+
+  expect(ff).toEqual(fs);
 });

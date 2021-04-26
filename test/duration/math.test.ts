@@ -113,12 +113,9 @@ test("Duration#negate preserves conversionAccuracy", () => {
     {
       hours: 4,
       minutes: -12,
-      seconds: 2
-    },
-    {
+      seconds: 2,
       conversionAccuracy: "longterm"
-    }
-    ),
+    }),
     result = dur.negate();
   expect(Helpers.conversionAccuracy(result)).toBe("longterm");
 });

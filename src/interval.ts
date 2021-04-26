@@ -8,6 +8,8 @@ import { ThrowOnInvalid } from "./types/common";
 import { Invalid } from "./types/invalid";
 import { Settings } from "./settings";
 
+const INVALID = "Invalid Interval";
+
 // checks if the start is equal to or before the end
 function validateStartEnd(start?: DateTime, end?: DateTime): Interval | void {
   if (!start || !start.isValid) {
@@ -415,20 +417,21 @@ export class Interval {
   splitBy(duration: DurationLike) {
     const dur = friendlyDuration(duration);
 
-    if (dur.as("milliseconds") === 0) {
+    if (!this.isValid || !dur.isValid || dur.as("milliseconds") === 0) {
       return [];
     }
 
     let s = this._s,
-      added,
+      idx = 1,
       next;
 
     const results = [];
     while (s < this._e) {
-      added = s.plus(dur);
+      const added = this.start.plus(dur.mapUnits(x => x * idx));
       next = +added > +this._e ? this._e : added;
       results.push(Interval.fromDateTimes(s, next));
       s = next;
+      idx += 1;
     }
 
     return results;
@@ -538,6 +541,10 @@ export class Interval {
    * @return {string}
    */
   toString() {
+    if (!this.isValid) {
+      return INVALID;
+    }
+
     return `[${this._s.toISO()} – ${this._e.toISO()})`;
   }
 
@@ -548,6 +555,9 @@ export class Interval {
    * @return {string}
    */
   toISO(options: ToISOTimeOptions = {}) {
+    if (!this.isValid) {
+      return INVALID;
+    }
     return `${this._s.toISO(options)}/${this._e.toISO(options)}`;
   }
 
@@ -558,6 +568,9 @@ export class Interval {
    * @return {string}
    */
   toISODate() {
+    if (!this.isValid) {
+      return INVALID;
+    }
     return `${this._s.toISODate()}/${this._e.toISODate()}`;
   }
 
@@ -570,6 +583,9 @@ export class Interval {
    *
    */
   toISOTime(options: ToISOTimeOptions = {}) {
+    if (!this.isValid) {
+      return INVALID;
+    }
     return `${this._s.toISOTime(options)}/${this._e.toISOTime(options)}`;
   }
 
@@ -581,6 +597,9 @@ export class Interval {
    * @return {string}
    */
   toFormat(dateFormat: string, options = { separator: " – " }) {
+    if (!this.isValid) {
+      return INVALID;
+    }
     return `${this._s.toFormat(dateFormat)}${options.separator}${this._e.toFormat(dateFormat)}`;
   }
 
@@ -606,6 +625,10 @@ export class Interval {
    * @return {Duration}
    */
   toDuration(unit: DurationUnit | DurationUnit[] = "milliseconds", options: DurationOptions = {}) {
+    if (!this.isValid) {
+      // @ts-ignore
+      return Duration.invalid(this._invalid.reason);
+    }
     return this._e.diff(this._s, unit, options);
   }
 

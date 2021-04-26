@@ -1,19 +1,11 @@
 import { DateTime } from "../../src";
-import {
-  UnitOutOfRangeError,
-  InvalidArgumentError,
-  MismatchedWeekdayError,
-  InvalidZoneError,
-  ConflictingSpecificationError,
-  InvalidUnitError
-} from "../../src/errors";
-import { Settings } from "../../src/settings";
 import { Helpers } from "../helpers";
 
 const withDefaultLocale = Helpers.withDefaultLocale;
 const withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem;
 const withDefaultOutputCalendar = Helpers.withDefaultOutputCalendar;
 const withDefaultZone = Helpers.withDefaultZone;
+const withThrowOnInvalid = Helpers.withThrowOnInvalid;
 
 // ------
 // .now()
@@ -130,80 +122,24 @@ test("DateTime.local(2017, 6, 12, 5, 25, 16, 255) is right down to the milliseco
   expect(dt.millisecond).toBe(255);
 });
 
-test("DateTime.local accepts an options hash in any position", () => {
-  const options = {
-    zone: "Europe/Paris",
-    numberingSystem: "beng" as const,
-    outputCalendar: "islamic" as const,
-    locale: "fr"
-  };
-  const args = [
-    DateTime.local(options),
-    DateTime.local(2017, options),
-    DateTime.local(2017, 6, options),
-    DateTime.local(2017, 6, 12, options),
-    DateTime.local(2017, 6, 12, options),
-    DateTime.local(2017, 6, 12, 5, options),
-    DateTime.local(2017, 6, 12, 5, 25, options),
-    DateTime.local(2017, 6, 12, 5, 25, 16, options),
-    DateTime.local(2017, 6, 12, 5, 25, 16, 255, options)
-  ];
-
-  args.forEach(dt => {
-    expect(dt.zoneName).toBe("Europe/Paris");
-    expect(dt.numberingSystem).toBe("beng");
-    expect(dt.outputCalendar).toBe("islamic");
-    expect(dt.locale).toBe("fr");
-  });
-});
-
-const badInputs = [
-  undefined,
-  null,
-  "",
-  "hello",
-  "foo/bar",
-  "R5/2008-03-01T13:00:00Z/P1Y2M10DT2H30M" // valid ISO 8601 interval with a repeat, but not supported here
-];
-
-test.each(badInputs)("Interval.fromISO will reject [%s]", s => {
-  expect(() => DateTime.fromISO(s as string)).toThrow();
-});
-
-test("local with no options", () => {
-  const dt = DateTime.local(2017, 6, 12, 5, 25, 16, 255);
-  expect(dt.year).toBe(2017);
-  expect(dt.month).toBe(6);
-  expect(dt.day).toBe(12);
-  expect(dt.hour).toBe(5);
-  expect(dt.minute).toBe(25);
-  expect(dt.second).toBe(16);
-  expect(dt.millisecond).toBe(255);
-  expect(dt.zoneName).toBe(Settings.defaultZone.name);
-});
-
 test("DateTime.local accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () => expect(DateTime.local().locale).toBe("fr"));
+  withDefaultLocale("fr", () => expect(DateTime.local().locale).toBe("fr"));
 });
 
 test("DateTime.local accepts the default numbering system", () => {
-  Helpers.withDefaultNumberingSystem("beng", () =>
-    expect(DateTime.local().numberingSystem).toBe("beng")
-  );
+  withDefaultNumberingSystem("beng", () => expect(DateTime.local().numberingSystem).toBe("beng"));
 });
 
 test("DateTime.local accepts the default output calendar", () => {
-  Helpers.withDefaultOutputCalendar("hebrew", () =>
-    expect(DateTime.local().outputCalendar).toBe("hebrew")
-  );
+  withDefaultOutputCalendar("hebrew", () => expect(DateTime.local().outputCalendar).toBe("hebrew"));
 });
 
 test("DateTime.local does not accept non-integer values", () => {
-  expect(() => DateTime.local(2017, 6.7, 12)).toThrow(UnitOutOfRangeError);
+  const dt = DateTime.local(2017, 6.7, 12);
+  expect(dt.isValid).toBe(false);
 });
 
-test("DateTime.local uses the default time zone", () => {
-  withDefaultZone("UTC", () => expect(DateTime.local().zoneName).toBe("UTC"));
+test("DateTime.local accepts the default time zone", () => {
   withDefaultZone("Europe/Paris", () => expect(DateTime.local().zoneName).toBe("Europe/Paris"));
 });
 
@@ -293,33 +229,7 @@ test("DateTime.utc(2017, 6, 12, 5, 25, 16, 255) is right down to the millisecond
 });
 
 test("DateTime.utc accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () => expect(DateTime.utc().locale).toBe("fr"));
-});
-
-test("DateTime.utc accepts an options hash in any position", () => {
-  const options = {
-    numberingSystem: "beng" as const,
-    outputCalendar: "islamic" as const,
-    locale: "fr"
-  };
-  const args = [
-    DateTime.utc(options),
-    DateTime.utc(2017, options),
-    DateTime.utc(2017, 6, options),
-    DateTime.utc(2017, 6, 12, options),
-    DateTime.utc(2017, 6, 12, options),
-    DateTime.utc(2017, 6, 12, 5, options),
-    DateTime.utc(2017, 6, 12, 5, 25, options),
-    DateTime.utc(2017, 6, 12, 5, 25, 16, options),
-    DateTime.utc(2017, 6, 12, 5, 25, 16, 255, options)
-  ];
-
-  args.forEach(dt => {
-    expect(dt.zoneName).toBe("UTC");
-    expect(dt.numberingSystem).toBe("beng");
-    expect(dt.outputCalendar).toBe("islamic");
-    expect(dt.locale).toBe("fr");
-  });
+  withDefaultLocale("fr", () => expect(DateTime.utc().locale).toBe("fr"));
 });
 
 // ------
@@ -342,29 +252,29 @@ test("DateTime.fromJSDate(date) accepts a zone option", () => {
   expect(dateTime.zoneName).toBe("America/Santiago");
 });
 
-test("DateTime.fromJSDate(date) rejects invalid dates", () => {
+test("DateTime.fromJSDate(date) returns invalid for invalid values", () => {
   // @ts-expect-error
-  expect(() => DateTime.fromJSDate("")).toThrow(InvalidArgumentError);
-  expect(() => DateTime.fromJSDate(new Date(""))).toThrow(InvalidArgumentError);
+  expect(DateTime.fromJSDate("").isValid).toBe(false);
+  expect(DateTime.fromJSDate(new Date("")).isValid).toBe(false);
   // @ts-expect-error
-  expect(() => DateTime.fromJSDate(new Date().valueOf())).toThrow(InvalidArgumentError);
+  expect(DateTime.fromJSDate(new Date().valueOf()).isValid).toBe(false);
 });
 
 test("DateTime.fromJSDate accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromJSDate(new Date()).locale).toBe("fr"));
+  withDefaultLocale("fr", () => expect(DateTime.fromJSDate(new Date()).locale).toBe("fr"));
 });
 
-test("DateTime.fromJSDate(date) throw errors for invalid values", () => {
-  // @ts-expect-error
-  expect(() => DateTime.fromJSDate("")).toThrow(InvalidArgumentError);
-  expect(() => DateTime.fromJSDate(new Date(""))).toThrow(InvalidArgumentError);
-  // @ts-expect-error
-  expect(() => DateTime.fromJSDate(new Date().valueOf())).toThrow(InvalidArgumentError);
-  expect(() => DateTime.fromJSDate(new Date(), { zone: "America/Blorp" })).toThrow(
-    InvalidZoneError
-  );
-  // @ts-expect-error
-  expect(() => DateTime.fromJSDate("2019-04-16T11:32:32Z")).toThrow(InvalidArgumentError);
+test("DateTime.fromJSDate(date) throw errors for invalid values when throwOnInvalid is true", () => {
+  withThrowOnInvalid(true, () => {
+    // @ts-expect-error
+    expect(() => DateTime.fromJSDate("")).toThrow();
+    expect(() => DateTime.fromJSDate(new Date(""))).toThrow();
+    // @ts-expect-error
+    expect(() => DateTime.fromJSDate(new Date().valueOf())).toThrow();
+    expect(() => DateTime.fromJSDate(new Date(), { zone: "America/Blorp" })).toThrow();
+    // @ts-expect-error
+    expect(() => DateTime.fromJSDate("2019-04-16T11:32:32Z")).toThrow();
+  });
 });
 
 // ------
@@ -386,19 +296,17 @@ test("DateTime.fromMillis(ms) accepts a zone option", () => {
 });
 
 test("DateTime.fromMillis accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () =>
-    expect(DateTime.fromMillis(391147200000).locale).toBe("fr")
-  );
+  withDefaultLocale("fr", () => expect(DateTime.fromMillis(391147200000).locale).toBe("fr"));
 });
 
 test("DateTime.fromMillis(ms) throws InvalidArgumentError for non-numeric input", () => {
   // @ts-expect-error
-  expect(() => DateTime.fromMillis("slurp")).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromMillis("slurp")).toThrow();
 });
 
 test("DateTime.fromMillis(ms) does not accept out-of-bounds numbers", () => {
-  expect(() => DateTime.fromMillis(-8.64e15 - 1)).toThrow(InvalidArgumentError);
-  expect(() => DateTime.fromMillis(8.64e15 + 1)).toThrow(InvalidArgumentError);
+  expect(DateTime.fromMillis(-8.64e15 - 1).isValid).toBe(false);
+  expect(DateTime.fromMillis(8.64e15 + 1).isValid).toBe(false);
 });
 
 // ------
@@ -420,12 +328,12 @@ test("DateTime.fromSeconds(ms) accepts a zone option", () => {
 });
 
 test("DateTime.fromSeconds accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromSeconds(391147200).locale).toBe("fr"));
+  withDefaultLocale("fr", () => expect(DateTime.fromSeconds(391147200).locale).toBe("fr"));
 });
 
 test("DateTime.fromSeconds(seconds) throws InvalidArgumentError for non-numeric input", () => {
   // @ts-expect-error
-  expect(() => DateTime.fromSeconds("slurp")).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromSeconds("slurp")).toThrow();
 });
 
 // ------
@@ -455,7 +363,7 @@ test("DateTime.fromObject() sets all the fields", () => {
 });
 
 test("DateTime.fromObject() accepts a zone option of \"utc\"", () => {
-  const dateTime = DateTime.fromObject(baseObject, { zone: "utc" });
+  const dateTime = DateTime.fromObject(Object.assign({}, baseObject, { zone: "utc" }));
 
   expect(dateTime.isOffsetFixed).toBe(true);
   expect(dateTime.year).toBe(1982);
@@ -468,7 +376,7 @@ test("DateTime.fromObject() accepts a zone option of \"utc\"", () => {
 });
 
 test("DateTime.fromObject() accepts \"utc-8\" as the zone option", () => {
-  const dateTime = DateTime.fromObject(baseObject, { zone: "utc-8" });
+  const dateTime = DateTime.fromObject(Object.assign({}, baseObject, { zone: "utc-8" }));
 
   expect(dateTime.isOffsetFixed).toBe(true);
   expect(dateTime.offset).toBe(-8 * 60);
@@ -482,7 +390,9 @@ test("DateTime.fromObject() accepts \"utc-8\" as the zone option", () => {
 });
 
 test("DateTime.fromObject() accepts \"America/Los_Angeles\" as the zone option", () => {
-  const dateTime = DateTime.fromObject(baseObject, { zone: "America/Los_Angeles" });
+  const dateTime = DateTime.fromObject(
+    Object.assign({}, baseObject, { zone: "America/Los_Angeles" })
+  );
 
   expect(dateTime.isOffsetFixed).toBe(false);
   expect(dateTime.offset).toBe(-7 * 60);
@@ -496,12 +406,12 @@ test("DateTime.fromObject() accepts \"America/Los_Angeles\" as the zone option",
 });
 
 test("DateTime.fromObject() accepts a Zone as the zone option", () => {
-  const daylight = DateTime.fromObject(Object.assign({}, baseObject, { month: 5 }), {
-      zone: "America/Los_Angeles"
-    }),
-    standard = DateTime.fromObject(Object.assign({}, baseObject, { month: 12 }), {
-      zone: "America/Los_Angeles"
-    });
+  const daylight = DateTime.fromObject(
+    Object.assign({}, baseObject, { month: 5, zone: "America/Los_Angeles" })
+    ),
+    standard = DateTime.fromObject(
+      Object.assign({}, baseObject, { month: 12, zone: "America/Los_Angeles" })
+    );
 
   expect(daylight.isOffsetFixed).toBe(false);
   expect(daylight.offset).toBe(-7 * 60);
@@ -525,12 +435,15 @@ test("DateTime.fromObject() accepts a Zone as the zone option", () => {
 });
 
 test("DateTime.fromObject() rejects invalid zones", () => {
-  expect(() => DateTime.fromObject({}, { zone: "blorp" })).toThrow(InvalidZoneError);
+  const dt = DateTime.fromObject({ zone: "blorp" });
+  expect(dt.isValid).toBe(false);
+  expect(dt.invalidReason).toBe("unsupported zone");
 });
 
 test("DateTime.fromObject() ignores the case of object keys", () => {
   // @ts-expect-error
   const dt = DateTime.fromObject({ Year: 2019, MONTH: 4, daYs: 10 });
+  expect(dt.isValid).toBe(true);
   expect(dt.year).toBe(2019);
   expect(dt.month).toBe(4);
   expect(dt.day).toBe(10);
@@ -538,52 +451,30 @@ test("DateTime.fromObject() ignores the case of object keys", () => {
 
 test("DateTime.fromObject() throws with invalid object key", () => {
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ invalidUnit: 42 })).toThrow(InvalidUnitError);
+  expect(() => DateTime.fromObject({ invalidUnit: 42 })).toThrow();
 });
 
 test("DateTime.fromObject() throws with invalid value types", () => {
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ year: "blorp" })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ year: "blorp" })).toThrow();
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ year: "" })).toThrow(InvalidArgumentError);
-  expect(() => DateTime.fromObject({ month: NaN })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ year: "" })).toThrow();
+  expect(() => DateTime.fromObject({ month: NaN })).toThrow();
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ day: true })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ day: true })).toThrow();
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ day: false })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ day: false })).toThrow();
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ hour: {} })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ hour: {} })).toThrow();
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ hour: { unit: 42 } })).toThrow(InvalidArgumentError);
+  expect(() => DateTime.fromObject({ hour: { unit: 42 } })).toThrow();
 });
 
-test("DateTime.fromObject() rejects invalid values", () => {
-  expect(() => DateTime.fromObject({ ordinal: 5000 })).toThrow(UnitOutOfRangeError);
-  expect(() => DateTime.fromObject({ minute: -6 })).toThrow(UnitOutOfRangeError);
+test("DateTime.fromObject() reject invalid values", () => {
+  expect(DateTime.fromObject({ ordinal: 5000 }).isValid).toBe(false);
+  expect(DateTime.fromObject({ minute: -6 }).isValid).toBe(false);
   // @ts-expect-error
-  expect(() => DateTime.fromObject({ millisecond: new Date() })).toThrow(UnitOutOfRangeError);
-});
-
-test("DateTime.fromObject() returns null with nullOnInvalid option", () => {
-  // @ts-expect-error
-  expect(DateTime.fromObject({ invalidUnit: 42 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({}, { zone: "blorp", nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ weekYear: 2017, weekNumber: 54 }, { nullOnInvalid: true })).toBe(
-    null
-  );
-  // @ts-expect-error
-  expect(DateTime.fromObject({ day: true }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ minute: -6 }, { nullOnInvalid: true })).toBe(null);
-  expect(
-    DateTime.fromObject({ year: 2005, month: 12, day: 13, weekday: 1 }, { nullOnInvalid: true })
-  ).toBe(null);
-
-  expect(DateTime.fromObject({ month: 7, ordinal: 200 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ day: 12, ordinal: 200 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ weekYear: 2005, ordinal: 222 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ weekNumber: 42, ordinal: 222 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ weekYear: 2005, month: 2 }, { nullOnInvalid: true })).toBe(null);
-  expect(DateTime.fromObject({ weekNumber: 42, day: 22 }, { nullOnInvalid: true })).toBe(null);
+  expect(DateTime.fromObject({ millisecond: new Date() }).isValid).toBe(false);
 });
 
 test("DateTime.fromObject() defaults high-order values to the current date", () => {
@@ -685,20 +576,14 @@ test("DateTime.fromObject() w/ordinal defaults to the current year", () => {
   expect(dt.ordinal).toBe(200);
 });
 
-test("DateTime.fromObject() rejects invalid values", () => {
-  expect(() => DateTime.fromObject({ weekYear: 2017, weekNumber: 54 })).toThrow(
-    UnitOutOfRangeError
-  );
-  expect(() => DateTime.fromObject({ weekYear: 2017, weekNumber: 3.6 })).toThrow(
-    UnitOutOfRangeError
-  );
-  expect(() => DateTime.fromObject({ weekYear: 2017, weekNumber: 15, weekday: 0 })).toThrow(
-    UnitOutOfRangeError
-  );
+test("DateTime.fromObject() returns invalid for invalid values", () => {
+  expect(DateTime.fromObject({ weekYear: 2017, weekNumber: 54 }).isValid).toBe(false);
+  expect(DateTime.fromObject({ weekYear: 2017, weekNumber: 3.6 }).isValid).toBe(false);
+  expect(DateTime.fromObject({ weekYear: 2017, weekNumber: 15, weekday: 0 }).isValid).toBe(false);
 });
 
 test("DateTime.fromObject accepts the default locale", () => {
-  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromObject({}).locale).toBe("fr"));
+  withDefaultLocale("fr", () => expect(DateTime.fromObject({}).locale).toBe("fr"));
 });
 
 test("DateTime.fromObject accepts really low year numbers", () => {
@@ -709,7 +594,7 @@ test("DateTime.fromObject accepts really low year numbers", () => {
 });
 
 test("DateTime.fromObject accepts really low year numbers with IANA zones", () => {
-  const dt = DateTime.fromObject({ year: 5 }, { zone: "America/New_York" });
+  const dt = DateTime.fromObject({ year: 5, zone: "America/New_York" });
   expect(dt.year).toBe(5);
   expect(dt.month).toBe(1);
   expect(dt.day).toBe(1);
@@ -717,60 +602,36 @@ test("DateTime.fromObject accepts really low year numbers with IANA zones", () =
 
 test("DateTime.fromObject accepts plurals and weird capitalization", () => {
   // @ts-expect-error
-  const dt = DateTime.fromObject({ Year: 2005, MONTHS: 12, dAys: 13 });
+  const dt = DateTime.fromObject({ Year: 2005, months: 12, dAy: 13 });
   expect(dt.year).toBe(2005);
   expect(dt.month).toBe(12);
   expect(dt.day).toBe(13);
 });
 
 test("DateTime.fromObject validates weekdays", () => {
-  expect(DateTime.fromObject({ year: 2005, month: 12, day: 13, weekday: 2 })).toBeTruthy();
-  expect(() => DateTime.fromObject({ year: 2005, month: 12, day: 13, weekday: 1 })).toThrow(
-    MismatchedWeekdayError
-  );
-});
-
-test("DateTime.fromObject rejects some ordinal, gregorian, week combinations", () => {
-  expect(() => DateTime.fromObject({ month: 7, ordinal: 200 })).toThrow(
-    ConflictingSpecificationError
-  );
-  expect(() => DateTime.fromObject({ day: 12, ordinal: 200 })).toThrow(
-    ConflictingSpecificationError
-  );
-  expect(() => DateTime.fromObject({ weekYear: 2005, ordinal: 222 })).toThrow(
-    ConflictingSpecificationError
-  );
-  expect(() => DateTime.fromObject({ weekNumber: 42, ordinal: 222 })).toThrow(
-    ConflictingSpecificationError
-  );
-  expect(() => DateTime.fromObject({ weekYear: 2005, month: 2 })).toThrow(
-    ConflictingSpecificationError
-  );
-  expect(() => DateTime.fromObject({ weekNumber: 42, day: 22 })).toThrow(
-    ConflictingSpecificationError
-  );
+  let dt = DateTime.fromObject({ year: 2005, months: 12, day: 13, weekday: 1 });
+  expect(dt.isValid).toBe(false);
+  dt = DateTime.fromObject({ year: 2005, months: 12, day: 13, weekday: 2 });
+  expect(dt.isValid).toBe(true);
 });
 
 test("DateTime.fromObject accepts a locale", () => {
-  const res = DateTime.fromObject({}, { locale: "be" });
+  const res = DateTime.fromObject({ locale: "be" });
   expect(res.locale).toBe("be");
 });
 
 test("DateTime.fromObject accepts a locale with calendar and numbering identifiers", () => {
-  const res = DateTime.fromObject({}, { locale: "be-u-ca-coptic-nu-mong" });
+  const res = DateTime.fromObject({ locale: "be-u-ca-coptic-nu-mong" });
   expect(res.locale).toBe("be");
   expect(res.outputCalendar).toBe("coptic");
   expect(res.numberingSystem).toBe("mong");
 });
 
 test("DateTime.fromObject accepts a locale string with weird junk in it", () => {
-  Helpers.withDefaultLocale("en-US", () => {
-    const res = DateTime.fromObject(
-      {},
-      {
-        locale: "be-u-ca-coptic-ca-islamic"
-      }
-    );
+  withDefaultLocale("en-US", () => {
+    const res = DateTime.fromObject({
+      locale: "be-u-ca-coptic-ca-islamic"
+    });
 
     expect(res.locale).toBe("be");
 
@@ -781,14 +642,11 @@ test("DateTime.fromObject accepts a locale string with weird junk in it", () => 
 });
 
 test("DateTime.fromObject overrides the locale string with explicit settings", () => {
-  const res = DateTime.fromObject(
-    {},
-    {
-      locale: "be-u-ca-coptic-nu-mong",
-      numberingSystem: "thai",
-      outputCalendar: "islamic"
-    }
-  );
+  const res = DateTime.fromObject({
+    locale: "be-u-ca-coptic-nu-mong",
+    numberingSystem: "thai",
+    outputCalendar: "islamic"
+  });
 
   expect(res.locale).toBe("be");
   expect(res.outputCalendar).toBe("islamic");
@@ -796,15 +654,13 @@ test("DateTime.fromObject overrides the locale string with explicit settings", (
 });
 
 test("DateTime.fromObject handles null as a language tag", () => {
-  Helpers.withDefaultLocale("en-GB", () => {
-    const res = DateTime.fromObject(
-      {},
-      {
-        locale: undefined,
-        numberingSystem: "thai",
-        outputCalendar: "islamic"
-      }
-    );
+  withDefaultLocale("en-GB", () => {
+    const res = DateTime.fromObject({
+      // @ts-ignore
+      locale: null,
+      numberingSystem: "thai",
+      outputCalendar: "islamic"
+    });
 
     expect(res.locale).toBe("en-GB");
     expect(res.outputCalendar).toBe("islamic");
@@ -812,7 +668,92 @@ test("DateTime.fromObject handles null as a language tag", () => {
   });
 });
 
-test("DateTime.fromObject takes a undefined to mean {}", () => {
-  const res = DateTime.fromObject();
-  expect(res.year).toBe(new Date().getFullYear());
+test("DateTime.fromRFC2822 parses GMT correctly", () => {
+  const dt = DateTime.fromRFC2822("25 Nov 2016 13:23:12 GMT", { zone: "UTC" });
+  expect(dt.year).toBe(2016);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(25);
+  expect(dt.hour).toBe(13);
+  expect(dt.minute).toBe(23);
+  expect(dt.second).toBe(12);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromRFC2822 parses Zulu correctly", () => {
+  const dt = DateTime.fromRFC2822("25 Nov 2016 13:23 Z", { zone: "UTC" });
+  expect(dt.year).toBe(2016);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(25);
+  expect(dt.hour).toBe(13);
+  expect(dt.minute).toBe(23);
+  expect(dt.second).toBe(0);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromRFC2822 parses offset correctly", () => {
+  const dt = DateTime.fromRFC2822("Fri, 25 Nov 2016 13:23:12 +0600", {
+    zone: "UTC"
+  });
+  expect(dt.year).toBe(2016);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(25);
+  expect(dt.hour).toBe(7);
+  expect(dt.minute).toBe(23);
+  expect(dt.second).toBe(12);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromRFC2822 is invalid when weekday is not consistent", () => {
+  // Actually a Friday, not a Saturday
+  expect(DateTime.fromRFC2822("Sat, 25 Nov 2016 13:23:12 +0600").isValid).toBe(false);
+});
+
+test("DateTime.fromHTTP parses rfc1123", () => {
+  const dt = DateTime.fromHTTP("Sun, 06 Nov 1994 08:49:37 GMT", {
+    zone: "UTC"
+  });
+  expect(dt.year).toBe(1994);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(6);
+  expect(dt.hour).toBe(8);
+  expect(dt.minute).toBe(49);
+  expect(dt.second).toBe(37);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromHTTP parses rfc850", () => {
+  const dt = DateTime.fromHTTP("Sunday, 06-Nov-94 08:49:37 GMT", {
+    zone: "UTC"
+  });
+  expect(dt.year).toBe(1994);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(6);
+  expect(dt.hour).toBe(8);
+  expect(dt.minute).toBe(49);
+  expect(dt.second).toBe(37);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromHTTP parses ascii", () => {
+  const dt = DateTime.fromHTTP("Sun Nov  6 08:49:37 1994", { zone: "UTC" });
+  expect(dt.year).toBe(1994);
+  expect(dt.month).toBe(11);
+  expect(dt.day).toBe(6);
+  expect(dt.hour).toBe(8);
+  expect(dt.minute).toBe(49);
+  expect(dt.second).toBe(37);
+  expect(dt.millisecond).toBe(0);
+  expect(dt.offset).toBe(0);
+});
+
+test("DateTime.fromHTTP is invalid when weekday is not consistent", () => {
+  // Actually a Sunday, not a Saturday
+  expect(DateTime.fromRFC2822("Sat, 06 Nov 1994 08:49:37 GMT").isValid).toBe(false);
+  expect(DateTime.fromRFC2822("Saturday, 06-Nov-94 08:49:37 GMT").isValid).toBe(false);
+  expect(DateTime.fromRFC2822("Sat Nov  6 08:49:37 1994").isValid).toBe(false);
 });

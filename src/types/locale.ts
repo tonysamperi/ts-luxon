@@ -41,4 +41,5 @@ export interface LocaleOptions {
   locale?: string;
   outputCalendar?: CalendarSystem;
   numberingSystem?: NumberingSystem;
+  defaultToEN?: boolean;
 }

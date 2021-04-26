@@ -1,5 +1,4 @@
 import { DateTime, Interval, Duration } from "../../src";
-
 import { Helpers } from "../helpers";
 
 const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fromISO(e)),
@@ -364,8 +363,8 @@ test("Interval#divideEqually always gives you the right number of parts", () => 
 test("Interval#mapEndpoints returns a new Interval with the mapped endpoints", () => {
   const zone = "America/Los_Angeles";
   const original = Interval.fromDateTimes(
-    DateTime.fromObject({}, { zone }),
-    DateTime.fromObject({}, { zone }).plus({ hour: 1 })
+    DateTime.fromObject({zone}),
+    DateTime.fromObject({zone}).plus({ hour: 1 })
   );
 
   const mapped = original.mapEndpoints(d => d.toUTC());

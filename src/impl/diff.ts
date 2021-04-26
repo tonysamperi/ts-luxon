@@ -6,9 +6,9 @@ import { ThrowOnInvalid } from "../types/common";
 function dayDiff(earlier: DateTime, later: DateTime) {
   const utcDayStart = (dt: DateTime) =>
       dt
-      .toUTC(0, { keepLocalTime: true })
-      .startOf("days")
-      .valueOf(),
+        .toUTC(0, { keepLocalTime: true })
+        .startOf("days")
+        .valueOf(),
     ms = utcDayStart(later) - utcDayStart(earlier);
   return Math.floor(Duration.fromMillis(ms).as("days"));
 }
@@ -58,30 +58,32 @@ function highOrderDiffs(
   return [cursor, results, highWater, lowestOrder];
 }
 
-export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], options: DurationOptions & ThrowOnInvalid) => {
+export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], opts: DurationOptions & ThrowOnInvalid) => {
   // tslint:disable-next-line:prefer-const
   let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
 
-  const remainingMillis = later.valueOf() - cursor.valueOf();
+  const remainingMillis = +later - +cursor;
 
-  const lowerOrderUnits = units.filter(u => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0);
+  const lowerOrderUnits = units.filter(
+    u => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0
+  );
 
   if (lowerOrderUnits.length === 0) {
-    // if there are no low order units, there is at least one high order unit
-    // and lowestOrder is hence defined
     if (highWater < later) {
-      highWater = cursor.plus({ [lowestOrder as DurationUnit]: 1 });
+      highWater = cursor.plus({ [lowestOrder as string]: 1 });
     }
 
     if (highWater !== cursor) {
-      results[lowestOrder as DurationUnit] = (results[lowestOrder as DurationUnit] as number) + remainingMillis / (highWater.valueOf() - cursor.valueOf());
+      results[lowestOrder as keyof DurationObject] = (results[lowestOrder as keyof DurationObject] || 0) + remainingMillis / (+highWater - +cursor);
     }
   }
 
-  const duration = Duration.fromObject(results, options);
+  const duration = Duration.fromObject(Object.assign(results, opts));
 
   if (lowerOrderUnits.length > 0) {
-    return Duration.fromMillis(remainingMillis, options).shiftTo(...lowerOrderUnits).plus(duration);
+    return Duration.fromMillis(remainingMillis, opts)
+      .shiftTo(...lowerOrderUnits)
+      .plus(duration);
   }
   else {
     return duration;

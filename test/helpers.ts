@@ -3,8 +3,7 @@ import {
   Settings,
   Duration,
   NumberingSystem,
-  CalendarSystem,
-  ZoneLike
+  CalendarSystem
 } from "../src";
 
 const withoutIntl = (name: string, f: Function) => {
@@ -94,13 +93,12 @@ const withNow = (name: string, dt: DateTime, f: Function) => {
   });
 };
 
-const withDefaultZone = (zone: ZoneLike, f: Function) => {
-  const previousDefaultZone = Settings.defaultZone;
+const withDefaultZone = (zone: string, f: Function) => {
   try {
-    Settings.setDefaultZone(zone);
+    Settings.defaultZoneName = zone;
     f();
   } finally {
-    Settings.setDefaultZone(previousDefaultZone);
+    Settings.defaultZoneName = null;
   }
 };
 
@@ -204,29 +202,27 @@ export const days_EN = [
   "Sunday"
 ];
 
-export const setUnset = (prop: "throwOnInvalid") => {
-  return (value: any, callback: Function) => {
-    const existing = Settings[prop];
+export const withThrowOnInvalid = (value: boolean, callback: Function) => {
+    const existing = Settings.throwOnInvalid;
     try {
-      Settings[prop] = value;
+      Settings.throwOnInvalid = value;
       callback();
     } finally {
-      Settings[prop] = existing;
+      Settings.throwOnInvalid = existing;
     }
-  };
 };
 
 export const Helpers = {
   atHour,
-  setUnset,
-  withoutIntl,
-  withoutFTP,
-  withoutRTF,
-  withoutZones,
-  withNow,
   withDefaultZone,
   withDefaultLocale,
   withDefaultNumberingSystem,
   withDefaultOutputCalendar,
+  withNow,
+  withoutFTP,
+  withoutIntl,
+  withoutRTF,
+  withoutZones,
+  withThrowOnInvalid,
   conversionAccuracy
 };

@@ -1,5 +1,4 @@
 import { DateTime, Duration } from "../../src";
-import { InvalidArgumentError } from "../../src/errors";
 
 function createDateTime() {
   return DateTime.fromObject({
@@ -94,6 +93,10 @@ test("DateTime#plus(multiple) adds the right amount of time", () => {
   expect(later.minute).toBe(41);
 });
 
+test("DateTime#plus maintains invalidity", () => {
+  expect(DateTime.invalid("because").plus({ day: 1 }).isValid).toBe(false);
+});
+
 test("DateTime#plus works across the 100 barrier", () => {
   const d = DateTime.fromISO("0099-12-31").plus({ day: 2 });
   expect(d.year).toBe(100);
@@ -101,16 +104,14 @@ test("DateTime#plus works across the 100 barrier", () => {
   expect(d.day).toBe(2);
 });
 
-test("DateTime#plus throws when out of max. datetime range using days", () => {
-  expect(() => DateTime.utc(1970, 1, 1, 0, 0, 0, 0).plus({ day: 1e8 + 1 })).toThrow(
-    InvalidArgumentError
-  );
+test("DateTime#plus renders invalid when out of max. datetime range using days", () => {
+  const d = DateTime.utc(1970, 1, 1, 0, 0, 0, 0).plus({ day: 1e8 + 1 });
+  expect(d.isValid).toBe(false);
 });
 
 test("DateTime#plus renders invalid when out of max. datetime range using seconds", () => {
-  expect(() =>
-    DateTime.utc(1970, 1, 1, 0, 0, 0, 0).plus({ second: 1e8 * 24 * 60 * 60 + 1 })
-  ).toThrow(InvalidArgumentError);
+  const d = DateTime.utc(1970, 1, 1, 0, 0, 0, 0).plus({ second: 1e8 * 24 * 60 * 60 + 1 });
+  expect(d.isValid).toBe(false);
 });
 
 test("DateTime#plus handles fractional days", () => {
@@ -125,8 +126,8 @@ test("DateTime#plus handles fractional days", () => {
 test("DateTime#plus handles fractional large units", () => {
   const units = ["weeks", "months", "quarters", "years"];
 
-  const d = DateTime.fromISO("2016-01-31T10:00");
   for (const unit of units) {
+    const d = DateTime.fromISO("2016-01-31T10:00");
     expect(d.plus({ [unit]: 8.7 })).toEqual(
       d.plus({
         [unit]: 8,
@@ -181,6 +182,10 @@ test("DateTime#minus({ months: 13 }) at the end of the month", () => {
   expect(earlier.year).toBe(2016);
 });
 
+test("DateTime#minus maintains invalidity", () => {
+  expect(DateTime.invalid("because").minus({ day: 1 }).isValid).toBe(false);
+});
+
 test("DateTime#minus works across the 100 barrier", () => {
   const d = DateTime.fromISO("0100-01-02").minus({ day: 2 });
   expect(d.year).toBe(99);
@@ -189,15 +194,13 @@ test("DateTime#minus works across the 100 barrier", () => {
 });
 
 test("DateTime#minus renders invalid when out of max. datetime range using days", () => {
-  expect(() => DateTime.utc(1970, 1, 1, 0, 0, 0, 0).minus({ day: 1e8 + 1 })).toThrow(
-    InvalidArgumentError
-  );
+  const d = DateTime.utc(1970, 1, 1, 0, 0, 0, 0).minus({ day: 1e8 + 1 });
+  expect(d.isValid).toBe(false);
 });
 
 test("DateTime#minus renders invalid when out of max. datetime range using seconds", () => {
-  expect(() =>
-    DateTime.utc(1970, 1, 1, 0, 0, 0, 0).minus({ second: 1e8 * 24 * 60 * 60 + 1 })
-  ).toThrow(InvalidArgumentError);
+  const d = DateTime.utc(1970, 1, 1, 0, 0, 0, 0).minus({ second: 1e8 * 24 * 60 * 60 + 1 });
+  expect(d.isValid).toBe(false);
 });
 
 test("DateTime#minus handles fractional days", () => {
@@ -212,8 +215,8 @@ test("DateTime#minus handles fractional days", () => {
 test("DateTime#minus handles fractional large units", () => {
   const units = ["weeks", "months", "quarters", "years"];
 
-  const d = DateTime.fromISO("2016-01-31T10:00");
   for (const unit of units) {
+    const d = DateTime.fromISO("2016-01-31T10:00");
     expect(d.minus({ [unit]: 8.7 })).toEqual(
       d.minus({
         [unit]: 8,
@@ -356,6 +359,17 @@ test("DateTime#startOf('week') goes to the start of the week", () => {
   expect(dt.millisecond).toBe(0);
 });
 
+test("DateTime#startOf maintains invalidity", () => {
+  expect(DateTime.invalid("because").startOf("day").isValid).toBe(false);
+});
+
+test("DateTime#startOf throws on invalid units", () => {
+  // @ts-expect-error
+  expect(() => DateTime.fromISO("2016-03-12T10:00").startOf("splork")).toThrow();
+  // @ts-expect-error
+  expect(() => DateTime.fromISO("2016-03-12T10:00").startOf("")).toThrow();
+});
+
 // ------
 // #endOf()
 // ------
@@ -489,4 +503,13 @@ test("DateTime#endOf('week') goes to the end of the week", () => {
   expect(dt.minute).toBe(59);
   expect(dt.second).toBe(59);
   expect(dt.millisecond).toBe(999);
+});
+
+test("DateTime#endOf maintains invalidity", () => {
+  expect(DateTime.invalid("because").endOf("day").isValid).toBe(false);
+});
+
+test("DateTime#endOf throws on invalid units", () => {
+  // @ts-expect-error
+  expect(() => DateTime.fromISO("2016-03-12T10:00").endOf("splork")).toThrow();
 });

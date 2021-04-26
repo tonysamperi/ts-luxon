@@ -209,7 +209,7 @@ class PolyDateFormatter {
     const hasIntlDTF = hasIntl();
 
     let z;
-    if (dt.zone.isUniversal && hasIntlDTF) {
+    if (dt.zone.universal && hasIntlDTF) {
       // Chromium doesn't support fixed-offset zones like Etc/GMT+8 in its formatter,
       // See https://bugs.chromium.org/p/chromium/issues/detail?id=364374.
       // So we have to make do. Two cases:
@@ -380,12 +380,11 @@ export class Locale {
   private readonly _specifiedLocale?: string;
   private _fastNumbersCached?: boolean;
 
-  static create(
-    locale?: string,
-    numberingSystem?: NumberingSystem,
-    outputCalendar?: CalendarSystem,
-    defaultToEN = false
-  ) {
+  static fromOpts(opts: LocaleOptions) {
+    return Locale.create(opts.locale, opts.numberingSystem, opts.outputCalendar, opts.defaultToEN);
+  }
+
+  static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, defaultToEN = !1) {
     const specifiedLocale = locale || Settings.defaultLocale,
       // the system locale is useful for human readable strings but annoying for parsing/formatting known formats
       localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale()),

@@ -7,6 +7,7 @@ import { Locale } from "../impl/locale";
 
 export interface SetZoneOptions {
   keepLocalTime?: boolean;
+  keepCalendarTime?: boolean;
 }
 
 export interface ToRelativeOptions {
@@ -92,7 +93,7 @@ export interface OrdinalDateTime extends TimeObject {
   ordinal: number;
 }
 
-export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime>;
+export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions>;
 
 export interface ExplainedFormat {
   input: string;

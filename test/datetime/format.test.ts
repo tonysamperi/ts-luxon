@@ -10,9 +10,7 @@ const dtMaker = () =>
         hour: 9,
         minute: 23,
         second: 54,
-        millisecond: 123
-      },
-      {
+        millisecond: 123,
         zone: "utc",
         locale: "en-US"
       }
@@ -90,10 +88,10 @@ test("DateTime#toISODate() can output the basic format", () => {
 
 test("DateTime#toISODate() returns ISO 8601 date in format [±YYYYY]", () => {
   expect(
-    DateTime.fromObject({ year: 118040, month: 5, day: 25 }, { zone: "utc" }).toISODate()
+    DateTime.fromObject({ year: 118040, month: 5, day: 25, zone: "utc" }).toISODate()
   ).toBe("+118040-05-25");
   expect(
-    DateTime.fromObject({ year: -118040, month: 5, day: 25 }, { zone: "utc" }).toISODate()
+    DateTime.fromObject({ year: -118040, month: 5, day: 25, zone: "utc" }).toISODate()
   ).toBe("-118040-05-25");
 });
 

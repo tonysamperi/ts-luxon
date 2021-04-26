@@ -75,47 +75,25 @@ export class Formatter {
     return new Formatter(locale, options);
   }
 
-  static parseFormat(format: string) {
-    let current,
+  static parseFormat(fmt: string) {
+    let current = null,
       currentFull = "",
-      bracketedLevel = 0;
-
-    const splits: FormatToken[] = [];
-    for (let i = 0; i < format.length; i++) {
-      const c = format.charAt(i);
-      if (c === "[") {
-        if (bracketedLevel === 0) {
-          if (currentFull.length > 0) {
-            splits.push({ literal: false, val: currentFull });
-          }
-          current = undefined;
-          currentFull = "";
+      bracketed = false;
+    const splits = [];
+    for (let i = 0; i < fmt.length; i++) {
+      const c = fmt.charAt(i);
+      if (c === "'") {
+        if (currentFull.length > 0) {
+          splits.push({ literal: bracketed, val: currentFull });
         }
-        else {
-          currentFull += c;
-        }
-        bracketedLevel = bracketedLevel + 1;
-      }
-      else if (c === "]") {
-        bracketedLevel = bracketedLevel - 1;
-        if (bracketedLevel === 0) {
-          if (currentFull.length > 0) {
-            splits.push({ literal: true, val: currentFull });
-          }
-          current = undefined;
-          currentFull = "";
-        }
-        else {
-          currentFull += c;
-        }
-      }
-      else if (bracketedLevel > 0) {
+        current = null;
+        currentFull = "";
+        bracketed = !bracketed;
+      } else if (bracketed) {
         currentFull += c;
-      }
-      else if (c === current) {
+      } else if (c === current) {
         currentFull += c;
-      }
-      else {
+      } else {
         if (currentFull.length > 0) {
           splits.push({ literal: false, val: currentFull });
         }
@@ -125,7 +103,7 @@ export class Formatter {
     }
 
     if (currentFull.length > 0) {
-      splits.push({ literal: bracketedLevel > 0, val: currentFull });
+      splits.push({ literal: bracketed, val: currentFull });
     }
 
     return splits;
@@ -388,9 +366,9 @@ export class Formatter {
             // like 01
             return this.num(dt.quarter, 2);
           case "X":
-            return this.num(Math.floor(dt.toMillis() / 1000));
+            return this.num(Math.floor(dt.ts / 1000));
           case "x":
-            return this.num(dt.toMillis());
+            return this.num(dt.ts);
           default:
             return maybeMacro(token);
         }

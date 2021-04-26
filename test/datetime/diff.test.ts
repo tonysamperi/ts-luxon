@@ -249,9 +249,7 @@ test("DateTime#diff results in a duration with the same locale", () => {
       {
         year: 2016,
         month: 5,
-        day: 5
-      },
-      {
+        day: 5,
         locale: "fr",
         numberingSystem: "mong"
       }
@@ -260,9 +258,7 @@ test("DateTime#diff results in a duration with the same locale", () => {
       {
         year: 2016,
         month: 1,
-        day: 1
-      },
-      {
+        day: 1,
         locale: "es",
         numberingSystem: "beng"
       }

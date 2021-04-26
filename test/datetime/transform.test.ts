@@ -9,9 +9,7 @@ const dtMaker = () =>
         hour: 9,
         minute: 23,
         second: 54,
-        millisecond: 123
-      },
-      {
+        millisecond: 123,
         zone: "utc"
       }
     ),

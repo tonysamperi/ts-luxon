@@ -1,37 +1,37 @@
 import { formatOffset, parseZoneInfo, hasIntl } from "../impl/util";
-import { Zone} from "../zone";
+import { Zone } from "../zone";
 import { ZoneOffsetFormat, ZoneOffsetOptions } from "../types/zone";
 
-let singleton: SystemZone | null = null;
+let singleton: LocalZone | null = null;
 
 /**
- * Represents the system's local zone for this Javascript environment.
+ * Represents the local zone for this JavaScript environment.
  * @implements {Zone}
  */
-export class SystemZone extends Zone {
+export class LocalZone extends Zone {
   /**
-   * Get a singleton instance of the system's local zone
-   * @return {SystemZone}
+   * Get a singleton instance of the local zone
+   * @return {LocalZone}
    */
   static get instance() {
     if (singleton === null) {
-      singleton = new SystemZone();
+      singleton = new LocalZone();
     }
     return singleton;
   }
 
   /** @override **/
   get type() {
-    return "system";
+    return "local";
   }
 
   /** @override **/
-  get name() {
+  get name(): string {
     if (hasIntl()) {
       return new Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
     else {
-      return "system";
+      return "local";
     }
   }
 
@@ -41,7 +41,7 @@ export class SystemZone extends Zone {
   }
 
   /** @override **/
-  offsetName(ts: number, { format, locale }: ZoneOffsetOptions = {}) {
+  offsetName(ts: number, { format, locale }: ZoneOffsetOptions): string | null {
     return parseZoneInfo(ts, format, locale);
   }
 
@@ -56,8 +56,8 @@ export class SystemZone extends Zone {
   }
 
   /** @override **/
-  equals(other: Zone) {
-    return other.type === "system";
+  equals(otherZone: Zone) {
+    return otherZone.type === "local";
   }
 
   /** @override **/

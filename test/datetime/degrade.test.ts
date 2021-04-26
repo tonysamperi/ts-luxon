@@ -1,5 +1,4 @@
 import { DateTime } from "../../src";
-import { InvalidZoneError, UnparsableStringError } from "../../src/errors";
 import { Helpers } from "../helpers";
 
 // ------
@@ -9,13 +8,13 @@ Helpers.withoutIntl("DateTime#toFormat returns English", () => {
   expect(DateTime.local(2014, 8, 6).toFormat("ccc")).toBe("Wed");
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toFormat("ccc")
+      .setLocale("fr")
+      .toFormat("ccc")
   ).toBe("Wed");
 });
 
 Helpers.withoutIntl("DateTime.fromFormat can still parse English", () => {
-  expect(DateTime.fromFormat("May 15, 2017", "LLLL dd, yyyy").month).toBe(5);
+  expect(DateTime.fromFormat("May 15, 2017", "LLLL dd, yyyy").isValid).toBe(true);
 });
 
 Helpers.withoutIntl("DateTime#toLocaleString produces English short date by default", () => {
@@ -66,14 +65,14 @@ Helpers.withoutIntl(
 Helpers.withoutIntl("DateTime#toLocaleString uses English", () => {
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toLocaleString()
+      .setLocale("fr")
+      .toLocaleString()
   ).toBe("8/6/2014");
 
   expect(
     DateTime.local(2014, 8, 6, 9, 15)
-    .setLocale("fr")
-    .toLocaleString(DateTime.DATE_FULL)
+      .setLocale("fr")
+      .toLocaleString(DateTime.DATE_FULL)
   ).toBe("August 6, 2014");
 });
 
@@ -82,29 +81,40 @@ Helpers.withoutIntl("DateTime#toLocaleParts returns an empty array", () => {
 });
 
 Helpers.withoutIntl("DateTime.fromFormat can parse numbers in other locales", () => {
-  expect(DateTime.fromFormat("05/15/2017", "LL/dd/yyyy", { locale: "fr" }).month).toBe(5);
+  expect(DateTime.fromFormat("05/15/2017", "LL/dd/yyyy", { locale: "fr" }).isValid).toBe(true);
 });
 
 Helpers.withoutIntl("DateTime.fromFormat can't parse strings from other locales", () => {
-  expect(() => DateTime.fromFormat("mai 15, 2017", "LLLL dd, yyyy", { locale: "fr" })).toThrow(
-    UnparsableStringError
+  expect(DateTime.fromFormat("mai 15, 2017", "LLLL dd, yyyy", { locale: "fr" }).isValid).toBe(
+    false
   );
 });
 
-Helpers.withoutIntl("using time zones throws", () => {
-  expect(() => DateTime.now().setZone("America/New_York")).toThrow(InvalidZoneError);
+Helpers.withoutIntl("using time zones results in invalid DateTimes", () => {
+  expect(DateTime.now().setZone("America/New_York").isValid).toBe(false);
 });
 
-Helpers.withoutIntl("DateTime#zoneName falls back to 'system'", () => {
-  expect(DateTime.now().zoneName).toBe("system");
+Helpers.withoutIntl("DateTime#zoneName falls back to 'local'", () => {
+  expect(DateTime.now().zoneName).toBe("local");
 });
 
 Helpers.withoutIntl("DateTime#toLocaleString can use fixed-offset zones", () => {
   expect(
     DateTime.utc(2017, 5, 15, 4, 30)
-    .setZone("UTC+1")
-    .toLocaleString(DateTime.DATETIME_MED)
+      .setZone("UTC+1")
+      .toLocaleString(DateTime.DATETIME_MED)
   ).toBe("May 15, 2017, 5:30 AM");
+});
+
+Helpers.withoutIntl("DateTime#offsetNameLong returns null", () => {
+  expect(
+    DateTime.fromObject({
+      year: 2014,
+      month: 8,
+      day: 6,
+      zone: "America/New_York"
+    }).offsetNameLong
+  ).toBe(null);
 });
 
 // ------
@@ -114,8 +124,8 @@ Helpers.withoutIntl("DateTime#toLocaleString can use fixed-offset zones", () => 
 Helpers.withoutFTP("DateTime#toLocaleString is unaffected", () => {
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toLocaleString()
+      .setLocale("fr")
+      .toLocaleString()
   ).toBe("06/08/2014");
 });
 
@@ -127,44 +137,39 @@ Helpers.withoutFTP("DateTime#toFormat works in English", () => {
 Helpers.withoutFTP("DateTime#toFormat falls back to English", () => {
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toFormat("ccc")
+      .setLocale("fr")
+      .toFormat("ccc")
   ).toBe("Wed");
 });
 
 Helpers.withoutFTP("DateTime.fromFormat works in English", () => {
-  expect(DateTime.fromFormat("May 15, 2017", "LLLL dd, yyyy").toISODate()).toBe("2017-05-15");
+  expect(DateTime.fromFormat("May 15, 2017", "LLLL dd, yyyy").isValid).toBe(true);
 });
 
 Helpers.withoutFTP("DateTime.fromFormat can parse numbers in other locales", () => {
-  expect(DateTime.fromFormat("05/15/2017", "LL/dd/yyyy", { locale: "fr" }).month).toBe(5);
+  expect(DateTime.fromFormat("05/15/2017", "LL/dd/yyyy", { locale: "fr" }).isValid).toBe(true);
 });
 
 Helpers.withoutFTP("DateTime.fromFormat can't parse strings from other locales", () => {
-  expect(() => DateTime.fromFormat("mai 15, 2017", "LLLL dd, yyyy", { locale: "fr" })).toThrow(
-    UnparsableStringError
+  expect(DateTime.fromFormat("mai 15, 2017", "LLLL dd, yyyy", { locale: "fr" }).isValid).toBe(
+    false
   );
 });
 
 Helpers.withoutFTP("setting the time zone still works", () => {
-  expect(DateTime.now().setZone("America/New_York").zoneName).toBe("America/New_York");
+  expect(DateTime.now().setZone("America/New_York").isValid).toBe(true);
 });
 
 Helpers.withoutFTP("DateTime#offsetNameLong still works", () => {
   // can still generate offset name
   expect(
-    DateTime.fromObject(
-      {
-        year: 2014,
-        month: 8,
-        day: 6
-      },
-      {
-        zone: "America/New_York",
-        locale: "en-US"
-      }
-    ).offsetNameLong
-  ).toBe("Eastern Daylight Time");
+    DateTime.fromObject({
+      year: 2014,
+      month: 8,
+      day: 6,
+      zone: "America/New_York"
+    }).offsetNameLong
+  ).toBe("Ora legale orientale USA");
 });
 
 Helpers.withoutFTP("DateTime#toLocaleParts returns an empty array", () => {
@@ -178,16 +183,16 @@ Helpers.withoutFTP("DateTime#toLocaleParts returns an empty array", () => {
 Helpers.withoutZones("DateTime#toLocaleString is unaffected", () => {
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toLocaleString()
+      .setLocale("fr")
+      .toLocaleString()
   ).toBe("06/08/2014");
 });
 
 Helpers.withoutZones("DateTime#toLocaleParts is unaffected", () => {
   expect(
     DateTime.local(2014, 8, 6)
-    .setLocale("fr")
-    .toLocaleParts()
+      .setLocale("fr")
+      .toLocaleParts()
   ).toEqual([
     { type: "day", value: "06" },
     { type: "literal", value: "/" },
@@ -197,6 +202,6 @@ Helpers.withoutZones("DateTime#toLocaleParts is unaffected", () => {
   ]);
 });
 
-Helpers.withoutZones("using time zones throws", () => {
-  expect(() => DateTime.now().setZone("America/New_York")).toThrow(InvalidZoneError);
+Helpers.withoutZones("using time zones results in invalid DateTimes", () => {
+  expect(DateTime.now().setZone("America/New_York").isValid).toBe(false);
 });

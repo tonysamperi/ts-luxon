@@ -1,7 +1,6 @@
 import { DateTime } from "../../src";
 
 const dt = DateTime.fromObject(
-  {},
   {
     locale: "fr",
     numberingSystem: "beng",
