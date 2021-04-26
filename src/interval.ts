@@ -1,6 +1,6 @@
 import { DateTime, DateTimeLike } from "./datetime";
 import { Duration, friendlyDuration, DurationLike } from "./duration";
-import { InvalidArgumentError, InvalidIntervalError, UnparsableStringError } from "./errors";
+import { InvalidArgumentError, InvalidIntervalError } from "./errors";
 import { ToISOTimeOptions, DateTimeWithZoneOptions } from "./types/datetime";
 import { DurationUnit, DurationOptions } from "./types/duration";
 import { IntervalObject } from "./types/interval";
@@ -176,35 +176,49 @@ export class Interval {
    * Create an Interval from an ISO 8601 string.
    * Accepts `<start>/<end>`, `<start>/<duration>`, and `<duration>/<end>` formats.
    * @param {string} text - the ISO string to parse
-   * @param {Object} [options] - options to pass {@link DateTime.fromISO} and optionally {@link Duration.fromISO}
+   * @param {Object} [opts] - options to pass {@link DateTime.fromISO} and optionally {@link Duration.fromISO}
    * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
    * @return {Interval}
    */
-  static fromISO(text: string, options: DateTimeWithZoneOptions = {}) {
+  static fromISO(text: string, opts: DateTimeWithZoneOptions = {}) {
     const [s, e] = (text || "").split("/", 2);
-    const nullOnInvalidOpts = Object.assign({}, options, { nullOnInvalid: true });
     if (s && e) {
-      const start = DateTime.fromISO(s, nullOnInvalidOpts);
-      const end = DateTime.fromISO(e, nullOnInvalidOpts);
-
-      if (start !== null && end !== null) {
-        return Interval.fromDateTimes(start, end);
+      let start, startIsValid;
+      try {
+        start = DateTime.fromISO(s, opts);
+        startIsValid = start.isValid;
+      }
+      catch (e) {
+        startIsValid = false;
       }
 
-      if (start !== null) {
-        const dur = Duration.fromISO(e, nullOnInvalidOpts);
-        if (dur !== null) {
-          return Interval.after(start, dur);
+      let end, endIsValid;
+      try {
+        end = DateTime.fromISO(e, opts);
+        endIsValid = end.isValid;
+      }
+      catch (e) {
+        endIsValid = false;
+      }
+
+      if (startIsValid && endIsValid) {
+        return Interval.fromDateTimes(start as DateTime, end as DateTime);
+      }
+
+      if (startIsValid) {
+        const dur = Duration.fromISO(e, opts);
+        if (dur.isValid) {
+          return Interval.after(start as DateTime, dur);
         }
       }
-      else if (end !== null) {
-        const dur = Duration.fromISO(s, nullOnInvalidOpts);
-        if (dur !== null) {
-          return Interval.before(end, dur);
+      else if (endIsValid) {
+        const dur = Duration.fromISO(s, opts);
+        if (dur.isValid) {
+          return Interval.before(end as DateTime, dur);
         }
       }
     }
-    throw new UnparsableStringError("ISO 8601", text);
+    return Interval.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
   }
 
   /**

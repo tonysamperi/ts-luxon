@@ -7,6 +7,7 @@ import { Duration } from "../duration";
 import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";
+import Intl from "../types/intl-2020";
 
 function stringifyTokens(
   splits: FormatToken[],
@@ -89,11 +90,14 @@ export class Formatter {
         current = null;
         currentFull = "";
         bracketed = !bracketed;
-      } else if (bracketed) {
+      }
+      else if (bracketed) {
         currentFull += c;
-      } else if (c === current) {
+      }
+      else if (c === current) {
         currentFull += c;
-      } else {
+      }
+      else {
         if (currentFull.length > 0) {
           splits.push({ literal: false, val: currentFull });
         }
@@ -156,20 +160,22 @@ export class Formatter {
     return this._loc.numberFormatter(options).format(n);
   }
 
-  formatDateTimeFromString(dt: DateTime, format: string) {
+  formatDateTimeFromString(dt: DateTime, fmt: string): string {
     const knownEnglish = this._loc.listingMode() === "en",
       useDateTimeFormatter =
         this._loc.outputCalendar && this._loc.outputCalendar !== "gregory" && hasFormatToParts(),
-      string = (options: Intl.DateTimeFormatOptions, extract: Intl.DateTimeFormatPartTypes) =>
-        this._loc.extract(dt, options, extract),
-      formatOffset = (options: FormatterOptions & { format: ZoneOffsetFormat }) =>
-        dt.isOffsetFixed && dt.offset === 0 && options.allowZ
-          ? "Z"
-          : dt.zone.formatOffset(dt.toMillis(), options.format),
+      string = (opts: Intl.DateTimeFormatOptions, extract: Intl.DateTimeFormatPartTypes) => this._loc.extract(dt, opts, extract),
+      formatOffset = (opts: FormatterOptions & { format: ZoneOffsetFormat }) => {
+        if (dt.isOffsetFixed && dt.offset === 0 && opts.allowZ) {
+          return "Z";
+        }
+
+        return dt.isValid ? dt.zone.formatOffset(dt.ts, opts.format) : "";
+      },
       meridiem = () =>
         knownEnglish
           ? English.meridiemForDateTime(dt)
-          : string({ hour: "numeric", hour12: true }, "dayPeriod"),
+          : string({ hour: "numeric", hour12: true }, "dayperiod"),
       month = (length: StringUnitLength, standalone: boolean) =>
         knownEnglish
           ? English.monthForDateTime(dt, length)
@@ -233,14 +239,10 @@ export class Formatter {
             return formatOffset({ format: "techie", allowZ: this._options.allowZ });
           case "ZZZZ":
             // like EST
-            return (
-              dt.zone.offsetName(dt.toMillis(), { format: "short", locale: this._loc.locale }) || ""
-            );
+            return dt.zone.offsetName(dt.ts, { format: "short", locale: this._loc.locale }) || "";
           case "ZZZZZ":
             // like Eastern Standard Time
-            return (
-              dt.zone.offsetName(dt.toMillis(), { format: "long", locale: this._loc.locale }) || ""
-            );
+            return dt.zone.offsetName(dt.ts, { format: "long", locale: this._loc.locale }) || "";
           // zone
           case "z":
             // like America/New_York
@@ -327,7 +329,7 @@ export class Formatter {
             // like 14
             return useDateTimeFormatter
               ? string({ year: "2-digit" }, "year")
-              : this.num(parseInt(dt.year.toString(10).slice(-2), 10), 2);
+              : this.num(parseInt(dt.year.toString().slice(-2), 10), 2);
           case "yyyy":
             // like 0012
             return useDateTimeFormatter
@@ -348,7 +350,7 @@ export class Formatter {
           case "GGGGG":
             return era("narrow");
           case "kk":
-            return this.num(parseInt(dt.weekYear.toString(10).slice(-2), 10), 2);
+            return this.num(parseInt(dt.weekYear.toString().slice(-2), 10), 2);
           case "kkkk":
             return this.num(dt.weekYear, 4);
           case "W":
@@ -374,7 +376,7 @@ export class Formatter {
         }
       };
 
-    return stringifyTokens(Formatter.parseFormat(format), tokenToString);
+    return stringifyTokens(Formatter.parseFormat(fmt), tokenToString);
   }
 
   formatDurationFromString(dur: Duration, format: string) {

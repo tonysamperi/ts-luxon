@@ -1692,7 +1692,7 @@ export class DateTime {
    * @example DateTime.now().plus(Duration.fromObject({ hours: 3, minutes: 13 })) //~> in 3 hr, 13 min
    * @return {DateTime}
    */
-  plus(duration: DurationLike): DateTime {
+  plus(duration: DurationLike | number): DateTime {
     if (!this.isValid) {
       return this;
     }

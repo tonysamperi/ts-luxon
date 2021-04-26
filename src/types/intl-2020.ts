@@ -124,6 +124,7 @@ declare namespace Intl {
 declare namespace Intl {
   type DateTimeFormatPartTypes =
     "day"
+    | "dayperiod"
     | "dayPeriod"
     | "era"
     | "hour"

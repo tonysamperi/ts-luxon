@@ -424,7 +424,7 @@ export class Locale {
     }
   }
 
-  clone(alts: LocaleOptions, defaultToEN = false) {
+  clone(alts: LocaleOptions): Locale {
     if (!alts || Object.getOwnPropertyNames(alts).length === 0) {
       return this;
     }
@@ -433,17 +433,17 @@ export class Locale {
         alts.locale || this._specifiedLocale,
         alts.numberingSystem || this.numberingSystem,
         alts.outputCalendar || this.outputCalendar,
-        defaultToEN
+        alts.defaultToEN || false
       );
     }
   }
 
   redefaultToEN(alts: LocaleOptions = {}) {
-    return this.clone(alts, true /* defaultToEN */);
+    return this.clone(Object.assign({}, alts, { defaultToEN: true }));
   }
 
   redefaultToSystem(alts: LocaleOptions = {}) {
-    return this.clone(alts);
+    return this.clone(Object.assign({}, alts, { defaultToEN: false }));
   }
 
   months(length: UnitLength, format = false, defaultOK = true) {

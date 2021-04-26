@@ -959,7 +959,7 @@ export type DurationLike = Duration | DurationObject;
 /**
  * @private
  */
-export function friendlyDuration(durationish: DurationLike): Duration {
+export function friendlyDuration(durationish: DurationLike | number): Duration {
   if (isNumber(durationish)) {
     return Duration.fromMillis(durationish);
   }

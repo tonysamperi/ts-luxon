@@ -58,13 +58,13 @@ test("Interval#toISOTime accepts ISO options", () => {
 // ------
 
 test("Interval#toFormat accepts date formats", () => {
-  expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("mar, mag 25, 1982 – ven, ott 14, 1983");
+  expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("Tue, May 25, 1982 – Fri, Oct 14, 1983");
   expect(interval.toFormat("HH:mm")).toBe("09:00 – 13:30");
 });
 
 test("Interval#toFormat accepts date formats", () => {
   expect(interval.toFormat("EEE, LLL dd, yyyy", { separator: " until " })).toBe(
-    "mar, mag 25, 1982 until ven, ott 14, 1983"
+    "Tue, May 25, 1982 until Fri, Oct 14, 1983"
   );
 });
 
