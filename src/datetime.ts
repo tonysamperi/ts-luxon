@@ -820,8 +820,13 @@ export class DateTime {
    * @type {boolean}
    */
   get isInDST() {
-    return !this.isOffsetFixed || (this.offset > this.set({ month: 1 }).offset || this.offset > this.set({ month: 5 }).offset);
-  }
+    if (this.isOffsetFixed) {
+      return false;
+    } else {
+      return (
+        this.offset > this.set({ month: 1 }).offset || this.offset > this.set({ month: 5 }).offset
+      );
+    }  }
 
   /**
    * Returns true if this DateTime is in a leap year, false otherwise
