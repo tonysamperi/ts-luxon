@@ -34,7 +34,7 @@ test("FixedOffsetZone.parseSpecifier returns a valid instance from a UTC offset 
 test("FixedOffsetZone.parseSpecifier returns null for invalid data", () => {
   // @ts-expect-error
   expect(FixedOffsetZone.parseSpecifier()).toBe(null);
-  // @ts-expect-error
+  // @ts-ignore
   expect(FixedOffsetZone.parseSpecifier(null)).toBe(null);
   expect(FixedOffsetZone.parseSpecifier("")).toBe(null);
   expect(FixedOffsetZone.parseSpecifier("foo")).toBe(null);
@@ -65,6 +65,7 @@ test("FixedOffsetZone.formatOffset prints the correct sign before the offset", (
 });
 
 test("FixedOffsetZone.equals requires both zones to be fixed", () => {
+  // @ts-expect-error
   expect(FixedOffsetZone.utcInstance.equals(IANAZone.create("UTC"))).toBe(false);
 });
 

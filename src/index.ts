@@ -5,6 +5,7 @@ import { Info } from "./info";
 import { Zone } from "./zone";
 import { FixedOffsetZone } from "./zones/fixedOffsetZone";
 import { IANAZone } from "./zones/IANAZone";
+import { InvalidZone } from "./zones/invalidZone";
 import { SystemZone } from "./zones/systemZone";
 import { Settings } from "./settings";
 
@@ -18,6 +19,7 @@ export {
   Zone,
   FixedOffsetZone,
   IANAZone,
+  InvalidZone,
   SystemZone,
   Settings
 };

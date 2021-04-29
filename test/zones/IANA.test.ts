@@ -1,5 +1,5 @@
 import { FixedOffsetZone, IANAZone } from "../../src";
-import {Helpers} from "../helpers";
+import { Helpers } from "../helpers";
 
 test("IANAZone.create returns a singleton per zone name", () => {
   expect(IANAZone.create("UTC")).toBe(IANAZone.create("UTC"));
@@ -20,7 +20,7 @@ test("IANAZone.isValidSpecifier", () => {
   expect(IANAZone.isValidSpecifier("America/New_York")).toBe(true);
   expect(IANAZone.isValidSpecifier("Fantasia/Castle")).toBe(true);
   expect(IANAZone.isValidSpecifier("Sport~~blorp")).toBe(false);
-  // @ts-expect-error
+  // @ts-ignore
   expect(IANAZone.isValidSpecifier(null)).toBe(false);
 });
 
@@ -38,7 +38,7 @@ test("IANAZone.parseGMTOffset returns a number for a valid input", () => {
 test("IANAZone.parseGMTOffset returns null for invalid input", () => {
   // @ts-expect-error
   expect(IANAZone.parseGMTOffset()).toBe(null);
-  // @ts-expect-error
+  // @ts-ignore
   expect(IANAZone.parseGMTOffset(null)).toBe(null);
   expect(IANAZone.parseGMTOffset("")).toBe(null);
   expect(IANAZone.parseGMTOffset("foo")).toBe(null);
@@ -124,6 +124,6 @@ test("IANAZone.isValid returns false for invalid zone names", () => {
   expect(IANAZone.create("CEDT").isValid).toBe(false);
   expect(IANAZone.create("GMT+2").isValid).toBe(false);
   expect(IANAZone.create("America/Blorp").isValid).toBe(false);
-  // @ts-expect-error
+  // @ts-ignore
   expect(IANAZone.create(null).isValid).toBe(false);
 });

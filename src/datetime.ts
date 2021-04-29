@@ -595,7 +595,7 @@ export class DateTime {
    * @type {string}
    */
   get outputCalendar() {
-    return this._loc.outputCalendar;
+    return this.isValid ? this._loc.outputCalendar : null;
   }
 
   /**
@@ -713,8 +713,8 @@ export class DateTime {
    * @example DateTime.local(2014, 11, 31).weekday //=> 4
    * @type {number}
    */
-  get weekday() {
-    return this._possiblyCachedWeekData(this).weekday;
+  get weekday(): number {
+    return this.isValid ? this._possiblyCachedWeekData(this).weekday : NaN;
   }
 
   /**
@@ -722,8 +722,8 @@ export class DateTime {
    * @example DateTime.local(2017, 5, 25).ordinal //=> 145
    * @type {number}
    */
-  get ordinal() {
-    return gregorianToOrdinal(this._c).ordinal;
+  get ordinal(): number {
+    return this.isValid ? gregorianToOrdinal(this._c).ordinal : NaN;
   }
 
   /**
@@ -732,8 +732,8 @@ export class DateTime {
    * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
    * @type {string}
    */
-  get monthShort() {
-    return Info.months("short", { locale: this.locale })[this.month - 1];
+  get monthShort(): string | null {
+    return this.isValid ? Info.months("short", { locale: this.locale })[this.month - 1] : null;
   }
 
   /**
@@ -742,8 +742,8 @@ export class DateTime {
    * @example DateTime.local(2017, 10, 30).monthLong //=> October
    * @type {string}
    */
-  get monthLong() {
-    return Info.months("long", { locale: this.locale })[this.month - 1];
+  get monthLong(): string | null {
+    return this.isValid ? Info.months("long", { locale: this.locale })[this.month - 1] : null;
   }
 
   /**
@@ -752,8 +752,8 @@ export class DateTime {
    * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
    * @type {string}
    */
-  get weekdayShort() {
-    return Info.weekdays("short", { locale: this.locale })[this.weekday - 1];
+  get weekdayShort(): string | null {
+    return this.isValid ? Info.weekdays("short", { locale: this.locale })[this.weekday - 1] : null;
   }
 
   /**
@@ -762,8 +762,8 @@ export class DateTime {
    * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
    * @type {string}
    */
-  get weekdayLong() {
-    return Info.weekdays("long", { locale: this.locale })[this.weekday - 1];
+  get weekdayLong(): string | null {
+    return this.isValid ? Info.weekdays("long", { locale: this.locale })[this.weekday - 1] : null;
   }
 
   /**
@@ -772,8 +772,8 @@ export class DateTime {
    * @example DateTime.utc().offset //=> 0
    * @type {number}
    */
-  get offset() {
-    return this.zone.offset(this._ts);
+  get offset(): number {
+    return this.isValid ? +this._o : NaN;
   }
 
   /**
@@ -820,9 +820,7 @@ export class DateTime {
    * @type {boolean}
    */
   get isInDST() {
-    return (
-      this.offset > this.set({ month: 12 }).offset || this.offset > this.set({ month: 6 }).offset
-    );
+    return !this.isOffsetFixed || (this.offset > this.set({ month: 1 }).offset || this.offset > this.set({ month: 5 }).offset);
   }
 
   /**
@@ -851,8 +849,8 @@ export class DateTime {
    * @example DateTime.local(2013).daysInYear //=> 365
    * @type {number}
    */
-  get daysInYear() {
-    return daysInYear(this.year);
+  get daysInYear(): number {
+    return this.isValid ? daysInYear(this.year) : NaN;
   }
 
   /**
@@ -862,8 +860,8 @@ export class DateTime {
    * @example DateTime.local(2013).weeksInWeekYear //=> 52
    * @type {number}
    */
-  get weeksInWeekYear() {
-    return weeksInWeekYear(this.weekYear);
+  get weeksInWeekYear(): number {
+    return this.isValid ? weeksInWeekYear(this.weekYear) : NaN;
   }
 
   /**
@@ -1849,7 +1847,7 @@ export class DateTime {
    * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hour12: false }); //=> '11:32'
    * @return {string}
    */
-  toLocaleString(opts: Intl.DateTimeFormatOptions&LocaleOptions = Formats.DATE_SHORT): string {
+  toLocaleString(opts: Intl.DateTimeFormatOptions & LocaleOptions = Formats.DATE_SHORT): string {
     return this.isValid
       ? Formatter.create(this._loc.clone(opts), opts).formatDateTime(this)
       : INVALID;
