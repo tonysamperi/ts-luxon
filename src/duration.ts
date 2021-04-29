@@ -304,7 +304,7 @@ export class Duration implements NormalizedDurationObject {
    * @example Duration.fromISOTime('T1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
    * @return {Duration}
    */
-  static fromISOTime(text: string, opts: DurationOptions & ThrowOnInvalid) {
+  static fromISOTime(text: string, opts: DurationOptions & ThrowOnInvalid = {}) {
     const [parsed] = parseISOTimeOnly(text);
     if (parsed) {
       return Duration.fromObject({

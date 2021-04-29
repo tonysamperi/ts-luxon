@@ -1,7 +1,8 @@
-import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS } from "../impl/util";
-import { Zone} from "../zone";
+import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS, hasIntl } from "../impl/util";
+import { Zone } from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
+import Intl from "../types/intl-2020";
 
 const matchingRegex = RegExp(`^${IANA_REGEX.source}$`);
 
@@ -70,6 +71,7 @@ function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
 }
 
 let ianaZoneCache: Record<string, IANAZone> = {};
+
 /**
  * A zone identified by an IANA identifier, like America/New_York
  * @implements {Zone}
@@ -83,6 +85,7 @@ export class IANAZone extends Zone {
    * @return {IANAZone}
    */
   static create(name: string) {
+    // Recreate invalid IanaZones
     if (!ianaZoneCache[name]) {
       ianaZoneCache[name] = new IANAZone(name);
     }
@@ -121,6 +124,13 @@ export class IANAZone extends Zone {
    */
   static isValidZone(zone: string) {
     try {
+      /*
+       * With the custom Intl, the Intl object can't be overridden to undefined,
+       * the methods inside don't cease to exist. So we verify that Intl is defined
+       */
+      if (!hasIntl()) {
+        return false;
+      }
       new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
       return true;
     } catch (e) {

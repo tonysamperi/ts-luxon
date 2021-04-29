@@ -1,7 +1,6 @@
-import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings, Zone } from "../../src";
-import { InvalidZoneError } from "../../src/errors";
-
-import {Helpers} from "../helpers";
+import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings } from "../../src";
+import { Helpers } from "../helpers";
+import { LocalZone } from "../../src/zones/localZone";
 
 // ------
 // .hasDST()
@@ -75,13 +74,14 @@ test("Info.normalizeZone returns Zone objects unchanged", () => {
   expect(Info.normalizeZone(sysZone)).toBe(sysZone);
 });
 
-test.each<[string | number, Zone]>([
-  ["SYSTEM", SystemZone.instance],
-  ["Default", SystemZone.instance],
+test.each([
+  ["Local", LocalZone.instance],
   ["UTC", FixedOffsetZone.utcInstance],
+  ["GMT", FixedOffsetZone.utcInstance],
   ["Etc/GMT+5", FixedOffsetZone.instance(-5 * 60)],
   ["Etc/GMT-10", FixedOffsetZone.instance(+10 * 60)],
-  ["Europe/Paris", IANAZone.create("Europe/Paris")],
+  // @ts-ignore
+  ["Europe/Paris", new IANAZone("Europe/Paris")],
   [0, FixedOffsetZone.utcInstance],
   [3, FixedOffsetZone.instance(3)],
   [-11, FixedOffsetZone.instance(-11)]
@@ -89,8 +89,8 @@ test.each<[string | number, Zone]>([
   expect(Info.normalizeZone(input)).toEqual(expected);
 });
 
-test("Info.normalizeZone throws on an invalid zone format", () => {
-  expect(() => Info.normalizeZone("%3132400012~")).toThrow(InvalidZoneError);
+test("Info.normalizeZone converts unknown name to invalid Zone", () => {
+  expect(Info.normalizeZone("bumblebee").isValid).toBe(false);
 });
 
 test("Info.normalizeZone converts null and undefined to default Zone", () => {
@@ -100,9 +100,9 @@ test("Info.normalizeZone converts null and undefined to default Zone", () => {
   });
 });
 
-test("Info.normalizeZone converts 'default' to default Zone", () => {
-  expect(Info.normalizeZone("default")).toBe(Settings.defaultZone);
+test("Info.normalizeZone converts local to default Zone", () => {
+  expect(Info.normalizeZone("local")).toBe(Settings.defaultZone);
   Helpers.withDefaultZone("Europe/Paris", () => {
-    expect(Info.normalizeZone("default").name).toBe("Europe/Paris");
+    expect(Info.normalizeZone("local").name).toBe("Europe/Paris");
   });
 });

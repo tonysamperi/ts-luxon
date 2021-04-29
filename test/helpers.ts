@@ -12,13 +12,13 @@ const withoutIntl = (name: string, f: Function) => {
     const intl = Intl;
     try {
       // @ts-expect-error
-      Intl = undefined; // eslint-disable-line no-native-reassign
+      Intl = undefined;
       Settings.resetCaches();
       f();
     } finally {
       Settings.resetCaches();
       // @ts-expect-error
-      Intl = intl; // eslint-disable-line no-native-reassign
+      Intl = intl;
     }
   });
 };
@@ -32,7 +32,6 @@ const withoutFTP = (name: string, f: Function) => {
       Settings.resetCaches();
       f();
     } finally {
-      Settings.resetCaches();
       Intl.DateTimeFormat.prototype.formatToParts = formatToParts;
     }
   });
@@ -49,7 +48,6 @@ const withoutRTF = (name: string, f: Function) => {
       Settings.resetCaches();
       f();
     } finally {
-      Settings.resetCaches();
       // @ts-ignore
       Intl.RelativeTimeFormat = rtf;
     }
@@ -64,7 +62,8 @@ const withoutZones = (name: string, f: Function) => {
       // @ts-expect-error
       Intl.DateTimeFormat = (locale, options = {}) => {
         if (options.timeZone) {
-          throw new Error(`Unsupported time zone specified ${options.timeZone}`);
+          // tslint:disable-next-line:no-string-throw
+          throw `Unsupported time zone specified ${options.timeZone}`;
         }
         return DateTimeFormat(locale, options);
       };
@@ -74,7 +73,6 @@ const withoutZones = (name: string, f: Function) => {
       Settings.resetCaches();
       f();
     } finally {
-      Settings.resetCaches();
       Intl.DateTimeFormat = DateTimeFormat;
     }
   });

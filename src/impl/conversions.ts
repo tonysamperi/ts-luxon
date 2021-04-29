@@ -8,9 +8,17 @@ import {
   isInteger
 } from "./util";
 import { TimeObject, WeekDateTime, GregorianDateTime, OrdinalDateTime } from "../types/datetime";
+import { Invalid } from "../types/invalid";
 
 const nonLeapLadder = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
   leapLadder = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+
+function unitOutOfRange(unit: string, value: number | string): Invalid {
+  return new Invalid(
+    "unit out of range",
+    `you specified ${value} (of type ${typeof value}) as a ${unit}, which is invalid`
+  );
+}
 
 function dayOfWeek(year: number, month: number, day: number) {
   const js = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
@@ -99,62 +107,57 @@ export function ordinalToGregorian(ordinalData: OrdinalDateTime) {
   return Object.assign({ year, month, day }, timeObject(ordinalData));
 }
 
-export type UnitError = [string, number] | null;
-
-export function hasInvalidWeekData(obj: WeekDateTime): UnitError {
+export function hasInvalidWeekData(obj: WeekDateTime): Invalid | false {
   const validYear = isInteger(obj.weekYear),
     validWeek = integerBetween(obj.weekNumber, 1, weeksInWeekYear(obj.weekYear)),
     validWeekday = integerBetween(obj.weekday, 1, 7);
 
   if (!validYear) {
-    return ["weekYear", obj.weekYear];
+    return unitOutOfRange("weekYear", obj.weekYear);
   }
   else if (!validWeek) {
-    return ["weekNumber", obj.weekNumber];
+    return unitOutOfRange("week", obj.weekNumber);
   }
   else if (!validWeekday) {
-    return ["weekday", obj.weekday];
+    return unitOutOfRange("weekday", obj.weekday);
   }
-  else {
-    return null;
-  }
+
+  return false;
 }
 
-export function hasInvalidOrdinalData(obj: OrdinalDateTime): UnitError {
+export function hasInvalidOrdinalData(obj: OrdinalDateTime): Invalid | false {
   const validYear = isInteger(obj.year),
     validOrdinal = integerBetween(obj.ordinal, 1, daysInYear(obj.year));
 
   if (!validYear) {
-    return ["year", obj.year];
+    return unitOutOfRange("year", obj.year);
   }
   else if (!validOrdinal) {
-    return ["ordinal", obj.ordinal];
+    return unitOutOfRange("ordinal", obj.ordinal);
   }
-  else {
-    return null;
-  }
+
+  return false;
 }
 
-export function hasInvalidGregorianData(obj: GregorianDateTime): UnitError {
+export function hasInvalidGregorianData(obj: GregorianDateTime): Invalid | false {
   const validYear = isInteger(obj.year),
     validMonth = integerBetween(obj.month, 1, 12),
     validDay = integerBetween(obj.day, 1, daysInMonth(obj.year, obj.month));
 
   if (!validYear) {
-    return ["year", obj.year];
+    return unitOutOfRange("year", obj.year);
   }
   else if (!validMonth) {
-    return ["month", obj.month];
+    return unitOutOfRange("month", obj.month);
   }
   else if (!validDay) {
-    return ["day", obj.day];
+    return unitOutOfRange("day", obj.day);
   }
-  else {
-    return null;
-  }
+
+  return false;
 }
 
-export function hasInvalidTimeData(obj: TimeObject): UnitError {
+export function hasInvalidTimeData(obj: TimeObject): Invalid | false {
   const { hour, minute, second, millisecond } = obj;
   const validHour =
     integerBetween(hour, 0, 23) ||
@@ -164,18 +167,17 @@ export function hasInvalidTimeData(obj: TimeObject): UnitError {
     validMillisecond = integerBetween(millisecond, 0, 999);
 
   if (!validHour) {
-    return ["hour", obj.hour];
+    return unitOutOfRange("hour", hour);
   }
   else if (!validMinute) {
-    return ["minute", obj.minute];
+    return unitOutOfRange("minute", minute);
   }
   else if (!validSecond) {
-    return ["second", obj.second];
+    return unitOutOfRange("second", second);
   }
   else if (!validMillisecond) {
-    return ["millisecond", obj.millisecond];
+    return unitOutOfRange("millisecond", millisecond);
   }
-  else {
-    return null;
-  }
+
+  return false;
 }

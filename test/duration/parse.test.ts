@@ -1,5 +1,4 @@
 import { Duration } from "../../src";
-import { UnparsableStringError } from "../../src/errors";
 import { DurationObject } from "../../src/types/duration";
 
 // ------
@@ -63,7 +62,7 @@ test("Duration.fromISO can parse fractions of seconds", () => {
 
 test("Duration.fromISO rejects junk", () => {
   const rejects = (s: string) => {
-    expect(() => Duration.fromISO(s)).toThrow(UnparsableStringError);
+    expect(Duration.fromISO(s).isValid).toBe(false);
   };
 
   rejects("poop");
@@ -75,14 +74,12 @@ test("Duration.fromISO rejects junk", () => {
   rejects("P5D2W");
 });
 
-test("Duration.fromISO accepts a nullOnInvalid option", () => {
-  expect(Duration.fromISO("sprok", { nullOnInvalid: !0 })).toBe(null);
-});
+const rejectsTime = (s: string) => {
+  expect(Duration.fromISOTime(s).isValid).toBe(false);
+};
 
-test("foo", () => {
-  expect(Duration.fromISO("PT54M32.5S").toObject()).toEqual({
-    minutes: 54,
-    seconds: 32,
-    milliseconds: 500
-  });
+test("Duration.fromISOTime rejects junk", () => {
+  rejectsTime("poop");
+  rejectsTime("Tglorb");
+  rejectsTime("-00:00");
 });

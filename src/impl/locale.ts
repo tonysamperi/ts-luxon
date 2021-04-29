@@ -200,46 +200,50 @@ class PolyNumberFormatter {
  */
 
 class PolyDateFormatter {
-  private _options: Readonly<Intl.DateTimeFormatOptions>;
+  private _opts: Readonly<Intl.DateTimeFormatOptions>;
   private _dt: DateTime;
   private _dtf?: Readonly<Intl.DateTimeFormat>;
+  private _hasIntl: boolean;
 
-  constructor(dt: DateTime, intl: string, options: Intl.DateTimeFormatOptions) {
-    this._options = options;
-    const hasIntlDTF = hasIntl();
+  constructor(dt: DateTime, intl: string, opts: Intl.DateTimeFormatOptions) {
+    this._opts = opts;
+    this._hasIntl = hasIntl();
 
     let z;
-    if (dt.zone.universal && hasIntlDTF) {
-      // Chromium doesn't support fixed-offset zones like Etc/GMT+8 in its formatter,
-      // See https://bugs.chromium.org/p/chromium/issues/detail?id=364374.
-      // So we have to make do. Two cases:
-      // 1. The format options tell us to show the zone. We can't do that, so the best
-      // we can do is format the date in UTC.
-      // 2. The format options don't tell us to show the zone. Then we can adjust
-      // the time and tell the formatter to show it to us in UTC, so that the time is right
-      // and the bad zone doesn't show up.
-      // We can clean all this up when Chrome fixes this.
-      z = "UTC";
-      if (options.timeZoneName) {
+    if (dt.zone.universal && this._hasIntl) {
+      // UTC-8 or Etc/UTC-8 are not part of tzdata, only Etc/GMT+8 and the like.
+      // That is why fixed-offset TZ is set to that unless it is:
+      // 1. Outside of the supported range Etc/GMT-14 to Etc/GMT+12.
+      // 2. Not a whole hour, e.g. UTC+4:30.
+      const gmtOffset = -1 * (dt.offset / 60);
+      if (gmtOffset >= -14 && gmtOffset <= 12 && gmtOffset % 1 === 0) {
+        z = gmtOffset >= 0 ? `Etc/GMT+${gmtOffset}` : `Etc/GMT${gmtOffset}`;
         this._dt = dt;
+      } else {
+        // Not all fixed-offset zones like Etc/+4:30 are present in tzdata.
+        // So we have to make do. Two cases:
+        // 1. The format options tell us to show the zone. We can't do that, so the best
+        // we can do is format the date in UTC.
+        // 2. The format options don't tell us to show the zone. Then we can adjust them
+        // the time and tell the formatter to show it to us in UTC, so that the time is right
+        // and the bad zone doesn't show up.
+        z = "UTC";
+        if (opts.timeZoneName) {
+          this._dt = dt;
+        } else {
+          this._dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.ts + dt.offset * 60 * 1000);
+        }
       }
-      else {
-        this._dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.toMillis() + dt.offset * 60 * 1000);
-      }
-    }
-    else if (dt.zone.type === "system") {
+    } else if (dt.zone.type === "local") {
       this._dt = dt;
-    }
-    else {
+    } else {
       this._dt = dt;
       z = dt.zone.name;
     }
 
-    if (hasIntlDTF) {
-      const intlOpts: Intl.DateTimeFormatOptions = Object.assign({}, this._options);
-      if (z) {
-        intlOpts.timeZone = z;
-      }
+    if (this._hasIntl) {
+      const intlOpts = Object.assign({timeZone: z}, this._opts);
+
       this._dtf = getCachedDTF(intl, intlOpts);
     }
   }
@@ -249,7 +253,7 @@ class PolyDateFormatter {
       return this._dtf.format(this._dt.toJSDate());
     }
     else {
-      const tokenFormat = English.formatString(this._options),
+      const tokenFormat = English.formatString(this._opts),
         loc = Locale.create("en-US");
       return Formatter.create(loc).formatDateTimeFromString(this._dt, tokenFormat);
     }
@@ -515,7 +519,6 @@ export class Locale {
   ) {
     const df = this.dtFormatter(dt, intlOptions),
       results = df.formatToParts(),
-      // Lower case comparison, type is 'dayperiod' instead of 'dayPeriod' in documentation
       matching = results.find(
         (m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === field.toLowerCase()
       );

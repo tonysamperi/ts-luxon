@@ -146,10 +146,12 @@ function parseDataToDateTime(parsed: GenericDateTime | null, parsedZone: Zone | 
 // if you want to output a technical format (e.g. RFC 2822), this helper
 // helps handle the details
 function toTechFormat(dt: DateTime, format: string, allowZ = true) {
-  return Formatter.create(Locale.create("en-US"), {
-    allowZ,
-    forceSimple: true
-  }).formatDateTimeFromString(dt, format);
+  return dt.isValid
+    ? Formatter.create(Locale.create("en-US"), {
+      allowZ,
+      forceSimple: true
+    }).formatDateTimeFromString(dt, format)
+    : null;
 }
 
 // technical time formats (e.g. the time part of ISO 8601), take some options
@@ -160,6 +162,7 @@ function toTechTimeFormat(
     includeOffset,
     suppressSeconds = false,
     suppressMilliseconds = false,
+    includePrefix = false,
     includeZone = false,
     spaceZone = false,
     format = "extended"
@@ -167,6 +170,7 @@ function toTechTimeFormat(
     includeOffset: boolean;
     suppressSeconds?: boolean;
     suppressMilliseconds?: boolean;
+    includePrefix?: boolean;
     includeZone?: boolean;
     spaceZone?: boolean;
     format?: ToISOFormat;
@@ -191,8 +195,9 @@ function toTechTimeFormat(
   else if (includeOffset) {
     fmt += format === "basic" ? "ZZZ" : "ZZ";
   }
+  const formatted = toTechFormat(dt, fmt);
 
-  return toTechFormat(dt, fmt);
+  return includePrefix ? "T" + formatted : formatted;
 }
 
 // defaults for unspecified units in the supported calendars
@@ -606,7 +611,7 @@ export class DateTime {
    * @type {string}
    */
   get zoneName() {
-    return this.zone.name;
+    return this.isValid ? this.zone.name : null;
   }
 
   /**
@@ -777,6 +782,9 @@ export class DateTime {
    * @type {string}
    */
   get offsetNameShort() {
+    if (!this.isValid) {
+      return null;
+    }
     return this.zone.offsetName(this._ts, {
       format: "short",
       locale: this.locale
@@ -789,6 +797,10 @@ export class DateTime {
    * @type {string}
    */
   get offsetNameLong() {
+    if (!this.isValid) {
+      return null;
+    }
+
     return this.zone.offsetName(this._ts, {
       format: "long",
       locale: this.locale
@@ -1259,7 +1271,8 @@ export class DateTime {
       [vals, parsedZone, invalid] = parseFromTokens(localeToUse, text, fmt);
     if (invalid) {
       return DateTime.invalid(invalid);
-    } else {
+    }
+    else {
       return parseDataToDateTime(vals as GenericDateTime, parsedZone || null, opts, `format ${fmt}`, text);
     }
   }
@@ -1427,7 +1440,7 @@ export class DateTime {
     const invalid = higherOrderInvalid || hasInvalidTimeData(config.normalized as unknown as TimeObject);
 
     if (invalid) {
-      return DateTime.invalid(new Invalid(invalid[0]));
+      return DateTime.invalid(invalid);
     }
 
     // compute the actual time
@@ -1471,7 +1484,7 @@ export class DateTime {
 
     const invalid = hasInvalidGregorianData(obj) || hasInvalidTimeData(obj);
     if (invalid) {
-      return DateTime.invalid(invalid[0]);
+      return DateTime.invalid(invalid);
     }
 
     const tsNow = Settings.now(),
@@ -1568,13 +1581,13 @@ export class DateTime {
   /**
    * "Set" the DateTime's zone to UTC. Returns a newly-constructed DateTime.
    *
-   * Equivalent to {@link DateTime#setZone}('utc')
+   * Equivalent to {@link setZone}('utc')
    * @param {number} [offset=0] - optionally, an offset from UTC in minutes
-   * @param {Object} [options={}] - options to pass to `setZone()`
+   * @param {Object} [opts={}] - options to pass to `setZone()`
    * @return {DateTime}
    */
-  toUTC(offset = 0, options: SetZoneOptions = {}) {
-    return this.setZone(FixedOffsetZone.instance(offset), options);
+  toUTC(offset = 0, opts: SetZoneOptions = {}): DateTime {
+    return this.setZone(FixedOffsetZone.instance(offset), opts);
   }
 
   /**
@@ -1822,20 +1835,24 @@ export class DateTime {
    * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
    * The exact behavior of this method is browser-specific, but in general it will return an appropriate representation
    * of the DateTime in the assigned locale.
+   * Defaults to the system's locale if no locale has been specified
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
-   * @param options {Object} - Intl.DateTimeFormat constructor options and configuration options
+   * @param opts {Object} - Intl.DateTimeFormat constructor options and configuration options
    * @example DateTime.now().toLocaleString(); //=> 4/20/2017
    * @example DateTime.now().setLocale('en-gb').toLocaleString(); //=> '20/04/2017'
+   * @example DateTime.now().toLocaleString({ locale: 'en-gb' }); //=> '20/04/2017'
    * @example DateTime.now().toLocaleString(DateTime.DATE_FULL); //=> 'April 20, 2017'
    * @example DateTime.now().toLocaleString(DateTime.TIME_SIMPLE); //=> '11:32 AM'
    * @example DateTime.now().toLocaleString(DateTime.DATETIME_SHORT); //=> '4/20/2017, 11:32 AM'
    * @example DateTime.now().toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' }); //=> 'Thursday, April 20'
    * @example DateTime.now().toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> 'Thu, Apr 20, 11:27 AM'
-   * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hour12: false }); //=> '21:32'
+   * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hour12: false }); //=> '11:32'
    * @return {string}
    */
-  toLocaleString(options: Intl.DateTimeFormatOptions = Formats.DATE_SHORT) {
-    return Formatter.create(this._loc, options).formatDateTime(this);
+  toLocaleString(opts: Intl.DateTimeFormatOptions&LocaleOptions = Formats.DATE_SHORT): string {
+    return this.isValid
+      ? Formatter.create(this._loc.clone(opts), opts).formatDateTime(this)
+      : INVALID;
   }
 
   /**
@@ -1852,7 +1869,9 @@ export class DateTime {
    *                                   //=> ]
    */
   toLocaleParts(options: Intl.DateTimeFormatOptions = {}) {
-    return Formatter.create(this._loc, options).formatDateTimeParts(this);
+    return this.isValid
+      ? Formatter.create(this._loc, options).formatDateTimeParts(this)
+      : INVALID;
   }
 
   /**
@@ -1897,8 +1916,8 @@ export class DateTime {
    * @example DateTime.utc(1982, 5, 25).toISOWeekDate() //=> '1982-W21-2'
    * @return {string}
    */
-  toISOWeekDate() {
-    return toTechFormat(this, "kkkk-[W]WW-c");
+  toISOWeekDate(): string | null {
+    return toTechFormat(this, "kkkk-'W'WW-c");
   }
 
   /**
@@ -1917,12 +1936,14 @@ export class DateTime {
               suppressMilliseconds = false,
               suppressSeconds = false,
               includeOffset = true,
+              includePrefix = false,
               format = "extended"
             }: ToISOTimeOptions = {}) {
     return toTechTimeFormat(this, {
       suppressSeconds,
       suppressMilliseconds,
       includeOffset,
+      includePrefix,
       format
     });
   }
@@ -1946,7 +1967,7 @@ export class DateTime {
    * @return {string}
    */
   toHTTP() {
-    return toTechFormat(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss [GMT]");
+    return toTechFormat(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss 'GMT'");
   }
 
   /**
@@ -2239,13 +2260,14 @@ export class DateTime {
    */
   // clone really means, "make a new object with these modifications". all "setters" really use this
   // to create a new object while only changing some of the properties
-  private _clone(alts: { ts?: number; zone?: Zone; loc?: Locale; o?: number }) {
+  private _clone(alts: { ts?: number; zone?: Zone; loc?: Locale; o?: number }): DateTime {
     const current = {
       ts: this._ts,
       zone: this.zone,
       c: this._c,
       o: this._o,
-      loc: this._loc
+      loc: this._loc,
+      invalid: this._invalid || void 0
     };
     return new DateTime(Object.assign({}, current, alts, { old: current }));
   }

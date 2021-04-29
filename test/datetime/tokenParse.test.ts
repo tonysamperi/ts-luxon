@@ -1,4 +1,4 @@
-import { DateTime, DateTimeWithZoneOptions } from "../../src";
+import { DateTime, DateTimeWithZoneOptions, Settings } from "../../src";
 import { ConflictingSpecificationError } from "../../src/errors";
 import { Helpers } from "../helpers";
 
@@ -527,6 +527,10 @@ test("DateTime.fromFormat() with setZone parses fixed offsets and sets it", () =
 });
 
 test("DateTime.fromFormat() parses localized macro tokens", () => {
+  // DEFAULT TO US TO PREVENT MOST OF THE TESTS FROM FAILING
+  const previousDefaultLocale = Settings.defaultLocale;
+  Settings.defaultLocale = "en-US";
+
   const formatGroups = [
     { formats: ["D", "DD", "DDD", "DDDD"], expectEqual: { year: true, month: true, day: true } },
     { formats: ["t", "T"], expectEqual: { hour: true, minute: true } },
@@ -560,6 +564,8 @@ test("DateTime.fromFormat() parses localized macro tokens", () => {
       }
     }
   }
+
+  Settings.defaultLocale = previousDefaultLocale;
 });
 
 test("DateTime.fromFormat() throws if you don't provide a format", () => {

@@ -131,18 +131,18 @@ export class Formatter {
     return df.format();
   }
 
-  formatDateTime(dt: DateTime) {
-    const df = this._loc.dtFormatter(dt, this._options);
+  formatDateTime(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): string {
+    const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
     return df.format();
   }
 
-  formatDateTimeParts(dt: DateTime) {
-    const df = this._loc.dtFormatter(dt, this._options);
+  formatDateTimeParts(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
+    const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
     return df.formatToParts();
   }
 
-  resolvedOptions(dt: DateTime) {
-    const df = this._loc.dtFormatter(dt, this._options);
+  resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
+    const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
     return df.resolvedOptions();
   }
 
@@ -175,7 +175,7 @@ export class Formatter {
       meridiem = () =>
         knownEnglish
           ? English.meridiemForDateTime(dt)
-          : string({ hour: "numeric", hour12: true }, "dayperiod"),
+          : string({ hour: "numeric", hour12: true }, "dayPeriod"),
       month = (length: StringUnitLength, standalone: boolean) =>
         knownEnglish
           ? English.monthForDateTime(dt, length)
@@ -246,7 +246,7 @@ export class Formatter {
           // zone
           case "z":
             // like America/New_York
-            return dt.zoneName;
+            return dt.zoneName || "";
           // meridiems
           case "a":
             return meridiem();

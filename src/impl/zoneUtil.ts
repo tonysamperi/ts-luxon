@@ -5,46 +5,46 @@
 import { Zone } from "../zone";
 import { IANAZone } from "../zones/IANAZone";
 import { FixedOffsetZone } from "../zones/fixedOffsetZone";
-import { SystemZone } from "../zones/systemZone";
-import { InvalidZoneError } from "../errors";
-
 import { isUndefined, isString, isNumber } from "./util";
 import { ZoneLike } from "../types/zone";
+import { InvalidZone } from "../zones/invalidZone";
 
 export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
+  let offset;
   if (isUndefined(input) || input === null) {
     return defaultZone;
   }
-  if (input instanceof Zone) {
+  else if (input instanceof Zone) {
     return input;
   }
-  if (isString(input)) {
+  else if (isString(input)) {
     const lowered = input.toLowerCase();
-    if (lowered === "default") {
+    if (lowered === "local") {
       return defaultZone;
     }
-    if (lowered === "system") {
-      return SystemZone.instance;
-    }
-    if (lowered === "utc") {
+    else if (lowered === "utc" || lowered === "gmt") {
       return FixedOffsetZone.utcInstance;
     }
-    const offset = IANAZone.parseGMTOffset(input);
-    if (offset != null) {
+    else if ((offset = IANAZone.parseGMTOffset(input)) != null) {
       // handle Etc/GMT-4, which V8 chokes on
       return FixedOffsetZone.instance(offset);
     }
-    if (IANAZone.isValidSpecifier(lowered)) {
+    else if (IANAZone.isValidSpecifier(lowered)) {
       return IANAZone.create(input);
     }
-    const fixed = FixedOffsetZone.parseSpecifier(lowered);
-    if (fixed !== null) {
-      return fixed;
+    else {
+      return FixedOffsetZone.parseSpecifier(lowered) || new InvalidZone(input);
     }
-    throw new InvalidZoneError(input);
   }
-  if (isNumber(input)) {
+  else if (isNumber(input)) {
     return FixedOffsetZone.instance(input);
   }
-  throw new InvalidZoneError(input);
+  else if (typeof input === "object" && input["offset"] && typeof input["offset"] === "number") {
+    // This is dumb, but the instanceof check above doesn't seem to really work
+    // so we're duck checking it
+    return input;
+  }
+  else {
+    return new InvalidZone(input);
+  }
 };
