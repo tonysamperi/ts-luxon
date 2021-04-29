@@ -105,12 +105,17 @@ export function floorMod(x: number, n: number) {
 }
 
 export function padStart(input: string | number, n = 2) {
-  if (input.toString().length < n) {
-    return ("0".repeat(n) + input).slice(-n);
+  const minus = input < 0 ? "-" : "";
+  const target = minus ? +input * -1 : input;
+  let result;
+
+  if (target.toString().length < n) {
+    result = ("0".repeat(n) + target).slice(-n);
+  } else {
+    result = target.toString();
   }
-  else {
-    return input.toString();
-  }
+
+  return `${minus}${result}`;
 }
 
 export function parseInteger(text: string) {

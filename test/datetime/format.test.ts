@@ -1,5 +1,4 @@
 import { DateTime } from "../../src";
-import { Helpers } from "../helpers";
 
 const dtMaker = () =>
     DateTime.fromObject(
@@ -15,18 +14,8 @@ const dtMaker = () =>
         locale: "en-US"
       }
     ),
-  dt = dtMaker();
-
-// ------
-// #resolveLocaleOptions()
-// ------
-test("DateTime#resolveLocaleOptions() just returns the locale settings", () => {
-  expect(dt.resolvedLocaleOptions()).toEqual({
-    locale: "en-US",
-    numberingSystem: "latn",
-    outputCalendar: "gregory"
-  });
-});
+  dt = dtMaker(),
+  invalid = DateTime.invalid("because");
 
 // ------
 // #toJSON()
@@ -42,7 +31,7 @@ test("DateTime#toISO() shows 'Z' for UTC", () => {
   expect(dt.toISO()).toBe("1982-05-25T09:23:54.123Z");
 });
 
-test("DateTime#toISO() shows the offset, unless explicitely asked not to", () => {
+test("DateTime#toISO() shows the offset, unless explicitely asked", () => {
   const offsetted = dt.toUTC(-6 * 60);
   expect(offsetted.toISO()).toBe("1982-05-25T03:23:54.123-06:00");
   expect(offsetted.toISO({ includeOffset: false })).toBe("1982-05-25T03:23:54.123");
@@ -59,7 +48,11 @@ test("DateTime#toISO() suppresses [milli]seconds", () => {
 
   const noZeroSeconds = { suppressSeconds: true, suppressMilliseconds: true };
   expect(dt.set({ millisecond: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23:54Z");
-  expect(dt.set({ second: 0, millisecond: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23Z");
+  expect(dt.set({ seconds: 0, milliseconds: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23Z");
+});
+
+test("DateTime#toISO() returns null for invalid DateTimes", () => {
+  expect(invalid.toISO()).toBe(null);
 });
 
 // #724, Firefox specific issue, offset prints as '-05:50.60000000000002'
@@ -86,13 +79,26 @@ test("DateTime#toISODate() can output the basic format", () => {
   expect(dt.toISODate({ format: "basic" })).toBe("19820525");
 });
 
+test("DateTime#toISODate() returns null for invalid DateTimes", () => {
+  expect(invalid.toISODate()).toBe(null);
+});
+
 test("DateTime#toISODate() returns ISO 8601 date in format [±YYYYY]", () => {
-  expect(
-    DateTime.fromObject({ year: 118040, month: 5, day: 25, zone: "utc" }).toISODate()
-  ).toBe("+118040-05-25");
-  expect(
-    DateTime.fromObject({ year: -118040, month: 5, day: 25, zone: "utc" }).toISODate()
-  ).toBe("-118040-05-25");
+  expect(DateTime.fromObject({ year: 118040, month: 5, day: 25, zone: "utc" }).toISODate()).toBe(
+    "+118040-05-25"
+  );
+  expect(DateTime.fromObject({ year: -118040, month: 5, day: 25, zone: "utc" }).toISODate()).toBe(
+    "-118040-05-25"
+  );
+});
+
+test("DateTime#toISODate() correctly pads negative years", () => {
+  expect(DateTime.fromObject({ year: -1, month: 1, day: 1, zone: "utc" }).toISODate()).toBe(
+    "-0001-01-01"
+  );
+  expect(DateTime.fromObject({ year: -10, month: 1, day: 1, zone: "utc" }).toISODate()).toBe(
+    "-0010-01-01"
+  );
 });
 
 // ------
@@ -100,6 +106,10 @@ test("DateTime#toISODate() returns ISO 8601 date in format [±YYYYY]", () => {
 // ------
 test("DateTime#toISOWeekDate() returns ISO 8601 date", () => {
   expect(dt.toISOWeekDate()).toBe("1982-W21-2");
+});
+
+test("DateTime#toISOWeekDate() returns null for invalid DateTimes", () => {
+  expect(invalid.toISOWeekDate()).toBe(null);
 });
 
 // ------
@@ -142,8 +152,6 @@ test("DateTime#toISOTime() can omit the offset", () => {
 });
 
 test("DateTime#toISOTime() can output the basic format", () => {
-  // expect(dt.toISOTime({ format: "basic" })).toBe("092354.123Z");
-
   expect(dt.toISOTime({ format: "basic" })).toBe("092354.123Z");
   const dt2 = dt.set({ second: 0, millisecond: 0 });
   expect(dt2.toISOTime({ format: "basic", suppressMilliseconds: true })).toBe("092300Z");
@@ -155,6 +163,10 @@ test("DateTime#toISOTime can include the prefix", () => {
   expect(dt.toISOTime({ format: "basic", includePrefix: true })).toBe("T092354.123Z");
 });
 
+test("DateTime#toISOTime() returns null for invalid DateTimes", () => {
+  expect(invalid.toISOTime()).toBe(null);
+});
+
 // ------
 // #toRFC2822()
 // ------
@@ -163,6 +175,10 @@ test("DateTime#toRFC2822() returns an RFC 2822 date", () => {
   expect(dt.toUTC().toRFC2822()).toBe("Tue, 25 May 1982 09:23:54 +0000");
   expect(dt.setZone("America/New_York").toRFC2822()).toBe("Tue, 25 May 1982 05:23:54 -0400");
   expect(dt.set({ hour: 15 }).toRFC2822()).toBe("Tue, 25 May 1982 15:23:54 +0000");
+});
+
+test("DateTime#toRFC2822() returns null for invalid DateTimes", () => {
+  expect(invalid.toRFC2822()).toBe(null);
 });
 
 // ------
@@ -176,6 +192,10 @@ test("DateTime#toHTTP() returns an RFC 1123 date", () => {
   // expect(dt.plus({ hours: 10 }).toHTTP()).toBe("Tue, 25 May 1982 19:23:54 GMT");
 });
 
+test("DateTime#toHTTP() returns null for invalid DateTimes", () => {
+  expect(invalid.toHTTP()).toBe(null);
+});
+
 // ------
 // #toSQLDate()
 // ------
@@ -183,6 +203,10 @@ test("DateTime#toHTTP() returns an RFC 1123 date", () => {
 test("DateTime#toSQLDate() returns SQL date", () => {
   expect(dt.toUTC().toSQLDate()).toBe("1982-05-25");
   expect(dt.setZone("America/New_York").toSQLDate()).toBe("1982-05-25");
+});
+
+test("DateTime#toSQLDate() returns null for invalid DateTimes", () => {
+  expect(invalid.toSQLDate()).toBe(null);
 });
 
 // ------
@@ -204,6 +228,10 @@ test("DateTime#toSQLTime() accepts an includeZone option", () => {
   expect(dt.setZone("America/New_York").toSQLTime({ includeZone: true })).toBe(
     "05:23:54.123 America/New_York"
   );
+});
+
+test("DateTime#toSQLTime() returns null for invalid DateTimes", () => {
+  expect(invalid.toSQLTime()).toBe(null);
 });
 
 // ------
@@ -229,11 +257,19 @@ test("DateTime#toSQL() accepts an includeZone option", () => {
   );
 });
 
+test("DateTime#toSQL() returns null for invalid DateTimes", () => {
+  expect(invalid.toSQL()).toBe(null);
+});
+
 // ------
 // #toString()
 // -------
 test("DateTime#toString() returns the ISO time", () => {
   expect(dt.toUTC(-6 * 60).toString()).toBe("1982-05-25T03:23:54.123-06:00");
+});
+
+test("DateTime#toString() returns something different for invalid DateTimes", () => {
+  expect(invalid.toString()).toBe("Invalid DateTime");
 });
 
 // ------
@@ -263,6 +299,26 @@ test("DateTime#toLocaleString accepts options to the formatter", () => {
   expect(dt.toLocaleString({ weekday: "short" }).indexOf("Tue") >= 0).toBeTruthy();
 });
 
+test("DateTime#toLocaleString can override the dateTime's locale", () => {
+  expect(dt.reconfigure({ locale: "be" }).toLocaleString({ locale: "fr" })).toBe("25/05/1982");
+});
+
+test("DateTime#toLocaleString can override the dateTime's numbering system", () => {
+  expect(
+    dt.reconfigure({ numberingSystem: "beng" }).toLocaleString({ numberingSystem: "mong" })
+  ).toBe("᠕/᠒᠕/᠑᠙᠘᠒");
+});
+
+test("DateTime#toLocaleString can override the dateTime's output calendar", () => {
+  expect(
+    dt.reconfigure({ outputCalendar: "islamic" }).toLocaleString({ outputCalendar: "coptic" })
+  ).toBe("9/17/1698");
+});
+
+test("DateTime#toLocaleString() returns something different for invalid DateTimes", () => {
+  expect(invalid.toLocaleString()).toBe("Invalid DateTime");
+});
+
 test("DateTime#toLocaleString() shows things in the right IANA zone", () => {
   expect(dt.setZone("America/New_York").toLocaleString(DateTime.DATETIME_SHORT)).toBe(
     "5/25/1982, 5:23 AM"
@@ -271,6 +327,12 @@ test("DateTime#toLocaleString() shows things in the right IANA zone", () => {
 
 test("DateTime#toLocaleString() shows things in the right fixed-offset zone", () => {
   expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_SHORT)).toBe("5/25/1982, 1:23 AM");
+});
+
+test("DateTime#toLocaleString() shows things in the right fixed-offset zone when showing the zone", () => {
+  expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_FULL)).toBe(
+    "May 25, 1982, 1:23 AM GMT-8"
+  );
 });
 
 test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone when showing the zone", () => {
@@ -293,37 +355,41 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 });
 
 // ------
-// #resolvedLocaleOptions()
+// #resolvedLocaleOpts()
 // ------
 
-test("DateTime#resolvedLocaleOptions returns a thing", () => {
-  const res = DateTime.now().resolvedLocaleOptions();
+test("DateTime#resolvedLocaleOpts returns a thing", () => {
+  const res = DateTime.now().resolvedLocaleOpts();
 
   expect(res.outputCalendar).toBeDefined();
   expect(res.locale).toBeDefined();
   expect(res.numberingSystem).toBeDefined();
 });
 
-test("DateTime#resolvedLocaleOptions reflects changes to the locale", () => {
+test("DateTime#resolvedLocaleOpts reflects changes to the locale", () => {
   const res = DateTime.now()
     .reconfigure({
       locale: "be",
       numberingSystem: "mong",
       outputCalendar: "coptic"
     })
-    .resolvedLocaleOptions();
+    .resolvedLocaleOpts();
 
   expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
   expect(res.outputCalendar).toBe("coptic");
   expect(res.numberingSystem).toBe("mong");
 });
 
-Helpers.withoutIntl("DateTime#resolvedLocaleOptions default values without intl", () => {
-  const res = DateTime.now().resolvedLocaleOptions();
+test("DateTime#resolvedLocaleOpts can override with options", () => {
+  const res = DateTime.now().resolvedLocaleOpts({
+    locale: "be",
+    numberingSystem: "mong",
+    outputCalendar: "coptic"
+  });
 
-  expect(res.outputCalendar).toBe("gregory");
-  expect(res.locale).toBe("en-US");
-  expect(res.numberingSystem).toBe("latn");
+  expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
+  expect(res.outputCalendar).toBe("coptic");
+  expect(res.numberingSystem).toBe("mong");
 });
 
 // ------
@@ -350,10 +416,24 @@ test("DateTime#toLocaleParts accepts locale settings from the dateTime", () => {
   ]);
 });
 
+test("DateTime#toLocaleParts can override the dateTime's locale", () => {
+  expect(dt.reconfigure({ locale: "be" }).toLocaleParts({ locale: "fr" })).toEqual([
+    { type: "day", value: "25" },
+    { type: "literal", value: "/" },
+    { type: "month", value: "05" },
+    { type: "literal", value: "/" },
+    { type: "year", value: "1982" }
+  ]);
+});
+
 test("DateTime#toLocaleParts accepts date formatting options", () => {
   expect(dt.toLocaleParts(DateTime.TIME_24_SIMPLE)).toEqual([
     { type: "hour", value: "09" },
     { type: "literal", value: ":" },
     { type: "minute", value: "23" }
   ]);
+});
+
+test("DateTime#toLocaleParts returns empty for invalid DateTimes", () => {
+  expect(invalid.toLocaleParts()).toEqual([]);
 });

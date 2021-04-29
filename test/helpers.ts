@@ -91,7 +91,7 @@ const withNow = (name: string, dt: DateTime, f: Function) => {
   });
 };
 
-const withDefaultZone = (zone: string, f: Function) => {
+export const withDefaultZone = (zone: string, f: Function) => {
   try {
     Settings.defaultZoneName = zone;
     f();
@@ -110,7 +110,7 @@ export const withDefaultLocale = (locale: string | undefined, f: Function) => {
   }
 };
 
-const withDefaultNumberingSystem = (numberingSystem: NumberingSystem | undefined, f: Function) => {
+export const withDefaultNumberingSystem = (numberingSystem: NumberingSystem | undefined, f: Function) => {
   const previousNumberingSystem = Settings.defaultNumberingSystem;
   try {
     Settings.defaultNumberingSystem = numberingSystem;
@@ -120,7 +120,7 @@ const withDefaultNumberingSystem = (numberingSystem: NumberingSystem | undefined
   }
 };
 
-const withDefaultOutputCalendar = (outputCalendar: CalendarSystem | undefined, f: Function) => {
+export const withDefaultOutputCalendar = (outputCalendar: CalendarSystem | undefined, f: Function) => {
   const previousOutputCalendar = Settings.defaultOutputCalendar;
   try {
     Settings.defaultOutputCalendar = outputCalendar;

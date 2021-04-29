@@ -143,3 +143,31 @@ export interface InnerBuildObjectConfig {
   offsetProvis: number;
   zoneToUse: Zone;
 }
+
+// PLURALS - TODO: UNDERSTAND IF NEEDED
+
+export interface TimeObjectPlurals {
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
+}
+
+export interface GregorianDateTimePlurals extends TimeObjectPlurals {
+  years: number;
+  months: number;
+  days: number;
+}
+
+export interface WeekDateTimePlurals extends TimeObjectPlurals {
+  weekYears: number;
+  weeksNumber: number;
+  weekdays: number;
+}
+
+export interface OrdinalDateTimePlurals extends TimeObjectPlurals {
+  years: number;
+  ordinal: number;
+}
+
+export type GenericDateTimePlurals = Partial<GregorianDateTimePlurals & WeekDateTimePlurals & OrdinalDateTimePlurals & DateTimeOptions>;

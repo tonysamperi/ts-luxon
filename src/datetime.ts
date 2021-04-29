@@ -60,7 +60,8 @@ import {
   DefaultWeekUnitValues,
   DefaultOrdinalUnitValues,
   TimeObject,
-  InnerBuildObjectConfig
+  InnerBuildObjectConfig,
+  GenericDateTimePlurals
 } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "./types/locale";
@@ -594,8 +595,10 @@ export class DateTime {
    *
    * @type {string}
    */
-  get outputCalendar() {
-    return this.isValid ? this._loc.outputCalendar : null;
+  get outputCalendar(): CalendarSystem | undefined {
+    return this.isValid
+      ? this._loc.outputCalendar
+      : void 0;
   }
 
   /**
@@ -822,11 +825,13 @@ export class DateTime {
   get isInDST() {
     if (this.isOffsetFixed) {
       return false;
-    } else {
+    }
+    else {
       return (
         this.offset > this.set({ month: 1 }).offset || this.offset > this.set({ month: 5 }).offset
       );
-    }  }
+    }
+  }
 
   /**
    * Returns true if this DateTime is in a leap year, false otherwise
@@ -1420,7 +1425,6 @@ export class DateTime {
     // set default values for missing stuff
     let foundFirst = false;
     units.forEach((u: string) => {
-      // for (const u of units) {
       const v = config.normalized[u];
       if (isDefined(v)) {
         foundFirst = true;
@@ -1431,7 +1435,6 @@ export class DateTime {
       else {
         config.normalized[u] = (objNow as { [key: string]: any })[u];
       }
-      // }
     });
 
     // make sure the values we have are in range
@@ -1641,7 +1644,7 @@ export class DateTime {
    * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
    * @return {DateTime}
    */
-  reconfigure(options: LocaleOptions) {
+  reconfigure(options: LocaleOptions): DateTime {
     const loc = this._loc.clone(options);
     return this._clone({ loc });
   }
@@ -1666,7 +1669,7 @@ export class DateTime {
    * @example dt.set({ year: 2005, ordinal: 234 })
    * @return {DateTime}
    */
-  set(values: GenericDateTime): DateTime {
+  set(values: GenericDateTime | GenericDateTimePlurals): DateTime {
     if (!this.isValid) {
       return this;
     }
@@ -1859,10 +1862,10 @@ export class DateTime {
   }
 
   /**
-   * Returns an array of format "parts", meaning individual tokens along with metadata. This allows callers to post-process individual sections of the formatted output.
+   * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
    * Defaults to the system's locale if no locale has been specified
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat/formatToParts
-   * @param options {Object} - Intl.DateTimeFormat constructor options, same as `toLocaleString`.
+   * @param opts {Object} - Intl.DateTimeFormat constructor options, same as `toLocaleString`.
    * @example DateTime.now().toLocaleParts(); //=> [
    *                                   //=>   { type: 'day', value: '25' },
    *                                   //=>   { type: 'literal', value: '/' },
@@ -1871,10 +1874,10 @@ export class DateTime {
    *                                   //=>   { type: 'year', value: '1982' }
    *                                   //=> ]
    */
-  toLocaleParts(options: Intl.DateTimeFormatOptions = {}) {
+  toLocaleParts(opts: Intl.DateTimeFormatOptions & LocaleOptions = {}) {
     return this.isValid
-      ? Formatter.create(this._loc, options).formatDateTimeParts(this)
-      : INVALID;
+      ? Formatter.create(this._loc.clone(opts), opts).formatDateTimeParts(this)
+      : [];
   }
 
   /**
@@ -1890,7 +1893,7 @@ export class DateTime {
    * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
    * @return {string}
    */
-  toISO(options: ToISOTimeOptions = {}) {
+  toISO(options: ToISOTimeOptions = {}): string | null {
     if (!this.isValid) {
       return null;
     }
@@ -2003,25 +2006,28 @@ export class DateTime {
 
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL DateTime
-   * @param {Object} options - options
-   * @param {boolean} [options.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
-   * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+   * @param {Object} opts - options
+   * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
+   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
    * @example DateTime.utc(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 Z'
    * @example DateTime.local(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 -04:00'
    * @example DateTime.local(2014, 7, 13).toSQL({ includeOffset: false }) //=> '2014-07-13 00:00:00.000'
    * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
    * @return {string}
    */
-  toSQL(options: ToSQLOptions = {}) {
-    return `${this.toSQLDate()} ${this.toSQLTime(options)}`;
+  toSQL(opts: ToSQLOptions = {}): string | null {
+    if (!this.isValid) {
+      return null;
+    }
+    return `${this.toSQLDate()} ${this.toSQLTime(opts)}`;
   }
 
   /**
    * Returns a string representation of this DateTime appropriate for debugging
    * @return {string}
    */
-  toString() {
-    return this.toISO();
+  toString(): string | null {
+    return this.isValid ? this.toISO() : INVALID;
   }
 
   /**
@@ -2037,7 +2043,7 @@ export class DateTime {
    * @return {number}
    */
   toMillis() {
-    return this._ts;
+    return this.isValid ? this.ts : NaN;
   }
 
   /**
@@ -2065,12 +2071,26 @@ export class DateTime {
   }
 
   /**
-   * Returns a Javascript object with this DateTime's year, month, day, and so on.
+   * Returns a JavaScript object with this DateTime's year, month, day, and so on.
+   * @param opts - options for generating the object
+   * @param {boolean} [opts.includeConfig=false] - include configuration attributes in the output
    * @example DateTime.now().toObject() //=> { year: 2017, month: 4, day: 22, hour: 20, minute: 49, second: 42, millisecond: 268 }
    * @return {Object}
    */
-  toObject() {
-    return Object.assign({}, this._c) as GregorianDateTime;
+  toObject(opts: { includeConfig: boolean } = { includeConfig: !1 }): GregorianDateTime & Partial<LocaleOptions> {
+    if (!this.isValid) {
+      return {} as GregorianDateTime;
+    }
+
+    const base = Object.assign({}, this._c) as GregorianDateTime & Partial<LocaleOptions>;
+
+    if (opts.includeConfig) {
+      base.outputCalendar = this.outputCalendar;
+      base.numberingSystem = this._loc.numberingSystem;
+      base.locale = this._loc.locale;
+    }
+
+    return base;
   }
 
   /**
@@ -2155,22 +2175,22 @@ export class DateTime {
   }
 
   /**
-   * Return whether this DateTime is in the same unit of time as another DateTime
-   * @param {DateTime} other - the other DateTime
+   * Return whether this DateTime is in the same unit of time as another DateTime.
+   * Higher-order units must also be identical for this function to return `true`.
+   * Note that time zones are **ignored** in this comparison, which compares the **local** calendar time. Use {@link setZone} to convert one of the dates if needed.
+   * @param {DateTime} otherDateTime - the other DateTime
    * @param {string} unit - the unit of time to check sameness on
-   * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if both have the same calendar day
+   * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day
    * @return {boolean}
    */
-  hasSame(other: DateTime, unit: DurationUnit) {
-    if (Duration.normalizeUnit(unit) === "milliseconds") {
-      return this.valueOf() === other.valueOf();
+  hasSame(otherDateTime: DateTime, unit: DurationUnit): boolean {
+    if (!this.isValid) {
+      return false;
     }
-    else {
-      const inputMs = other.valueOf();
-      const otherZoneDateTime = this.setZone(other.zone, { keepLocalTime: true });
 
-      return +otherZoneDateTime.startOf(unit) <= inputMs && inputMs <= +otherZoneDateTime.endOf(unit);
-    }
+    const inputMs = otherDateTime.valueOf();
+    const otherZoneDateTime = this.setZone(otherDateTime.zone, { keepLocalTime: true });
+    return +otherZoneDateTime.startOf(unit) <= inputMs && inputMs <= +otherZoneDateTime.endOf(unit);
   }
 
   /**
@@ -2207,6 +2227,9 @@ export class DateTime {
    * @example DateTime.now().minus({ hours: 36 }).toRelative({ round: false }) //=> "1.5 days ago"
    */
   toRelative(options: ToRelativeOptions = {}) {
+    if (!this.isValid) {
+      return null;
+    }
     const base = options.base || DateTime.fromObject({ zone: this.zone });
     const padding = options.padding ? (this < base ? -options.padding : options.padding) : 0;
     return DateTime._diffRelative(
@@ -2233,6 +2256,9 @@ export class DateTime {
    * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
    */
   toRelativeCalendar(options: ToRelativeCalendarOptions = {}) {
+    if (!this.isValid) {
+      return null;
+    }
     return DateTime._diffRelative(
       options.base || DateTime.fromObject({ zone: this.zone }),
       this,

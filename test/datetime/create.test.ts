@@ -1,11 +1,5 @@
 import { DateTime } from "../../src";
-import { Helpers } from "../helpers";
-
-const withDefaultLocale = Helpers.withDefaultLocale;
-const withDefaultNumberingSystem = Helpers.withDefaultNumberingSystem;
-const withDefaultOutputCalendar = Helpers.withDefaultOutputCalendar;
-const withDefaultZone = Helpers.withDefaultZone;
-const withThrowOnInvalid = Helpers.withThrowOnInvalid;
+import { withDefaultLocale, withDefaultNumberingSystem, withDefaultOutputCalendar, withDefaultZone, withThrowOnInvalid } from "../helpers";
 
 // ------
 // .now()
