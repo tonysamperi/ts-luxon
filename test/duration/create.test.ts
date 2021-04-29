@@ -55,12 +55,6 @@ test("Duration.fromObject accepts a conversionAccuracy", () => {
   expect(Helpers.conversionAccuracy(dur)).toBe("longterm");
 });
 
-test("Duration.fromObject accepts locale settings", () => {
-  const dur = Duration.fromObject({ days: 1, locale: "fr", numberingSystem: "beng" });
-  expect(dur.numberingSystem).toBe("beng");
-  expect(dur.locale).toBe("fr");
-});
-
 test("Duration.fromObject throws if the argument is not an object", () => {
   // @ts-expect-error
   expect(() => Duration.fromObject()).toThrow(InvalidArgumentError);

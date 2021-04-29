@@ -32,3 +32,7 @@ test("Duration#set() throws for metadata", () => {
   // @ts-expect-error
   expect(() => dur.set({ invalid: 42 })).toThrow();
 });
+
+test("Duration#set maintains invalidity", () => {
+  expect(Duration.invalid("because").set({ hours: 200 }).isValid).toBe(false);
+});

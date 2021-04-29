@@ -30,7 +30,7 @@ interface NormalizedDurationObject {
 type NormalizedDurationUnit = keyof NormalizedDurationObject;
 
 type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
-type ConversionMatrix = Readonly<{ [key in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
+type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 const INVALID = "Invalid Duration";
 
@@ -494,12 +494,26 @@ export class Duration implements NormalizedDurationObject {
   }
 
   /**
-   * Returns a Javascript object with this Duration's values.
+   * Returns a JavaScript object with this Duration's values.
+   * @param opts - options for generating the object
+   * @param {boolean} [opts.includeConfig=false] - include configuration attributes in the output
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toObject() //=> { years: 1, days: 6, seconds: 2 }
    * @return {Object}
    */
-  toObject(): DurationObject {
-    return Object.assign({}, this._values);
+  toObject(opts: { includeConfig: boolean } = { includeConfig: !1 }): DurationObject & Partial<DurationOptions> {
+    if (!this.isValid) {
+      return {};
+    }
+
+    const base = Object.assign({}, this._values) as DurationObject & Partial<DurationOptions>;
+
+    if (opts.includeConfig) {
+      base.conversionAccuracy = this.conversionAccuracy;
+      base.numberingSystem = this._loc.numberingSystem;
+      base.locale = this._loc.locale;
+    }
+
+    return base;
   }
 
   /**
@@ -514,6 +528,9 @@ export class Duration implements NormalizedDurationObject {
    */
   toISO() {
     // we could use the formatter, but this is an easier way to get the minimum string
+    if (!this.isValid) {
+      return null;
+    }
     let s = "P";
     if (this.years !== 0) {
       s += this.years + "Y";
@@ -707,6 +724,10 @@ export class Duration implements NormalizedDurationObject {
    * @return {Duration}
    */
   set(values: DurationObject) {
+    if (!this.isValid) {
+      return this;
+    }
+
     const mixed = Object.assign(
       this._values,
       normalizeObject(values as Record<string, number>, Duration.normalizeUnit)
@@ -747,7 +768,9 @@ export class Duration implements NormalizedDurationObject {
    * @return {Duration}
    */
   normalize() {
-    // todo - this should keep the options...
+    if (!this.isValid) {
+      return this;
+    }
     const vals = this.toObject();
     normalizeValues(this._matrix, vals);
     return this._clone(this, { _values: vals }, !0);
@@ -759,32 +782,31 @@ export class Duration implements NormalizedDurationObject {
    * @return {Duration}
    */
   shiftTo(...units: DurationUnit[]) {
-    const normalizedUnits = units.map(u => Duration.normalizeUnit(u));
-
-    if (normalizedUnits.length === 0) {
+    if (!this.isValid || units.length === 0) {
       return this;
     }
 
+    units = units.map(u => Duration.normalizeUnit(u));
+
     const built: NormalizedDurationObject = {},
       accumulated: NormalizedDurationObject = {},
-      vals = this.toObject();
+      vals: DurationObject = this.toObject();
     let lastUnit: NormalizedDurationUnit;
 
     orderedUnits.forEach((k: NormalizedDurationUnit) => {
-      if (normalizedUnits.indexOf(k) >= 0) {
+      if (units.indexOf(k) >= 0) {
         lastUnit = k;
+
         let own = 0;
-        // anything we haven't boiled down yet should get boiled to this unit
-        for (const acc in accumulated) {
-          const unit = acc as ConversionMatrixUnit;
-          own += (this._matrix[unit][k] as number) * (accumulated[unit] as number);
-          delete accumulated[unit];
-        }
+
+        Object.keys(accumulated).forEach((ak: string) => {
+          own += (this._matrix[ak as ConversionMatrixUnit][k] as number) * (accumulated[ak as NormalizedDurationUnit] as number);
+          accumulated[ak as NormalizedDurationUnit] = 0;
+        });
 
         // plus anything that's already in this unit
-        const unitValue = vals[k];
-        if (isNumber(unitValue)) {
-          own += unitValue;
+        if (isNumber(vals[k])) {
+          own += vals[k] as number;
         }
 
         const i = Math.trunc(own);
@@ -792,12 +814,13 @@ export class Duration implements NormalizedDurationObject {
         accumulated[k] = own - i; // we'd like to absorb these fractions in another unit
 
         // plus anything further down the chain that should be rolled up in to this
-        for (const down in vals) {
+        // for (const down in vals) {
+        Object.keys(vals).forEach((down: string) => {
           if (orderedUnits.indexOf(down as NormalizedDurationUnit) > orderedUnits.indexOf(k)) {
-            // never happens when k is milliseconds
             convert(this._matrix, vals, down as NormalizedDurationUnit, built, k as ConversionMatrixUnit);
           }
-        }
+        });
+        // }
         // otherwise, keep it in the wings to boil it later
       }
       else if (isNumber(vals[k])) {
@@ -806,22 +829,14 @@ export class Duration implements NormalizedDurationObject {
     });
 
     // anything leftover becomes the decimal for the last unit
-    // lastUnit is defined here since units is not empty
-    for (const key in accumulated) {
-      const unit = key as NormalizedDurationUnit;
-      const acc = accumulated[unit];
-      if (acc !== undefined) {
-        // @ts-ignore
-        built[lastUnit as NormalizedDurationUnit] = (built[lastUnit as NormalizedDurationUnit] as number) +
-          // @ts-ignore
-          (key === lastUnit
-            ? (accumulated[key] as number)
-            : // lastUnit could be 'milliseconds' but so would then be the unique key in accumulated
-              // Cast to ConversionMatrixUnit is hence safe here
-            // @ts-ignore
-            acc / (this._matrix[lastUnit as ConversionMatrixUnit][unit] as number));
+    // lastUnit must be defined since units is not empty
+    Object.keys(accumulated).forEach((key: string) => {
+      const v = accumulated[key as NormalizedDurationUnit] as number;
+      if (v !== 0) {
+        (built[lastUnit] as number) +=
+          key === lastUnit ? v : v / (this._matrix[lastUnit as ConversionMatrixUnit][key as NormalizedDurationUnit] as number);
       }
-    }
+    });
 
     return this._clone(this, { _values: built }, true).normalize();
   }

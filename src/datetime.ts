@@ -2051,7 +2051,7 @@ export class DateTime {
    * @return {number}
    */
   toSeconds() {
-    return this._ts / 1000;
+    return this.isValid ? this._ts / 1000 : NaN;
   }
 
   /**

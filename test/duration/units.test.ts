@@ -12,12 +12,12 @@ test("Duration#shiftTo rolls milliseconds up hours and minutes", () => {
 });
 
 test("Duration#shiftTo boils hours down milliseconds", () => {
-  const dur = Duration.fromObject({ hour: 1 }).shiftTo("milliseconds");
+  const dur = Duration.fromObject({ hours: 1 }).shiftTo("milliseconds");
   expect(dur.milliseconds).toBe(3600000);
 });
 
 test("Duration boils hours down shiftTo minutes and milliseconds", () => {
-  const dur = Duration.fromObject({ hour: 1, seconds: 30 }).shiftTo("minutes", "milliseconds");
+  const dur = Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo("minutes", "milliseconds");
   expect(dur.toObject()).toEqual({ minutes: 60, milliseconds: 30000 });
 });
 
@@ -35,17 +35,26 @@ test("Duration#shiftTo throws on invalid units", () => {
 
 test("Duration#shiftTo tacks decimals onto the end", () => {
   const dur = Duration.fromObject({ minutes: 73 }).shiftTo("hours");
+  expect(dur.isValid).toBe(true);
   expect(dur.hours).toBeCloseTo(1.2167, 4);
 });
 
 test("Duration#shiftTo deconstructs decimal inputs", () => {
   const dur = Duration.fromObject({ hours: 2.3 }).shiftTo("hours", "minutes");
+  expect(dur.isValid).toBe(true);
   expect(dur.hours).toBe(2);
   expect(dur.minutes).toBeCloseTo(18, 8);
 });
 
+test("Duration#shiftTo maintains invalidity", () => {
+  const dur = Duration.invalid("because").shiftTo("years");
+  expect(dur.isValid).toBe(false);
+  expect(dur.invalidReason).toBe("because");
+});
+
 test("Duration#shiftTo without any units no-ops", () => {
   const dur = Duration.fromObject({ years: 3 }).shiftTo();
+  expect(dur.isValid).toBe(true);
   expect(dur.toObject()).toEqual({ years: 3 });
 });
 
@@ -97,54 +106,18 @@ test("Duration#normalize handles fully negative durations", () => {
 
 test("Duration#normalize handles the full grid partially negative durations", () => {
   const sets = [
-    [
-      { months: 1, days: 32 },
-      { months: 2, days: 2 }
-    ],
-    [
-      { months: 1, days: 28 },
-      { months: 1, days: 28 }
-    ],
-    [
-      { months: 1, days: -32 },
-      { months: 0, days: -2 }
-    ],
-    [
-      { months: 1, days: -28 },
-      { months: 0, days: 2 }
-    ],
-    [
-      { months: -1, days: 32 },
-      { months: 0, days: 2 }
-    ],
-    [
-      { months: -1, days: 28 },
-      { months: 0, days: -2 }
-    ],
-    [
-      { months: -1, days: -32 },
-      { months: -2, days: -2 }
-    ],
-    [
-      { months: -1, days: -28 },
-      { months: -1, days: -28 }
-    ],
-    [
-      { months: 0, days: 32 },
-      { months: 1, days: 2 }
-    ],
-    [
-      { months: 0, days: 28 },
-      { months: 0, days: 28 }
-    ],
-    [
-      { months: 0, days: -32 },
-      { months: -1, days: -2 }
-    ],
-    [
-      { months: 0, days: -28 },
-      { months: 0, days: -28 }
-    ]
+    [{ months: 1, days: 32 }, { months: 2, days: 2 }],
+    [{ months: 1, days: 28 }, { months: 1, days: 28 }],
+    [{ months: 1, days: -32 }, { months: 0, days: -2 }],
+    [{ months: 1, days: -28 }, { months: 0, days: 2 }],
+    [{ months: -1, days: 32 }, { months: 0, days: 2 }],
+    [{ months: -1, days: 28 }, { months: 0, days: -2 }],
+    [{ months: -1, days: -32 }, { months: -2, days: -2 }],
+    [{ months: -1, days: -28 }, { months: -1, days: -28 }],
+    [{ months: 0, days: 32 }, { months: 1, days: 2 }],
+    [{ months: 0, days: 28 }, { months: 0, days: 28 }],
+    [{ months: 0, days: -32 }, { months: -1, days: -2 }],
+    [{ months: 0, days: -28 }, { months: 0, days: -28 }]
   ];
 
   sets.forEach(([from, to]) => {
@@ -154,6 +127,12 @@ test("Duration#normalize handles the full grid partially negative durations", ()
         .toObject()
     ).toEqual(to);
   });
+});
+
+test("Duration#normalize maintains invalidity", () => {
+  const dur = Duration.invalid("because").normalize();
+  expect(dur.isValid).toBe(false);
+  expect(dur.invalidReason).toBe("because");
 });
 
 test("Duration#normalize can convert all unit pairs", () => {
@@ -177,10 +156,7 @@ test("Duration#normalize can convert all unit pairs", () => {
       expect(normalizedDuration[units[j]]).not.toBe(NaN);
 
       const accurateDuration = duration.reconfigure({ conversionAccuracy: "longterm" });
-      const normalizedAccurateDuration = accurateDuration.normalize().toObject() as Record<
-        string,
-        number
-      >;
+      const normalizedAccurateDuration = accurateDuration.normalize().toObject() as Record<string, number>;
       expect(normalizedAccurateDuration[units[i]]).not.toBe(NaN);
       expect(normalizedAccurateDuration[units[j]]).not.toBe(NaN);
     }
@@ -196,6 +172,10 @@ test("Duration#as shifts to one unit and returns it", () => {
   expect(dur.as("hours")).toBe(1.6);
 });
 
+test("Duration#as returns null for invalid durations", () => {
+  expect(Duration.invalid("because").as("hours")).toBeFalsy();
+});
+
 // ------
 // #valueOf()
 // -------
@@ -206,7 +186,7 @@ test("Duration#valueOf value of zero duration", () => {
 });
 
 test("Duration#valueOf returns as millisecond value (lower order units)", () => {
-  const dur = Duration.fromObject({ hour: 1, minutes: 36, seconds: 0 });
+  const dur = Duration.fromObject({ hours: 1, minutes: 36, seconds: 0 });
   expect(dur.valueOf()).toBe(5760000);
 });
 

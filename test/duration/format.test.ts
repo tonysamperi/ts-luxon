@@ -11,10 +11,10 @@ const dur = () =>
     seconds: 6,
     milliseconds: 7
   });
-
-// ------
+//------
 // #toISO()
-// ------
+//------
+
 test("Duration#toISO fills out every field", () => {
   expect(dur().toISO()).toBe("P1Y2M1W3DT4H5M6.007S");
 });
@@ -40,6 +40,10 @@ test("Duration#toISO handles zero durations", () => {
   expect(Duration.fromMillis(0).toISO()).toBe("PT0S");
 });
 
+test("Duration#toISO returns null for invalid durations", () => {
+  expect(Duration.invalid("because").toISO()).toBe(null);
+});
+
 test("Duration#toISO handles milliseconds duration", () => {
   expect(Duration.fromObject({ milliseconds: 7 }).toISO()).toBe("PT0.007S");
 });
@@ -57,25 +61,75 @@ test("Duration#toISO handles mixed negative/positive numbers in seconds/millisec
   expect(Duration.fromObject({ seconds: -17, milliseconds: 548 }).toISO()).toBe("PT-16.452S");
 });
 
-// ------
+//------
+// #toISOTime()
+//------
+
+const hhmmssSSS = Duration.fromObject({ hours: 11, minutes: 22, seconds: 33, milliseconds: 444 });
+const hhSSS = Duration.fromObject({ hours: 11, milliseconds: 444 });
+const hhss = Duration.fromObject({ hours: 11, seconds: 33 });
+const hh = Duration.fromObject({ hours: 11 });
+
+test("Duration#toISOTime creates a correct extended string", () => {
+  expect(hhmmssSSS.toISOTime()).toBe("11:22:33.444");
+});
+
+test("Duration#toISOTime suppresses milliseconds correctly", () => {
+  expect(hhSSS.toISOTime({ suppressMilliseconds: true })).toBe("11:00:00.444");
+  expect(hhss.toISOTime({ suppressMilliseconds: true })).toBe("11:00:33");
+  expect(hh.toISOTime({ suppressMilliseconds: true })).toBe("11:00:00");
+});
+
+test("Duration#toISOTime suppresses seconds correctly", () => {
+  expect(hhSSS.toISOTime({ suppressSeconds: true })).toBe("11:00:00.444");
+  expect(hhss.toISOTime({ suppressSeconds: true })).toBe("11:00:33.000");
+  expect(hh.toISOTime({ suppressSeconds: true })).toBe("11:00");
+});
+
+test("Duration#toISOTime includes the prefix correctly", () => {
+  expect(hh.toISOTime({ includePrefix: true })).toBe("T11:00:00.000");
+});
+
+test("Duration#toISOTime creates a correct basic string", () => {
+  expect(hhmmssSSS.toISOTime({ format: "basic" })).toBe("112233.444");
+  expect(hh.toISOTime({ format: "basic", suppressMilliseconds: true })).toBe("110000");
+  expect(hh.toISOTime({ format: "basic", suppressSeconds: true })).toBe("1100");
+});
+
+test("Duration#toISOTime returns null if the value is outside the range of one day", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+});
+
+//------
+// #toMillis()
+//------
+
+test("Duration#toMillis returns the value in milliseconds", () => {
+  expect(Duration.fromMillis(1000).toMillis()).toBe(1000);
+  expect(dur().valueOf()).toBe(dur().toMillis());
+});
+
+//------
 // #toJSON()
-// ------
+//------
 
 test("Duration#toJSON returns the ISO representation", () => {
   expect(dur().toJSON()).toBe(dur().toISO());
 });
 
-// ------
+//------
 // #toString()
-// ------
+//------
 
 test("Duration#toString returns the ISO representation", () => {
   expect(dur().toString()).toBe(dur().toISO());
 });
 
-// ------
+//------
 // #toFormat()
-// ------
+//------
+
 test("Duration#toFormat('S') returns milliseconds", () => {
   expect(dur().toFormat("S")).toBe("37598706007");
 
@@ -161,6 +215,15 @@ test("Duration#toFormat('y') returns years", () => {
   expect(lil.toFormat("yyyyy")).toBe("00005");
 });
 
+test("Duration#toFormat accepts the deprecated 'round' option", () => {
+  expect(dur().toFormat("s", { round: false })).toBe("37598706.007");
+  expect(dur().toFormat("m", { round: false })).toBe("626645.1");
+  expect(dur().toFormat("h", { round: false })).toBe("10444.085");
+  expect(dur().toFormat("d", { round: false })).toBe("435.17");
+  expect(dur().toFormat("M", { round: false })).toBe("14.356");
+  expect(dur().toFormat("y", { round: false })).toBe("1.195");
+});
+
 test("Duration#toFormat leaves in zeros", () => {
   const tiny = Duration.fromObject({ seconds: 5 });
   expect(tiny.toFormat("hh:mm:ss")).toBe("00:00:05");
@@ -181,4 +244,8 @@ test("Duration#toFormat localizes the numbers", () => {
       .reconfigure({ locale: "bn" })
       .toFormat("yy:MM:dd:h:mm:ss.SSS")
   ).toBe("০১:০২:১০:৪:০৫:০৬.০০৭");
+});
+
+test("Duration#toFormat returns a lame string for invalid durations", () => {
+  expect(Duration.invalid("because").toFormat("yy")).toBe("Invalid Duration");
 });

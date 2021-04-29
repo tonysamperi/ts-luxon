@@ -60,11 +60,11 @@ test("Duration.fromISO can parse fractions of seconds", () => {
   });
 });
 
-test("Duration.fromISO rejects junk", () => {
-  const rejects = (s: string) => {
-    expect(Duration.fromISO(s).isValid).toBe(false);
-  };
+const rejects = (s: string) => {
+  expect(Duration.fromISO(s).isValid).toBe(false);
+};
 
+test("Duration.fromISO rejects junk", () => {
   rejects("poop");
   rejects("PTglorb");
   rejects("P5Y34S");
@@ -72,6 +72,29 @@ test("Duration.fromISO rejects junk", () => {
   rejects("P34S");
   rejects("P34K");
   rejects("P5D2W");
+});
+
+// ------
+// #fromISOTime()
+// ------
+
+const checkTime = (s: string, ob: object) => {
+  expect(Duration.fromISOTime(s).toObject()).toEqual(ob);
+};
+
+test("Duration.fromISOTime can parse a variety of extended ISO time formats", () => {
+  checkTime("11:22:33.444", { hours: 11, minutes: 22, seconds: 33, milliseconds: 444 });
+  checkTime("11:22:33", { hours: 11, minutes: 22, seconds: 33 });
+  checkTime("11:22", { hours: 11, minutes: 22, seconds: 0 });
+  checkTime("T11:22", { hours: 11, minutes: 22, seconds: 0 });
+});
+
+test("Duration.fromISOTime can parse a variety of basic ISO time formats", () => {
+  checkTime("112233.444", { hours: 11, minutes: 22, seconds: 33, milliseconds: 444 });
+  checkTime("112233", { hours: 11, minutes: 22, seconds: 33 });
+  checkTime("1122", { hours: 11, minutes: 22, seconds: 0 });
+  checkTime("11", { hours: 11, minutes: 0, seconds: 0 });
+  checkTime("T1122", { hours: 11, minutes: 22, seconds: 0 });
 });
 
 const rejectsTime = (s: string) => {

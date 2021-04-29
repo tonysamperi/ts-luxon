@@ -123,3 +123,7 @@ test("DateTime#set throws for metadata", () => {
   // @ts-expect-error
   expect(() => dt.set({ invalid: true })).toThrow();
 });
+
+test("DateTime#set maintains invalidity", () => {
+  expect(DateTime.invalid("because").set({ ordinal: 200 }).isValid).toBe(false);
+});

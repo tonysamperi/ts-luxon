@@ -1,15 +1,17 @@
-*********************************************************************
+** TS-LUXON *******************************************************************
 
-Test Suites: 2 failed, 49 passed, 51 total
-Tests:       2 failed, 839 passed, 841 total
+Test Suites: 55 passed, 55 total
+Tests:       915 passed, 915 total
 Snapshots:   0 total
-Time:        10.626 s, estimated 12 s
+Time:        30.027 s
 
-*********************************************************************
+** JS-LUXON *******************************************************************
 
-Test Suites: 2 failed, 49 passed, 51 total
-Tests:       4 failed, 838 passed, 842 total
+Test Suites: 10 failed, 45 passed, 55 total
+Tests:       48 failed, 894 passed, 942 total
 Snapshots:   0 total
-Time:        16.684 s
+Time:        35.483s, estimated 56s
 
-*********************************************************************
+******************************************************************************
+
+DATETIME + DURATION TESTS ALIGNED!!!
