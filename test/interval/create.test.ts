@@ -31,8 +31,8 @@ test("Interval.fromDateTimes creates an interval from Dates", () => {
     end = DateTime.fromObject({ year: 2016, month: 5, day: 27 }).toJSDate(),
     int = Interval.fromDateTimes(start, end);
 
-  expect(int.start.toJSDate()).toEqual(start);
-  expect(int.end.toJSDate()).toEqual(end);
+  expect(int.start!.toJSDate()).toEqual(start);
+  expect(int.end!.toJSDate()).toEqual(end);
 });
 
 test("Interval.fromDateTimes results in an invalid Interval if the endpoints are invalid", () => {
@@ -77,7 +77,7 @@ test("Interval.after takes a duration", () => {
     int = Interval.after(start, Duration.fromObject({ days: 3 }));
 
   expect(int.start).toBe(start);
-  expect(int.end.day).toBe(28);
+  expect(int.end!.day).toBe(28);
 });
 
 test("Interval.after an object", () => {
@@ -85,7 +85,7 @@ test("Interval.after an object", () => {
     int = Interval.after(start, { days: 3 });
 
   expect(int.start).toBe(start);
-  expect(int.end.day).toBe(28);
+  expect(int.end!.day).toBe(28);
 });
 
 // ------
@@ -95,7 +95,7 @@ test("Interval.before takes a duration", () => {
   const end = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
     int = Interval.before(end, Duration.fromObject({ days: 3 }));
 
-  expect(int.start.day).toBe(22);
+  expect(int.start!.day).toBe(22);
   expect(int.end).toBe(end);
 });
 
@@ -103,7 +103,7 @@ test("Interval.before takes a number and unit", () => {
   const end = DateTime.fromObject({ year: 2016, month: 5, day: 25 }),
     int = Interval.before(end, { days: 3 });
 
-  expect(int.start.day).toBe(22);
+  expect(int.start!.day).toBe(22);
   expect(int.end).toBe(end);
 });
 
