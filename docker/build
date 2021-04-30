@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile --build-arg CODECOV_TOKEN=${CODECOV_TOKEN} .
+docker build -t tonysamperi/ts-luxon -f ./docker/Dockerfile .
