@@ -110,16 +110,16 @@ export class Interval {
    * Returns the start of the Interval
    * @type {DateTime}
    */
-  get start() {
-    return this._s;
+  get start(): DateTime | null {
+    return this.isValid ? this._s : null;
   }
 
   /**
    * Returns the end of the Interval
    * @type {DateTime}
    */
-  get end() {
-    return this._e;
+  get end(): DateTime | null {
+    return this.isValid ? this._e : null;
   }
 
   /**
@@ -187,8 +187,7 @@ export class Interval {
       try {
         start = DateTime.fromISO(s, opts);
         startIsValid = start.isValid;
-      }
-      catch (e) {
+      } catch (e) {
         startIsValid = false;
       }
 
@@ -196,8 +195,7 @@ export class Interval {
       try {
         end = DateTime.fromISO(e, opts);
         endIsValid = end.isValid;
-      }
-      catch (e) {
+      } catch (e) {
         endIsValid = false;
       }
 
@@ -336,9 +334,14 @@ export class Interval {
    * @param {string} [unit='milliseconds'] - the unit of time to count.
    * @return {number}
    */
-  count(unit: DurationUnit = "milliseconds") {
-    const start = this.start.startOf(unit),
-      end = this.end.startOf(unit);
+  count(unit: DurationUnit = "milliseconds"): number {
+    if (!this.isValid) {
+      return NaN;
+    }
+    // start is not null because not invalid
+    const start = (this.start as DateTime).startOf(unit);
+    // end is not null because not invalid
+    const end = (this.end as DateTime).startOf(unit);
     return Math.floor(end.diff(start, unit).get(unit)) + 1;
   }
 
@@ -348,7 +351,7 @@ export class Interval {
    * @return {boolean}
    */
   hasSame(unit: DurationUnit) {
-    return this.isEmpty() || this._e.minus({ milliseconds: 1 }).hasSame(this._s, unit);
+    return this.isValid ? this.isEmpty() || this._e.minus(1).hasSame(this._s, unit) : false;
   }
 
   /**
@@ -365,6 +368,10 @@ export class Interval {
    * @return {boolean}
    */
   isAfter(dateTime: DateTime) {
+    if (!this.isValid) {
+      return false;
+    }
+
     return this._s > dateTime;
   }
 
@@ -374,6 +381,10 @@ export class Interval {
    * @return {boolean}
    */
   isBefore(dateTime: DateTime) {
+    if (!this.isValid) {
+      return false;
+    }
+
     return this._e <= dateTime;
   }
 
@@ -441,7 +452,8 @@ export class Interval {
 
     const results = [];
     while (s < this._e) {
-      const added = this.start.plus(dur.mapUnits(x => x * idx));
+      // Start is not null here because it's valid
+      const added = (this.start as DateTime).plus(dur.mapUnits(x => x * idx));
       next = +added > +this._e ? this._e : added;
       results.push(Interval.fromDateTimes(s, next));
       s = next;

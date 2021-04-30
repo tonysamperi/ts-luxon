@@ -1722,11 +1722,11 @@ export class DateTime {
 
   /**
    * Subtract a period of time to this DateTime and return the resulting DateTime
-   * See {@link DateTime#plus}
-   * @param {Duration|Object} duration - The amount to subtract. Either a Luxon Duration or the object argument to Duration.fromObject()
+   * See {@link plus}
+   * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
    @return {DateTime}
    */
-  minus(duration: DurationLike): DateTime {
+  minus(duration: DurationLike | number): DateTime {
     if (!this.isValid) {
       return this;
     }

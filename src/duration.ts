@@ -250,11 +250,11 @@ export class Duration implements NormalizedDurationObject {
   }
 
   // Private readonly fields
-  private _conversionAccuracy: ConversionAccuracy;
-  private _invalid: Invalid | null;
+  private readonly _conversionAccuracy: ConversionAccuracy;
+  private readonly _invalid: Invalid | null;
   private readonly _values: NormalizedDurationObject;
   private _loc: Locale;
-  private _matrix: ConversionMatrix;
+  private readonly _matrix: ConversionMatrix;
   private readonly _isLuxonDuration: true;
 
   /**
@@ -317,19 +317,18 @@ export class Duration implements NormalizedDurationObject {
     }
   }
 
+  static fromMillis(count: number): Duration;
+  static fromMillis(count: number, opts: DurationOptions & ThrowOnInvalid): Duration;
+  static fromMillis(count: number, opts: DurationOptions): Duration | null;
   /**
    * Create Duration from a number of milliseconds.
    * @param {number} count of milliseconds
-   * @param {Object} options - options for parsing
-   * @param {string} [options.locale='en-US'] - the locale to use
-   * @param {string} [options.numberingSystem] - the numbering system to use
-   * @param {string} [options.conversionAccuracy='casual'] - the conversion system to use
-   * @param {boolean} [options.nullOnInvalid=false] - whether to return `null` on error instead of throwing
+   * @param {Object} opts - options for parsing
+   * @param {string} [opts.locale='en-US'] - the locale to use
+   * @param {string} opts.numberingSystem - the numbering system to use
+   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  static fromMillis(count: number): Duration;
-  static fromMillis(count: number, options: DurationOptions & ThrowOnInvalid): Duration;
-  static fromMillis(count: number, options: DurationOptions): Duration | null;
   static fromMillis(count: number, opts: DurationOptions = {}) {
     return Duration.fromObject(Object.assign({ milliseconds: count }, opts));
   }
@@ -372,6 +371,9 @@ export class Duration implements NormalizedDurationObject {
     });
   }
 
+  static fromISO(text: string): Duration;
+  static fromISO(text: string, opts: DurationOptions & ThrowOnInvalid): Duration;
+  static fromISO(text: string, opts: DurationOptions): Duration | null;
   /**
    * Create a Duration from an ISO 8601 duration string.
    * @param {string} text - text to parse
@@ -385,9 +387,6 @@ export class Duration implements NormalizedDurationObject {
    * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
    * @return {Duration}
    */
-  static fromISO(text: string): Duration;
-  static fromISO(text: string, opts: DurationOptions & ThrowOnInvalid): Duration;
-  static fromISO(text: string, opts: DurationOptions): Duration | null;
   static fromISO(text: string, opts: DurationOptions & ThrowOnInvalid = {}) {
     const [parsed] = parseISODuration(text);
     if (parsed) {
@@ -680,6 +679,9 @@ export class Duration implements NormalizedDurationObject {
    * @return {Duration}
    */
   minus(duration: DurationLike) {
+    if (!this.isValid) {
+      return this;
+    }
     const dur = friendlyDuration(duration);
     return this.plus(dur.negate());
   }
@@ -929,7 +931,6 @@ export class Duration implements NormalizedDurationObject {
   get milliseconds() {
     return this.isValid ? this._values.milliseconds || 0 : NaN;
   }
-
 
   /**
    * Equality check

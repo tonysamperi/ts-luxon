@@ -93,6 +93,10 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]) {
   }, {}) as Pick<T, K>;
 }
 
+export function hasOwnProperty(obj: object, prop: string) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
 // NUMBERS AND STRINGS
 
 export function integerBetween(thing: number, bottom: number, top: number) {
