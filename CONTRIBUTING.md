@@ -1,8 +1,10 @@
-# Contributing to Luxon
+# Contributing to TSLuxon
 
 ## General guidelines
 
-Patches are welcome. Luxon is at this point just a baby and it could use lots of help. But before you dive in...Luxon is one of those tightly-scoped libraries where the default answer to "should this library do X?" is likely "no". **So ask first!** It might save you some time and energy.
+Patches are welcome. TSLuxon is at this point just a baby and it could use lots of help. 
+
+But before you dive in...TSLuxon is one of those tightly-scoped libraries where the default answer to "should this library do X?" is likely "no". **So ask first!** It might save you some time and energy.
 
 Here are some vague notes on Luxon's design philosophy:
 

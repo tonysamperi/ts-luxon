@@ -21,7 +21,7 @@ In practice this is pretty useful; you can show users the date in their preferre
 The output calendar is a property of the DateTime itself. For example:
 
 ```js
-var dtHebrew = DateTime.now().reconfigure({ outputCalendar: 'hebrew' });
+var dtHebrew = DateTime.now().reconfigure({ outputCalendar: "hebrew" });
 dtHebrew.outputCalendar; //=> 'hebrew'
 dtHebrew.toLocaleString() //=> '4 Tishri 5778'
 ```
@@ -57,5 +57,5 @@ DateTime.fromObject({ outputCalendar: c }).toLocaleString(DateTime.DATE_FULL);
 You can set the default output calendar for new DateTime instances like this:
 
 ```js
-Settings.defaultOuputCalendar = 'persian';
+Settings.defaultOutputCalendar = 'persian';
 ```

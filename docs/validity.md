@@ -1,26 +1,33 @@
-# Errors
+# Validity
 
-Sometimes Luxon throws errors. Here's a rundown on when and why.
+## Invalid DateTimes
 
-## InvalidUnitError
+One of the most irritating aspects of programming with time is that it's possible to end up with invalid dates. This is a bit subtle: barring integer overflows, there's no count of milliseconds that don't correspond to a valid DateTime, but when working with calendar units, it's pretty easy to say something like "June 400th". Luxon considers that invalid and will mark it accordingly.
 
-## UnitOutOfRangeError
-
-## InvalidZoneError
-
-## MissingPlatformFeatureError
-
-## ConflictingSpecificationError
-
-## InvalidArgumentError
-
-The most important error is the `InvalidDateTime` error. One of the most irritating aspects of programming with time is that it's possible to end up with invalid dates. This is a bit subtle: barring integer overflows, there's no count of milliseconds that don't correspond to a valid DateTime, but when working with calendar units, it's pretty easy to say something like "June 400th". Luxon considers that invalid and will throw an error.
+Unless you've asked Luxon to throw an exception when it creates an invalid DateTime (see more on that below), it will fail silently, creating an instance that doesn't know how to do anything. You can check validity with `isValid`:
 
 ```js
-> var dt = DateTime.fromObject({ month: 6, day: 400 }); // throws!
+> var dt = DateTime.fromObject({ month: 6, day: 400 });
+dt.isValid //=> false
 ```
 
-Some examples:
+All of the methods or getters that return primitives return degenerate ones:
+
+```js
+dt.year; //=>  NaN
+dt.toString(); //=> 'Invalid DateTime'
+dt.toObject(); //=> {}
+```
+
+Methods that return other Luxon objects will return invalid ones:
+
+```js
+dt.plus({ days: 4 }).isValid; //=> false
+```
+
+## Reasons a DateTimes can be invalid
+
+The most common way to do that is to over- or underflow some unit:
 
 - February 40th
 - 28:00
@@ -31,15 +38,13 @@ But there are other ways to do it:
 
 ```js
 // specify a time zone that doesn't exist
-DateTime.now().setZone("America/Blorp"); // throws
+DateTime.now().setZone("America/Blorp").isValid; //=> false
 
 // provide contradictory information (here, this date is not a Wednesday)
-DateTime.fromObject({ year: 2017, month: 5, day: 25, weekday: 3 }).; // throws
+DateTime.fromObject({ year: 2017, month: 5, day: 25, weekday: 3 }).isValid; //=> false
 ```
 
-##InvalidArgumentError
-
-Sometimes Luxon decides that the problem isn't so much the data being wrong, but that the programmer misunderstood the interface. For that, Luxon throws an `InvalidArgumentError`.
+Note that some other kinds of mistakes throw, based on our judgment that they are more likely programmer errors than data issues:
 
 ```js
 DateTime.now().set({ blorp: 7 }); //=> kerplosion

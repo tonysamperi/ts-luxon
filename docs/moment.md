@@ -8,11 +8,11 @@ Luxon's objects are immutable, whereas Moment's are mutable. For example, in Mom
 
 ```js
 var m1 = moment();
-var m2 = m1.add(1, "hours");
+var m2 = m1.add(1, 'hours');
 m1.valueOf() === m2.valueOf(); //=> true
 ```
 
-This happens because `m1` and `m2` are really the same object; `add()` _mutated_ the object to be an hour later. Compare that to Luxon:
+This happens because `m1` and `m2` are really the same object; `add()` *mutated* the object to be an hour later. Compare that to Luxon:
 
 ```js
 var d1 = DateTime.now();
@@ -63,11 +63,11 @@ Here's a rough mapping of DateTime methods in Moment to ones in Luxon. I haven't
 
 #### Basic information getters
 
-| Property | Moment      | Luxon                | Notes                                            |
-| -------- | ----------- | -------------------- | ------------------------------------------------ |
-| Validity | `isValid()` | N/A, throws an error |                                                  |
-| Locale   | `locale()`  | `locale`             |                                                  |
-| Zone     | `tz()`      | `zone`               | Moment requires a plugin for this, but not Luxon |
+| Property | Moment      | Luxon     | Notes                                            |
+| -------- | ----------- | --------- | ------------------------------------------------ |
+| Validity | `isValid()` | `isValid` | See also `invalidReason`                         |
+| Locale   | `locale()`  | `locale`  |                                                  |
+| Zone     | `tz()`      | `zone`    | Moment requires a plugin for this, but not Luxon |
 
 #### Unit getters
 
@@ -106,7 +106,7 @@ For programmatic getting and setting, Luxon and Moment are very similar here:
 | Change unit values | `set(Object)`              | `set(Object)`       | Like `dt.set({ year: 2016, month: 3 })` |
 | Change time zone   | `tz(String)`               | `setZone(string)`   | Luxon doesn't require a plugin          |
 | Change zone to utc | `utc()`                    | `toUTC()`           |                                         |
-| Change local zone  | `local()`                  | `toSystemZone()`    |                                         |
+| Change local zone  | `local()`                  | `toLocal()`         |                                         |
 | Change offset      | `utcOffset(Number)`        | None                | Set the zone instead                    |
 | Change locale      | `locale(String)`           | `setLocale(String)` |                                         |
 

@@ -35,7 +35,7 @@ These units use time math:
  * **Minutes** are always 60 seconds
  * **Seconds** are always 1000 milliseconds
 
-Don't worry about leap seconds. Javascript and most other programming environments don't account for them; they just happen as abrupt, invisible changes to the underlying system's time.
+Don't worry about leap seconds. JavaScript and most other programming environments don't account for them; they just happen as abrupt, invisible changes to the underlying system's time.
 
 ### How to think about calendar math
 
@@ -82,7 +82,7 @@ DateTime.fromISO('2017-04-30').plus({months: 1, days: 1}).toISODate();
 
 If the day is added first, we'll get an intermediate value of May 1. Adding a month to that gives us June 1. But if the month is added first, we'll an intermediate value of May 30 and day after that is May 31. (See "Calendar math vs time math above if this is confusing.) So the order matters.
 
-TsLuxon has a simple rule for this: **math is done from highest order to lowest order**. So the result of the example above is May 31. This rule isn't logically necessary, but it does seem to reflect what people mean. Of course, Luxon can't enforce this rule if you do the math in separate operations:
+Luxon has a simple rule for this: **math is done from highest order to lowest order**. So the result of the example above is May 31. This rule isn't logically necessary, but it does seem to reflect what people mean. Of course, Luxon can't enforce this rule if you do the math in separate operations:
 
 ```js
 DateTime.fromISO('2017-04-30').plus({days: 1}).plus({months: 1}).toISODate() //=> '2017-06-01'
@@ -108,9 +108,8 @@ d1.toMillis() === d2.toMillis() // are d1 and d2 the same instant in time?
 You may also use `#hasSame` to make more subtle comparisons:
 
 ```js
-d1.hasSame(d2, 'millisecond'); // equivalent to `+d1 === +d2`
-d1.hasSame(d2, 'minute');       // both DateTimes are in the same minute (and hour, day, month, etc)
-d1.hasSame(d2, 'year');         // etc
+d1.hasSame(d2, 'year');   // both DateTimes have the same calendar year
+d1.hasSame(d2, 'day');    // both DateTimes have the same calendar day (which implies they also have the same calendar year and month)
 ```
 
 Note that these are checking against the calendar. For example, if `d1` is in 2017, calling `hasSame` with "year" asks if d2 is also in 2017, not whether the DateTimes within a year of each other. For that, you'd need `diff` (see below).
