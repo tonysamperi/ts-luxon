@@ -6,7 +6,7 @@ import {
   CalendarSystem
 } from "../src";
 
-const withoutIntl = (name: string, f: Function) => {
+export const withoutIntl = (name: string, f: Function) => {
   const fullName = `With no Intl support, ${name}`;
   test(fullName, () => {
     const intl = Intl;

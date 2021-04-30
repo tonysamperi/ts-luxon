@@ -41,7 +41,6 @@ import {
   InvalidUnitError,
   InvalidDateTimeError
 } from "./errors";
-import { SystemZone } from "./zones/systemZone";
 import { Zone } from "./zone";
 import {
   DateTimeOptions,
@@ -1594,17 +1593,6 @@ export class DateTime {
    */
   toUTC(offset = 0, opts: SetZoneOptions = {}): DateTime {
     return this.setZone(FixedOffsetZone.instance(offset), opts);
-  }
-
-  /**
-   * "Set" the DateTime's zone to the system's time zone. Returns a newly-constructed DateTime.
-   * The system time zone is the one set on the machine where this code gets executed.
-   *
-   * Equivalent to `setZone("system")`
-   * @return {DateTime}
-   */
-  toSystemZone() {
-    return this.setZone(SystemZone.instance);
   }
 
   /**

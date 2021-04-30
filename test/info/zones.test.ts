@@ -1,6 +1,6 @@
-import { Info, FixedOffsetZone, IANAZone, SystemZone, Settings } from "../../src";
+import { Info, FixedOffsetZone, IANAZone, Settings, InvalidZone, LocalZone } from "../../src";
 import { Helpers } from "../helpers";
-import { LocalZone } from "../../src/zones/localZone";
+
 
 // ------
 // .hasDST()
@@ -18,16 +18,13 @@ test("Info.hasDST returns false for America/Cancun", () => {
   expect(Info.hasDST("America/Cancun")).toBe(false);
 });
 
-test("Info.hasDST returns true for Europe/Andorra", () => {
-  expect(Info.hasDST("Europe/Andorra")).toBe(true);
+test("Info.hasDST returns true for Europe/Andora", () => {
+  expect(Info.hasDST("Europe/Andora")).toBe(true);
 });
 
-test("Info.hasDST uses the default zone when none is specified", () => {
+test("Info.hasDST defaults to the global zone", () => {
   Helpers.withDefaultZone("America/Cancun", () => {
     expect(Info.hasDST()).toBe(false);
-  });
-  Helpers.withDefaultZone("America/New_York", () => {
-    expect(Info.hasDST()).toBe(true);
   });
 });
 
@@ -67,11 +64,15 @@ test("Info.normalizeZone returns Zone objects unchanged", () => {
   const fixedOffsetZone = FixedOffsetZone.instance(5);
   expect(Info.normalizeZone(fixedOffsetZone)).toBe(fixedOffsetZone);
 
-  const ianaZone = IANAZone.create("Europe/Paris");
+  // @ts-ignore
+  const ianaZone = new IANAZone("Europe/Paris");
   expect(Info.normalizeZone(ianaZone)).toBe(ianaZone);
 
-  const sysZone = SystemZone.instance;
-  expect(Info.normalizeZone(sysZone)).toBe(sysZone);
+  const invalidZone = new InvalidZone("bumblebee");
+  expect(Info.normalizeZone(invalidZone)).toBe(invalidZone);
+
+  const localZone = LocalZone.instance;
+  expect(Info.normalizeZone(localZone)).toBe(localZone);
 });
 
 test.each([
@@ -94,10 +95,8 @@ test("Info.normalizeZone converts unknown name to invalid Zone", () => {
 });
 
 test("Info.normalizeZone converts null and undefined to default Zone", () => {
-  Helpers.withDefaultZone("Asia/Tokyo", () => {
-    expect(Info.normalizeZone(null)).toBe(Settings.defaultZone);
-    expect(Info.normalizeZone(undefined)).toBe(Settings.defaultZone);
-  });
+  expect(Info.normalizeZone(null)).toBe(Settings.defaultZone);
+  expect(Info.normalizeZone(undefined)).toBe(Settings.defaultZone);
 });
 
 test("Info.normalizeZone converts local to default Zone", () => {

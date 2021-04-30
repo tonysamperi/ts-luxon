@@ -2,6 +2,7 @@ import { DateTime } from "./datetime";
 import { Settings } from "./settings";
 import { Locale } from "./impl/locale";
 import { IANAZone } from "./zones/IANAZone";
+import { Zone } from "./zone";
 import { normalizeZone } from "./impl/zoneUtil";
 
 import { hasFormatToParts, hasIntl, hasRelative } from "./impl/util";
@@ -15,20 +16,15 @@ import { ZoneLike } from "./types/zone";
 export class Info {
   /**
    * Return whether the specified zone contains a DST.
-   * @param {string|Zone|number} [zone='default'] - Zone to check. Defaults to the system's time zone, unless overriden in Settings.defaultZone
+   * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
    * @return {boolean}
    */
-  static hasDST(zone?: ZoneLike) {
-    const zoneObj = normalizeZone(zone, Settings.defaultZone);
-
-    if (!zoneObj.isValid) {
-      return false;
-    }
+  static hasDST(zone: ZoneLike = Settings.defaultZone) {
     const proto = DateTime.now()
-      .setZone(zoneObj)
+      .setZone(zone)
       .set({ month: 12 });
 
-    return !zoneObj.universal && proto.offset !== proto.set({ month: 6 }).offset;
+    return !(zone as Zone).universal && proto.offset !== proto.set({ month: 6 }).offset;
   }
 
   /**
@@ -77,7 +73,11 @@ export class Info {
    * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
    * @return {[string]}
    */
-  static months(length: UnitLength = "long", { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}) {
+  static months(length: UnitLength = "long", {
+    locale,
+    numberingSystem,
+    outputCalendar = "gregory"
+  }: InfoCalendarOptions = {}) {
     return Locale.create(locale, numberingSystem, outputCalendar).months(length);
   }
 
@@ -93,7 +93,11 @@ export class Info {
    * @param {string} [options.outputCalendar='gregory'] - the calendar
    * @return {[string]}
    */
-  static monthsFormat(length: UnitLength = "long", { locale, numberingSystem, outputCalendar = "gregory" }: InfoCalendarOptions = {}) {
+  static monthsFormat(length: UnitLength = "long", {
+    locale,
+    numberingSystem,
+    outputCalendar = "gregory"
+  }: InfoCalendarOptions = {}) {
     return Locale.create(locale, numberingSystem, outputCalendar).months(length, true);
   }
 
