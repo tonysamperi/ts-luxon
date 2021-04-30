@@ -41,5 +41,5 @@ jobs:
         run: docker pull tonysamperi/ts-luxon
 
       - name: Run test flow
-        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
+        run: docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh 
 
