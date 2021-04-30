@@ -2,4 +2,4 @@
 npm install
 npm run build
 npm run test
-npm run codecov
+bash <(curl -s https://codecov.io/bash) -Z
