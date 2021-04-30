@@ -121,6 +121,13 @@ Helpers.withoutFTP("Info.weekdays lists the narrow weekdays in English without F
   expect(Info.weekdays("narrow", { locale: "fr" })).toEqual(["M", "T", "W", "T", "F", "S", "S"]);
 });
 
+Helpers.withoutFTP(
+  "Info.weekdays lists the numeric weekdays in English without FTP support",
+  () => {
+    expect(Info.weekdays("numeric", { locale: "fr" })).toEqual(["1", "2", "3", "4", "5", "6", "7"]);
+  }
+);
+
 // ------
 // Info.meridiems()
 // ------
