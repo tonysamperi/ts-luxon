@@ -7,6 +7,10 @@
     "no-console": {
       "severity": "warning"
     },
-    "no-empty": false
+    "no-empty": false,
+    "no-unused-expression": false,
+    "no-unused-variable": {
+      "severity": "warn"
+    }
   }
 }

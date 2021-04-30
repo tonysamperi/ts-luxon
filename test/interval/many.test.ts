@@ -1,9 +1,12 @@
 import { DateTime, Interval, Duration } from "../../src";
 import { Helpers } from "../helpers";
 
-const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fromISO(e)),
-  todayFrom = (h1: number, h2: number) => Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));
+const fromISOs = (s: string, e: string): Interval => DateTime.fromISO(s).until(DateTime.fromISO(e));
+const todayFrom = (h1: number, h2: number, uselessString?: string): Interval => {
+  uselessString || "foo";
 
+  return Interval.fromDateTimes(Helpers.atHour(h1), Helpers.atHour(h2));
+};
 // -------
 // #equals()
 // -------
@@ -18,6 +21,16 @@ test("Interval#equals returns true iff the times are the same", () => {
   expect(first.equals(fromISOs(s2, e))).toBeFalsy();
   expect(first.equals(fromISOs(s, e2))).toBeFalsy();
   expect(first.equals(fromISOs(s2, e2))).toBeFalsy();
+});
+
+test("Interval#equals returns false for invalid intervals", () => {
+  const invalid = Interval.invalid("blarg"),
+    normal = fromISOs("2017-01-01", "2017-01-02");
+
+  expect(invalid.equals(invalid)).toBeFalsy();
+  expect(normal.equals(invalid)).toBeFalsy();
+  expect(invalid.equals(normal)).toBeFalsy();
+  expect(normal.equals(normal)).toBeTruthy();
 });
 
 // -------
@@ -79,6 +92,10 @@ test("Interval#union spans adjacent intervals", () => {
   ).toBeTruthy();
 });
 
+test("Interval#union returns invalid for invalid intervals", () => {
+  expect(Interval.invalid("any reason").union(todayFrom(8, 10)).isValid).toBeFalsy();
+});
+
 // -------
 // #intersection()
 // -------
@@ -88,13 +105,18 @@ test("Interval#intersection returns null if there's no intersection", () => {
 });
 
 test("Interval#intersection returns the intersection for overlapping intervals", () => {
-  const intersection = todayFrom(5, 8).intersection(todayFrom(3, 7));
-  expect(intersection !== null && intersection.equals(todayFrom(5, 7))).toBeTruthy();
+  const i = todayFrom(5, 8).intersection(todayFrom(3, 7)) as Interval;
+  expect(i.equals(todayFrom(5, 7))).toBeTruthy();
 });
 
 test("Interval#intersection returns empty for adjacent intervals", () => {
-  const intersection = todayFrom(5, 8).intersection(todayFrom(8, 10));
-  expect(intersection !== null && intersection.isEmpty()).toBeTruthy();
+  const i = todayFrom(5, 8).intersection(todayFrom(8, 10)) as Interval;
+  expect(i.isEmpty()).toBeTruthy();
+});
+
+test("Interval#intersection returns invalid for invalid intervals", () => {
+  const i = Interval.invalid("any reason").intersection(todayFrom(8, 10)) as Interval;
+  expect(i.isValid).toBeFalsy();
 });
 
 // -------
@@ -102,13 +124,13 @@ test("Interval#intersection returns empty for adjacent intervals", () => {
 // -------
 test("Interval.merge returns the minimal set of intervals", () => {
   const list = [
-    todayFrom(5, 8),
-    todayFrom(4, 7),
-    todayFrom(10, 11),
-    todayFrom(11, 12),
-    todayFrom(13, 15)
-  ];
-  const results = Interval.merge(list);
+      todayFrom(5, 8),
+      todayFrom(4, 7),
+      todayFrom(10, 11),
+      todayFrom(11, 12),
+      todayFrom(13, 15)
+    ],
+    results = Interval.merge(list);
 
   expect(results.length).toBe(3);
   expect(results[0] && results[0].equals(todayFrom(4, 8))).toBeTruthy();
@@ -124,11 +146,14 @@ test("Interval.merge returns empty for an empty input", () => {
 // .xor()
 // -------
 function xor(items: Interval[], expected: Interval[]) {
-  const result = Interval.xor(items);
-  expect(result.length).toBe(expected.length);
-  let index = 0;
-  result.forEach(i => expect(i.equals(expected[index++])).toBeTruthy());
-  return result;
+  const r = Interval.xor(items);
+  expect(r.length).toBe(expected.length);
+  for (const i in expected) {
+    if (Object.prototype.hasOwnProperty.call(expected, i)) {
+      expect(r[i] && r[i].equals(expected[i])).toBeTruthy();
+    }
+  }
+  return r;
 }
 
 test("Interval.xor returns non-overlapping intervals as-is", () => {
@@ -177,16 +202,21 @@ test("Interval.xor handles funny adjacency cases", () => {
 // #difference()
 // -------
 function diff(interval: Interval, items: Interval[], expected: Interval[]) {
-  const result = interval.difference(...items);
-  expect(result.length).toBe(expected.length);
-  let index = 0;
-  result.forEach(resDiff => expect(resDiff.equals(expected[index++])).toBeTruthy());
-  return result;
+  const r = interval.difference(...items);
+  expect(r.length).toBe(expected.length);
+  for (const i in expected) {
+    if (Object.prototype.hasOwnProperty.call(expected, i)) {
+      expect(r[i] && r[i].equals(expected[i])).toBeTruthy();
+    }
+  }
+  return r;
 }
 
 test("Interval#difference returns self for non-overlapping intervals", () => {
-  diff(todayFrom(8, 9), [todayFrom(10, 11)], [todayFrom(8, 9)]);
-  diff(todayFrom(8, 9), [todayFrom(6, 7)], [todayFrom(8, 9)]);
+  // @ts-ignore
+  diff(todayFrom(8, 9), [todayFrom, (10, 11)], [todayFrom(8, 9)]);
+  // @ts-ignore
+  diff(todayFrom(8, 9), [todayFrom, (6, 7)], [todayFrom(8, 9)]);
 });
 
 test("Interval#difference returns the non-overlapping parts of intervals", () => {
@@ -224,14 +254,19 @@ test("Interval#difference allows holes", () => {
 test("Interval#engulfs", () => {
   const i = todayFrom(9, 12);
 
-  expect(i.engulfs(todayFrom(13, 15))).toBeFalsy(); // wholly later
-  expect(i.engulfs(todayFrom(11, 15))).toBeFalsy(); // partially later
-  expect(i.engulfs(todayFrom(6, 8))).toBeFalsy(); // wholly earlier
-  expect(i.engulfs(todayFrom(6, 10))).toBeFalsy(); // partially earlier
-  expect(i.engulfs(todayFrom(8, 13))).toBeFalsy(); // engulfed
+  expect(i.engulfs(todayFrom(13, 15, "wholly later"))).toBeFalsy();
+  expect(i.engulfs(todayFrom(11, 15, "partially later"))).toBeFalsy();
+  expect(i.engulfs(todayFrom(6, 8, "wholly earlier"))).toBeFalsy();
+  expect(i.engulfs(todayFrom(6, 10, "partially earlier"))).toBeFalsy();
+  expect(i.engulfs(todayFrom(8, 13, "engulfed"))).toBeFalsy();
 
-  expect(i.engulfs(todayFrom(10, 11))).toBeTruthy(); // engulfing
-  expect(i.engulfs(todayFrom(9, 12))).toBeTruthy(); // equal
+  expect(i.engulfs(todayFrom(10, 11, "engulfing"))).toBeTruthy();
+  expect(i.engulfs(todayFrom(9, 12, "equal"))).toBeTruthy();
+});
+
+test("Interval#engulfs returns false for invalid intervals", () => {
+  expect(Interval.invalid("because").engulfs(todayFrom(9, 12))).toBe(false);
+  expect(todayFrom(9, 12).engulfs(Interval.invalid("because"))).toBe(false);
 });
 
 // -------
@@ -244,6 +279,11 @@ test("Interval#abutsStart", () => {
   expect(todayFrom(9, 10).abutsStart(todayFrom(9, 10))).toBeFalsy();
 });
 
+test("Interval#abutsStart returns false for invalid intervals", () => {
+  expect(Interval.invalid("because").abutsStart(todayFrom(9, 12))).toBe(false);
+  expect(todayFrom(9, 12).abutsStart(Interval.invalid("because"))).toBe(false);
+});
+
 // -------
 // #abutsEnd()
 // -------
@@ -252,6 +292,11 @@ test("Interval#abutsEnd", () => {
   expect(todayFrom(9, 11).abutsEnd(todayFrom(8, 10))).toBeFalsy();
   expect(todayFrom(9, 11).abutsEnd(todayFrom(7, 8))).toBeFalsy();
   expect(todayFrom(9, 11).abutsEnd(todayFrom(9, 11))).toBeFalsy();
+});
+
+test("Interval#abutsEnd returns false for invalid intervals", () => {
+  expect(Interval.invalid("because").abutsEnd(todayFrom(9, 12))).toBe(false);
+  expect(todayFrom(9, 12).abutsEnd(Interval.invalid("because"))).toBe(false);
 });
 
 // -------
@@ -263,6 +308,11 @@ test("Interval#splitAt breaks up the interval", () => {
   expect(split[0].equals(todayFrom(8, 9))).toBeTruthy();
   expect(split[1].equals(todayFrom(9, 11))).toBeTruthy();
   expect(split[2].equals(todayFrom(11, 13))).toBeTruthy();
+});
+
+test("Interval#splitAt returns [] for invalid intervals", () => {
+  const split = Interval.invalid("because").splitAt(Helpers.atHour(9), Helpers.atHour(11));
+  expect(split).toEqual([]);
 });
 
 test("Interval#splitAt ignores times outside the interval", () => {
@@ -304,8 +354,18 @@ test("Interval#splitBy accepts a duration", () => {
   expect(split[2].equals(todayFrom(12, 13))).toBeTruthy();
 });
 
+test("Interval#splitBy returns [] for invalid intervals", () => {
+  const split = Interval.invalid("because").splitBy({ hours: 2 });
+  expect(split).toEqual([]);
+});
+
+test("Interval#split by returns [] for invalid durations", () => {
+  const split = todayFrom(8, 3).splitBy(Duration.invalid("because"));
+  expect(split).toEqual([]);
+});
+
 test("Interval#split by returns [] for durations of length 0", () => {
-  const split = todayFrom(8, 8).splitBy(Duration.fromObject({}));
+  const split = todayFrom(8, 3).splitBy(Duration.fromObject({}));
   expect(split).toEqual([]);
 });
 
@@ -346,29 +406,36 @@ test("Interval#divideEqually should split a 4 hour period into 4 contiguous 1-ho
 });
 
 test("Interval#divideEqually should split a 1m30s into 3 30-second parts", () => {
-  const after = (i: DateTime, minutes: number, seconds: number) =>
-      Interval.after(i, Duration.fromObject({ minutes, seconds })),
-    split = after(Helpers.atHour(9), 1, 30).divideEqually(3);
+  const after = (i: DateTime, m: number, s: number) => {
+    return Interval.after(i, Duration.fromObject({ minutes: m, seconds: s }));
+  };
+
+  const split = after(Helpers.atHour(9), 1, 30).divideEqually(3);
   expect(split.length).toBe(3);
   expect(split[0].equals(after(Helpers.atHour(9), 0, 30))).toBeTruthy();
   expect(split[2].equals(after(Helpers.atHour(9).plus({ minutes: 1 }), 0, 30))).toBeTruthy();
 });
 
 test("Interval#divideEqually always gives you the right number of parts", () => {
-  const int = Interval.after(Helpers.atHour(9), { minutes: 7 });
-  const split = int.divideEqually(17);
+  const int = Interval.after(Helpers.atHour(9), { minutes: 7 }),
+    split = int.divideEqually(17);
   expect(split.length).toBe(17);
+});
+
+test("Interval#divideEqually returns [] for invalid intervals", () => {
+  const split = Interval.invalid("because").divideEqually(3);
+  expect(split).toEqual([]);
 });
 
 test("Interval#mapEndpoints returns a new Interval with the mapped endpoints", () => {
   const zone = "America/Los_Angeles";
   const original = Interval.fromDateTimes(
-    DateTime.fromObject({zone}),
-    DateTime.fromObject({zone}).plus({ hour: 1 })
+    DateTime.fromObject({ zone }),
+    DateTime.fromObject({ zone }).plus({ hours: 1 })
   );
 
   const mapped = original.mapEndpoints(d => d.toUTC());
 
-  expect(mapped.start.zoneName).toEqual("UTC");
-  expect(mapped.end.zoneName).toEqual("UTC");
+  expect((mapped.start as DateTime).zoneName).toEqual("UTC");
+  expect((mapped.end as DateTime).zoneName).toEqual("UTC");
 });

@@ -2,11 +2,12 @@ import { DateTime, DateTimeLike } from "./datetime";
 import { Duration, friendlyDuration, DurationLike } from "./duration";
 import { InvalidArgumentError, InvalidIntervalError } from "./errors";
 import { ToISOTimeOptions, DateTimeWithZoneOptions } from "./types/datetime";
-import { DurationUnit, DurationOptions } from "./types/duration";
+import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
 import { IntervalObject } from "./types/interval";
 import { ThrowOnInvalid } from "./types/common";
 import { Invalid } from "./types/invalid";
 import { Settings } from "./settings";
+import { isNumber } from "./impl/util";
 
 const INVALID = "Invalid Interval";
 
@@ -30,16 +31,17 @@ function friendlyDateTime(dateTimeish: DateTimeLike) {
   if (DateTime.isDateTime(dateTimeish)) {
     return dateTimeish;
   }
-  else if (dateTimeish instanceof Date) {
-    return DateTime.fromJSDate(dateTimeish);
+  else if (dateTimeish && dateTimeish.valueOf && isNumber(dateTimeish.valueOf())) {
+    return DateTime.fromJSDate(dateTimeish as Date);
   }
-  else if (typeof dateTimeish === "object" && dateTimeish) {
-    return DateTime.fromObject(dateTimeish);
+  else if (dateTimeish && typeof dateTimeish === "object") {
+    return DateTime.fromObject(dateTimeish as DurationObject);
   }
-
-  throw new InvalidArgumentError(
-    `Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`
-  );
+  else {
+    throw new InvalidArgumentError(
+      `Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`
+    );
+  }
 }
 
 interface Config {
@@ -79,9 +81,9 @@ export class Interval {
   }
 
   // Private readonly fields
-  private _invalid: Invalid | null;
-  private _s: DateTime;
-  private _e: DateTime;
+  private readonly _invalid: Invalid | null;
+  private readonly _s: DateTime;
+  private readonly _e: DateTime;
   private readonly _isLuxonInterval: true;
 
   /**
@@ -128,7 +130,7 @@ export class Interval {
    * @param {DateTime|Date|Object} end
    * @return {Interval}
    */
-  static fromDateTimes(start: DateTimeLike, end: DateTimeLike) {
+  static fromDateTimes(start: DateTimeLike, end: DateTimeLike): Interval {
     const builtStart = friendlyDateTime(start),
       builtEnd = friendlyDateTime(end);
 
@@ -298,7 +300,7 @@ export class Interval {
         { time: i._e, type: "e" }
       ]),
       flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
-      arr = flattened.sort((a, b) => a.time.valueOf() - b.time.valueOf());
+      arr = flattened.sort((a, b) => +a.time - +b.time);
 
     for (const i of arr) {
       currentCount += i.type === "s" ? 1 : -1;
@@ -404,7 +406,10 @@ export class Interval {
    * @param {DateTime} values.end - the ending DateTime
    * @return {Interval}
    */
-  set({ start, end }: IntervalObject) {
+  set({ start, end }: IntervalObject = {}) {
+    if (!this.isValid) {
+      return this;
+    }
     return Interval.fromDateTimes(start || this._s, end || this._e);
   }
 
@@ -508,6 +513,10 @@ export class Interval {
    * @return {boolean}
    */
   engulfs(other: Interval) {
+    if (!this.isValid) {
+      return false;
+    }
+
     return this._s <= other._s && this._e >= other._e;
   }
 
@@ -517,6 +526,10 @@ export class Interval {
    * @return {boolean}
    */
   equals(other: Interval) {
+    if (!this.isValid || !other.isValid) {
+      return false;
+    }
+
     return this._s.equals(other._s) && this._e.equals(other._e);
   }
 
@@ -528,6 +541,9 @@ export class Interval {
    * @return {Interval|null}
    */
   intersection(other: Interval) {
+    if (!this.isValid) {
+      return this;
+    }
     const s = this._s > other._s ? this._s : other._s,
       e = this._e < other._e ? this._e : other._e;
 
@@ -546,6 +562,9 @@ export class Interval {
    * @return {Interval}
    */
   union(other: Interval) {
+    if (!this.isValid) {
+      return this;
+    }
     const s = this._s < other._s ? this._s : other._s,
       e = this._e > other._e ? this._e : other._e;
     return Interval.fromDateTimes(s, e);
@@ -665,7 +684,7 @@ export class Interval {
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.toUTC())
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
    */
-  mapEndpoints(mapFn: (dt: DateTime) => DateTime) {
+  mapEndpoints(mapFn: (dt: DateTime) => DateTime): Interval {
     return Interval.fromDateTimes(mapFn(this._s), mapFn(this._e));
   }
 }
