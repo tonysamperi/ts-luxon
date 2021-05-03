@@ -547,7 +547,7 @@ export class Interval {
     const s = this._s > other._s ? this._s : other._s,
       e = this._e < other._e ? this._e : other._e;
 
-    if (s > e) {
+    if (s >= e) {
       return null;
     }
     else {

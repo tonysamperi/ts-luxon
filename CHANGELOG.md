@@ -20,3 +20,6 @@
 * Fix hasSame unit comparison (#798)
 * Export VERSION information (#794)
 * Durations are considered equal with extra zero units. Fixes #809 (#811)
+
+##2.1.1
+* Improved intersection check
