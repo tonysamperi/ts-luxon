@@ -3,11 +3,6 @@ services:
  - docker
 before_install:
   - docker pull tonysamperi/ts-luxon
-  - ./docker/npm install
+  - docker run tonysamperi/ts-luxon /bin/sh -c "/tonysamperi/ts-luxon/docker/workflow.sh"
 script:
-
-  - ./docker/npm install
-  - ./docker/npm run build
-  - ./docker/npm run test
-  - ./docker/npm run codecov
-  - bash <(curl -s https://codecov.io/bash) -Z -t 0eb75e7c-b708-4d35-8620-5e668d8ccf5d
+ - /tonysamperi/ts-luxon/docker/workflow.sh
