@@ -11,15 +11,18 @@ import { Settings } from "./settings";
 
 export * from "./types/public";
 
+const VERSION = "2.2.0";
+
 export {
-  DateTime,
-  Duration,
-  Interval,
-  Info,
-  Zone,
-  FixedOffsetZone,
-  IANAZone,
-  InvalidZone,
-  LocalZone,
-  Settings
+    DateTime,
+    Duration,
+    Interval,
+    Info,
+    Zone,
+    FixedOffsetZone,
+    IANAZone,
+    InvalidZone,
+    LocalZone,
+    Settings,
+    VERSION
 };

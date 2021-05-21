@@ -36,7 +36,7 @@ DateTime objects can also be converted to numerical [Unix timestamps](https://en
 
 ```js
 dt.toMillis(); //=> 1492702320000
-dt.toSeconds(); //=> 1492702320
+dt.toSeconds(); //=> 1492702320.000
 dt.valueOf(); //=> 1492702320000, same as .toMillis()
 ```
 
@@ -140,6 +140,8 @@ DateTime.fromISO('2014-08-06T13:07:04.054')
   .setLocale('fr')
   .toFormat('yyyy LLL dd'); //=> '2014 août 06'
 ```
+
+Note `toFormat` defaults to `en-US`. If you need the string to be internationalized, you need to set the locale explicitly like in the example above (or more preferably, use `toLocaleString`).
 
 ### Escaping
 

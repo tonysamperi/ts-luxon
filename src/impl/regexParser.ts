@@ -1,10 +1,10 @@
 import {
-  untruncateYear,
-  signedOffset,
-  parseInteger,
-  parseMillis,
-  IANA_REGEX,
-  isUndefined
+    untruncateYear,
+    signedOffset,
+    parseInteger,
+    parseMillis,
+    IANA_REGEX,
+    isUndefined
 } from "./util";
 import * as English from "./english";
 import { FixedOffsetZone } from "../zones/fixedOffsetZone";
@@ -29,103 +29,103 @@ type CombinableExtractor = (match: RegExpExecArray, cursor: number) => Combinabl
 type ParsePattern = [RegExp, Extractor];
 
 function combineRegexes(...regexes: RegExp[]) {
-  const full = regexes.reduce((f, r) => f + r.source, "");
-  return RegExp(`^${full}$`);
+    const full = regexes.reduce((f, r) => f + r.source, "");
+    return RegExp(`^${full}$`);
 }
 
 function combineExtractors(...extractors: CombinableExtractor[]) {
 
-  return (match: RegExpExecArray) =>
-    extractors
-      .reduce<CombinableParseResult>(
-        ([mergedValues, mergedZone, cursor], ex) => {
-          const [val, zone, next] = ex(match, cursor);
-          return [Object.assign(mergedValues, val), mergedZone || zone, next];
-        },
-        [{}, null, 1]
-      )
-      .slice(0, 2) as ParseResult;
+    return (match: RegExpExecArray) =>
+        extractors
+            .reduce<CombinableParseResult>(
+                ([mergedValues, mergedZone, cursor], ex) => {
+                    const [val, zone, next] = ex(match, cursor);
+                    return [Object.assign(mergedValues, val), mergedZone || zone, next];
+                },
+                [{}, null, 1]
+            )
+            .slice(0, 2) as ParseResult;
 }
 
 function parse(s: string, ...patterns: (ParsePattern)[]): ParseResult {
-  if (s === undefined || s === null) {
-    return [null, null];
-  }
-
-  for (const [regex, extractor] of patterns) {
-    const m = regex.exec(s);
-    if (m !== null) {
-      return extractor(m);
+    if (s === undefined || s === null) {
+        return [null, null];
     }
-  }
 
-  return [null, null];
+    for (const [regex, extractor] of patterns) {
+        const m = regex.exec(s);
+        if (m !== null) {
+            return extractor(m);
+        }
+    }
+
+    return [null, null];
 }
 
 function simpleParse(...keys: (keyof GenericDateTime)[]) {
-  return (match: RegExpExecArray, cursor: number): CombinableParseResult => {
-    const ret: Record<string, number | undefined> = {};
-    let i;
+    return (match: RegExpExecArray, cursor: number): CombinableParseResult => {
+        const ret: Record<string, number | undefined> = {};
+        let i;
 
-    for (i = 0; i < keys.length; i++) {
-      ret[keys[i]] = parseInteger(match[cursor + i]);
-    }
-    return [ret, null, cursor + i];
-  };
+        for (i = 0; i < keys.length; i++) {
+            ret[keys[i]] = parseInteger(match[cursor + i]);
+        }
+        return [ret, null, cursor + i];
+    };
 }
 
 // ISO and SQL parsing
 const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/,
-  isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/,
-  isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${offsetRegex.source}?`),
-  isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`),
-  isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/,
-  isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/,
-  isoOrdinalRegex = /(\d{4})-?(\d{3})/,
-  extractISOWeekData = simpleParse("weekYear", "weekNumber", "weekday"),
-  extractISOOrdinalData = simpleParse("year", "ordinal"),
-  sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/, // dumbed-down version of the ISO one
-  sqlTimeRegex = RegExp(
-    `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${IANA_REGEX.source}))?`
-  ),
-  sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
+    isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/,
+    isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${offsetRegex.source}?`),
+    isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`),
+    isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/,
+    isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/,
+    isoOrdinalRegex = /(\d{4})-?(\d{3})/,
+    extractISOWeekData = simpleParse("weekYear", "weekNumber", "weekday"),
+    extractISOOrdinalData = simpleParse("year", "ordinal"),
+    sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/, // dumbed-down version of the ISO one
+    sqlTimeRegex = RegExp(
+        `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${IANA_REGEX.source}))?`
+    ),
+    sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
 
 function int(match: RegExpExecArray, pos: number, fallback: number) {
-  const m = match[pos];
-  return isUndefined(m) ? fallback : parseInteger(m);
+    const m = match[pos];
+    return isUndefined(m) ? fallback : parseInteger(m);
 }
 
 function extractISOYmd(match: RegExpExecArray, cursor: number): CombinableParseResult {
-  const item = {
-    year: int(match, cursor, 0), // 0 default value never used?
-    month: int(match, cursor + 1, 1),
-    day: int(match, cursor + 2, 1)
-  };
+    const item = {
+        year: int(match, cursor, 0), // 0 default value never used?
+        month: int(match, cursor + 1, 1),
+        day: int(match, cursor + 2, 1)
+    };
 
-  return [item, null, cursor + 3];
+    return [item, null, cursor + 3];
 }
 
 function extractISOTime(match: RegExpExecArray, cursor: number): CombinableParseResult {
-  const item = {
-    hour: int(match, cursor, 0),
-    minute: int(match, cursor + 1, 0),
-    second: int(match, cursor + 2, 0),
-    millisecond: parseMillis(match[cursor + 3])
-  };
+    const item = {
+        hour: int(match, cursor, 0),
+        minute: int(match, cursor + 1, 0),
+        second: int(match, cursor + 2, 0),
+        millisecond: parseMillis(match[cursor + 3])
+    };
 
-  return [item, null, cursor + 4];
+    return [item, null, cursor + 4];
 }
 
 function extractISOOffset(match: RegExpExecArray, cursor: number): CombinableParseResult {
-  const local = !match[cursor] && !match[cursor + 1],
-    fullOffset = signedOffset(match[cursor + 1], match[cursor + 2]),
-    zone = local ? null : FixedOffsetZone.instance(fullOffset);
-  return [{}, zone, cursor + 3];
+    const local = !match[cursor] && !match[cursor + 1],
+        fullOffset = signedOffset(match[cursor + 1], match[cursor + 2]),
+        zone = local ? null : FixedOffsetZone.instance(fullOffset);
+    return [{}, zone, cursor + 3];
 }
 
 function extractIANAZone(match: RegExpExecArray, cursor: number): CombinableParseResult {
-  const zone = match[cursor] ? IANAZone.create(match[cursor]) : null;
-  return [{}, zone, cursor + 1];
+    const zone = match[cursor] ? IANAZone.create(match[cursor]) : null;
+    return [{}, zone, cursor + 1];
 }
 
 // ISO time parsing
@@ -137,139 +137,140 @@ const isoTimeOnly = RegExp(`^T?${isoTimeBaseRegex.source}$`);
 const isoDuration = /^-?P(?:(?:(-?\d{1,9})Y)?(?:(-?\d{1,9})M)?(?:(-?\d{1,9})W)?(?:(-?\d{1,9})D)?(?:T(?:(-?\d{1,9})H)?(?:(-?\d{1,9})M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,9}))?S)?)?)$/;
 
 function extractISODuration(match: RegExpExecArray): any {
-  const [
-    s,
-    yearStr,
-    monthStr,
-    weekStr,
-    dayStr,
-    hourStr,
-    minuteStr,
-    secondStr,
-    millisecondsStr
-  ] = match;
+    const [
+        s,
+        yearStr,
+        monthStr,
+        weekStr,
+        dayStr,
+        hourStr,
+        minuteStr,
+        secondStr,
+        millisecondsStr
+    ] = match;
 
-  const hasNegativePrefix = s.startsWith("-");
+    const hasNegativePrefix: boolean = s.startsWith("-");
+    const negativeSeconds: boolean = !!secondStr && secondStr.startsWith("-");
 
-  const maybeNegate = (num: number | undefined) =>
-    num !== undefined && hasNegativePrefix ? -num : num;
+    const maybeNegate = (num: number | void, force: boolean = !1) =>
+        typeof num === typeof 0 && (force || (num && hasNegativePrefix)) ? -num : num;
 
-  return [{
-    years: maybeNegate(parseInteger(yearStr)),
-    months: maybeNegate(parseInteger(monthStr)),
-    weeks: maybeNegate(parseInteger(weekStr)),
-    days: maybeNegate(parseInteger(dayStr)),
-    hours: maybeNegate(parseInteger(hourStr)),
-    minutes: maybeNegate(parseInteger(minuteStr)),
-    seconds: maybeNegate(parseInteger(secondStr)),
-    milliseconds: maybeNegate(parseMillis(millisecondsStr))
-  }];
+    return [{
+        years: maybeNegate(parseInteger(yearStr)),
+        months: maybeNegate(parseInteger(monthStr)),
+        weeks: maybeNegate(parseInteger(weekStr)),
+        days: maybeNegate(parseInteger(dayStr)),
+        hours: maybeNegate(parseInteger(hourStr)),
+        minutes: maybeNegate(parseInteger(minuteStr)),
+        seconds: maybeNegate(parseInteger(secondStr), secondStr === "-0"),
+        milliseconds: maybeNegate(parseMillis(millisecondsStr), negativeSeconds)
+    }];
 }
 
 // These are a little brain dead. EDT *should* tell us that we're in, say, America/New_York
 // and not just that we're in -240 *right now*. But since I don't think these are used that often
 // I'm just going to ignore that
 const obsOffsets: Record<string, number> = {
-  GMT: 0,
-  EDT: -4 * 60,
-  EST: -5 * 60,
-  CDT: -5 * 60,
-  CST: -6 * 60,
-  MDT: -6 * 60,
-  MST: -7 * 60,
-  PDT: -7 * 60,
-  PST: -8 * 60
+    GMT: 0,
+    EDT: -4 * 60,
+    EST: -5 * 60,
+    CDT: -5 * 60,
+    CST: -6 * 60,
+    MDT: -6 * 60,
+    MST: -7 * 60,
+    PDT: -7 * 60,
+    PST: -8 * 60
 };
 
 function fromStrings(
-  weekdayStr: string,
-  yearStr: string,
-  monthStr: string,
-  dayStr: string,
-  hourStr: string,
-  minuteStr: string,
-  secondStr: string
+    weekdayStr: string,
+    yearStr: string,
+    monthStr: string,
+    dayStr: string,
+    hourStr: string,
+    minuteStr: string,
+    secondStr: string
 ) {
-  let weekday;
-  if (weekdayStr) {
-    weekday =
-      weekdayStr.length > 3
-        ? English.weekdaysLong.indexOf(weekdayStr) + 1
-        : English.weekdaysShort.indexOf(weekdayStr) + 1;
-  }
+    let weekday;
+    if (weekdayStr) {
+        weekday =
+            weekdayStr.length > 3
+                ? English.weekdaysLong.indexOf(weekdayStr) + 1
+                : English.weekdaysShort.indexOf(weekdayStr) + 1;
+    }
 
-  const year =
-    yearStr.length === 2 ? untruncateYear(parseInteger(yearStr) as number) : parseInteger(yearStr);
+    const year =
+        yearStr.length === 2 ? untruncateYear(parseInteger(yearStr) as number) : parseInteger(yearStr);
 
-  return {
-    year,
-    month: English.monthsShort.indexOf(monthStr) + 1,
-    day: parseInteger(dayStr),
-    hour: parseInteger(hourStr),
-    minute: parseInteger(minuteStr),
-    second: parseInteger(secondStr),
-    weekday
-  };
+    return {
+        year,
+        month: English.monthsShort.indexOf(monthStr) + 1,
+        day: parseInteger(dayStr),
+        hour: parseInteger(hourStr),
+        minute: parseInteger(minuteStr),
+        second: parseInteger(secondStr),
+        weekday
+    };
 }
 
 // RFC 2822/5322
 const rfc2822 = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;
 
 function extractRFC2822(match: RegExpExecArray): ParseResult {
-  const [
-      ,
-      weekdayStr,
-      dayStr,
-      monthStr,
-      yearStr,
-      hourStr,
-      minuteStr,
-      secondStr,
-      obsOffset,
-      milOffset,
-      offHourStr,
-      offMinuteStr
-    ] = match,
-    result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+    const [
+            ,
+            weekdayStr,
+            dayStr,
+            monthStr,
+            yearStr,
+            hourStr,
+            minuteStr,
+            secondStr,
+            obsOffset,
+            milOffset,
+            offHourStr,
+            offMinuteStr
+        ] = match,
+        result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
 
-  let offset;
-  if (obsOffset) {
-    offset = obsOffsets[obsOffset];
-  }
-  else if (milOffset) {
-    offset = 0;
-  }
-  else {
-    offset = signedOffset(offHourStr, offMinuteStr);
-  }
+    let offset;
+    if (obsOffset) {
+        offset = obsOffsets[obsOffset];
+    }
+    else if (milOffset) {
+        offset = 0;
+    }
+    else {
+        offset = signedOffset(offHourStr, offMinuteStr);
+    }
 
-  return [result, new FixedOffsetZone(offset)];
+    return [result, new FixedOffsetZone(offset)];
 }
 
 function preprocessRFC2822(s: string) {
-  // Remove comments and folding whitespace and replace multiple-spaces with a single space
-  return s
-    .replace(/\([^)]*\)|[\n\t]/g, " ")
-    .replace(/(\s\s+)/g, " ")
-    .trim();
+    // Remove comments and folding whitespace and replace multiple-spaces with a single space
+    return s
+        .replace(/\([^)]*\)|[\n\t]/g, " ")
+        .replace(/(\s\s+)/g, " ")
+        .trim();
 }
 
 // http date
 
 const rfc1123 = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/,
-  rfc850 = /^(Monday|Tuesday|Wedsday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/,
-  ascii = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
+    rfc850 = /^(Monday|Tuesday|Wedsday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/,
+    ascii = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
 
 function extractRFC1123Or850(match: RegExpExecArray): ParseResult {
-  const [, weekdayStr, dayStr, monthStr, yearStr, hourStr, minuteStr, secondStr] = match,
-    result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
-  return [result, FixedOffsetZone.utcInstance];
+    const [, weekdayStr, dayStr, monthStr, yearStr, hourStr, minuteStr, secondStr] = match,
+        result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+    return [result, FixedOffsetZone.utcInstance];
 }
 
 function extractASCII(match: RegExpExecArray): ParseResult {
-  const [, weekdayStr, monthStr, dayStr, hourStr, minuteStr, secondStr, yearStr] = match,
-    result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
-  return [result, FixedOffsetZone.utcInstance];
+    const [, weekdayStr, monthStr, dayStr, hourStr, minuteStr, secondStr, yearStr] = match,
+        result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+    return [result, FixedOffsetZone.utcInstance];
 }
 
 const isoYmdWithTimeExtensionRegex = combineRegexes(isoYmdRegex, isoTimeExtensionRegex);
@@ -278,14 +279,14 @@ const isoOrdinalWithTimeExtensionRegex = combineRegexes(isoOrdinalRegex, isoTime
 const isoTimeCombinedRegex = combineRegexes(isoTimeRegex);
 
 const extractISOYmdTimeAndOffset = combineExtractors(
-  extractISOYmd,
-  extractISOTime,
-  extractISOOffset
+    extractISOYmd,
+    extractISOTime,
+    extractISOOffset
 );
 const extractISOWeekTimeAndOffset = combineExtractors(
-  extractISOWeekData,
-  extractISOTime,
-  extractISOOffset
+    extractISOWeekData,
+    extractISOTime,
+    extractISOOffset
 );
 const extractISOOrdinalDataAndTime = combineExtractors(extractISOOrdinalData, extractISOTime);
 const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffset);
@@ -295,55 +296,55 @@ const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffs
  */
 
 export function parseHTTPDate(s: string) {
-  return parse(
-    s,
-    [rfc1123, extractRFC1123Or850],
-    [rfc850, extractRFC1123Or850],
-    [ascii, extractASCII]
-  );
+    return parse(
+        s,
+        [rfc1123, extractRFC1123Or850],
+        [rfc850, extractRFC1123Or850],
+        [ascii, extractASCII]
+    );
 }
 
 export function parseISODate(s: string) {
-  return parse(
-    s,
-    [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
-    [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
-    [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDataAndTime],
-    [isoTimeCombinedRegex, extractISOTimeAndOffset]
-  );
+    return parse(
+        s,
+        [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
+        [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
+        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDataAndTime],
+        [isoTimeCombinedRegex, extractISOTimeAndOffset]
+    );
 }
 
 export function parseISODuration(s: string): ParseResult {
-  return parse(s, [isoDuration, extractISODuration]);
+    return parse(s, [isoDuration, extractISODuration]);
 }
 
 export function parseISOTimeOnly(s: string) {
-  return parse(s, [isoTimeOnly, combineExtractors(extractISOTime)]);
+    return parse(s, [isoTimeOnly, combineExtractors(extractISOTime)]);
 }
 
 export function parseRFC2822Date(s: string) {
-  return parse(preprocessRFC2822(s), [rfc2822, extractRFC2822]);
+    return parse(preprocessRFC2822(s), [rfc2822, extractRFC2822]);
 }
 
 const sqlYmdWithTimeExtensionRegex = combineRegexes(sqlYmdRegex, sqlTimeExtensionRegex);
 const sqlTimeCombinedRegex = combineRegexes(sqlTimeRegex);
 
 const extractISOYmdTimeOffsetAndIANAZone = combineExtractors(
-  extractISOYmd,
-  extractISOTime,
-  extractISOOffset,
-  extractIANAZone
+    extractISOYmd,
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
 );
 const extractISOTimeOffsetAndIANAZone = combineExtractors(
-  extractISOTime,
-  extractISOOffset,
-  extractIANAZone
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
 );
 
 export function parseSQL(s: string) {
-  return parse(
-    s,
-    [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeOffsetAndIANAZone],
-    [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
-  );
+    return parse(
+        s,
+        [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeOffsetAndIANAZone],
+        [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
+    );
 }

@@ -1,0 +1,16 @@
+{
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "one-variable-per-declaration": false,
+    "variable-name": false,
+    "ban-types": false,
+    "no-console": {
+      "severity": "warning"
+    },
+    "no-empty": false,
+    "no-unused-expression": false,
+    "no-unused-variable": {
+      "severity": "warn"
+    }
+  }
+}

@@ -1,12 +1,13 @@
 {
     "name": "ts-luxon",
-    "version": "2.1.1",
+    "version": "2.2.0",
     "license": "MIT",
     "description": "Immutable date wrapper",
     "author": "Tony Samperi",
     "keywords": [
         "date",
-        "immutable"
+        "immutable",
+        "typescript"
     ],
     "repository": "https://github.com/tonysamperi/ts-luxon",
     "main": "dist/ts-luxon.umd.js",
@@ -14,9 +15,7 @@
     "typings": "dist/index.d.ts",
     "files": [
         "dist/**",
-        "src",
-        "README.md",
-        "package.json"
+        "README.md"
     ],
     "engines": {
         "node": ">=13"
@@ -28,7 +27,7 @@
         "lint": "tslint --project tsconfig.json",
         "docs": "esdoc -c docs/index.js",
         "site": "cp -r site dist",
-        "benchmark": "echo todo benchmarks/datetime.ts",
+        "benchmark": "babel-node benchmarks/index.js",
         "codecov": "codecov",
         "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
     },
@@ -38,6 +37,7 @@
         }
     },
     "devDependencies": {
+        "@types/benchmark": "^2.1.0",
         "benchmark": "^2.0.0",
         "codecov": "^3.0.0",
         "esdoc": "^1.0.0",
