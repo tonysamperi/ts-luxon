@@ -2,4 +2,4 @@
 npm install
 npm run build
 npm run test
-bash <(curl -s https://codecov.io/bash) -Z -t 0eb75e7c-b708-4d35-8620-5e668d8ccf5d
+bash <(curl -s https://codecov.io/bash) -Z -t 2e67ee6c-9c40-4a9b-990e-1d3bc0d1b885
