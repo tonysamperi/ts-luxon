@@ -1,6 +1,5 @@
 /* global test expect */
 import { LocalZone } from "../../src";
-import { withoutIntl } from "../helpers";
 
 test("LocalZone.instance returns a singleton", () => {
   expect(LocalZone.instance).toBe(LocalZone.instance);
@@ -15,8 +14,4 @@ test("LocalZone.instance provides valid ...", () => {
   // todo: figure out how to test these without inadvertently testing IANAZone
   // this is true for the provided Docker container, what's the right way to test it?
   expect(LocalZone.instance.name).toBe("Europe/Rome");
-});
-
-withoutIntl("LocalZone.name simply returns 'local'", () => {
-  expect(LocalZone.instance.name).toBe("local");
 });

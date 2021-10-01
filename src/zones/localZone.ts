@@ -1,4 +1,4 @@
-import { formatOffset, parseZoneInfo, hasIntl } from "../impl/util";
+import { formatOffset, parseZoneInfo} from "../impl/util";
 import { Zone } from "../zone";
 import { ZoneOffsetFormat, ZoneOffsetOptions } from "../types/zone";
 
@@ -27,12 +27,7 @@ export class LocalZone extends Zone {
 
   /** @override **/
   get name(): string {
-    if (hasIntl()) {
       return new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    }
-    else {
-      return "local";
-    }
   }
 
   /** @override **/

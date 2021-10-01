@@ -23,15 +23,29 @@ DateTime.now().setZone('America/New_York').minus({ weeks: 1 }).endOf('day').toIS
  * Parsing and formatting for common and custom formats.
  * Native time zone and Intl support (no locale or tz files).
 
-## Download
+## Usage
 
-You can download the umd bundles from here:
+### Via npm
+
+`npm i ts-luxon --save`
+
+then
+
+```typescript
+import {DateTime} from "ts-luxon";
+
+const myDto = DateTime.local();
+```
+
+### Bundle / AMD
+
+You can download the umd bundle from here:
 
 * [ts-luxon.umd.js](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js)
 
 # DOCS
 
-(COMING SOON)
+(COMING SOON, but refer to Luxon documentation as this is a faithful replica 😉)
 
 ## Development
 

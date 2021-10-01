@@ -1,5 +1,5 @@
 import { Interval, GregorianDateTime } from "../../src";
-import { withThrowOnInvalid } from "../helpers";
+import { Helpers } from "../helpers";
 
 // ------
 // .fromISO()
@@ -119,7 +119,7 @@ test("Interval.fromISO accepts a zone argument", () => {
 
 // #728
 test("Interval.fromISO works with Settings.throwOnInvalid", () => {
-  withThrowOnInvalid(true, () => {
+  Helpers.withThrowOnInvalid(true, () => {
     const dateDur = Interval.fromISO("2020-06-22T17:30:00.000+02:00/PT5H30M");
     expect(dateDur.isValid).toBe(true);
 

@@ -1,5 +1,5 @@
 import { DateTime } from "../../src";
-import { withDefaultLocale, withDefaultNumberingSystem, withDefaultOutputCalendar, withDefaultZone, withThrowOnInvalid } from "../helpers";
+import { Helpers } from "../helpers";
 
 // ------
 // .now()
@@ -13,19 +13,19 @@ test("DateTime.now has today's date", () => {
 });
 
 test("DateTime.now accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.now().locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.now().locale).toBe("fr"));
 });
 
 test("DateTime.now accepts the default numbering system", () => {
-  withDefaultNumberingSystem("beng", () => expect(DateTime.now().numberingSystem).toBe("beng"));
+  Helpers.withDefaultNumberingSystem("beng", () => expect(DateTime.now().numberingSystem).toBe("beng"));
 });
 
 test("DateTime.now accepts the default output calendar", () => {
-  withDefaultOutputCalendar("hebrew", () => expect(DateTime.now().outputCalendar).toBe("hebrew"));
+  Helpers.withDefaultOutputCalendar("hebrew", () => expect(DateTime.now().outputCalendar).toBe("hebrew"));
 });
 
 test("DateTime.now accepts the default time zone", () => {
-  withDefaultZone("Europe/Paris", () => expect(DateTime.now().zoneName).toBe("Europe/Paris"));
+  Helpers.withDefaultZone("Europe/Paris", () => expect(DateTime.now().zoneName).toBe("Europe/Paris"));
 });
 
 // ------
@@ -117,15 +117,15 @@ test("DateTime.local(2017, 6, 12, 5, 25, 16, 255) is right down to the milliseco
 });
 
 test("DateTime.local accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.local().locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.local().locale).toBe("fr"));
 });
 
 test("DateTime.local accepts the default numbering system", () => {
-  withDefaultNumberingSystem("beng", () => expect(DateTime.local().numberingSystem).toBe("beng"));
+  Helpers.withDefaultNumberingSystem("beng", () => expect(DateTime.local().numberingSystem).toBe("beng"));
 });
 
 test("DateTime.local accepts the default output calendar", () => {
-  withDefaultOutputCalendar("hebrew", () => expect(DateTime.local().outputCalendar).toBe("hebrew"));
+  Helpers.withDefaultOutputCalendar("hebrew", () => expect(DateTime.local().outputCalendar).toBe("hebrew"));
 });
 
 test("DateTime.local does not accept non-integer values", () => {
@@ -134,7 +134,7 @@ test("DateTime.local does not accept non-integer values", () => {
 });
 
 test("DateTime.local accepts the default time zone", () => {
-  withDefaultZone("Europe/Paris", () => expect(DateTime.local().zoneName).toBe("Europe/Paris"));
+  Helpers.withDefaultZone("Europe/Paris", () => expect(DateTime.local().zoneName).toBe("Europe/Paris"));
 });
 
 // ------
@@ -223,7 +223,7 @@ test("DateTime.utc(2017, 6, 12, 5, 25, 16, 255) is right down to the millisecond
 });
 
 test("DateTime.utc accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.utc().locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.utc().locale).toBe("fr"));
 });
 
 // ------
@@ -255,11 +255,11 @@ test("DateTime.fromJSDate(date) returns invalid for invalid values", () => {
 });
 
 test("DateTime.fromJSDate accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.fromJSDate(new Date()).locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromJSDate(new Date()).locale).toBe("fr"));
 });
 
 test("DateTime.fromJSDate(date) throw errors for invalid values when throwOnInvalid is true", () => {
-  withThrowOnInvalid(true, () => {
+  Helpers.withThrowOnInvalid(true, () => {
     // @ts-expect-error
     expect(() => DateTime.fromJSDate("")).toThrow();
     expect(() => DateTime.fromJSDate(new Date(""))).toThrow();
@@ -290,7 +290,7 @@ test("DateTime.fromMillis(ms) accepts a zone option", () => {
 });
 
 test("DateTime.fromMillis accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.fromMillis(391147200000).locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromMillis(391147200000).locale).toBe("fr"));
 });
 
 test("DateTime.fromMillis(ms) throws InvalidArgumentError for non-numeric input", () => {
@@ -322,7 +322,7 @@ test("DateTime.fromSeconds(ms) accepts a zone option", () => {
 });
 
 test("DateTime.fromSeconds accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.fromSeconds(391147200).locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromSeconds(391147200).locale).toBe("fr"));
 });
 
 test("DateTime.fromSeconds(seconds) throws InvalidArgumentError for non-numeric input", () => {
@@ -577,7 +577,7 @@ test("DateTime.fromObject() returns invalid for invalid values", () => {
 });
 
 test("DateTime.fromObject accepts the default locale", () => {
-  withDefaultLocale("fr", () => expect(DateTime.fromObject({}).locale).toBe("fr"));
+  Helpers.withDefaultLocale("fr", () => expect(DateTime.fromObject({}).locale).toBe("fr"));
 });
 
 test("DateTime.fromObject accepts really low year numbers", () => {
@@ -622,7 +622,7 @@ test("DateTime.fromObject accepts a locale with calendar and numbering identifie
 });
 
 test("DateTime.fromObject accepts a locale string with weird junk in it", () => {
-  withDefaultLocale("en-US", () => {
+  Helpers.withDefaultLocale("en-US", () => {
     const res = DateTime.fromObject({
       locale: "be-u-ca-coptic-ca-islamic"
     });
@@ -648,7 +648,7 @@ test("DateTime.fromObject overrides the locale string with explicit settings", (
 });
 
 test("DateTime.fromObject handles null as a language tag", () => {
-  withDefaultLocale("en-GB", () => {
+  Helpers.withDefaultLocale("en-GB", () => {
     const res = DateTime.fromObject({
       // @ts-ignore
       locale: null,

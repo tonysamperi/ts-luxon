@@ -1,5 +1,5 @@
 import { DateTime, Interval, Duration, Settings } from "../../src";
-import { withThrowOnInvalid } from "../helpers";
+import { Helpers } from "../helpers";
 
 // ------
 // .fromObject()
@@ -64,7 +64,7 @@ test("Interval.fromDateTimes throws with start date coming after end date", () =
     }).toJSDate(),
     end = DateTime.fromObject({ year: 2016, month: 5, day: 27 }).toJSDate();
 
-  withThrowOnInvalid(true, () => {
+    Helpers.withThrowOnInvalid(true, () => {
     expect(() => Interval.fromDateTimes(end, start)).toThrow();
   });
 });

@@ -1,6 +1,5 @@
 import { IANAZone } from "./zones/IANAZone";
 import { Locale } from "./impl/locale";
-
 import { normalizeZone } from "./impl/zoneUtil";
 import { NumberingSystem, CalendarSystem } from "./types/locale";
 import { LocalZone } from "./zones/localZone";

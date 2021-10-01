@@ -334,7 +334,7 @@ export class Duration implements NormalizedDurationObject {
   }
 
   /**
-   * Create a Duration from a JavaScript object with keys like 'years' and 'hours.
+   * Create a Duration from a JavaScript object with keys like 'years' and 'hours'.
    * If this object is empty then a zero milliseconds duration is returned.
    * @param {Object} obj - the object to create the DateTime from
    * @param {number} obj.years

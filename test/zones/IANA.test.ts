@@ -1,5 +1,4 @@
 import { FixedOffsetZone, IANAZone } from "../../src";
-import { Helpers } from "../helpers";
 
 test("IANAZone.create returns a singleton per zone name", () => {
     expect(IANAZone.create("UTC")).toBe(IANAZone.create("UTC"));
@@ -73,12 +72,6 @@ test("IANAZone.offsetName with a short format", () => {
     const zone = IANAZone.create("America/Santiago");
     const offsetName = zone.offsetName(1552089600, { format: "short", locale: "en-US" });
     expect(offsetName).toBe("GMT-3");
-});
-
-Helpers.withoutIntl("IANAZone.offsetName returns null", () => {
-    const zone = IANAZone.create("America/Santiago");
-    const offsetName = zone.offsetName(1552089600, { format: "short", locale: "en-US" });
-    expect(offsetName).toBe(null);
 });
 
 test("IANAZone.formatOffset with a short format", () => {

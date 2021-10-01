@@ -288,7 +288,11 @@ const extractISOWeekTimeAndOffset = combineExtractors(
     extractISOTime,
     extractISOOffset
 );
-const extractISOOrdinalDataAndTime = combineExtractors(extractISOOrdinalData, extractISOTime);
+const extractISOOrdinalDateAndTime = combineExtractors(
+    extractISOOrdinalData,
+    extractISOTime,
+    extractISOOffset
+);
 const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffset);
 
 /**
@@ -309,7 +313,7 @@ export function parseISODate(s: string) {
         s,
         [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
         [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
-        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDataAndTime],
+        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDateAndTime],
         [isoTimeCombinedRegex, extractISOTimeAndOffset]
     );
 }

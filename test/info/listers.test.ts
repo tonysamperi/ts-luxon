@@ -1,5 +1,5 @@
 import { Info, WeekUnitLengths } from "../../src";
-import { months_EN, months_IT, days_IT, withDefaultLocale } from "../helpers";
+import { Helpers } from "../helpers";
 import { UnitLength } from "ts-luxon";
 
 // ------
@@ -7,7 +7,7 @@ import { UnitLength } from "ts-luxon";
 // ------
 
 test("Info.months lists all the months", () => {
-  expect(Info.months("long")).toEqual(months_IT);
+  expect(Info.months("long")).toEqual(Helpers.months_IT);
 
   expect(Info.months("short", { locale: "en" })).toEqual([
     "Jan",
@@ -153,14 +153,14 @@ test("Info.months respects the locale", () => {
 });
 
 test("Info.months defaults to long names", () => {
-  expect(Info.months()).toEqual(months_IT);
+  expect(Info.months()).toEqual(Helpers.months_IT);
 });
 
 // ------
 // .monthsFormat()
 // ------
 test("Info.monthsFormat lists all the months", () => {
-  expect(Info.monthsFormat("long", { locale: "en" })).toEqual(months_EN);
+  expect(Info.monthsFormat("long", { locale: "en" })).toEqual(Helpers.months_EN);
 
   // this passes, but is wrong. These are the same as the standalone values
   expect(Info.monthsFormat("long", { locale: "ru" })).toEqual([
@@ -210,7 +210,7 @@ test("Info.monthsFormat lists all the months", () => {
 });
 
 test("Info.monthsFormat defaults to long names", () => {
-  expect(Info.monthsFormat(void 0, { locale: "it-IT" })).toEqual(months_IT);
+  expect(Info.monthsFormat(void 0, { locale: "it-IT" })).toEqual(Helpers.months_IT);
 });
 
 // ------
@@ -251,7 +251,7 @@ test("Info.weekdays lists all the weekdays", () => {
 });
 
 test("Info.weekdays defaults to long names", () => {
-  expect(Info.weekdays()).toEqual(days_IT);
+  expect(Info.weekdays()).toEqual(Helpers.days_IT);
   // "Monday",
   // "Tuesday",
   // "Wednesday",
@@ -288,7 +288,7 @@ test("Info.weekdaysFormat lists all the weekdays", () => {
 });
 
 test("Info.weekdaysFormat defaults to long names", () => {
-  expect(Info.weekdaysFormat(void 0, { locale: "it-IT" })).toEqual(days_IT);
+  expect(Info.weekdaysFormat(void 0, { locale: "it-IT" })).toEqual(Helpers.days_IT);
 });
 
 // ------
@@ -326,7 +326,7 @@ test("Info.eras lists both eras", () => {
 // general
 // ------
 test("Info English lists are not mutable", () => {
-  withDefaultLocale("en-US", () => {
+  Helpers.withDefaultLocale("en-US", () => {
     const strUnitLength: UnitLength[] = [
       "narrow", "short", "long", "numeric", "2-digit"
     ];

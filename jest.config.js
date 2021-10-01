@@ -22,14 +22,10 @@ module.exports = {
       "statements": 95
     }
   },
-  globals: {
-    // "window": {},
-    // "document": {}
-  },
+  globals: {},
   collectCoverageFrom: [
     "src/**/*.ts",
     "!src/zone.ts",
-    "!src/luxonFilled.ts",
     "!src/index.d.ts",
     "!src/types/intl.d.ts"
   ]
