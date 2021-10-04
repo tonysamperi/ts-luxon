@@ -248,10 +248,9 @@ export function asNumber(value: unknown) {
 }
 
 export function normalizeObject(obj: Record<string, unknown>,
-                                normalizer: (key: string) => string | number,
-                                nonUnitKeys: string[] = []): { [key: string]: number } {
+                                normalizer: (key: string) => string | number): { [key: string]: number } {
     return Object.keys(obj).reduce((acc, u: string) => {
-        nonUnitKeys.indexOf(u) < 0 && obj[u] !== void 0 && obj[u] !== null && (acc[normalizer(u)] = asNumber(obj[u]));
+        obj[u] !== void 0 && obj[u] !== null && (acc[normalizer(u)] = asNumber(obj[u]));
 
         return acc;
     }, {} as { [key: string]: number });

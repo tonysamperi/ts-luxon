@@ -24,7 +24,7 @@ export class Info {
             .setZone(zone)
             .set({ month: 12 });
 
-        return !(zone as Zone).universal && proto.offset !== proto.set({ month: 6 }).offset;
+        return !(zone as Zone).isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
     }
 
     /**

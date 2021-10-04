@@ -5,6 +5,7 @@
 * Removed useless site folder (I'll work on the gh-pages only with some md viewer for Angular)
 * Change usage of hour12 to hourCycle
 * Remove Zone and FTP fallbacks
+* Fix ISO parsing for offset specifiers in Year-Ordinal formats
 
 ##2.2.0 (Luxon 1.27.0)
 * Added version

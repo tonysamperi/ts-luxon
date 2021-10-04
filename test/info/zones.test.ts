@@ -1,4 +1,4 @@
-import { Info, FixedOffsetZone, IANAZone, Settings, InvalidZone, LocalZone } from "../../src";
+import { Info, FixedOffsetZone, IANAZone, Settings, InvalidZone, SystemZone } from "../../src";
 import { Helpers } from "../helpers";
 
 
@@ -7,25 +7,25 @@ import { Helpers } from "../helpers";
 // ------
 
 test("Info.hasDST returns true for America/New_York", () => {
-  expect(Info.hasDST("America/New_York")).toBe(true);
+    expect(Info.hasDST("America/New_York")).toBe(true);
 });
 
 test("Info.hasDST returns false for America/Aruba", () => {
-  expect(Info.hasDST("America/Aruba")).toBe(false);
+    expect(Info.hasDST("America/Aruba")).toBe(false);
 });
 
 test("Info.hasDST returns false for America/Cancun", () => {
-  expect(Info.hasDST("America/Cancun")).toBe(false);
+    expect(Info.hasDST("America/Cancun")).toBe(false);
 });
 
 test("Info.hasDST returns true for Europe/Andora", () => {
-  expect(Info.hasDST("Europe/Andora")).toBe(true);
+    expect(Info.hasDST("Europe/Andora")).toBe(true);
 });
 
 test("Info.hasDST defaults to the global zone", () => {
-  Helpers.withDefaultZone("America/Cancun", () => {
-    expect(Info.hasDST()).toBe(false);
-  });
+    Helpers.withDefaultZone("America/Cancun", () => {
+        expect(Info.hasDST()).toBe(false);
+    });
 });
 
 // ------
@@ -33,27 +33,27 @@ test("Info.hasDST defaults to the global zone", () => {
 // ------
 
 test("Info.isValidIANAZone returns true for valid zones", () => {
-  expect(Info.isValidIANAZone("America/Cancun")).toBe(true);
+    expect(Info.isValidIANAZone("America/Cancun")).toBe(true);
 });
 
 test("Info.isValidIANAZone returns true for single-section zones", () => {
-  expect(Info.isValidIANAZone("UTC")).toBe(true);
+    expect(Info.isValidIANAZone("UTC")).toBe(true);
 });
 
 test("Info.isValidIANAZone returns false for junk", () => {
-  expect(Info.isValidIANAZone("blorp")).toBe(false);
+    expect(Info.isValidIANAZone("blorp")).toBe(false);
 });
 
 test("Info.isValidIANAZone returns false for well-specified but invalid zones", () => {
-  expect(Info.isValidIANAZone("America/Blork")).toBe(false);
+    expect(Info.isValidIANAZone("America/Blork")).toBe(false);
 });
 
 test("Info.isValidIANAZone returns true for valid zones like America/Indiana/Indianapolis", () => {
-  expect(Info.isValidIANAZone("America/Indiana/Indianapolis")).toBe(true);
+    expect(Info.isValidIANAZone("America/Indiana/Indianapolis")).toBe(true);
 });
 
 test("Info.isValidIANAZone returns false for well-specified but invalid zones like America/Indiana/Blork", () => {
-  expect(Info.isValidIANAZone("America/Indiana/Blork")).toBe(false);
+    expect(Info.isValidIANAZone("America/Indiana/Blork")).toBe(false);
 });
 
 // ------
@@ -61,47 +61,48 @@ test("Info.isValidIANAZone returns false for well-specified but invalid zones li
 // ------
 
 test("Info.normalizeZone returns Zone objects unchanged", () => {
-  const fixedOffsetZone = FixedOffsetZone.instance(5);
-  expect(Info.normalizeZone(fixedOffsetZone)).toBe(fixedOffsetZone);
+    const fixedOffsetZone = FixedOffsetZone.instance(5);
+    expect(Info.normalizeZone(fixedOffsetZone)).toBe(fixedOffsetZone);
 
-  // @ts-ignore
-  const ianaZone = new IANAZone("Europe/Paris");
-  expect(Info.normalizeZone(ianaZone)).toBe(ianaZone);
+    // @ts-ignore
+    const ianaZone = new IANAZone("Europe/Paris");
+    expect(Info.normalizeZone(ianaZone)).toBe(ianaZone);
 
-  const invalidZone = new InvalidZone("bumblebee");
-  expect(Info.normalizeZone(invalidZone)).toBe(invalidZone);
+    const invalidZone = new InvalidZone("bumblebee");
+    expect(Info.normalizeZone(invalidZone)).toBe(invalidZone);
 
-  const localZone = LocalZone.instance;
-  expect(Info.normalizeZone(localZone)).toBe(localZone);
+    const systemZone = SystemZone.instance;
+    expect(Info.normalizeZone(systemZone)).toBe(systemZone);
 });
 
 test.each([
-  ["Local", LocalZone.instance],
-  ["UTC", FixedOffsetZone.utcInstance],
-  ["GMT", FixedOffsetZone.utcInstance],
-  ["Etc/GMT+5", FixedOffsetZone.instance(-5 * 60)],
-  ["Etc/GMT-10", FixedOffsetZone.instance(+10 * 60)],
-  // @ts-ignore
-  ["Europe/Paris", new IANAZone("Europe/Paris")],
-  [0, FixedOffsetZone.utcInstance],
-  [3, FixedOffsetZone.instance(3)],
-  [-11, FixedOffsetZone.instance(-11)]
+    ["Local", SystemZone.instance],
+    ["System", SystemZone.instance],
+    ["UTC", FixedOffsetZone.utcInstance],
+    ["GMT", FixedOffsetZone.utcInstance],
+    ["Etc/GMT+5", FixedOffsetZone.instance(-5 * 60)],
+    ["Etc/GMT-10", FixedOffsetZone.instance(+10 * 60)],
+    // @ts-ignore
+    ["Europe/Paris", new IANAZone("Europe/Paris")],
+    [0, FixedOffsetZone.utcInstance],
+    [3, FixedOffsetZone.instance(3)],
+    [-11, FixedOffsetZone.instance(-11)]
 ])("Info.normalizeZone converts valid input %p into valid Zone instance", (input, expected) => {
-  expect(Info.normalizeZone(input)).toEqual(expected);
+    expect(Info.normalizeZone(input)).toEqual(expected);
 });
 
 test("Info.normalizeZone converts unknown name to invalid Zone", () => {
-  expect(Info.normalizeZone("bumblebee").isValid).toBe(false);
+    expect(Info.normalizeZone("bumblebee").isValid).toBe(false);
 });
 
 test("Info.normalizeZone converts null and undefined to default Zone", () => {
-  expect(Info.normalizeZone(null)).toBe(Settings.defaultZone);
-  expect(Info.normalizeZone(undefined)).toBe(Settings.defaultZone);
+    expect(Info.normalizeZone(null)).toBe(Settings.defaultZone);
+    expect(Info.normalizeZone(undefined)).toBe(Settings.defaultZone);
 });
 
 test("Info.normalizeZone converts local to default Zone", () => {
-  expect(Info.normalizeZone("local")).toBe(Settings.defaultZone);
-  Helpers.withDefaultZone("Europe/Paris", () => {
-    expect(Info.normalizeZone("local").name).toBe("Europe/Paris");
-  });
+    expect(Info.normalizeZone("local")).toBe(Settings.defaultZone);
+    Helpers.withDefaultZone("Europe/Paris", () => {
+        expect(Info.normalizeZone("local").name).toBe("Europe/Paris");
+    });
 });

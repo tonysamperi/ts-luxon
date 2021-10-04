@@ -68,7 +68,7 @@ interface FormatterOptions extends Intl.DateTimeFormatOptions {
 
 export class Formatter {
     // Private readonly fields
-    private _options: Readonly<FormatterOptions>;
+    private _opts: Readonly<FormatterOptions>;
     private _loc: Locale;
     private _systemLoc?: Locale;
 
@@ -118,43 +118,43 @@ export class Formatter {
     }
 
     constructor(locale: Locale, formatOptions: FormatterOptions) {
-        this._options = formatOptions;
+        this._opts = formatOptions;
         this._loc = locale;
-        this._systemLoc = undefined;
+        this._systemLoc = void 0;
     }
 
-    formatWithSystemDefault(dt: DateTime, options: Intl.DateTimeFormatOptions) {
-        if (this._systemLoc === undefined) {
+    formatWithSystemDefault(dt: DateTime, opts: Intl.DateTimeFormatOptions) {
+        if (this._systemLoc === void 0) {
             this._systemLoc = this._loc.redefaultToSystem();
         }
-        const df = this._systemLoc.dtFormatter(dt, Object.assign({}, this._options, options));
+        const df = this._systemLoc.dtFormatter(dt, { ...this._opts, ...opts });
         return df.format();
     }
 
     formatDateTime(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): string {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
+        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
         return df.format();
     }
 
     formatDateTimeParts(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
+        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
         return df.formatToParts();
     }
 
     resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._options, opts));
+        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
         return df.resolvedOptions();
     }
 
     num(n: number, p = 0) {
         // we get some perf out of doing this here, annoyingly
-        if (this._options.forceSimple) {
+        if (this._opts.forceSimple) {
             return padStart(n, p);
         }
 
         const options = {
             padTo: p,
-            floor: this._options.floor
+            floor: this._opts.floor
         };
 
         return this._loc.numberFormatter(options).format(n);
@@ -229,13 +229,13 @@ export class Formatter {
                     // offset
                     case "Z":
                         // like +6
-                        return formatOffset({ format: "narrow", allowZ: this._options.allowZ });
+                        return formatOffset({ format: "narrow", allowZ: this._opts.allowZ });
                     case "ZZ":
                         // like +06:00
-                        return formatOffset({ format: "short", allowZ: this._options.allowZ });
+                        return formatOffset({ format: "short", allowZ: this._opts.allowZ });
                     case "ZZZ":
                         // like +0600
-                        return formatOffset({ format: "techie", allowZ: this._options.allowZ });
+                        return formatOffset({ format: "techie", allowZ: this._opts.allowZ });
                     case "ZZZZ":
                         // like EST
                         return dt.zone.offsetName(dt.ts, { format: "short", locale: this._loc.locale }) || "";

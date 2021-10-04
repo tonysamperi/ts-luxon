@@ -2,10 +2,10 @@
 
 Luxon uses the native Intl API to provide easy-to-use internationalization. A quick example:
 
-```js
+```ts
 DateTime.now()
   .setLocale("el")
-  .toLocaleString(DateTime.DATE_FULL); //=>  '24 Σεπτεμβρίου 2017'
+  .toLocaleString(DateTime.DATE_FULL); //=>  '24 Σεπτεμβρίου 2021'
 ```
 
 ## Making sure you have access to other locales
@@ -69,7 +69,7 @@ Note that this also alters the behavior of `DateTime#toFormat` and `DateTime#fro
 You generally don't want `DateTime#fromFormat` and `DateTime#toFormat` to use the system's locale, since your format won't be sensitive to the locale's string ordering. That's why Luxon doesn't behave that way by default. But if you really want that behavior, you can always do this:
 
 ```js
-Settings.defaultLocale = DateTime.now().resolvedLocaleOpts().locale;
+Settings.defaultLocale = DateTime.now().resolvedLocaleOptions().locale;
 ```
 
 ## Checking what you got
@@ -77,7 +77,7 @@ Settings.defaultLocale = DateTime.now().resolvedLocaleOpts().locale;
 The local environment may not support the exact locale you asked for. The native Intl API will try to find the best match. If you want to know what that match was, use `resolvedLocaleOpts`:
 
 ```js
-DateTime.fromObject({ locale: "fr-co" }).resolvedLocaleOpts(); //=> { locale: 'fr',
+DateTime.local({ locale: "fr-co" }).resolvedLocaleOptions(); //=> { locale: 'fr',
 //     numberingSystem: 'latn',
 //     outputCalendar: 'gregory' }
 ```
@@ -129,7 +129,7 @@ DateTimes also have a `numberingSystem` setting that lets you control what syste
 ```js
 var dt = DateTime.now().setLocale("ar");
 
-dt.resolvedLocaleOpts(); //=> { locale: 'ar',
+dt.resolvedLocalOptions(); //=> { locale: 'ar',
 //     numberingSystem: 'arab',
 //     outputCalendar: 'gregory' }
 

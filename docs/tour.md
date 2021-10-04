@@ -154,7 +154,7 @@ Info.months('long', {locale: 'fr'}) //=> [ 'janvier', 'février', 'mars', 'avril
 Luxon supports time zones. There's a whole [big section](zones) about it. But briefly, you can create DateTimes in specific zones and change their zones:
 
 ```js
-DateTime.fromObject({zone: 'America/Los_Angeles'}) // now, but expressed in LA's local time
+DateTime.fromObject({}, {zone: 'America/Los_Angeles'}); // now, but expressed in LA's local time
 DateTime.now().setZone("America/Los_Angeles"); // same
 ```
 

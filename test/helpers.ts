@@ -124,10 +124,10 @@ export class Helpers {
 
     static withDefaultZone(zone: string, f: Function) {
         try {
-            Settings.defaultZoneName = zone;
+            Settings.defaultZoneLike = zone;
             f();
         } finally {
-            Settings.defaultZoneName = null;
+            Settings.defaultZoneLike = null;
         }
     }
 

@@ -4,43 +4,34 @@ Luxon provides different builds for different JS environments. See below for a l
 
 ## Basic browser setup
 
-- [Download full](../../global/luxon.js)
-- [Download minified](../../global/luxon.min.js)
+- [Download UMD](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js)
 
-You can also load the files from a [CDN](https://www.jsdelivr.com/package/npm/luxon).
+You can also load the files from a [CDN](https://www.jsdelivr.com/package/npm/ts-luxon).
 
-Just include Luxon in a script tag. You can access its various classes through the `luxon` global.
+Just include Luxon in a script tag. You can access its various classes through the `tsLuxon` global.
 
 ```html
-<script src="luxon.js"></script>
+<script src="ts-luxon.umd.js"></script>
 ```
 
 You may wish to alias the classes you use:
 
 ```js
-var DateTime = luxon.DateTime;
-```
-
-### Internet Explorer
-
-If you're supporting IE 10 or 11, you need some polyfills to get Luxon to work. Use polyfill.io:
-
-```html
-<script src="https://cdn.polyfill.io/v3/polyfill.js?features=default,String.prototype.repeat,Array.prototype.find,Array.prototype.findIndex,Math.trunc,Math.sign,Object.is"></script>
+var DateTime = tsLuxon.DateTime;
 ```
 
 See the [support matrix](matrix.html) for more information on what works and what doesn't in IE.
 
 ## Node
 
-Supports Node 6+. Install via NPM:
+Supports Node 12+. Install via NPM:
 
 ```
-npm install --save luxon
+npm install --save ts-luxon
 ```
 
-```js
-const { DateTime } = require("luxon");
+```ts
+import { DateTime } from "ts-luxon";
 ```
 
 If you want to work with locales, you need ICU support:
@@ -62,50 +53,14 @@ You can also point to the data with an environment var, like this:
 NODE_ICU_DATA="$(pwd)/node_modules/full-icu" node
 ```
 
-## AMD (System.js, RequireJS, etc)
-
-- [Download full](../../amd/luxon.js)
-- [Download minified](../../amd/luxon.min.js)
-
-```js
-requirejs(["luxon"], function(luxon) {
-  //...
-});
-```
-
-## ES6
-
-- [Download full](../../es6/luxon.js)
-- [Download minified](../../es6/luxon.min.js)
-
-```js
-import { DateTime } from "luxon";
-```
-
 ## Webpack
 
 ```
 npm install --save luxon
 ```
 
-```js
-import { DateTime } from "luxon";
-```
-
-## Types
-
-There are third-party typing files for Flow (via [flow-typed](https://github.com/flowtype/flow-typed)) and TypeScript (via [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)).
-
-For Flow, use:
-
-```
-flow-typed install luxon
-```
-
-For TypeScript, use:
-
-```
-npm install --save-dev @types/luxon
+```ts
+import { DateTime } from "ts-luxon";
 ```
 
 ## React Native

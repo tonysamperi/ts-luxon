@@ -187,7 +187,7 @@ class PolyDateFormatter {
         this._opts = opts;
 
         let z;
-        if (dt.zone.universal) {
+        if (dt.zone.isUniversal) {
             // UTC-8 or Etc/UTC-8 are not part of tzdata, only Etc/GMT+8 and the like.
             // That is why fixed-offset TZ is set to that unless it is:
             // 1. Representing offset 0 when UTC is used to maintain previous behavior and does not become GMT.
@@ -218,7 +218,7 @@ class PolyDateFormatter {
                 }
             }
         }
-        else if (dt.zone.type === "local") {
+        else if (dt.zone.type === "system") {
             this._dt = dt;
         }
         else {

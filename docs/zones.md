@@ -132,8 +132,8 @@ specifyOffset.zoneName; //=> 'America/New_York'
 specifyOffset.toString(); //=> '2017-05-15T14:10:23.000-04:00'
 
 var specifyZone = DateTime.fromFormat(
-  "2017-05-15T09:10:23 Europe/Paris",
-  "yyyy-MM-dd'T'HH:mm:ss z"
+    "2017-05-15T09:10:23 Europe/Paris",
+    "yyyy-MM-dd'T'HH:mm:ss z"
 );
 
 specifyZone.zoneName; //=> 'America/New_York'
@@ -144,7 +144,7 @@ specifyZone.toString(); //=> '2017-05-15T03:10:23.000-04:00'
 
 ```js
 var specifyOffsetAndOverrideZone = DateTime.fromISO("2017-05-15T09:10:23-09:00", {
-  zone: "Europe/Paris"
+    zone: "Europe/Paris"
 });
 
 specifyOffsetAndOverrideZone.zoneName; //=> 'Europe/Paris'
@@ -162,7 +162,7 @@ keepOffset.zoneName; //=> 'UTC-9'
 keepOffset.toString(); //=> '2017-05-15T09:10:23.000-09:00'
 
 var keepZone = DateTime.fromFormat("2017-05-15T09:10:23 Europe/Paris", "yyyy-MM-dd'T'HH:mm:ss z", {
-  setZone: true
+    setZone: true
 });
 
 keepZone.zoneName; //=> 'Europe/Paris'
@@ -229,6 +229,7 @@ Most of the time, DST shifts will happen without you having to do anything about
 ### Invalid times
 
 Some local times simply don't exist. The Spring Forward DST shift involves shifting the local time forward by (usually) one hour. In my zone, `America/New_York`, on March 12, 2017 the millisecond after 1:59:59.999 is 3:00:00.000. Thus the times between 2:00:00.000 and 2:59:59.999, inclusive, don't exist in that zone. But of course, nothing stops a user from constructing a DateTime out of that local time.
+
 If you create such a DateTime from scratch, the missing time will be advanced by an hour:
 
 ```js
@@ -280,14 +281,14 @@ start.plus({ hours: 24 }).hour; //=> 11, DST pushed forward an hour
 By default, Luxon creates DateTimes in the system's local zone. However, you can override this behavior globally:
 
 ```js
-Settings.defaultZoneName = "Asia/Tokyo";
+Settings.defaultZone = "Asia/Tokyo";
 DateTime.local().zoneName; //=> 'Asia/Tokyo'
 
-Settings.defaultZoneName = "utc";
+Settings.defaultZone = "utc";
 DateTime.local().zoneName; //=> 'UTC'
 
-// you can reset by setting to 'local'
+// you can reset by setting to 'system'
 
-Settings.defaultZoneName = "local";
+Settings.defaultZone = "system";
 DateTime.local().zoneName; //=> 'America/New_York'
 ```
