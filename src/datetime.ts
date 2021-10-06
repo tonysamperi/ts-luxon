@@ -1310,7 +1310,7 @@ export class DateTime {
             return void 0;
         }
 
-        return bestBy(dateTimes, i => i.valueOf(), Math.min);
+        return bestBy(dateTimes, (i: DateTime) => i.valueOf(), Math.min);
     }
 
     /**
@@ -1484,18 +1484,11 @@ export class DateTime {
             differ = (unit: Intl.RelativeTimeFormatUnit) => {
                 if (opts.calendary) {
                     if (!end.hasSame(start, unit)) {
-                        return end
-                            .startOf(unit)
-                            .diff(start.startOf(unit), unit)
-                            .get(unit);
+                        return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
                     }
-                    else {
-                        return 0;
-                    }
+                    return 0;
                 }
-                else {
-                    return end.diff(start, unit).get(unit);
-                }
+                return end.diff(start, unit).get(unit);
             };
 
         if (opts.unit) {
@@ -1508,7 +1501,7 @@ export class DateTime {
                 return format(count, unit);
             }
         }
-        // return format(0, opts.units[opts.units.length - 1]);
+
         return format(start > end ? -0 : 0, opts.units[opts.units.length - 1]);
     }
 
@@ -1659,13 +1652,13 @@ export class DateTime {
 
         let mixed;
         if (settingWeekStuff) {
-            mixed = weekToGregorian(Object.assign(gregorianToWeek(this._c), normalized));
+            mixed = weekToGregorian({ ...gregorianToWeek(this._c), ...normalized });
         }
         else if (!isUndefined(normalized.ordinal)) {
-            mixed = ordinalToGregorian(Object.assign(gregorianToOrdinal(this._c), normalized));
+            mixed = ordinalToGregorian({ ...gregorianToOrdinal(this._c), ...normalized });
         }
         else {
-            mixed = Object.assign(this.toObject(), normalized);
+            mixed = { ...this.toObject(), ...normalized };
 
             // if we didn't set the day but we ended up on an overflow date,
             // use the last day of the right month
@@ -1787,7 +1780,6 @@ export class DateTime {
      * Returns a string representation of this DateTime formatted according to the specified format string.
      * **You may not want this.** See {@link toLocaleString} for a more flexible formatting tool. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens).
      * Defaults to en-US if no locale has been specified, regardless of the system's locale.
-     * @see https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens
      * @param {string} fmt - the format string
      * @param {Object} opts - opts to override the configuration options on this DateTime
      * @example DateTime.now().toFormat('yyyy LLL dd') //=> '2017 Apr 22'
@@ -2194,11 +2186,12 @@ export class DateTime {
         return DateTime._diffRelative(
             base,
             this.plus(padding),
-            Object.assign(options, {
-                numeric: "always" as const,
+            {
+                ...options,
+                numeric: "always",
                 units,
                 unit
-            })
+            }
         );
     }
 
@@ -2222,11 +2215,12 @@ export class DateTime {
         return DateTime._diffRelative(
             options.base || DateTime.fromObject({}, { zone: this.zone }),
             this,
-            Object.assign(options, {
+            {
+                ...options,
                 numeric: "auto" as const,
                 units: ["years", "months", "days"] as Intl.RelativeTimeFormatUnit[],
                 calendary: true
-            })
+            }
         );
     }
 
@@ -2258,25 +2252,34 @@ export class DateTime {
             loc: this._loc,
             invalid: this._invalid || void 0
         };
-        return new DateTime(Object.assign({}, current, alts, { old: current }));
+
+        return new DateTime({ ...current, ...alts, old: current });
     }
 
     /**
      * @private
      */
-    // create a new DT instance by adding a duration, adjusting for DSTs
+    /**
+     * create a new DT instance by adding a duration, adjusting for DSTs
+     * Remember that compared to Luxon.js I don't need to pass the instance as argument here,
+     * because it's a private member of the instance itself.
+     * Honestly don't know why he didn't do this way!
+     * @param dur
+     * @private
+     */
     private _adjustTime(dur: Duration) {
         const previousOffset = this._o,
             year = this._c.year + Math.trunc(dur.years),
             month = this._c.month + Math.trunc(dur.months) + Math.trunc(dur.quarters) * 3,
-            c = Object.assign({}, this._c, {
+            c = {
+                ...this._c,
                 year,
                 month,
                 day:
                     Math.min(this._c.day, daysInMonth(year, month)) +
                     Math.trunc(dur.days) +
                     Math.trunc(dur.weeks) * 7
-            }),
+            },
             millisToAdd = Duration.fromObject({
                 years: dur.years - Math.trunc(dur.years),
                 quarters: dur.quarters - Math.trunc(dur.quarters),

@@ -10,6 +10,11 @@ import { isNumber } from "./impl/util";
 
 const INVALID = "Invalid Interval";
 
+interface IntervalBoundary {
+    time: DateTime;
+    type: "s" | "e";
+}
+
 // checks if the start is equal to or before the end
 function validateStartEnd(start?: DateTime, end?: DateTime): Interval | void {
     if (!start || !start.isValid) {
@@ -285,13 +290,7 @@ export class Interval {
      * @return {Interval[]}
      */
     static xor(intervals: Interval[]): Interval[] {
-        let start: DateTime | null = null,
-            currentCount = 0;
-
-        interface IntervalBoundary {
-            time: DateTime;
-            type: "s" | "e";
-        }
+        let start: DateTime | null = null, currentCount = 0;
 
         const results = [],
             ends = intervals.map(i => [
@@ -420,15 +419,15 @@ export class Interval {
     splitAt(...dateTimes: DateTimeLike[]): Interval[] {
         const sorted = dateTimes
             .map(friendlyDateTime)
-            .filter(d => this.contains(d))
+            .filter((d: DateTime) => this.contains(d))
             .sort();
         const results = [];
         let s = this._s,
             i = 0;
 
         while (s < this._e) {
-            const added = sorted[i] || this._e,
-                next = +added > +this._e ? this._e : added;
+            const added = sorted[i] || this._e;
+            const next = +added > +this._e ? this._e : added;
             results.push(Interval.fromDateTimes(s, next));
             s = next;
             i += 1;
@@ -450,9 +449,7 @@ export class Interval {
             return [];
         }
 
-        let s = this._s,
-            idx = 1,
-            next;
+        let s = this._s, idx = 1, next;
 
         const results = [];
         while (s < this._e) {
@@ -577,7 +574,7 @@ export class Interval {
     difference(...intervals: Interval[]): Interval[] {
         return Interval.xor([this as Interval].concat(intervals))
             .map(i => this.intersection(i))
-            .filter(i => i !== null && !i.isEmpty()) as Interval[];
+            .filter(i => i && !i.isEmpty()) as Interval[];
     }
 
     /**

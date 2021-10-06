@@ -204,22 +204,22 @@ export function parseZoneInfo(
     locale?: string,
     timeZone?: string
 ) {
-    const date = new Date(ts),
-        intlOptions = {
-            hourCycle: "h23",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            timeZone
-        };
+    const date = new Date(ts);
+    const intlOpts = {
+        hourCycle: "h23",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone
+    };
 
-    const modified: Intl.DateTimeFormatOptions = Object.assign({ timeZoneName: offsetFormat }, intlOptions);
-
+    const modified: Intl.DateTimeFormatOptions = { timeZoneName: offsetFormat, ...intlOpts };
     const parsed = new Intl.DateTimeFormat(locale, modified)
         .formatToParts(date)
-        .find(m => m.type.toLowerCase() === "timezonename");
+        .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
+
     return parsed ? parsed.value : null;
 }
 

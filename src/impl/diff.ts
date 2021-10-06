@@ -1,7 +1,6 @@
 import { Duration } from "../duration";
 import { DateTime } from "../datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "../types/duration";
-import { ThrowOnInvalid } from "../types/common";
 
 function dayDiff(earlier: DateTime, later: DateTime) {
     const utcDayStart = (dt: DateTime) =>
@@ -58,14 +57,14 @@ function highOrderDiffs(
     return [cursor, results, highWater, lowestOrder];
 }
 
-export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], opts: DurationOptions & ThrowOnInvalid) => {
+export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], opts: DurationOptions): Duration => {
     // tslint:disable-next-line:prefer-const
     let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
 
     const remainingMillis = +later - +cursor;
 
     const lowerOrderUnits = units.filter(
-        u => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0
+        (u: DurationUnit) => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u) >= 0
     );
 
     if (lowerOrderUnits.length === 0) {

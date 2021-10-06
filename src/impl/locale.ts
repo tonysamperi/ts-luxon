@@ -225,9 +225,10 @@ class PolyDateFormatter {
             this._dt = dt;
             z = dt.zone.name;
         }
-
-        const intlOpts = Object.assign({ timeZone: z }, this._opts);
-
+        const intlOpts = { ...this._opts };
+        if (z) {
+            intlOpts.timeZone = z;
+        }
         this._dtf = getCachedDTF(intl, intlOpts);
     }
 
@@ -248,13 +249,13 @@ class PolyDateFormatter {
  * @private
  */
 class PolyRelFormatter {
-    private _options: Readonly<Intl.RelativeTimeFormatOptions>;
+    private _opts: Readonly<Intl.RelativeTimeFormatOptions>;
     private _rtf?: Readonly<Intl.RelativeTimeFormat>;
 
-    constructor(locale: Intl.BCP47LanguageTag, isEnglish: boolean, options: Intl.RelativeTimeFormatOptions) {
-        this._options = Object.assign({ style: "long" }, options);
+    constructor(locale: Intl.BCP47LanguageTag, isEnglish: boolean, opts: Intl.RelativeTimeFormatOptions) {
+        this._opts = { style: "long", ...opts };
         if (!isEnglish && hasRelative()) {
-            this._rtf = getCachedRTF(locale, options);
+            this._rtf = getCachedRTF(locale, opts);
         }
     }
 
@@ -266,8 +267,8 @@ class PolyRelFormatter {
             return English.formatRelativeTime(
                 unit,
                 count,
-                this._options.numeric,
-                this._options.style !== "long"
+                this._opts.numeric,
+                this._opts.style !== "long"
             );
         }
     }
@@ -392,11 +393,11 @@ export class Locale {
     }
 
     redefaultToEN(alts: LocaleOptions = {}) {
-        return this.clone(Object.assign({}, alts, { defaultToEN: true }));
+        return this.clone({ ...alts, defaultToEN: true });
     }
 
     redefaultToSystem(alts: LocaleOptions = {}): Locale {
-        return this.clone(Object.assign({}, alts, { defaultToEN: false }));
+        return this.clone({ ...alts, defaultToEN: false });
     }
 
     months(length: UnitLength, format: boolean = false): string[] {

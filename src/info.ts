@@ -20,9 +20,7 @@ export class Info {
      * @return {boolean}
      */
     static hasDST(zone: ZoneLike = Settings.defaultZone) {
-        const proto = DateTime.now()
-            .setZone(zone)
-            .set({ month: 12 });
+        const proto = DateTime.now().setZone(zone).set({ month: 12 });
 
         return !(zone as Zone).isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
     }

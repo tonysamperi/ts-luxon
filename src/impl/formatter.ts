@@ -132,32 +132,32 @@ export class Formatter {
     }
 
     formatDateTime(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): string {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
+        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
         return df.format();
     }
 
     formatDateTimeParts(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
+        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
         return df.formatToParts();
     }
 
     resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, Object.assign({}, this._opts, opts));
+        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
         return df.resolvedOptions();
     }
 
     num(n: number, p = 0) {
         // we get some perf out of doing this here, annoyingly
         if (this._opts.forceSimple) {
+
             return padStart(n, p);
         }
+        const opts = { ...this._opts };
+        if (p > 0) {
+            opts.padTo = p;
+        }
 
-        const options = {
-            padTo: p,
-            floor: this._opts.floor
-        };
-
-        return this._loc.numberFormatter(options).format(n);
+        return this._loc.numberFormatter(opts).format(n);
     }
 
     formatDateTimeFromString(dt: DateTime, fmt: string): string {
@@ -380,40 +380,41 @@ export class Formatter {
 
     formatDurationFromString(dur: Duration, format: string) {
         const tokenToField = (token: string): DurationUnit | undefined => {
-                switch (token[0]) {
-                    case "S":
-                        return "milliseconds";
-                    case "s":
-                        return "seconds";
-                    case "m":
-                        return "minutes";
-                    case "h":
-                        return "hours";
-                    case "d":
-                        return "days";
-                    case "M":
-                        return "months";
-                    case "y":
-                        return "years";
-                    default:
-                        return undefined;
-                }
-            },
-            tokenToString = (lildur: Duration) => (token: string) => {
-                const mapped = tokenToField(token);
-                if (mapped) {
-                    return this.num(lildur.get(mapped), token.length);
-                }
-                else {
-                    return token;
-                }
-            },
-            tokens = Formatter.parseFormat(format),
-            realTokens = tokens.reduce<string[]>(
-                (found, { literal, val }) => (literal ? found : found.concat(val)),
-                []
-            ),
-            collapsed = dur.shiftTo(...(realTokens.map(tokenToField).filter(Boolean) as DurationUnit[]));
+            switch (token[0]) {
+                case "S":
+                    return "milliseconds";
+                case "s":
+                    return "seconds";
+                case "m":
+                    return "minutes";
+                case "h":
+                    return "hours";
+                case "d":
+                    return "days";
+                case "M":
+                    return "months";
+                case "y":
+                    return "years";
+                default:
+                    return undefined;
+            }
+        };
+        const tokenToString = (lildur: Duration) => (token: string) => {
+            const mapped = tokenToField(token);
+            if (mapped) {
+                return this.num(lildur.get(mapped), token.length);
+            }
+            else {
+                return token;
+            }
+        };
+        const tokens = Formatter.parseFormat(format);
+        const realTokens = tokens.reduce<string[]>((found, {
+            literal,
+            val
+        }) => (literal ? found : found.concat(val)), []);
+        const collapsed = dur.shiftTo(...(realTokens.map(tokenToField).filter((t) => !!t) as DurationUnit[]));
+
         return stringifyTokens(tokens, tokenToString(collapsed));
     }
 }
