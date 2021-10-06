@@ -72,14 +72,14 @@ export class Info {
      * @example Info.months('short', { locale: 'fr-CA' } )[0] //=> 'janv.'
      * @example Info.months('numeric', { locale: 'ar' })[0] //=> '١'
      * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
-     * @return {[string]}
+     * @return {string[]}
      */
     static months(length: UnitLength = "long", {
         locale,
         locObj,
         numberingSystem,
         outputCalendar = "gregory"
-    }: InfoCalendarOptions = {}) {
+    }: InfoCalendarOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length);
     }
 
@@ -94,14 +94,14 @@ export class Info {
      * @param {string} [opts.locale] - the locale code
      * @param {string} [opts.numberingSystem] - the numbering system
      * @param {string} [opts.outputCalendar='gregory'] - the calendar
-     * @return {[string]}
+     * @return {string[]}
      */
     static monthsFormat(length: UnitLength = "long", {
         locale,
         locObj,
         numberingSystem,
         outputCalendar = "gregory"
-    }: InfoCalendarOptions = {}) {
+    }: InfoCalendarOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length, true);
     }
 
@@ -117,7 +117,7 @@ export class Info {
      * @example Info.weekdays('short')[0] //=> 'Mon'
      * @example Info.weekdays('short', { locale: 'fr-CA' })[0] //=> 'lun.'
      * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
-     * @return {[string]}
+     * @return {string[]}
      */
     static weekdays(length: WeekUnitLengths = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}) {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length);
@@ -132,9 +132,13 @@ export class Info {
      * @param {Object} options - options
      * @param {string} [options.locale] - the locale code
      * @param {string} [options.numberingSystem] - the numbering system
-     * @return {[string]}
+     * @return {string[]}
      */
-    static weekdaysFormat(length: StringUnitLength = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}) {
+    static weekdaysFormat(length: StringUnitLength = "long", {
+        locale,
+        locObj,
+        numberingSystem
+    }: InfoUnitOptions = {}) {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length, true);
     }
 
@@ -144,7 +148,7 @@ export class Info {
      * @param {string} [options.locale] - the locale code
      * @example Info.meridiems() //=> [ 'AM', 'PM' ]
      * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
-     * @return {[string]}
+     * @return {string[]}
      */
     static meridiems({ locale }: InfoOptions = {}) {
         return Locale.create(locale).meridiems();
@@ -158,7 +162,7 @@ export class Info {
      * @example Info.eras() //=> [ 'BC', 'AD' ]
      * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
      * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
-     * @return {[string]}
+     * @return {string[]}
      */
     static eras(length: StringUnitLength = "short", { locale }: InfoOptions = {}) {
         return Locale.create(locale, undefined, "gregory").eras(length);

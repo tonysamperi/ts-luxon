@@ -63,7 +63,7 @@ import {
     GenericDateTimePlurals
 } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
-import { LocaleOptions, NumberingSystem, CalendarSystem } from "./types/locale";
+import { LocaleOptions, CalendarSystem } from "./types/locale";
 import { ZoneLike } from "./types/zone";
 import { Invalid } from "./types/invalid";
 import Intl from "./types/intl-2020";
@@ -1535,13 +1535,16 @@ export class DateTime {
     /**
      * Returns the resolved Intl options for this DateTime.
      * This is useful in understanding the behavior of formatting methods
+     * @param {Object} opts - the same options as toLocaleString
      * @return {Object}
      */
-    resolvedLocaleOptions() {
-        const { locale, numberingSystem: ns, calendar } = Formatter.create(this._loc).resolvedOptions(this);
-        const numberingSystem = ns as NumberingSystem;
-        const outputCalendar = calendar as CalendarSystem;
-        return { locale, numberingSystem, outputCalendar };
+    resolvedLocaleOptions(opts = {}) {
+        const { locale, numberingSystem, calendar } = Formatter.create(
+            this._loc.clone(opts),
+            opts
+        ).resolvedOptions(this);
+
+        return { locale, numberingSystem, outputCalendar: calendar };
     }
 
     // TRANSFORM
@@ -1778,21 +1781,6 @@ export class DateTime {
         return this.plus({ [unit]: 1 })
             .startOf(unit)
             .minus({ milliseconds: 1 });
-    }
-
-    /**
-     * Returns the resolved Intl options for this DateTime.
-     * This is useful in understanding the behavior of formatting methods
-     * @param {Object} opts - the same options as toLocaleString
-     * @return {Object}
-     */
-    resolvedLocalOptions(opts = {}) {
-        const { locale, numberingSystem, calendar } = Formatter.create(
-            this._loc.clone(opts),
-            opts
-        ).resolvedOptions(this);
-
-        return { locale, numberingSystem, outputCalendar: calendar };
     }
 
     /**

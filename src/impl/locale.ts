@@ -395,11 +395,11 @@ export class Locale {
         return this.clone(Object.assign({}, alts, { defaultToEN: true }));
     }
 
-    redefaultToSystem(alts: LocaleOptions = {}) {
+    redefaultToSystem(alts: LocaleOptions = {}): Locale {
         return this.clone(Object.assign({}, alts, { defaultToEN: false }));
     }
 
-    months(length: UnitLength, format: boolean = false) {
+    months(length: UnitLength, format: boolean = false): string[] {
         return listStuff(this, length, English.months, len => {
             const intl = format ? { month: len, day: "numeric" } : { month: len },
                 formatStr = format ? "format" : "standalone";
@@ -410,7 +410,7 @@ export class Locale {
         });
     }
 
-    weekdays(length: WeekUnitLengths, format: boolean = false) {
+    weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
         return listStuff(this, length, English.weekdays, len => {
             const intl = format
                 ? { weekday: len, year: "numeric", month: "long", day: "numeric" }

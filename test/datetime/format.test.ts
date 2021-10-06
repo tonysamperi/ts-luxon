@@ -363,33 +363,33 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 });
 
 // ------
-// #resolvedLocalOptions()
+// #resolvedLocaleOptions()
 // ------
 
-test("DateTime#resolvedLocalOptions returns a thing", () => {
-    const res = DateTime.now().resolvedLocalOptions();
+test("DateTime#resolvedLocaleOptions returns a thing", () => {
+    const res = DateTime.now().resolvedLocaleOptions();
 
     expect(res.outputCalendar).toBeDefined();
     expect(res.locale).toBeDefined();
     expect(res.numberingSystem).toBeDefined();
 });
 
-test("DateTime#resolvedLocalOptions reflects changes to the locale", () => {
+test("DateTime#resolvedLocaleOptions reflects changes to the locale", () => {
     const res = DateTime.now()
         .reconfigure({
             locale: "be",
             numberingSystem: "mong",
             outputCalendar: "coptic"
         })
-        .resolvedLocalOptions();
+        .resolvedLocaleOptions();
 
     expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
     expect(res.outputCalendar).toBe("coptic");
     expect(res.numberingSystem).toBe("mong");
 });
 
-test("DateTime#resolvedLocalOptions can override with options", () => {
-    const res = DateTime.now().resolvedLocalOptions({
+test("DateTime#resolvedLocaleOptions can override with options", () => {
+    const res = DateTime.now().resolvedLocaleOptions({
         locale: "be",
         numberingSystem: "mong",
         outputCalendar: "coptic"
