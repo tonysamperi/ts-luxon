@@ -212,6 +212,11 @@ export class Formatter {
                         return this.num(dt.second);
                     case "ss":
                         return this.num(dt.second, 2);
+                    // fractional seconds
+                    case "uu":
+                        return this.num(Math.floor(dt.millisecond / 10), 2);
+                    case "uuu":
+                        return this.num(Math.floor(dt.millisecond / 100));
                     // minutes
                     case "m":
                         return this.num(dt.minute);

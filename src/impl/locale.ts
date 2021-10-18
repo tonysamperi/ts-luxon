@@ -44,7 +44,7 @@ function getCachedRTF(locale: Intl.BCP47LanguageTag, options: Intl.RelativeTimeF
     return inf;
 }
 
-let sysLocaleCache: string | undefined;
+let sysLocaleCache: string | void;
 
 function systemLocale() {
     if (!sysLocaleCache) {

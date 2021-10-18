@@ -125,13 +125,12 @@ function objToTS(obj: GregorianDateTime, offset: number, zone: Zone) {
 function parseDataToDateTime(parsed: GenericDateTime | null, parsedZone: Zone | null, opts: DateTimeWithZoneOptions, format: string, text: string) {
     const { setZone, zone } = opts;
     if (parsed && Object.keys(parsed).length > 0) {
-        const interpretationZone = parsedZone || zone,
-            inst = DateTime.fromObject(parsed, {
-                ...opts,
-                zone: interpretationZone,
-                // setZone is a valid option in the calling methods, but not in fromObject
-                setZone: undefined
-            });
+        const interpretationZone = parsedZone || zone;
+        const inst = DateTime.fromObject(parsed, {
+            ...opts,
+            zone: interpretationZone
+        });
+
         return setZone ? inst : inst.setZone(zone);
     }
     else {
@@ -325,7 +324,7 @@ interface Config extends DateTimeConfig {
  * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
  * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
  * * **Configuration** See the {@link DateTime#locale} and {@link DateTime#numberingSystem} accessors.
- * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime#plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toSystemZone}.
+ * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime.plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toLocal}.
  * * **Output**: To convert the DateTime to other representations, use the {@link DateTime#toRelative}, {@link DateTime#toRelativeCalendar}, {@link DateTime#toJSON}, {@link DateTime#toISO}, {@link DateTime#toHTTP}, {@link DateTime#toObject}, {@link DateTime#toRFC2822}, {@link DateTime#toString}, {@link DateTime#toLocaleString}, {@link DateTime#toFormat}, {@link DateTime#toMillis} and {@link DateTime#toJSDate}.
  *
  * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
@@ -907,7 +906,7 @@ export class DateTime {
      * @example DateTime.local({ zone: "America/New_York" })    //~> now, in US east coast time
      * @example DateTime.local(2017)                            //~> 2017-01-01T00:00:00
      * @example DateTime.local(2017, 3)                         //~> 2017-03-01T00:00:00
-     * @example DateTime.local(2017, 3, 12, { locale: "fr")     //~> 2017-03-12T00:00:00, with a French locale
+     * @example DateTime.local(2017, 3, 12, { locale: "fr" })     //~> 2017-03-12T00:00:00, with a French locale
      * @example DateTime.local(2017, 3, 12, 5)                  //~> 2017-03-12T05:00:00
      * @example DateTime.local(2017, 3, 12, 5, { zone: "utc" }) //~> 2017-03-12T05:00:00, in UTC
      * @example DateTime.local(2017, 3, 12, 5, 45, 10)          //~> 2017-03-12T05:45:10
@@ -955,7 +954,7 @@ export class DateTime {
      * @example DateTime.utc(2017, 3, 12, 5, 45)          //~> 2017-03-12T05:45:00Z
      * @example DateTime.utc(2017, 3, 12, 5, 45, { locale: "fr" } )       //~> 2017-03-12T05:45:00Z with a French locale
      * @example DateTime.utc(2017, 3, 12, 5, 45, 10)      //~> 2017-03-12T05:45:10Z
-     * @example DateTime.utc(2017, 3, 12, 5, 45, 10, 765) //~> 2017-03-12T05:45:10.765Z
+     * @example DateTime.utc(2017, 3, 12, 5, 45, 10, 765, { locale: "fr }) //~> 2017-03-12T05:45:10.765Z
      * @return {DateTime}
      */
     static utc(...args: [DateTimeOptions] | number[] | (number | DateTimeOptions)[]): DateTime {
@@ -1301,13 +1300,11 @@ export class DateTime {
      * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
      * @return {DateTime} the min DateTime, or undefined if called with no arguments
      */
+    static min(...dateTimes: []): void;
+    static min(...dateTimes: DateTime[]): DateTime;
     static min(...dateTimes: DateTime[]): DateTime | void {
         if (!dateTimes.every(DateTime.isDateTime)) {
             throw new InvalidArgumentError("min requires all arguments be DateTimes");
-        }
-        if (dateTimes.length === 0) {
-
-            return void 0;
         }
 
         return bestBy(dateTimes, (i: DateTime) => i.valueOf(), Math.min);
@@ -1318,13 +1315,11 @@ export class DateTime {
      * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
      * @return {DateTime} the max DateTime, or undefined if called with no arguments
      */
+    static max(...dateTimes: []): void;
+    static max(...dateTimes: DateTime[]): DateTime;
     static max(...dateTimes: DateTime[]): DateTime | void {
         if (!dateTimes.every(DateTime.isDateTime)) {
             throw new InvalidArgumentError("max requires all arguments be DateTimes");
-        }
-        if (dateTimes.length === 0) {
-
-            return void 0;
         }
 
         return bestBy(dateTimes, i => i.valueOf(), Math.max);

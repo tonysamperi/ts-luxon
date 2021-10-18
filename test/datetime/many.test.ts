@@ -19,8 +19,7 @@ test("DateTime.min returns the min dateTime", () => {
 });
 
 test("DateTime.min returns undefined if no argument", () => {
-  const m = DateTime.min();
-  expect(m).toBeUndefined();
+  expect(DateTime.min()).toBeUndefined();
 });
 
 test("DateTime.min is stable", () => {
@@ -72,7 +71,7 @@ test("DateTime.max is stable", () => {
     DateTime.fromJSDate(new Date(1982, 2, 25)),
     DateTime.fromJSDate(new Date(1982, 3, 25)).reconfigure({ locale: "en-GB" }),
     DateTime.fromJSDate(new Date(1982, 3, 25)).reconfigure({ locale: "en-US" })
-  );
+  ) as DateTime;
   expect(m.locale).toBe("en-GB");
 });
 

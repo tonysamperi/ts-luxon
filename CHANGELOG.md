@@ -7,6 +7,9 @@
 * Remove Zone and FTP fallbacks
 * Fix ISO parsing for offset specifiers in Year-Ordinal formats
 * Renamed DateTime.resolvedLocalOptions to DateTime.resolvedLocaleOptions
+* Add support for formatting and parsing tokens `uu` and `uuu` (#976)
+* Add test cases for day-of-the-month parsing (#1023)
+
 
 ##2.2.0 (Luxon 1.27.0)
 * Added version

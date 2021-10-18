@@ -122,7 +122,7 @@ export class IANAZone extends Zone {
      * @example IANAZone.isValidZone("Sport~~blorp") //=> false
      * @return {boolean}
      */
-    static isValidZone(zone: string) {
+    static isValidZone(zone: string): boolean {
         if (!zone) {
             return false;
         }

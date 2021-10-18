@@ -53,7 +53,24 @@ export function maybeArray<T>(thing: T | T[]) {
     return Array.isArray(thing) ? thing : [thing];
 }
 
-export function bestBy<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) => U) {
+export function bestBy<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) => U): T | void {
+    if (arr.length === 0) {
+        return void 0;
+    }
+
+    const bestResult: [U, T] = arr.reduce<[U, T]>((best: [U, T], next: T): [U, T] => {
+        const pair: [U, T] = [by(next), next];
+        if (compare(best[0], pair[0]) === best[0]) {
+            return best;
+        }
+
+        return pair;
+    }, [by(arr[0]), arr[0]]);
+
+    return bestResult[1];
+}
+
+export function bestByOld<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) => U) {
     const bestResult = arr.reduce<[U, T] | undefined>((best, next) => {
         const pair: [U, T] = [by(next), next];
         if (best === undefined) {
