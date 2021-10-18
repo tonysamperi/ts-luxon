@@ -22,7 +22,7 @@ export class InvalidZone extends Zone {
   }
 
   /** @override **/
-  get universal(): boolean {
+  get isUniversal(): boolean {
     return false;
   }
 

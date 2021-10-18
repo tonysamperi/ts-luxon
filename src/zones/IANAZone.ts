@@ -1,4 +1,4 @@
-import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS, hasIntl } from "../impl/util";
+import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS } from "../impl/util";
 import { Zone } from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
@@ -12,7 +12,7 @@ function makeDTF(zone: string) {
     if (!dtfCache[zone]) {
         try {
             dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
-                hour12: false,
+                hourCycle: "h23",
                 timeZone: zone,
                 year: "numeric",
                 month: "2-digit",
@@ -122,15 +122,11 @@ export class IANAZone extends Zone {
      * @example IANAZone.isValidZone("Sport~~blorp") //=> false
      * @return {boolean}
      */
-    static isValidZone(zone: string) {
+    static isValidZone(zone: string): boolean {
+        if (!zone) {
+            return false;
+        }
         try {
-            /*
-             * With the custom Intl, the Intl object can't be overridden to undefined,
-             * the methods inside don't cease to exist. So we verify that Intl is defined
-             */
-            if (!hasIntl()) {
-                return false;
-            }
             new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
             return true;
         } catch (e) {
@@ -169,7 +165,7 @@ export class IANAZone extends Zone {
     }
 
     /** @override **/
-    get universal() {
+    get isUniversal() {
         return false;
     }
 

@@ -5,13 +5,13 @@ import { Info } from "./info";
 import { Zone } from "./zone";
 import { FixedOffsetZone } from "./zones/fixedOffsetZone";
 import { IANAZone } from "./zones/IANAZone";
-import { LocalZone } from "./zones/localZone";
 import { InvalidZone } from "./zones/invalidZone";
+import { SystemZone } from "./zones/systemZone";
 import { Settings } from "./settings";
 
 export * from "./types/public";
 
-const VERSION = "2.2.0";
+const VERSION = "3.0.0";
 
 export {
     DateTime,
@@ -22,7 +22,7 @@ export {
     FixedOffsetZone,
     IANAZone,
     InvalidZone,
-    LocalZone,
+    SystemZone,
     Settings,
     VERSION
 };

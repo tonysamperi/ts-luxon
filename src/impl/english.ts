@@ -193,7 +193,7 @@ export function formatString(knownFormat: Intl.DateTimeFormatOptions) {
       "minute",
       "second",
       "timeZoneName",
-      "hour12"
+      "hourCycle"
     ]),
     key = stringify(filtered),
     dateTimeHuge = "EEEE, LLLL d, yyyy, h:mm a";

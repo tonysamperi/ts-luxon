@@ -87,6 +87,7 @@ declare namespace Intl {
     timeZoneName?: string;
     formatMatcher?: string;
     hour12?: boolean;
+    hourCycle?: "h11"| "h12"| "h23"| "h24";
     timeZone?: string;
   }
 

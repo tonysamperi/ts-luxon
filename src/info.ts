@@ -5,7 +5,7 @@ import { IANAZone } from "./zones/IANAZone";
 import { Zone } from "./zone";
 import { normalizeZone } from "./impl/zoneUtil";
 
-import { hasFormatToParts, hasIntl, hasRelative } from "./impl/util";
+import { hasRelative } from "./impl/util";
 import { StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common";
 import { InfoOptions, InfoCalendarOptions, InfoUnitOptions, Features } from "./types/info";
 import { ZoneLike } from "./types/zone";
@@ -20,11 +20,9 @@ export class Info {
      * @return {boolean}
      */
     static hasDST(zone: ZoneLike = Settings.defaultZone) {
-        const proto = DateTime.now()
-            .setZone(zone)
-            .set({ month: 12 });
+        const proto = DateTime.now().setZone(zone).set({ month: 12 });
 
-        return !(zone as Zone).universal && proto.offset !== proto.set({ month: 6 }).offset;
+        return !(zone as Zone).isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
     }
 
     /**
@@ -72,14 +70,14 @@ export class Info {
      * @example Info.months('short', { locale: 'fr-CA' } )[0] //=> 'janv.'
      * @example Info.months('numeric', { locale: 'ar' })[0] //=> '١'
      * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
-     * @return {[string]}
+     * @return {string[]}
      */
     static months(length: UnitLength = "long", {
         locale,
         locObj,
         numberingSystem,
         outputCalendar = "gregory"
-    }: InfoCalendarOptions = {}) {
+    }: InfoCalendarOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length);
     }
 
@@ -94,14 +92,14 @@ export class Info {
      * @param {string} [opts.locale] - the locale code
      * @param {string} [opts.numberingSystem] - the numbering system
      * @param {string} [opts.outputCalendar='gregory'] - the calendar
-     * @return {[string]}
+     * @return {string[]}
      */
     static monthsFormat(length: UnitLength = "long", {
         locale,
         locObj,
         numberingSystem,
         outputCalendar = "gregory"
-    }: InfoCalendarOptions = {}) {
+    }: InfoCalendarOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length, true);
     }
 
@@ -117,7 +115,7 @@ export class Info {
      * @example Info.weekdays('short')[0] //=> 'Mon'
      * @example Info.weekdays('short', { locale: 'fr-CA' })[0] //=> 'lun.'
      * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
-     * @return {[string]}
+     * @return {string[]}
      */
     static weekdays(length: WeekUnitLengths = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}) {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length);
@@ -132,9 +130,13 @@ export class Info {
      * @param {Object} options - options
      * @param {string} [options.locale] - the locale code
      * @param {string} [options.numberingSystem] - the numbering system
-     * @return {[string]}
+     * @return {string[]}
      */
-    static weekdaysFormat(length: StringUnitLength = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}) {
+    static weekdaysFormat(length: StringUnitLength = "long", {
+        locale,
+        locObj,
+        numberingSystem
+    }: InfoUnitOptions = {}) {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length, true);
     }
 
@@ -144,7 +146,7 @@ export class Info {
      * @param {string} [options.locale] - the locale code
      * @example Info.meridiems() //=> [ 'AM', 'PM' ]
      * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
-     * @return {[string]}
+     * @return {string[]}
      */
     static meridiems({ locale }: InfoOptions = {}) {
         return Locale.create(locale).meridiems();
@@ -158,7 +160,7 @@ export class Info {
      * @example Info.eras() //=> [ 'BC', 'AD' ]
      * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
      * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
-     * @return {[string]}
+     * @return {string[]}
      */
     static eras(length: StringUnitLength = "short", { locale }: InfoOptions = {}) {
         return Locale.create(locale, undefined, "gregory").eras(length);
@@ -166,35 +168,13 @@ export class Info {
 
     /**
      * Return the set of available features in this environment.
-     * Some features of Luxon are not available in all environments. For example, on older browsers, timezone support is not available. Use this function to figure out if that's the case.
+     * Some features of Luxon are not available in all environments. For example, on older browsers, relative time formatting support is not available. Use this function to figure out if that's the case.
      * Keys:
-     * * `zones`: whether this environment supports IANA timezones
-     * * `intlTokens`: whether this environment supports internationalized token-based formatting/parsing
-     * * `intl`: whether this environment supports general internationalization
      * * `relative`: whether this environment supports relative time formatting
-     * @example Info.features() //=> { intl: true, intlTokens: false, zones: true, relative: false }
+     * @example Info.features() //=> { relative: false }
      * @return {Object}
      */
     static features(): Features {
-        let intl = false,
-            intlTokens = false,
-            zones = false,
-            relative = false;
-
-        if (hasIntl()) {
-            intl = true;
-            intlTokens = hasFormatToParts();
-            relative = hasRelative();
-
-            try {
-                zones =
-                    new Intl.DateTimeFormat("en", { timeZone: "America/New_York" }).resolvedOptions()
-                        .timeZone === "America/New_York";
-            } catch (e) {
-                zones = false;
-            }
-        }
-
-        return { intl, intlTokens, zones, relative };
+        return { relative: hasRelative() };
     }
 }

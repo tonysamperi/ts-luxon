@@ -3,7 +3,6 @@ import { ZoneOffsetOptions, ZoneOffsetFormat } from "./types/zone";
 
 // Prefixing the parameter names with a _ confuses ESDoc
 function silenceUnusedWarning(...args: unknown[]) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   args.length;
 }
 
@@ -35,7 +34,7 @@ export abstract class Zone {
    * @abstract
    * @type {boolean}
    */
-  get universal(): boolean {
+  get isUniversal(): boolean {
     throw new ZoneIsAbstractError();
   }
 

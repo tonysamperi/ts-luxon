@@ -35,12 +35,12 @@ function combineRegexes(...regexes: RegExp[]) {
 
 function combineExtractors(...extractors: CombinableExtractor[]) {
 
-    return (match: RegExpExecArray) =>
+    return (m: RegExpExecArray) =>
         extractors
             .reduce<CombinableParseResult>(
-                ([mergedValues, mergedZone, cursor], ex) => {
-                    const [val, zone, next] = ex(match, cursor);
-                    return [Object.assign(mergedValues, val), mergedZone || zone, next];
+                ([mergedVals, mergedZone, cursor], ex) => {
+                    const [val, zone, next] = ex(m, cursor);
+                    return [{ ...mergedVals, ...val }, mergedZone || zone, next];
                 },
                 [{}, null, 1]
             )
@@ -54,7 +54,7 @@ function parse(s: string, ...patterns: (ParsePattern)[]): ParseResult {
 
     for (const [regex, extractor] of patterns) {
         const m = regex.exec(s);
-        if (m !== null) {
+        if (!!m) {
             return extractor(m);
         }
     }
@@ -91,8 +91,8 @@ const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/,
     sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
 
 function int(match: RegExpExecArray, pos: number, fallback: number) {
-    const m = match[pos];
-    return isUndefined(m) ? fallback : parseInteger(m);
+
+    return isUndefined(match[pos]) ? fallback : parseInteger(match[pos]);
 }
 
 function extractISOYmd(match: RegExpExecArray, cursor: number): CombinableParseResult {
@@ -193,14 +193,12 @@ function fromStrings(
 ) {
     let weekday;
     if (weekdayStr) {
-        weekday =
-            weekdayStr.length > 3
-                ? English.weekdaysLong.indexOf(weekdayStr) + 1
-                : English.weekdaysShort.indexOf(weekdayStr) + 1;
+        weekday = weekdayStr.length > 3
+            ? English.weekdaysLong.indexOf(weekdayStr) + 1
+            : English.weekdaysShort.indexOf(weekdayStr) + 1;
     }
 
-    const year =
-        yearStr.length === 2 ? untruncateYear(parseInteger(yearStr) as number) : parseInteger(yearStr);
+    const year = yearStr.length === 2 ? untruncateYear(parseInteger(yearStr) as number) : parseInteger(yearStr);
 
     return {
         year,
@@ -278,17 +276,9 @@ const isoWeekWithTimeExtensionRegex = combineRegexes(isoWeekRegex, isoTimeExtens
 const isoOrdinalWithTimeExtensionRegex = combineRegexes(isoOrdinalRegex, isoTimeExtensionRegex);
 const isoTimeCombinedRegex = combineRegexes(isoTimeRegex);
 
-const extractISOYmdTimeAndOffset = combineExtractors(
-    extractISOYmd,
-    extractISOTime,
-    extractISOOffset
-);
-const extractISOWeekTimeAndOffset = combineExtractors(
-    extractISOWeekData,
-    extractISOTime,
-    extractISOOffset
-);
-const extractISOOrdinalDataAndTime = combineExtractors(extractISOOrdinalData, extractISOTime);
+const extractISOYmdTimeAndOffset = combineExtractors(extractISOYmd, extractISOTime, extractISOOffset);
+const extractISOWeekTimeAndOffset = combineExtractors(extractISOWeekData, extractISOTime, extractISOOffset);
+const extractISOOrdinalDateAndTime = combineExtractors(extractISOOrdinalData, extractISOTime, extractISOOffset);
 const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffset);
 
 /**
@@ -309,7 +299,7 @@ export function parseISODate(s: string) {
         s,
         [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
         [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
-        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDataAndTime],
+        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDateAndTime],
         [isoTimeCombinedRegex, extractISOTimeAndOffset]
     );
 }

@@ -58,7 +58,6 @@ export interface ToISOTimeOptions {
 
 export interface DateTimeOptions extends LocaleOptions {
   zone?: string | Zone;
-  nullOnInvalid?: boolean;
 }
 
 export interface DateTimeWithZoneOptions extends DateTimeOptions {
