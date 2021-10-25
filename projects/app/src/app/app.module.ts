@@ -14,15 +14,14 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTooltipModule} from "@angular/material/tooltip";
 //
-// import {DateTime} from "ts-luxon";
-//
-import {DemoAppComponent} from "./app.component";
-import {CodeViewerComponent} from "./code-viewer/code-viewer.component";
+import {LuxAppComponent} from "./app.component";
+import {LuxCodeViewerComponent, LuxHomeComponent} from "./components/public";
 
 @NgModule({
     declarations: [
-        DemoAppComponent,
-        CodeViewerComponent
+        LuxAppComponent,
+        LuxCodeViewerComponent,
+        LuxHomeComponent
     ],
     imports: [
         BrowserModule,
@@ -41,7 +40,7 @@ import {CodeViewerComponent} from "./code-viewer/code-viewer.component";
         MatTooltipModule
     ],
     providers: [],
-    bootstrap: [DemoAppComponent]
+    bootstrap: [LuxAppComponent]
 })
-export class DemoAppModule {
+export class LuxAppModule {
 }

@@ -32,13 +32,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "demo",
+      "lux",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "demo",
+      "lux",
       "kebab-case"
     ],
     "eofline": true,
@@ -196,7 +196,7 @@
           "const"
         ],
         "format": "UPPER_CASE",
-        "prefix": "NGX_TIMEPICKER_"
+        "prefix": "LUX_"
       },
       // require exported constant variables that are initialized with functions to be camelCase
       {
@@ -250,13 +250,13 @@
       {
         "type": "type",
         "format": "PascalCase",
-        "prefix": "Demo"
+        "prefix": "Lux"
       },
       // abstract classes must have the prefix "Abstract". The following part of the name must be valid PascalCase
       {
         "type": "class",
         "modifiers": "export",
-        "prefix": "Demo"
+        "prefix": "Lux"
       },
       // enum members must be in camelCase. Without this config, enumMember would inherit UPPER_CASE from public static const property
       {

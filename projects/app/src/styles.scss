@@ -1,3 +1,5 @@
+@use '~@angular/material' as mat;
+
 @import "./scss/themes";
 
 @font-face {
@@ -6,6 +8,13 @@
   font-weight: 400;
   src: url("assets/fonts/MaterialIcons-Regular.woff") format("woff");
 }
+
+$light-primary: mat.get-color-from-palette($light-primary-palette);
+$light-accent: mat.get-color-from-palette($light-accent-palette);
+$light-warn: mat.get-color-from-palette($light-warn-palette);
+
+$dark-primary: mat.get-color-from-palette($dark-primary-palette);
+$dark-accent: mat.get-color-from-palette($dark-accent-palette);
 
 body {
   margin: 0;
@@ -17,30 +26,28 @@ body {
 
   a {
     &.mat-color-primary {
-      color: mat-color($candy-app-primary);
-      -webkit-text-decoration: none;
+      color: $light-primary;
       text-decoration: none;
       padding-bottom: 1px;
-      border-bottom: 2px solid rgba(mat-color($candy-app-primary), 0.25);
+      border-bottom: 2px solid rgba($light-primary, 0.25);
       -webkit-transition: border-bottom-color 0.15s ease-in-out;
       transition: border-bottom-color 0.15s ease-in-out;
 
       &:hover {
-        border-bottom: 2px solid rgba(mat-color($candy-app-primary), 1);
+        border-bottom: 2px solid rgba($light-primary, 1);
       }
     }
 
     &.mat-color-accent {
-      color: mat-color($candy-app-accent);
-      -webkit-text-decoration: none;
+      color: $light-accent;
       text-decoration: none;
       padding-bottom: 1px;
-      border-bottom: 2px solid rgba(mat-color($candy-app-accent), 0.25);
+      border-bottom: 2px solid rgba($light-accent, 0.25);
       -webkit-transition: border-bottom-color 0.15s ease-in-out;
       transition: border-bottom-color 0.15s ease-in-out;
 
       &:hover {
-        border-bottom: 2px solid rgba(mat-color($candy-app-accent), 1);
+        border-bottom: 2px solid rgba($light-accent, 1);
       }
     }
   }
@@ -96,20 +103,20 @@ body {
   }
 
   .smp-top, footer {
-    background-color: mat-color($candy-app-primary);
-    color: mat-color($candy-app-primary, default-contrast);
+    background-color: $light-primary;
+    color: mat.get-contrast-color-from-palette($light-primary-palette, 500);
   }
 
   .mat-color-primary {
-    color: mat-color($candy-app-primary);
+    color: $light-primary;
   }
 
   .mat-color-accent {
-    color: mat-color($candy-app-accent);
+    color: $light-accent;
   }
 
   .mat-color-warn {
-    color: mat-color($candy-app-warn);
+    color: $light-warn;
   }
 
   .smp-margin-top {
@@ -130,7 +137,7 @@ body {
     border-radius: 10px;
     padding: 8px;
     width: 100%;
-    border: 2px dashed mat-color($candy-app-primary);
+    border: 2px dashed $light-primary;
   }
 
   .smp-generic-section {
@@ -145,33 +152,33 @@ body {
   }
 
   // Include the default theme styles.
-  @include angular-material-theme($candy-app-theme);
+  @include mat.all-component-themes($light-theme);
 
   &.dark-theme {
-    @include angular-material-theme($dark-theme);
+    @include mat.all-component-themes($dark-theme);
 
     a {
       &.mat-color-primary {
-        color: mat-color($dark-primary);
-        border-bottom: 2px solid rgba(mat-color($dark-primary), 0.25);
+        color: $dark-primary;
+        border-bottom: 2px solid rgba($dark-primary, 0.25);
 
         &:hover {
-          border-bottom: 2px solid rgba(mat-color($dark-primary), 1);
+          border-bottom: 2px solid rgba($dark-primary, 1);
         }
       }
 
       &.mat-color-accent {
-        color: mat-color($dark-accent);
-        border-bottom: 2px solid rgba(mat-color($dark-accent), 0.25);
+        color: $dark-accent;
+        border-bottom: 2px solid rgba($dark-accent, 0.25);
 
         &:hover {
-          border-bottom: 2px solid rgba(mat-color($dark-accent), 1);
+          border-bottom: 2px solid rgba($dark-accent, 1);
         }
       }
     }
 
     .smp-box-bordered {
-      border-color: mat-color($dark-primary);
+      border-color: $dark-primary;
     }
 
     .smp-generic-section {
@@ -180,20 +187,20 @@ body {
     }
 
     .smp-top, footer {
-      background-color: mat-color($dark-primary);
-      color: mat-color($dark-primary, default-contrast);
+      background-color: $dark-primary;
+      color: mat.get-color-from-palette($dark-primary-palette, default-contrast);
     }
 
     .mat-color-primary {
-      color: mat-color($dark-primary);
+      color: $dark-primary;
     }
 
     .mat-color-accent {
-      color: mat-color($dark-accent);
+      color: $dark-accent;
     }
 
     .mat-color-warn {
-      color: mat-color($dark-warn);
+      color: mat.get-color-from-palette($dark-warn);
     }
   }
 }

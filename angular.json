@@ -25,6 +25,7 @@
             "aot": true,
             "assets": [
               "projects/app/src/favicon.ico",
+              "projects/app/src/docs",
               "projects/app/src/assets"
             ],
             "styles": [
@@ -33,6 +34,13 @@
             "scripts": []
           },
           "configurations": {
+            "dev": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -69,10 +77,14 @@
             "browserTarget": "app:build"
           },
           "configurations": {
+            "dev": {
+              "browserTarget": "app:build:dev"
+            },
             "production": {
               "browserTarget": "app:build:production"
             }
-          }
+          },
+          "defaultConfiguration": "dev"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -123,6 +135,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "app"
 }

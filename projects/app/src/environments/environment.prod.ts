@@ -1,3 +1,3 @@
-export const environment = {
+export const LUX_ENVIRONMENT = {
   production: true
 };

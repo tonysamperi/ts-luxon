@@ -1,12 +1,12 @@
 import { enableProdMode } from "@angular/core";
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
-import { DemoAppModule } from "./app/app.module";
-import { environment } from "./environments/environment";
+import { LuxAppModule } from "./app/app.module";
+import { LUX_ENVIRONMENT } from "./environments/environment";
 
-if (environment.production) {
+if (LUX_ENVIRONMENT.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(DemoAppModule)
+platformBrowserDynamic().bootstrapModule(LuxAppModule)
   .catch(err => console.error(err));
