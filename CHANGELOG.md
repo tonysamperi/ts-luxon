@@ -1,5 +1,9 @@
 # Changelog
 
+##3.0.1
+* Added [docs](https://tonysamperi.github.io/ts-luxon/docs)! 🎉
+* Added ES6 build and minified versions with inline sourcemaps! 🎉
+
 ##3.0.0 (Luxon 2.0.1)
 * Inverted changelog to show latest versions first
 * Removed useless site folder (I'll work on the gh-pages only with some md viewer for Angular)
