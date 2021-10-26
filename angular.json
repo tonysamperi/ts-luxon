@@ -25,6 +25,7 @@
             "aot": true,
             "assets": [
               "projects/app/src/favicon.ico",
+              "projects/app/src/.nojekyll",
               "projects/app/src/docs",
               "projects/app/src/assets"
             ],
