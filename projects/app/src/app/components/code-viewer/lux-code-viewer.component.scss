@@ -1,6 +1,10 @@
 @import "lux-code-highlight";
 
-code-viewer {
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.lux-code-viewer {
   display: block;
   width: 100%;
   max-height: 300px;
@@ -23,7 +27,6 @@ code-viewer {
       align-items: center;
 
       mat-icon {
-        cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;

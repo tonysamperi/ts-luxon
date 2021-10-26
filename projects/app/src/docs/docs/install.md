@@ -1,24 +1,30 @@
 # Install guide
 
-Luxon provides different builds for different JS environments. See below for a link to the right one and instructions on how to use it. Luxon supports all modern platforms, but see [the support matrix](matrix.md) for additional details.
+TSLuxon provides only one umd build, because the best use scenario of TSLuxon is inside a TypeScript project, where the user will decide which platforms to support with the build. 
+In any case, see [the support matrix](matrix.md) for additional details.
 
 ## Basic browser setup
 
-- [Download full](https://moment.github.io/luxon/global/luxon.js)
-- [Download minified](https://moment.github.io/luxon/global/luxon.min.js)
+If you want to play in the browser, you can download a JS version of TSLuxon here.
+Of course if you're thinking about using this library in a JS project it's perfectly possible.
+
+> Note that the minified version exists only since v 3.0.1
+
+- [Download full](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js)
+- [Download minified](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.min.js)
 
 You can also load the files from a [CDN](https://www.jsdelivr.com/package/npm/luxon).
 
-Just include Luxon in a script tag. You can access its various classes through the `luxon` global.
+Just include TSLuxon in a script tag. You can access its various classes through the `tsLuxon` global.
 
 ```html
-<script src="luxon.js"></script>
+<script src="path-to/ts-luxon.umd.js"></script>
 ```
 
 You may wish to alias the classes you use:
 
 ```js
-var DateTime = luxon.DateTime;
+var DateTime = tsLuxon.DateTime;
 ```
 
 ## Node.js
@@ -30,7 +36,7 @@ npm install --save luxon
 ```
 
 ```js
-const { DateTime } = require("luxon");
+const { DateTime } = require("ts-luxon");
 ```
 
 If you want to work with locales, you need ICU support:
@@ -53,51 +59,23 @@ You can also point to the data with an environment var, like this:
 NODE_ICU_DATA="$(pwd)/node_modules/full-icu" node
 ```
 
-## AMD (System.js, RequireJS, etc)
-
-- [Download full](https://moment.github.io/luxon/amd/luxon.js)
-- [Download minified](https://moment.github.io/luxon/amd/luxon.min.js)
-
-```js
-requirejs(["luxon"], function(luxon) {
-  //...
-});
-```
-
 ## ES6
 
-- [Download full](https://moment.github.io/luxon/es6/luxon.js)
-- [Download minified](https://moment.github.io/luxon/es6/luxon.min.js)
+Since v 3.0.1 there's also the ES6 version
+
+- [Download full](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.es6.js)
+
+- [Download minified](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.es6.min.js)
+
+This would allow to use such imports even in js projects:
 
 ```js
-import { DateTime } from "luxon";
-```
-
-## Webpack
-
-```
-npm install --save luxon
-```
-
-```js
-import { DateTime } from "luxon";
+import { DateTime } from "ts-luxon";
 ```
 
 ## Types
 
-There are third-party typing files for Flow (via [flow-typed](https://github.com/flowtype/flow-typed)) and TypeScript (via [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)).
-
-For Flow, use:
-
-```
-flow-typed install luxon
-```
-
-For TypeScript, use:
-
-```
-npm install --save-dev @types/luxon
-```
+Types are included in the library! That was also the point when making the source with TypeScript! 🎉
 
 ## React Native
 

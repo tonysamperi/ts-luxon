@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
-import {DateTime} from "ts-luxon";
 import {Title} from "@angular/platform-browser";
+import {DateTime} from "ts-luxon";
 
 interface LuxTheme {
     description: string;
@@ -15,6 +15,7 @@ interface LuxTheme {
 export class LuxHomeComponent {
 
     appName: string = "ts-luxon";
+    docsLink: string = "/docs";
     examples: { code: string; subtitle: string; title: string; value: string; }[] = [
         {
             code: `import {{ DateTime } from "ts-luxon";

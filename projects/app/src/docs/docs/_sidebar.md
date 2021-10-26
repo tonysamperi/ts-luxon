@@ -1,3 +1,5 @@
+* [&lt; Back to site](/ ':ignore :target=_self')
+
 * [Home](/)
 * [Install guide](install.md)
 * [A quick tour](tour.md)
@@ -11,6 +13,6 @@
 * [Validity](validity.md)
 * [Support matrix](matrix.md)
 * [For Moment users](moment.md)
-* [Why does Luxon exist?](why.md)
+* [Why does TSLuxon exist?](why.md)
 <!-- * [API docs](api-docs/index.html ':ignore') -->
 

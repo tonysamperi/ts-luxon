@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, HostBinding, ViewEncapsulation} from "@angular/core";
 //
 import * as Prism from "prismjs";
 
@@ -10,17 +10,18 @@ import * as Prism from "prismjs";
     encapsulation: ViewEncapsulation.None
 })
 // tslint:disable-next-line:naming-convention
-export class LuxCodeViewerComponent implements OnInit {
+export class LuxCodeViewerComponent implements AfterViewInit {
 
+    @HostBinding("class.lux-code-viewer") hostKlass: boolean = !0;
     showCode: boolean = !1;
 
-    constructor() {
+    constructor(protected _elRef: ElementRef) {
     }
 
-    ngOnInit(): void {
-        const $code = document.querySelector(`code`);
+    ngAfterViewInit(): void {
+        const $code = this._elRef.nativeElement.querySelector(`code`);
         if (!$code) {
-            return;
+            return console.error("CODE NOT FOUND!!", $code);
         }
         Prism.highlightElement($code);
     }

@@ -1,27 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>TS-Luxon - Typescript immutable date wrapper</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Immutable date wrapper">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/docsify/lib/themes/vue.css">
-</head>
-<body>
-  <div id="app"></div>
-  <script>
-    window.$docsify = {
-      basePath: "./docs/",
-      name: "ts-luxon",
-      repo: "https://github.com/tonysamperi/ts-luxon",
-      homepage: "home.md",
-      loadSidebar: true,
-      subMaxLevel: 3,
-      coverpage: true,
-    }
-  </script>
-  <script src="https://unpkg.com/docsify/lib/docsify.min.js"></script>
-</body>
+	<head>
+		<meta charset="UTF-8">
+		<title>TS-Luxon - Typescript immutable date wrapper</title>
+		<meta http-equiv="X-UA-Compatible"
+			  content="IE=edge,chrome=1" />
+		<meta name="description"
+			  content="Immutable date wrapper">
+		<meta name="viewport"
+			  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<link rel="stylesheet"
+			  href="https://unpkg.com/docsify/lib/themes/vue.css">
+	</head>
+	<body>
+		<div id="app"></div>
+		<script>
+            window.$docsify = {
+                basePath: "./docs/",
+                name: "ts-luxon",
+                repo: "https://github.com/tonysamperi/ts-luxon",
+                homepage: "home.md",
+                loadSidebar: true,
+                subMaxLevel: 3,
+                coverpage: true,
+            }
+		</script>
+		<script src="https://unpkg.com/docsify/lib/docsify.min.js"></script>
+		<script type="text/javascript">
+            const s = document.createElement("script");
+			s.src = "https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js";
+            s.onload = function () {
+                console.info("TSLuxon loaded! You can play using the global variable 'tsLuxon'! :)");
+            }
+            s.onerror = function () {
+                console.warn("TSLuxon didn't load! :(");
+            }
+            document.head.appendChild(s);
+		</script>
+	</body>
 </html>

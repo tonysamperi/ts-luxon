@@ -10,7 +10,7 @@ This section covers creating strings to represent a DateTime. There are three ty
 
 ### ISO 8601
 
-[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) is the most widely used set of string formats for dates and times. Luxon can _parse_ a wide range of them, but provides direct support for formatting only a few of them:
+[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) is the most widely used set of string formats for dates and times. TSLuxon can _parse_ a wide range of them, but provides direct support for formatting only a few of them:
 
 ```js
 dt.toISO(); //=> '2017-04-20T11:32:00.000-04:00'
@@ -23,7 +23,7 @@ Generally, you'll want the first one. Use it by default when building or interac
 
 ### HTTP and RFC 2822
 
-There are a number of legacy standard date and time formats out there, and Luxon supports some of them. You shouldn't use them unless you have a specific reason to.
+There are a number of legacy standard date and time formats out there, and TSLuxon supports some of them. You shouldn't use them unless you have a specific reason to.
 
 ```js
 dt.toRFC2822(); //=> 'Thu, 20 Apr 2017 11:32:00 -0400'
@@ -44,7 +44,7 @@ dt.valueOf(); //=> 1492702320000, same as .toMillis()
 
 ### The basics
 
-Modern browsers (and other JS environments) provide support for human-readable, internationalized strings. Luxon provides convenient support for them, and you should use them anytime you want to display a time to a user. Use `toLocaleString` to do it:
+Modern browsers (and other JS environments) provide support for human-readable, internationalized strings. TSLuxon provides convenient support for them, and you should use them anytime you want to display a time to a user. Use `toLocaleString` to do it:
 
 ```js
 dt.toLocaleString(); //=> '4/20/2017'
@@ -54,7 +54,7 @@ dt.setLocale('fr').toLocaleString(DateTime.DATETIME_FULL); //=> '20 avril 2017 Ã
 
 ### Intl.DateTimeFormat
 
-In the example above, `DateTime.DATETIME_FULL` is one of several convenience formats provided by Luxon. But the arguments are really any object of options that can be provided to [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat). For example:
+In the example above, `DateTime.DATETIME_FULL` is one of several convenience formats provided by TSLuxon. But the arguments are really any object of options that can be provided to [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat). For example:
 
 ```js
 dt.toLocaleString({ month: 'long', day: 'numeric' }); //=> 'April 20'

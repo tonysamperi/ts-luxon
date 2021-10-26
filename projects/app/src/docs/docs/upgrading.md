@@ -6,7 +6,7 @@ Version 3.0 of Luxon has a number of breaking changes.
 
 ### Environment support
 
-Luxon 3.0 does not support Node < 12, or any version of IE. It also only supports newer versions of major browsers. This change
+TSLuxon 3.0 does not support Node < 12, or any version of IE. It also only supports newer versions of major browsers. This change
 allows Luxon to make more assumptions about what's supported in the environment and will allow Luxon's code to simplify. See
 the [Support Matrix](matrix.md) for more.
 
@@ -22,26 +22,27 @@ There are many more specific breaking changes. Most are aimed and making Luxon's
 For example:
 
 ```js
-// Luxon 1.x
+// TSLuxon 2.x
 DateTime.fromObject({ hour: 3, minute: 2, zone: "America/New_York", locale: "ru" });
 Duration.fromObject({ hours: 3, minutes: 2, conversionAccuracy: "casual", locale: "ru" });
 
-// vs Luxon 2.x
+// vs Luxon 3.x
 DateTime.fromObject({ hour: 3, minute: 2 }, { zone: "America/New_York", locale: "ru" });
 Duration.fromObject({ hours: 3, minutes: 2 }, { conversionAccuracy: "casual", locale: "ru" });
 ```
 
 #### toLocaleString
 
-In Luxon 1.x, you can mix Intl options with overrides of the DateTime configuration into the same options parameter. These are now
-two separate parameters:
+In Luxon 2.x, you can mix Intl options with overrides of the DateTime configuration into the same options parameter. 
+
+These are now two separate parameters:
 
 ```js
 
-// Luxon 1.x
+// TSLuxon 2.x
 DateTime.now().toLocaleString({ hour: "2-digit", locale: "ru" })
 
-// vs Luxon 2.x
+// vs TSLuxon 3.x
 
 DateTime.now().toLocaleString({ hour: "2-digit" }, { locale: "ru" })
 ```
@@ -61,7 +62,7 @@ DateTime.fromObject({}, { zone: "system" }).zone.type // => "system"
 
 #### Default zone
 
-Luxon 2.x cleans up the handling of `Settings.defaultZone`:
+Luxon 3.x cleans up the handling of `Settings.defaultZone`:
 
 ```js
 

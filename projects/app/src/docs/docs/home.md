@@ -1,6 +1,7 @@
-## TS-Luxon
+## TSLuxon
 
-TS-Luxon is a library for dealing with dates and times in TypeScript.
+TSLuxon is a library for dealing with dates and times in TypeScript.
+And yes, it will work in your JavaScript projects as well! 😁
 
 ```js
 DateTime.now().setZone('America/New_York').minus({weeks:1}).endOf('day').toISO();
@@ -21,7 +22,7 @@ DateTime.now().setZone('America/New_York').minus({weeks:1}).endOf('day').toISO()
  
 ### Getting started
  
-  * [Demo](https://moment.github.io/luxon/demo/global.html ':ignore')
+  * [Demo](https://tonysamperi.github.io/ts-luxon ':ignore')
   * Read the [quick tour](tour.md)
   * Browse the topic docs on the left
   * Read the [api docs](api-docs/index.html ':ignore')
