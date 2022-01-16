@@ -1,4 +1,4 @@
-import { Duration, friendlyDuration, DurationLike } from "./duration";
+import { Duration, DurationLike } from "./duration";
 import { Interval } from "./interval";
 import { Settings } from "./settings";
 import { Info } from "./info";
@@ -319,7 +319,7 @@ interface Config extends DateTimeConfig {
  *
  * Here is a brief overview of the most commonly used functionality it provides:
  *
- * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime.local}, {@link DateTime.utc}, and (most flexibly) {@link DateTime.fromObject}. To create one from a standard string format, use {@link DateTime.fromISO}, {@link DateTime.fromHTTP}, and {@link DateTime.fromRFC2822}. To create one from a custom string format, use {@link DateTime.fromFormat}. To create one from a native JS date, use {@link DateTime.fromJSDate}.
+ * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime#local}, {@link DateTime#utc}, and (most flexibly) {@link DateTime#fromObject}. To create one from a standard string format, use {@link DateTime#fromISO}, {@link DateTime#fromHTTP}, and {@link DateTime#fromRFC2822}. To create one from a custom string format, use {@link DateTime#fromFormat}. To create one from a native JS date, use {@link DateTime#fromJSDate}.
  * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
  * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
  * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
@@ -1683,14 +1683,14 @@ export class DateTime {
         if (!this.isValid) {
             return this;
         }
-        const dur = friendlyDuration(duration);
+        const dur = Duration.fromDurationLike(duration);
 
         return this._clone(this._adjustTime(dur));
     }
 
     /**
      * Subtract a period of time to this DateTime and return the resulting DateTime
-     * See {@link plus}
+     * See {@link DateTime#plus}
      * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
      @return {DateTime}
      */
@@ -1698,7 +1698,7 @@ export class DateTime {
         if (!this.isValid) {
             return this;
         }
-        const dur = friendlyDuration(duration).negate();
+        const dur = Duration.fromDurationLike(duration).negate();
         return this._clone(this._adjustTime(dur));
     }
 
@@ -1773,7 +1773,7 @@ export class DateTime {
 
     /**
      * Returns a string representation of this DateTime formatted according to the specified format string.
-     * **You may not want this.** See {@link toLocaleString} for a more flexible formatting tool. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens).
+     * **You may not want this.** See {@link DateTime#toLocaleString} for a more flexible formatting tool. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
      * Defaults to en-US if no locale has been specified, regardless of the system's locale.
      * @param {string} fmt - the format string
      * @param {Object} opts - opts to override the configuration options on this DateTime
@@ -2057,7 +2057,7 @@ export class DateTime {
     // COMPARE
 
     /**
-     * Return the difference between two DateTimes as a Duration.
+     * Returns the difference between two DateTimes as a Duration.
      * @param {DateTime} otherDateTime - the DateTime to compare this one to
      * @param {string|string[]} [unit=['milliseconds']] - the unit or array of units (such as 'hours' or 'days') to include in the duration.
      * @param {Object} opts - options that affect the creation of the Duration
@@ -2095,8 +2095,8 @@ export class DateTime {
     }
 
     /**
-     * Return the difference between this DateTime and right now.
-     * See {@link diff}
+     * Returns the difference between this DateTime and right now.
+     * See {@link DateTime#diff}
      * @param {string|string[]} [unit=['milliseconds']] - the unit or units units (such as 'hours' or 'days') to include in the duration
      * @param {Object} opts - options that affect the creation of the Duration
      * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
@@ -2118,7 +2118,7 @@ export class DateTime {
     /**
      * Return whether this DateTime is in the same unit of time as another DateTime.
      * Higher-order units must also be identical for this function to return `true`.
-     * Note that time zones are **ignored** in this comparison, which compares the **local** calendar time. Use {@link setZone} to convert one of the dates if needed.
+     * Note that time zones are **ignored** in this comparison, which compares the **local** calendar time. Use {@link DateTime#setZone} to convert one of the dates if needed.
      * @param {DateTime} otherDateTime - the other DateTime
      * @param {string} unit - the unit of time to check sameness on
      * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day

@@ -28,6 +28,27 @@ export interface DurationObject {
   millisecond?: number;
 }
 
+export interface UnparsedDurationObject {
+    years?: string | number;
+    year?: string | number;
+    quarters?: string | number;
+    quarter?: string | number;
+    months?: string | number;
+    month?: string | number;
+    weeks?: string | number;
+    week?: string | number;
+    days?: string | number;
+    day?: string | number;
+    hours?: string | number;
+    hour?: string | number;
+    minutes?: string | number;
+    minute?: string | number;
+    seconds?: string | number;
+    second?: string | number;
+    milliseconds?: string | number;
+    millisecond?: string | number;
+}
+
 export type DurationUnit = keyof DurationObject;
 
 export interface DurationToFormatOptions {

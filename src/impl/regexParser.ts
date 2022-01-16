@@ -4,7 +4,8 @@ import {
     parseInteger,
     parseMillis,
     IANA_REGEX,
-    isUndefined
+    isUndefined,
+    parseFloating
 } from "./util";
 import * as English from "./english";
 import { FixedOffsetZone } from "../zones/fixedOffsetZone";
@@ -134,7 +135,7 @@ const isoTimeOnly = RegExp(`^T?${isoTimeBaseRegex.source}$`);
 
 // ISO duration parsing
 
-const isoDuration = /^-?P(?:(?:(-?\d{1,9})Y)?(?:(-?\d{1,9})M)?(?:(-?\d{1,9})W)?(?:(-?\d{1,9})D)?(?:T(?:(-?\d{1,9})H)?(?:(-?\d{1,9})M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,9}))?S)?)?)$/;
+const isoDuration = /^-?P(?:(?:(-?\d{1,9}(?:\.\d{1,9})?)Y)?(?:(-?\d{1,9}(?:\.\d{1,9})?)M)?(?:(-?\d{1,9}(?:\.\d{1,9})?)W)?(?:(-?\d{1,9}(?:\.\d{1,9})?)D)?(?:T(?:(-?\d{1,9}(?:\.\d{1,9})?)H)?(?:(-?\d{1,9}(?:\.\d{1,9})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,9}))?S)?)?)$/;
 
 function extractISODuration(match: RegExpExecArray): any {
     const [
@@ -156,13 +157,13 @@ function extractISODuration(match: RegExpExecArray): any {
         typeof num === typeof 0 && (force || (num && hasNegativePrefix)) ? -num : num;
 
     return [{
-        years: maybeNegate(parseInteger(yearStr)),
-        months: maybeNegate(parseInteger(monthStr)),
-        weeks: maybeNegate(parseInteger(weekStr)),
-        days: maybeNegate(parseInteger(dayStr)),
-        hours: maybeNegate(parseInteger(hourStr)),
-        minutes: maybeNegate(parseInteger(minuteStr)),
-        seconds: maybeNegate(parseInteger(secondStr), secondStr === "-0"),
+        years: maybeNegate(parseFloating(yearStr)),
+        months: maybeNegate(parseFloating(monthStr)),
+        weeks: maybeNegate(parseFloating(weekStr)),
+        days: maybeNegate(parseFloating(dayStr)),
+        hours: maybeNegate(parseFloating(hourStr)),
+        minutes: maybeNegate(parseFloating(minuteStr)),
+        seconds: maybeNegate(parseFloating(secondStr), secondStr === "-0"),
         milliseconds: maybeNegate(parseMillis(millisecondsStr), negativeSeconds)
     }];
 }

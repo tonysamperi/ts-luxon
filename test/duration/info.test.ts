@@ -4,7 +4,7 @@ const dur = Duration.fromObject(
     {
         years: 1,
         months: 2,
-        days: 3
+        days: 3.3
     },
     {
         locale: "fr",
@@ -19,7 +19,7 @@ test("Duration#toObject returns the object", () => {
     expect(dur.toObject()).toEqual({
         years: 1,
         months: 2,
-        days: 3
+        days: 3.3
     });
 });
 

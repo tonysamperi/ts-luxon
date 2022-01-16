@@ -1,10 +1,19 @@
 # Changelog
 
-##3.0.1
+## 3.1.0
+
+* api-docs: fixed links
+* Duration support for fractional duration (#1071)
+* Duration.fromObject now supports strings with new type UnparsedDurationObject
+* Add fromDurationLike method (#1062)
+
+## 3.0.1
+
 * Added [docs](https://tonysamperi.github.io/ts-luxon/docs)! 🎉
 * Added ES6 build and minified versions with inline sourcemaps! 🎉
 
-##3.0.0 (Luxon 2.0.1)
+## 3.0.0 (Luxon 2.0.1)
+
 * Inverted changelog to show latest versions first
 * Removed useless site folder (I'll work on the gh-pages only with some md viewer for Angular)
 * Change usage of hour12 to hourCycle
@@ -14,8 +23,8 @@
 * Add support for formatting and parsing tokens `uu` and `uuu` (#976)
 * Add test cases for day-of-the-month parsing (#1023)
 
+## 2.2.0 (Luxon 1.27.0)
 
-##2.2.0 (Luxon 1.27.0)
 * Added version
 * datetime.ts: Adding validation for mixing incompatible units
 * Fix small typo in math doc
@@ -26,14 +35,17 @@
 * feat: multiple units support in toRelative
 * update node install instructions.
 
-##2.1.2
+## 2.1.2
+
 * Fixed package contents
 * Adding missing exports of types for Duration
 
-##2.1.1 (deprecated)
+## 2.1.1 (deprecated)
+
 * Improved intersection check
 
 ## 2.1.0  (Luxon 1.26.0)
+
 * Add fromISOTime, toISOTime and toMillis to Duration (#803)
 * Fix padding of negative years in IsoDate (#871)
 * Fix hasSame unit comparison (#798)
@@ -41,15 +53,19 @@
 * Durations are considered equal with extra zero units. Fixes #809 (#811)
 
 ## 2.0.3
+
 * Added method resolvedLocaleOptions as per luxon@1.0.25
 
 ## 2.0.2
+
 * Added tslint
 * Improved naming convention
 * Solved Intl issue when compiling Angular (improved Intl namespace declaring and merging until es2020.intl)
 
 ## 2.0.1
+
 * Fixed DateTime.hasSame comparison
 
 ## before 2.0.0
+
 * Refer to Luxon's changelog

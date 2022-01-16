@@ -1,5 +1,5 @@
 import { DateTime, DateTimeLike } from "./datetime";
-import { Duration, friendlyDuration, DurationLike } from "./duration";
+import { Duration, DurationLike } from "./duration";
 import { InvalidArgumentError, InvalidIntervalError } from "./errors";
 import { ToISOTimeOptions, DateTimeWithZoneOptions } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
@@ -59,7 +59,7 @@ interface Config {
  *
  * Here is a brief overview of the most commonly used methods and getters in Interval:
  *
- * * **Creation** To create an Interval, use {@link Interval.fromDateTimes}, {@link Interval.after}, {@link Interval.before}, or {@link Interval.fromISO}.
+ * * **Creation** To create an Interval, use {@link Interval#fromDateTimes}, {@link Interval#after}, {@link Interval#before}, or {@link Interval#fromISO}.
  * * **Accessors** Use {@link Interval#start} and {@link Interval#end} to get the start and end.
  * * **Interrogation** To analyze the Interval, use {@link Interval#count}, {@link Interval#length}, {@link Interval#hasSame}, {@link Interval#contains}, {@link Interval#isAfter}, or {@link Interval#isBefore}.
  * * **Transformation** To create other Intervals out of this one, use {@link Interval#set}, {@link Interval#splitAt}, {@link Interval#splitBy}, {@link Interval#divideEqually}, {@link Interval#merge}, {@link Interval#xor}, {@link Interval#union}, {@link Interval#intersection}, or {@link Interval#difference}.
@@ -153,7 +153,7 @@ export class Interval {
      * @return {Interval}
      */
     static after(start: DateTimeLike, duration: DurationLike) {
-        const dur = friendlyDuration(duration),
+        const dur = Duration.fromDurationLike(duration),
             dt = friendlyDateTime(start);
 
         return new Interval({
@@ -169,7 +169,7 @@ export class Interval {
      * @return {Interval}
      */
     static before(end: DateTimeLike, duration: DurationLike) {
-        const dur = friendlyDuration(duration),
+        const dur = Duration.fromDurationLike(duration),
             dt = friendlyDateTime(end);
 
         return new Interval({
@@ -443,7 +443,7 @@ export class Interval {
      * @return {Interval[]}
      */
     splitBy(duration: DurationLike): Interval[] {
-        const dur = friendlyDuration(duration);
+        const dur = Duration.fromDurationLike(duration);
 
         if (!this.isValid || !dur.isValid || dur.as("milliseconds") === 0) {
             return [];
@@ -632,7 +632,7 @@ export class Interval {
 
     /**
      * Returns a string representation of this Interval formatted according to the specified format string.
-     * @param {string} dateFormat - the format string. This string formats the start and end time. See {@link DateTime.toFormat} for details.
+     * @param {string} dateFormat - the format string. This string formats the start and end time. See {@link DateTime#toFormat} for details.
      * @param {Object} options - options
      * @param {string} [options.separator =  ' – '] - a separator to place between the start and end representations
      * @return {string}

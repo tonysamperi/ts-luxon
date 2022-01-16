@@ -7,7 +7,7 @@ import {
     DurationObject,
     DurationOptions,
     DurationToFormatOptions,
-    DurationUnit
+    DurationUnit, UnparsedDurationObject
 } from "./types/duration";
 import { ConversionAccuracy } from "./types/common";
 import { Settings } from "./settings";
@@ -35,7 +35,8 @@ type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in No
 const INVALID = "Invalid Duration";
 
 // unit conversion constants
-const lowOrderMatrix = {
+// tslint:disable-next-line:naming-convention
+export const lowOrderMatrix = {
     weeks: {
         days: 7,
         hours: 7 * 24,
@@ -181,11 +182,10 @@ interface Config {
 }
 
 /**
- * A Duration object represents a period of time, like "2 months" or "1 day, 1 hour". Conceptually, it's just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime.plus} to add a Duration object to a DateTime, producing another DateTime.
- *
+ * A Duration object represents a period of time, like "2 months" or "1 day, 1 hour". Conceptually, it's just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime#plus} to add a Duration object to a DateTime, producing another DateTime. *
  * Here is a brief overview of commonly used methods and getters in Duration:
  *
- * * **Creation** To create a Duration, use {@link Duration.fromMillis}, {@link Duration.fromObject}, or {@link Duration.fromISO}.
+ * * **Creation** To create a Duration, use {@link Duration#fromMillis}, {@link Duration#fromObject}, or {@link Duration#fromISO}.
  * * **Unit values** See the {@link Duration#years}, {@link Duration.months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
  * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
  * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
@@ -342,7 +342,7 @@ export class Duration implements NormalizedDurationObject {
      * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
      * @return {Duration}
      */
-    static fromObject(obj: DurationObject | null, opts: DurationOptions = {}): Duration {
+    static fromObject(obj: UnparsedDurationObject | null, opts: DurationOptions = {}): Duration {
         if (obj == null || typeof obj !== "object") {
             throw new InvalidArgumentError(
                 `Duration.fromObject: argument expected to be an object, got ${
@@ -350,11 +350,39 @@ export class Duration implements NormalizedDurationObject {
                 }`
             );
         }
+
         return new Duration({
             values: normalizeObject(obj as Record<string, any>, Duration.normalizeUnit),
             loc: Locale.fromObject(opts),
             conversionAccuracy: opts.conversionAccuracy
         });
+    }
+
+    /**
+     * Create a Duration from DurationLike.
+     *
+     * @param {Object | number | Duration} durationLike
+     * One of:
+     * - object with keys like 'years' and 'hours'.
+     * - number representing milliseconds
+     * - Duration instance
+     * @return {Duration}
+     */
+    static fromDurationLike(durationLike: number | DurationLike): Duration {
+        if (isNumber(durationLike)) {
+            return Duration.fromMillis(durationLike);
+        }
+        else if (Duration.isDuration(durationLike)) {
+            return durationLike;
+        }
+        else if (typeof durationLike === "object") {
+            return Duration.fromObject(durationLike);
+        }
+        else {
+            throw new InvalidArgumentError(
+                `Unknown duration argument ${durationLike} of type ${typeof durationLike}`
+            );
+        }
     }
 
     /**
@@ -455,7 +483,7 @@ export class Duration implements NormalizedDurationObject {
      * * `y` for years
      * Notes:
      * * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
-     * * The duration will be converted to the set of units in the format string using {@link Duration.shiftTo} and the Durations's conversion accuracy setting.
+     * * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations' conversion accuracy setting.
      * @param {string} fmt - the format string
      * @param {Object} opts - options
      * @param {boolean} [opts.floor=true] - floor numerical values
@@ -635,7 +663,7 @@ export class Duration implements NormalizedDurationObject {
             return this;
         }
 
-        const dur = friendlyDuration(duration),
+        const dur = Duration.fromDurationLike(duration),
             result: NormalizedDurationObject = {};
 
         orderedUnits.forEach(unit => {
@@ -656,7 +684,7 @@ export class Duration implements NormalizedDurationObject {
         if (!this.isValid) {
             return this;
         }
-        const dur = friendlyDuration(duration);
+        const dur = Duration.fromDurationLike(duration);
         return this.plus(dur.negate());
     }
 
@@ -944,22 +972,4 @@ export class Duration implements NormalizedDurationObject {
 
 }
 
-export type DurationLike = Duration | DurationObject;
-
-/**
- * @private
- */
-export function friendlyDuration(durationish: DurationLike | number): Duration {
-    if (isNumber(durationish)) {
-        return Duration.fromMillis(durationish);
-    }
-    else if (Duration.isDuration(durationish)) {
-        return durationish;
-    }
-    else if (typeof durationish === "object") {
-        return Duration.fromObject(durationish) as Duration;
-    }
-    else {
-        throw new InvalidArgumentError(`Unknown duration argument ${durationish} of type ${typeof durationish}`);
-    }
-}
+export type DurationLike = Duration | UnparsedDurationObject;

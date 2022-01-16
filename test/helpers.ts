@@ -78,17 +78,13 @@ export class Helpers {
         return duration.set(fourWeeks).normalize().months === 1 ? "casual" : "longterm";
     };
 
-    // static setUnset(prop) {
-    //     return (value, f) => {
-    //         const existing = Settings[prop];
-    //         try {
-    //             Settings[prop] = value;
-    //             f();
-    //         } finally {
-    //             Settings[prop] = existing;
-    //         }
-    //     };
-    // }
+    static nullify(x: number): number | null {
+        if (x) {
+            return x;
+        }
+
+        return null;
+    }
 
     // WITH
 

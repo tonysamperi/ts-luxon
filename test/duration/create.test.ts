@@ -24,21 +24,30 @@ test("Duration.fromObject sets all the values", () => {
     expect(dur.milliseconds).toBe(7);
 });
 
+test("Duration.fromObject sets all the fractional values", () => {
+    const dur = Duration.fromObject({
+        years: 1,
+        months: 2,
+        days: 3,
+        hours: 4.5,
+    });
+    expect(dur.years).toBe(1);
+    expect(dur.months).toBe(2);
+    expect(dur.days).toBe(3);
+    expect(dur.hours).toBe(4.5);
+    expect(dur.minutes).toBe(0);
+    expect(dur.seconds).toBe(0);
+    expect(dur.milliseconds).toBe(0);
+});
+
 test("Duration.fromObject sets all the values from the object having string type values", () => {
     const dur = Duration.fromObject({
-        // @ts-expect-error
         years: "1",
-        // @ts-expect-error
         months: "2",
-        // @ts-expect-error
         days: "3",
-        // @ts-expect-error
         hours: "4",
-        // @ts-expect-error
         minutes: "5",
-        // @ts-expect-error
         seconds: "6",
-        // @ts-expect-error
         milliseconds: "7"
     });
     expect(dur.years).toBe(1);
@@ -85,14 +94,12 @@ test("Duration.fromObject throws if the initial object has invalid keys", () => 
 test("Duration.fromObject throws if the initial object has invalid values", () => {
     // @ts-expect-error
     expect(() => Duration.fromObject({ years: {} })).toThrow();
-    // @ts-expect-error
     expect(() => Duration.fromObject({ months: "some" })).toThrow();
     expect(() => Duration.fromObject({ days: NaN })).toThrow();
     // @ts-expect-error
     expect(() => Duration.fromObject({ hours: true })).toThrow();
     // @ts-expect-error
     expect(() => Duration.fromObject({ minutes: false })).toThrow();
-    // @ts-expect-error
     expect(() => Duration.fromObject({ seconds: "" })).toThrow();
 });
 
@@ -105,4 +112,33 @@ test("Duration.fromObject is valid if providing options only", () => {
     expect(dur.minutes).toBe(0);
     expect(dur.seconds).toBe(0);
     expect(dur.milliseconds).toBe(0);
+});
+
+// ------
+// .fromDurationLike()
+// -------
+
+it("Duration.fromDurationLike returns a Duration from millis", () => {
+    const dur = Duration.fromDurationLike(1000);
+    expect(dur).toBeInstanceOf(Duration);
+    expect(dur).toMatchInlineSnapshot(`"PT1S"`);
+});
+
+it("Duration.fromDurationLike returns a Duration from object", () => {
+    const dur = Duration.fromDurationLike({ hours: 1 });
+    expect(dur).toBeInstanceOf(Duration);
+    expect(dur.toObject()).toStrictEqual({ hours: 1 });
+});
+
+it("Duration.fromDurationLike returns passed Duration", () => {
+    const durFromObject = Duration.fromObject({ hours: 1 });
+    const dur = Duration.fromDurationLike(durFromObject);
+    expect(dur).toStrictEqual(durFromObject);
+});
+
+it("Duration.fromDurationLike returns passed Duration", () => {
+    // @ts-expect-error
+    expect(() => Duration.fromDurationLike("foo")).toThrow();
+    // @ts-expect-error
+    expect(() => Duration.fromDurationLike(Helpers.nullify())).toThrow();
 });

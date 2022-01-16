@@ -128,13 +128,20 @@ export function padStart(input: string | number, n = 2) {
     return `${minus}${result}`;
 }
 
-export function parseInteger(text: string) {
-    if (isUndefined(text) || text === null || text === "") {
-        return undefined;
-    }
-    else {
+export function parseInteger(text: string): number | undefined {
+    if (!!text) {
         return parseInt(text, 10);
     }
+
+    return void 0;
+}
+
+export function parseFloating(text: string): number | undefined {
+    if (!!text) {
+        return parseFloat(text);
+    }
+
+    return void 0;
 }
 
 export function parseMillis(fraction: string | null | undefined) {
