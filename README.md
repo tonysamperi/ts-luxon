@@ -55,6 +55,12 @@ and the [demo page](https://tonysamperi.github.io/ts-luxon)
 
 more example will be added! For suggestions open an issue or a PR (yes, even on the demo site if you want)!
 
+## Special thanks
+
+Jetbrains is now supporting this library with an open-source license, which will allow a better code! 🎉
+
+![jetbrains-logo](https://user-images.githubusercontent.com/5957244/150580991-863d6fba-1090-4924-b26c-be19c6310f24.svg)
+
 ## Development
 
 Pleas, read the CONTRIBUTING.md you can find in the master branch.
