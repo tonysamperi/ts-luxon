@@ -1,10 +1,10 @@
-import { parseMillis, isUndefined, untruncateYear, signedOffset } from "./util";
+import { parseMillis, isUndefined, untruncateYear, signedOffset, isDefined } from "./util";
 import { Formatter, FormatToken } from "./formatter";
 import { FixedOffsetZone } from "../zones/fixedOffsetZone";
 import { IANAZone } from "../zones/IANAZone";
 import { digitRegex, parseDigits } from "./digits";
 import { Locale } from "./locale";
-import { GenericDateTime, ExplainedFormat } from "../types/datetime";
+import { GenericDateTime, ExplainedFormat, GenericDateTimeExtended } from "../types/datetime";
 import { Zone } from "../zone";
 import { DateTime } from "../datetime";
 import { ConflictingSpecificationError } from "../errors";
@@ -303,7 +303,7 @@ function match(input: string, regex: RegExp, handlers: UnitParser[]): [RegExpMat
     return [matches, all];
 }
 
-function dateTimeFromMatches(matches: Record<string, string | number>): [GenericDateTime, Zone | null] {
+function dateTimeFromMatches(matches: Record<string, string | number>): [GenericDateTimeExtended, Zone | null, number | undefined] {
     const toField = (token: string) => {
         switch (token) {
             case "S":
@@ -331,20 +331,24 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
                 return "weekNumber";
             case "k":
                 return "weekYear";
+            case "q":
+                return "quarter";
             default:
                 return null;
         }
     };
 
-    let zone;
-    if (!isUndefined(matches.Z)) {
-        zone = new FixedOffsetZone(matches.Z as number);
-    }
-    else if (!isUndefined(matches.z)) {
+    let zone = null;
+    let specificOffset;
+    if (isDefined(matches.z)) {
         zone = IANAZone.create(matches.z as string);
     }
-    else {
-        zone = null;
+
+    if (isDefined(matches.Z)) {
+        if (!zone) {
+            zone = new FixedOffsetZone(+matches.Z);
+        }
+        specificOffset = +matches.Z;
     }
 
     if (!isUndefined(matches.q)) {
@@ -368,16 +372,16 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
         matches.S = parseMillis(matches.u as string) || 0;
     }
 
-    const vals = Object.keys(matches).reduce<GenericDateTime>((r, k) => {
+    const vals = Object.keys(matches).reduce((r: GenericDateTimeExtended, k: string) => {
         const f = toField(k);
         if (f) {
             r[f] = matches[k] as number;
         }
 
         return r;
-    }, {});
+    }, {} as GenericDateTimeExtended);
 
-    return [vals, zone];
+    return [vals, zone, specificOffset];
 }
 
 let dummyDateTimeCache: DateTime | undefined;
@@ -434,17 +438,21 @@ export function explainFromTokens(locale: Locale, input: string, format: string)
         const regexString = buildRegex(units as UnitParser[]),
             regex = RegExp(regexString, "i"),
             [rawMatches, matches] = match(input, regex, units as UnitParser[]),
-            [result, zone] = matches ? dateTimeFromMatches(matches) : [null, null];
+            [result, zone, specificOffset] = matches
+                ? dateTimeFromMatches(matches)
+                : [null, null, void 0];
         if ("a" in matches && "H" in matches) {
             throw new ConflictingSpecificationError(
                 "Can't include meridiem when specifying 24-hour format"
             );
         }
-        return { input, tokens, regex, rawMatches, matches, result, zone };
+        return { input, tokens, regex, rawMatches, matches, result, zone, specificOffset };
     }
 }
 
-export function parseFromTokens(locale: Locale, input: string, format: string): [GenericDateTime | null | void, Zone | null | void, string | void] {
-    const { result, zone, invalidReason } = explainFromTokens(locale, input, format);
-    return [result, zone, invalidReason];
+export function parseFromTokens(locale: Locale,
+                                input: string,
+                                format: string): [GenericDateTime | null | void, Zone | null | void, number | undefined, string | void] {
+    const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, input, format);
+    return [result, zone, specificOffset, invalidReason];
 }

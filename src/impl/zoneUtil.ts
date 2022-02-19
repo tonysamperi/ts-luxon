@@ -10,7 +10,6 @@ import { ZoneLike } from "../types/zone";
 import { InvalidZone } from "../zones/invalidZone";
 
 export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
-    let offset;
     if (isUndefined(input) || input === null) {
         return defaultZone;
     }
@@ -25,9 +24,8 @@ export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
         else if (lowered === "utc" || lowered === "gmt") {
             return FixedOffsetZone.utcInstance;
         }
-        else if ((offset = IANAZone.parseGMTOffset(input)) != null) {
-            // handle Etc/GMT-4, which V8 chokes on
-            return FixedOffsetZone.instance(offset);
+        else if (IANAZone.isValidSpecifier(lowered)) {
+            return IANAZone.create(input);
         }
         else if (IANAZone.isValidSpecifier(lowered)) {
             return IANAZone.create(input);

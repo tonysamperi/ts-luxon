@@ -25,8 +25,8 @@ export function isNumber(o: unknown): o is number {
     return typeof o === "number";
 }
 
-export function isInteger(o: unknown) {
-    return typeof o === "number" && o % 1 === 0;
+export function isInteger(o: unknown): boolean {
+    return isNumber(o) && o % 1 === 0;
 }
 
 export function isString(o: unknown): o is string {
@@ -70,36 +70,11 @@ export function bestBy<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) =>
     return bestResult[1];
 }
 
-export function bestByOld<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) => U) {
-    const bestResult = arr.reduce<[U, T] | undefined>((best, next) => {
-        const pair: [U, T] = [by(next), next];
-        if (best === undefined) {
-            return pair;
-        }
-        else if (compare(best[0], pair[0]) === best[0]) {
-            return best;
-        }
-        else {
-            return pair;
-        }
-    }, undefined);
-
-    if (bestResult === undefined) {
-        throw new InvalidArgumentError("bestBy expects a non empty array");
-    }
-
-    return bestResult[1];
-}
-
 export function pick<T, K extends keyof T>(obj: T, keys: K[]) {
     return keys.reduce<Partial<Pick<T, K>>>((a, k) => {
         a[k] = obj[k];
         return a;
     }, {}) as Pick<T, K>;
-}
-
-export function hasOwnProperty(obj: object, prop: string) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 // NUMBERS AND STRINGS
@@ -302,4 +277,4 @@ export function timeObject(obj: TimeObject): TimeObject {
     return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
 
-export const IANA_REGEX = /[A-Za-z_+-]{1,256}(:?\/[A-Za-z_+-]{1,256}(\/[A-Za-z_+-]{1,256})?)?/;
+export const IANA_REGEX = /[A-Za-z_+-]{1,256}(:?\/[A-Za-z0-9_+-]{1,256}(\/[A-Za-z0-9_+-]{1,256})?)?/;

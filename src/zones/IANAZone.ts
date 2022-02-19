@@ -12,7 +12,7 @@ function makeDTF(zone: string) {
     if (!dtfCache[zone]) {
         try {
             dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
-                hourCycle: "h23",
+                hour12: !1,
                 timeZone: zone,
                 year: "numeric",
                 month: "2-digit",
@@ -132,18 +132,6 @@ export class IANAZone extends Zone {
         } catch (e) {
             return false;
         }
-    }
-
-    // Etc/GMT+8 -> -480
-    /** @ignore */
-    static parseGMTOffset(specifier: string) {
-        if (specifier) {
-            const match = specifier.match(/^Etc\/GMT(0|[+-]\d{1,2})$/i);
-            if (match !== null) {
-                return -60 * parseInt(match[1], 10);
-            }
-        }
-        return null;
     }
 
     private constructor(name: string) {

@@ -6,6 +6,12 @@
 * Duration support for fractional duration (#1071)
 * Duration.fromObject now supports strings with new type UnparsedDurationObject
 * Add fromDurationLike method (#1062)
+* Stop special casing of `Etc/GMT*` zones
+* switch back to using hour12 for IANA offset calculation
+* Fix issue in quirky environments that lack `hourCycle` support and sometimes computed offsets 12 hours off
+* Handling of quarters in DateTime + tokenParser, don't know how it disappeared
+* Allow offsets to pick among ambiguous times when both an offset and zone are provided to `fromFormat`
+* Fix a floating point bug in `Duration.shiftTo()`
 
 ## 3.0.1
 

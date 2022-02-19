@@ -60,7 +60,7 @@ import {
     DefaultOrdinalUnitValues,
     TimeObject,
     InnerBuildObjectConfig,
-    GenericDateTimePlurals
+    GenericDateTimePlurals, GenericDateTimeExtended
 } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
 import { LocaleOptions, CalendarSystem } from "./types/locale";
@@ -122,13 +122,19 @@ function objToTS(obj: GregorianDateTime, offset: number, zone: Zone) {
 
 // helper useful in turning the results of parsing into real dates
 // by handling the zone options
-function parseDataToDateTime(parsed: GenericDateTime | null, parsedZone: Zone | null, opts: DateTimeWithZoneOptions, format: string, text: string) {
+function parseDataToDateTime(parsed: GenericDateTime | null,
+                             parsedZone: Zone | null,
+                             opts: DateTimeWithZoneOptions,
+                             format: string,
+                             text: string,
+                             specificOffset?: number) {
     const { setZone, zone } = opts;
     if (parsed && Object.keys(parsed).length > 0) {
         const interpretationZone = parsedZone || zone;
         const inst = DateTime.fromObject(parsed, {
             ...opts,
-            zone: interpretationZone
+            zone: interpretationZone,
+            specificOffset
         });
 
         return setZone ? inst : inst.setZone(zone);
@@ -253,9 +259,11 @@ const orderedUnits: Array<keyof GregorianDateTime> = [
 
 // standardize case and plurality in units
 function normalizeUnit(unit: string) {
-    const pluralMapping: Record<string, keyof GenericDateTime> = {
+    const pluralMapping: Record<string, keyof GenericDateTimeExtended> = {
         year: "year",
         years: "year",
+        quarter: "quarter",
+        quarters: "quarter",
         month: "month",
         months: "month",
         day: "day",
@@ -1084,7 +1092,9 @@ export class DateTime {
         }
 
         const tsNow = Settings.now(),
-            offsetProvis = zoneToUse.offset(tsNow),
+            offsetProvis = isNumber(opts.specificOffset)
+                ? opts.specificOffset
+                : zoneToUse.offset(tsNow),
             normalized = normalizeObject(obj as Record<string, any>, normalizeUnit),
             containsOrdinal = isDefined(normalized.ordinal),
             containsGregorYear = isDefined(normalized.year),
@@ -1226,12 +1236,12 @@ export class DateTime {
                 numberingSystem,
                 defaultToEN: true
             }),
-            [vals, parsedZone, invalid] = parseFromTokens(localeToUse, text, fmt);
+            [vals, parsedZone, specificOffset, invalid] = parseFromTokens(localeToUse, text, fmt);
         if (invalid) {
             return DateTime.invalid(invalid);
         }
         else {
-            return parseDataToDateTime(vals as GenericDateTime, parsedZone || null, opts, `format ${fmt}`, text);
+            return parseDataToDateTime(vals as GenericDateTimeExtended, parsedZone || null, opts, `format ${fmt}`, text, specificOffset);
         }
     }
 

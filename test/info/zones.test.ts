@@ -80,10 +80,9 @@ test.each([
     ["System", SystemZone.instance],
     ["UTC", FixedOffsetZone.utcInstance],
     ["GMT", FixedOffsetZone.utcInstance],
-    ["Etc/GMT+5", FixedOffsetZone.instance(-5 * 60)],
-    ["Etc/GMT-10", FixedOffsetZone.instance(+10 * 60)],
-    // @ts-ignore
-    ["Europe/Paris", new IANAZone("Europe/Paris")],
+    ["Etc/GMT+5", IANAZone.create("Etc/GMT+5")],
+    ["Etc/GMT-10", IANAZone.create("Etc/GMT-10")],
+    ["Europe/Paris", IANAZone.create("Europe/Paris")],
     [0, FixedOffsetZone.utcInstance],
     [3, FixedOffsetZone.instance(3)],
     [-11, FixedOffsetZone.instance(-11)]
