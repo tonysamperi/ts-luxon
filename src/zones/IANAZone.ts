@@ -1,10 +1,8 @@
-import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS } from "../impl/util";
+import { formatOffset, parseZoneInfo, isUndefined, objToLocalTS } from "../impl/util";
 import { Zone } from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
 import Intl from "../types/intl-next";
-
-const matchingRegex = RegExp(`^${IANA_REGEX.source}$`);
 
 let dtfCache: Record<string, Intl.DateTimeFormat> = {};
 
@@ -106,12 +104,12 @@ export class IANAZone extends Zone {
      * This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
      * @param {string} s - The string to check validity on
      * @example IANAZone.isValidSpecifier("America/New_York") //=> true
-     * @example IANAZone.isValidSpecifier("Fantasia/Castle") //=> true
      * @example IANAZone.isValidSpecifier("Sport~~blorp") //=> false
+     * @deprecated This method returns false some valid IANA names. Use isValidZone instead
      * @return {boolean}
      */
     static isValidSpecifier(s: string) {
-        return !!(s && matchingRegex.exec(s) !== null);
+        return this.isValidZone(s);
     }
 
     /**

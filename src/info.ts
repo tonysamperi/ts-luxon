@@ -31,7 +31,7 @@ export class Info {
      * @return {boolean}
      */
     static isValidIANAZone(zone: string) {
-        return IANAZone.isValidSpecifier(zone) && IANAZone.isValidZone(zone);
+        return IANAZone.isValidZone(zone);
     }
 
     /**

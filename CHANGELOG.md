@@ -13,8 +13,15 @@
 * Allow offsets to pick among ambiguous times when both an offset and zone are provided to `fromFormat`
 * Fix a floating point bug in `Duration.shiftTo()`
 * Fix http and 2822 docstrings
+* Refactored Intl typing (intl-next.ts) 
 * Added type definitions for Intl.ListFormat
 * add Duration#toHuman
+* Upgrade typescript version to ~4.4.4
+* faster toISO, toISODate, and toISOTIme
+* simplify toSQL and friends
+* Major perf improvements to `toISO()`, `toISODate()`, `toISOTime()`, and `toSQLDate()`
+* Fixed date padding for negative years in `toISO()`
+* Fix whacky Iana Dates
 
 ## 3.0.1
 

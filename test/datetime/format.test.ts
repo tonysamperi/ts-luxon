@@ -65,6 +65,26 @@ test("DateTime#toISO() rounds fractional timezone minute offsets", () => {
     ).toBe("0002-06-04T10:26:13.000-05:50");
 });
 
+test("DateTime#toISO() handles long gregorian format", () => {
+    const negativeYear = dt.set({ year: 12345 });
+    expect(negativeYear.toISO()).toBe("+012345-05-25T09:23:54.123Z");
+});
+
+test("DateTime#toISO() handles negative years", () => {
+    const negativeYear = dt.set({ year: -12345 });
+    expect(negativeYear.toISO()).toBe("-012345-05-25T09:23:54.123Z");
+});
+
+test("DateTime#toISO() default to Z when timezone is 00:00", () => {
+    const negativeYear = dt.setZone("utc");
+    expect(negativeYear.toISO()).toBe("1982-05-25T09:23:54.123Z");
+});
+
+test("DateTime#toISO() renders 00:00 for non-offset but non utc datetimes", () => {
+    const negativeYear = dt.setZone("Africa/Abidjan");
+    expect(negativeYear.toISO()).toBe("1982-05-25T09:23:54.123+00:00");
+});
+
 // ------
 // #toISODate()
 // ------

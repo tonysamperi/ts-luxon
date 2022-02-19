@@ -1,7 +1,7 @@
 /* eslint import/no-extraneous-dependencies: off */
 /* eslint no-console: off */
 import Benchmark from "benchmark";
-import { Info} from "../src";
+import { Info } from "../src";
 import { Locale } from "../src/impl/locale.js";
 
 function runWeekdaysSuite() {
@@ -22,7 +22,7 @@ function runWeekdaysSuite() {
             .on("complete", function() {
                 // @ts-ignore
                 console.log("Fastest is " + this.filter("fastest").map("name"));
-                resolve();
+                resolve(void 0);
             })
             .on("error", function() {
                 // @ts-ignore
@@ -50,7 +50,7 @@ function runWeekdaysFormatSuite() {
             .on("complete", function() {
                 // @ts-ignore
                 console.log("Fastest is " + this.filter("fastest").map("name"));
-                resolve();
+                resolve(void 0);
             })
             .on("error", function() {
                 // @ts-ignore
@@ -77,7 +77,7 @@ function runMonthsSuite() {
             .on("complete", function() {
                 // @ts-ignore
                 console.log("Fastest is " + this.filter("fastest").map("name"));
-                resolve();
+                resolve(void 0);
             })
             .on("error", function() {
                 // @ts-ignore
@@ -105,7 +105,7 @@ function runMonthsFormatSuite() {
             .on("complete", function() {
                 // @ts-ignore
                 console.log("Fastest is " + this.filter("fastest").map("name"));
-                resolve();
+                resolve(void 0);
             })
             .on("error", function() {
                 // @ts-ignore

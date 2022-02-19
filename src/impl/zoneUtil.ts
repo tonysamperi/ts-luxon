@@ -24,14 +24,8 @@ export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
         else if (lowered === "utc" || lowered === "gmt") {
             return FixedOffsetZone.utcInstance;
         }
-        else if (IANAZone.isValidSpecifier(lowered)) {
-            return IANAZone.create(input);
-        }
-        else if (IANAZone.isValidSpecifier(lowered)) {
-            return IANAZone.create(input);
-        }
         else {
-            return FixedOffsetZone.parseSpecifier(lowered) || new InvalidZone(input);
+            return FixedOffsetZone.parseSpecifier(lowered) || IANAZone.create(input);
         }
     }
     else if (isNumber(input)) {

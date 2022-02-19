@@ -18,7 +18,8 @@ import {
     weeksInWeekYear,
     normalizeObject,
     roundTo,
-    objToLocalTS
+    objToLocalTS,
+    padStart
 } from "./impl/util";
 import { normalizeZone } from "./impl/zoneUtil";
 import { diff } from "./impl/diff";
@@ -155,52 +156,6 @@ function toTechFormat(dt: DateTime, format: string, allowZ = true) {
             forceSimple: true
         }).formatDateTimeFromString(dt, format)
         : null;
-}
-
-// technical time formats (e.g. the time part of ISO 8601), take some options
-// and this commonizes their handling
-function toTechTimeFormat(
-    dt: DateTime,
-    {
-        includeOffset,
-        suppressSeconds = false,
-        suppressMilliseconds = false,
-        includePrefix = false,
-        includeZone = false,
-        spaceZone = false,
-        format = "extended"
-    }: {
-        includeOffset: boolean;
-        suppressSeconds?: boolean;
-        suppressMilliseconds?: boolean;
-        includePrefix?: boolean;
-        includeZone?: boolean;
-        spaceZone?: boolean;
-        format?: ToISOFormat;
-    }
-) {
-    let fmt = format === "basic" ? "HHmm" : "HH:mm";
-
-    if (!suppressSeconds || dt.second !== 0 || dt.millisecond !== 0) {
-        fmt += format === "basic" ? "ss" : ":ss";
-        if (!suppressMilliseconds || dt.millisecond !== 0) {
-            fmt += ".SSS";
-        }
-    }
-
-    if ((includeZone || includeOffset) && spaceZone) {
-        fmt += " ";
-    }
-
-    if (includeZone) {
-        fmt += "z";
-    }
-    else if (includeOffset) {
-        fmt += format === "basic" ? "ZZZ" : "ZZ";
-    }
-    const formatted = toTechFormat(dt, fmt);
-
-    return includePrefix ? "T" + formatted : formatted;
 }
 
 // defaults for unspecified units in the supported calendars
@@ -1398,10 +1353,10 @@ export class DateTime {
 
         // compute the actual time
         const gregorian = config.useWeekData
-            ? weekToGregorian(config.normalized as unknown as WeekDateTime)
-            : config.containsOrdinal
-                ? ordinalToGregorian(config.normalized as unknown as OrdinalDateTime)
-                : config.normalized,
+                ? weekToGregorian(config.normalized as unknown as WeekDateTime)
+                : config.containsOrdinal
+                    ? ordinalToGregorian(config.normalized as unknown as OrdinalDateTime)
+                    : config.normalized,
             [tsFinal, offsetFinal] = objToTS(gregorian as unknown as GregorianDateTime, config.offsetProvis, config.zoneToUse),
             inst = new DateTime({
                 ts: tsFinal,
@@ -1818,7 +1773,7 @@ export class DateTime {
      * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
      * @return {string}
      */
-    toLocaleString(formatOpts: Intl.DateTimeFormatOptions&LocaleOptions = Formats.DATE_SHORT, opts: DateTimeOptions = {}): string {
+    toLocaleString(formatOpts: Intl.DateTimeFormatOptions & LocaleOptions = Formats.DATE_SHORT, opts: DateTimeOptions = {}): string {
         return this.isValid
             ? Formatter.create(this._loc.clone(opts), formatOpts).formatDateTime(this)
             : INVALID;
@@ -1856,11 +1811,23 @@ export class DateTime {
      * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
      * @return {string}
      */
-    toISO(options: ToISOTimeOptions = {}): string | null {
+    toISO({
+              format = "extended",
+              suppressSeconds = false,
+              suppressMilliseconds = false,
+              includeOffset = true
+          }: ToISOTimeOptions = {}): string | null {
+
         if (!this.isValid) {
             return null;
         }
-        return `${this.toISODate({ format: options.format })}T${this.toISOTime(options)}`;
+        const ext = format === "extended";
+
+        return [
+            this._toISODate(ext),
+            "T",
+            this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset)
+        ].join("");
     }
 
     /**
@@ -1908,13 +1875,14 @@ export class DateTime {
                   includePrefix = false,
                   format = "extended"
               }: ToISOTimeOptions = {}) {
-        return toTechTimeFormat(this, {
-            suppressSeconds,
-            suppressMilliseconds,
-            includeOffset,
-            includePrefix,
-            format
-        });
+        if (!this.isValid) {
+            return null;
+        }
+
+        return [
+            includePrefix ? "T" : "",
+            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset)
+        ].join("");
     }
 
     /**
@@ -1945,26 +1913,36 @@ export class DateTime {
      * @return {string}
      */
     toSQLDate() {
-        return toTechFormat(this, "yyyy-MM-dd");
+        if (!this.isValid) {
+            return null;
+        }
+
+        return this._toISODate(!0);
     }
 
     /**
      * Returns a string representation of this DateTime appropriate for use in SQL Time
-     * @param {Object} options - options
-     * @param {boolean} [options.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
-     * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     *
      * @example DateTime.utc().toSQL() //=> '05:15:16.345'
      * @example DateTime.now().toSQL() //=> '05:15:16.345 -04:00'
      * @example DateTime.now().toSQL({ includeOffset: false }) //=> '05:15:16.345'
      * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
      * @return {string}
      */
-    toSQLTime({ includeOffset = true, includeZone = false }: ToSQLOptions = {}) {
-        return toTechTimeFormat(this, {
-            includeOffset,
-            includeZone,
-            spaceZone: true
-        });
+    toSQLTime({ includeOffset = !0, includeZone = !1 }: ToSQLOptions = {}) {
+        let fmt = "HH:mm:ss.SSS";
+
+        if (includeZone || includeOffset) {
+            fmt += " ";
+            if (includeZone) {
+                fmt += "z";
+            }
+            else if (includeOffset) {
+                fmt += "ZZ";
+            }
+        }
+
+        return toTechFormat(this, fmt, true);
     }
 
     /**
@@ -1982,6 +1960,7 @@ export class DateTime {
         if (!this.isValid) {
             return null;
         }
+
         return `${this.toSQLDate()} ${this.toSQLTime(opts)}`;
     }
 
@@ -2307,6 +2286,72 @@ export class DateTime {
         }
 
         return { ts, o };
+    }
+
+    private _toISODate(extended: boolean): string {
+        const longFormat = this._c.year > 9999 || this._c.year < 0;
+        let c = "";
+        if (longFormat && this._c.year >= 0) {
+            c += "+";
+        }
+        c += padStart(this._c.year, longFormat ? 6 : 4);
+
+        if (extended) {
+            c += "-";
+            c += padStart(this._c.month);
+            c += "-";
+            c += padStart(this._c.day);
+        }
+        else {
+            c += padStart(this._c.month);
+            c += padStart(this._c.day);
+        }
+        return c;
+    }
+
+    private _toISOTime(extended: boolean,
+                       suppressSeconds: boolean,
+                       suppressMilliseconds: boolean,
+                       includeOffset: boolean): string {
+        let c = padStart(this._c.hour);
+        if (extended) {
+            c += ":";
+            c += padStart(this._c.minute);
+            if (this._c.second !== 0 || !suppressSeconds) {
+                c += ":";
+            }
+        }
+        else {
+            c += padStart(this._c.minute);
+        }
+
+        if (this._c.second !== 0 || !suppressSeconds) {
+            c += padStart(this._c.second);
+
+            if (this._c.millisecond !== 0 || !suppressMilliseconds) {
+                c += ".";
+                c += padStart(this._c.millisecond, 3);
+            }
+        }
+
+        if (includeOffset) {
+            if (this.isOffsetFixed && this.offset === 0) {
+                c += "Z";
+            }
+            else if (this._o < 0) {
+                c += "-";
+                c += padStart(Math.trunc(-this._o / 60));
+                c += ":";
+                c += padStart(Math.trunc(-this._o % 60));
+            }
+            else {
+                c += "+";
+                c += padStart(Math.trunc(this._o / 60));
+                c += ":";
+                c += padStart(Math.trunc(this._o % 60));
+            }
+        }
+        return c;
     }
 
 }
