@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.0
+## 3.1.0 (Luxon 2.3.0)
 
 * api-docs: fixed links
 * Duration support for fractional duration (#1071)
