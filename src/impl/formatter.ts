@@ -7,7 +7,7 @@ import { Duration } from "../duration";
 import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";
-import Intl from "../types/intl-2020";
+import Intl from "../types/intl-next";
 
 function stringifyTokens(
     splits: FormatToken[],

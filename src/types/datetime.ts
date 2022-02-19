@@ -2,7 +2,7 @@ import { NumberingSystem, LocaleOptions } from "./locale";
 import { DateTime } from "../datetime";
 import { Zone } from "../zone";
 import { FormatToken } from "../impl/formatter";
-import Intl from "./intl-2020";
+// import Intl from "./intl-2020";
 import { Locale } from "../impl/locale";
 
 export interface SetZoneOptions {

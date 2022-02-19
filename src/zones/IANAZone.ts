@@ -2,7 +2,7 @@ import { formatOffset, parseZoneInfo, isUndefined, IANA_REGEX, objToLocalTS } fr
 import { Zone } from "../zone";
 import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
 import { InvalidZoneError } from "../errors";
-import Intl from "../types/intl-2020";
+import Intl from "../types/intl-next";
 
 const matchingRegex = RegExp(`^${IANA_REGEX.source}$`);
 

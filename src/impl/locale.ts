@@ -3,10 +3,23 @@ import * as English from "./english";
 import { Settings } from "../settings";
 import { DateTime } from "../datetime";
 import { IANAZone } from "../zones/IANAZone";
-import Intl from "../types/intl-2020";
-
+import Intl from "../types/intl-next";
 import { StringUnitLength, UnitLength, WeekUnitLengths } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "../types/locale";
+
+// todo - remap caching
+
+let intlLFCache: Record<string, Intl.ListFormat> = {};
+
+function getCachedLF(locString: string, opts: Intl.ListFormatOptions = {}) {
+    const key = JSON.stringify([locString, opts]);
+    let dtf = intlLFCache[key];
+    if (!dtf) {
+        dtf = new Intl.ListFormat(locString, opts);
+        intlLFCache[key] = dtf;
+    }
+    return dtf;
+}
 
 let intlDTCache: Record<string, Intl.DateTimeFormat> = {};
 
@@ -34,7 +47,7 @@ function getCachedINF(locString: string, options: Intl.NumberFormatOptions) {
 
 let intlRelCache: Record<string, Intl.RelativeTimeFormat> = {};
 
-function getCachedRTF(locale: Intl.BCP47LanguageTag, options: Intl.RelativeTimeFormatOptions = {}) {
+function getCachedRTF(locale: Intl.UnicodeBCP47LocaleIdentifier, options: Intl.RelativeTimeFormatOptions = {}) {
     const key = JSON.stringify([locale, options]);
     let inf = intlRelCache[key];
     if (!inf) {
@@ -138,24 +151,21 @@ function listStuff<T extends UnitLength>(
 /**
  * @private
  */
-interface NumberFormatterOptions {
-    padTo?: number;
-    floor?: boolean;
-}
 
 class PolyNumberFormatter {
     private readonly _padTo: number;
     private readonly _floor: boolean;
     private _inf?: Readonly<Intl.NumberFormat>;
 
-    constructor(intl: string, forceSimple: boolean, options: NumberFormatterOptions) {
-        this._padTo = options.padTo || 0;
-        this._floor = options.floor || false;
+    constructor(intl: string, forceSimple: boolean, opts: Intl.NumberFormatOptions) {
+        this._padTo = opts.padTo || 0;
+        this._floor = opts.floor || false;
+        const { padTo, floor, ...otherOpts } = opts;
 
-        if (!forceSimple) {
-            const intlOpts: Intl.NumberFormatOptions = { useGrouping: false };
+        if (!forceSimple || Object.keys(otherOpts).length > 0) {
+            const intlOpts: Intl.NumberFormatOptions = { useGrouping: false, ...opts };
             if (this._padTo > 0) {
-                intlOpts.minimumIntegerDigits = this._padTo;
+                intlOpts.minimumIntegerDigits = opts.padTo;
             }
             this._inf = getCachedINF(intl, intlOpts);
         }
@@ -251,7 +261,7 @@ class PolyRelFormatter {
     private _opts: Readonly<Intl.RelativeTimeFormatOptions>;
     private _rtf?: Readonly<Intl.RelativeTimeFormat>;
 
-    constructor(locale: Intl.BCP47LanguageTag, isEnglish: boolean, opts: Intl.RelativeTimeFormatOptions) {
+    constructor(locale: Intl.UnicodeBCP47LocaleIdentifier, isEnglish: boolean, opts: Intl.RelativeTimeFormatOptions) {
         this._opts = { style: "long", ...opts };
         if (!isEnglish && hasRelative()) {
             this._rtf = getCachedRTF(locale, opts);
@@ -359,6 +369,7 @@ export class Locale {
 
     static resetCache() {
         sysLocaleCache = undefined;
+        intlLFCache = {};
         intlDTCache = {};
         intlNumCache = {};
         intlRelCache = {};
@@ -401,7 +412,7 @@ export class Locale {
 
     months(length: UnitLength, format: boolean = false): string[] {
         return listStuff(this, length, English.months, len => {
-            const intl = format ? { month: len, day: "numeric" } : { month: len },
+            const intl: Intl.DateTimeFormatOptions = format ? { month: len, day: "numeric" } : { month: len },
                 formatStr = format ? "format" : "standalone";
             if (!this._monthsCache[formatStr][len]) {
                 this._monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
@@ -412,10 +423,10 @@ export class Locale {
 
     weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
         return listStuff(this, length, English.weekdays, len => {
-            const intl = format
+            const intl: Intl.DateTimeFormatOptions = format
                 ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
-                : { weekday: len },
-                formatStr = format ? "format" : "standalone";
+                : { weekday: len };
+            const formatStr = format ? "format" : "standalone";
             if (!this._weekdaysCache[formatStr][len]) {
                 this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
             }
@@ -470,7 +481,7 @@ export class Locale {
         return matching.value;
     }
 
-    numberFormatter(options: NumberFormatterOptions = {}): PolyNumberFormatter {
+    numberFormatter(options: Intl.NumberFormatOptions = {}): PolyNumberFormatter {
         return new PolyNumberFormatter(this._intl, this.fastNumbers, options);
     }
 
@@ -480,6 +491,10 @@ export class Locale {
 
     relFormatter(options: Intl.RelativeTimeFormatOptions = {}): PolyRelFormatter {
         return new PolyRelFormatter(this._intl, this.isEnglish(), options);
+    }
+
+    listFormatter(opts: Intl.ListFormatOptions = {}) {
+        return getCachedLF(this._intl, opts);
     }
 
     isEnglish(): boolean {

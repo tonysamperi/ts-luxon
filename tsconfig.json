@@ -1,31 +1,35 @@
 {
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "test"
-  ],
-  "compilerOptions": {
-    "module": "es6",
-    "target": "es5",
-    "lib": [
-      "es5"
+    "include": [
+        "src"
     ],
-    "importHelpers": true,
-    "declaration": true,
-    "sourceMap": true,
-    "rootDir": "./src",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "ts-luxon": ["./dist"],
-      "ts-luxon/*": ["./dist/*"]
-    },
-    "esModuleInterop": true,
-    "outDir": "dist/lib"
-  }
+    "exclude": [
+        "test"
+    ],
+    "compilerOptions": {
+        "module": "es6",
+        "target": "es6",
+        "lib": [
+            "es5"
+        ],
+        "importHelpers": true,
+        "declaration": true,
+        "sourceMap": true,
+        "rootDir": "./src",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "paths": {
+            "ts-luxon": [
+                "./dist"
+            ],
+            "ts-luxon/*": [
+                "./dist/*"
+            ]
+        },
+        "esModuleInterop": true,
+        "outDir": "dist/lib"
+    }
 }

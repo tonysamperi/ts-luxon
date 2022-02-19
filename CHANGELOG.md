@@ -12,6 +12,9 @@
 * Handling of quarters in DateTime + tokenParser, don't know how it disappeared
 * Allow offsets to pick among ambiguous times when both an offset and zone are provided to `fromFormat`
 * Fix a floating point bug in `Duration.shiftTo()`
+* Fix http and 2822 docstrings
+* Added type definitions for Intl.ListFormat
+* add Duration#toHuman
 
 ## 3.0.1
 

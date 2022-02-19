@@ -230,12 +230,12 @@ test("Duration#toFormat('y') returns years", () => {
 });
 
 test("Duration#toFormat accepts the deprecated 'round' option", () => {
-    expect(dur().toFormat("s", { round: false })).toBe("37598706.007");
-    expect(dur().toFormat("m", { round: false })).toBe("626645.1");
-    expect(dur().toFormat("h", { round: false })).toBe("10444.085");
-    expect(dur().toFormat("d", { round: false })).toBe("435.17");
-    expect(dur().toFormat("M", { round: false })).toBe("14.356");
-    expect(dur().toFormat("y", { round: false })).toBe("1.195");
+    expect(dur().toFormat("s", { round: false })).toBe("37598706,007");
+    expect(dur().toFormat("m", { round: false })).toBe("626645,1");
+    expect(dur().toFormat("h", { round: false })).toBe("10444,085");
+    expect(dur().toFormat("d", { round: false })).toBe("435,17");
+    expect(dur().toFormat("M", { round: false })).toBe("14,356");
+    expect(dur().toFormat("y", { round: false })).toBe("1,195");
 });
 
 test("Duration#toFormat leaves in zeros", () => {
@@ -262,4 +262,36 @@ test("Duration#toFormat localizes the numbers", () => {
 
 test("Duration#toFormat returns a lame string for invalid durations", () => {
     expect(Duration.invalid("because").toFormat("yy")).toBe("Invalid Duration");
+});
+
+// ------
+// #humanize()
+// ------
+
+test("Duration#toHuman formats out a list", () => {
+    expect(dur().toHuman()).toEqual(
+        "1 anno, 2 mesi, 1 settimana, 3 giorni, 4 ore, 5 minuti, 6 secondi e 7 millisecondi"
+    );
+});
+
+test("Duration#toHuman only shows the units you have", () => {
+    expect(Duration.fromObject({ years: 3, hours: 4 }).toHuman()).toEqual("3 anni e 4 ore");
+});
+
+test("Duration#toHuman accepts a listStyle", () => {
+    expect(dur().toHuman({ listStyle: "long" })).toEqual(
+        "1 anno, 2 mesi, 1 settimana, 3 giorni, 4 ore, 5 minuti, 6 secondi e 7 millisecondi"
+    );
+});
+
+test("Duration#toHuman accepts number format opts", () => {
+    expect(dur().toHuman({ unitDisplay: "short" })).toEqual(
+        "1 anno, 2 mesi, 1 settimana, 3 giorni, 4 h, 5 min, 6 s e 7 ms"
+    );
+});
+
+test("Duration#toHuman works in differt languages", () => {
+    expect(dur().reconfigure({ locale: "fr" }).toHuman()).toEqual(
+        "1 an, 2 mois, 1 semaine, 3 jours, 4 heures, 5 minutes, 6 secondes, 7 millisecondes"
+    );
 });

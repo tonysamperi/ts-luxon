@@ -1,12 +1,12 @@
-import Intl from "../types/intl-2020";
+// import Intl from "../types/intl-2020";
 
 /**
  * @private
  */
 
-const n = "numeric",
-    s = "short",
-    l = "long";
+const n: "numeric" = "numeric",
+    s: "short" = "short",
+    l: "long" = "long";
 
 export const DATE_SHORT = {
     year: n,

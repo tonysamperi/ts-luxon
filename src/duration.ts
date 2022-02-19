@@ -14,6 +14,7 @@ import { Settings } from "./settings";
 import { Invalid } from "./types/invalid";
 import { NumberingSystem } from "./types/locale";
 import { ToISOTimeOptions } from "./types/datetime";
+import Intl from "./types/intl-next";
 
 interface NormalizedDurationObject {
     years?: number;
@@ -415,7 +416,7 @@ export class Duration implements NormalizedDurationObject {
      * @return {boolean}
      */
     static isDuration(o: unknown): o is Duration {
-        return (o && (o as Duration)._isLuxonDuration) || false;
+        return (!!o && (o as Duration)._isLuxonDuration) || false;
     }
 
 
@@ -502,6 +503,38 @@ export class Duration implements NormalizedDurationObject {
         return this.isValid
             ? Formatter.create(this._loc, fmtOpts).formatDurationFromString(this, fmt)
             : INVALID;
+    }
+
+    /**
+     * Returns a string representation of a Duration with all units included
+     * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant. See {@link Intl.NumberFormat}.
+     * @param opts - On option object to override the formatting. Accepts the same keys as the options parameter of the native `Int.NumberFormat` constructor, as well as `listStyle`.
+     * @example
+     * ```js
+     * var dur = Duration.fromObject({ days: 1, hours: 5, minutes: 6 })
+     * dur.toHuman() //=> '1 day, 5 hours, 6 minutes'
+     * dur.toHuman({ listStyle: "long" }) //=> '1 day, 5 hours, and 6 minutes'
+     * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
+     * ```
+     */
+    toHuman(opts: Intl.NumberFormatOptions&{listStyle?: Intl.ListFormatOptions["style"]} = {}) {
+        const l = orderedUnits
+            .map((unit) => {
+                const val = this._values[unit];
+                if (isUndefined(val)) {
+                    return null;
+                }
+                return this._loc
+                    .numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) })
+                    .format(val);
+            })
+            .filter((n) => n);
+
+        const mergedOpts = { type: "conjunction", style: opts.listStyle || "narrow", ...opts } as Intl.ListFormatOptions;
+
+        return this._loc
+            .listFormatter(mergedOpts)
+            .format(l);
     }
 
     /**

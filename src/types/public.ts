@@ -6,6 +6,6 @@ export * from "./interval";
 export * from "./locale";
 export * from "./zone";
 
-import Intl from "./intl-2020";
+import Intl from "./intl-next";
 
 export { Intl };

@@ -8,6 +8,8 @@ import { InvalidArgumentError } from "../errors";
 import { TimeObject, GregorianDateTime } from "../types/datetime";
 import { ZoneOffsetFormat } from "../types/zone";
 
+import Intl from "../types/intl-next";
+
 /**
  * @private
  */
@@ -212,7 +214,7 @@ export function parseZoneInfo(
         hour: "2-digit",
         minute: "2-digit",
         timeZone
-    };
+    } as Intl.DateTimeFormatOptions;
 
     const modified: Intl.DateTimeFormatOptions = { timeZoneName: offsetFormat, ...intlOpts };
     const parsed = new Intl.DateTimeFormat(locale, modified)

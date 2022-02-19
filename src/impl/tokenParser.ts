@@ -8,7 +8,7 @@ import { GenericDateTime, ExplainedFormat, GenericDateTimeExtended } from "../ty
 import { Zone } from "../zone";
 import { DateTime } from "../datetime";
 import { ConflictingSpecificationError } from "../errors";
-import Intl from "../types/intl-2020";
+import Intl from "../types/intl-next";
 
 const MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
 

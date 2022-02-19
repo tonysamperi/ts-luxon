@@ -252,7 +252,7 @@ export class Interval {
      * @return {boolean}
      */
     static isInterval(o: unknown): o is Interval {
-        return (o && (o as Interval)._isLuxonInterval) || false;
+        return (!!o && (o as Interval)._isLuxonInterval) || false;
     }
 
     /**

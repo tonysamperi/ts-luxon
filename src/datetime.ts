@@ -66,7 +66,7 @@ import { DurationUnit, DurationOptions, DurationObject } from "./types/duration"
 import { LocaleOptions, CalendarSystem } from "./types/locale";
 import { ZoneLike } from "./types/zone";
 import { Invalid } from "./types/invalid";
-import Intl from "./types/intl-2020";
+import Intl from "./types/intl-next";
 
 const INVALID = "Invalid DateTime";
 const MAX_DATE = 8.64e15;
@@ -1818,7 +1818,7 @@ export class DateTime {
      * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
      * @return {string}
      */
-    toLocaleString(formatOpts: Intl.DateTimeFormatOptions & LocaleOptions = Formats.DATE_SHORT, opts: DateTimeOptions = {}): string {
+    toLocaleString(formatOpts: Intl.DateTimeFormatOptions&LocaleOptions = Formats.DATE_SHORT, opts: DateTimeOptions = {}): string {
         return this.isValid
             ? Formatter.create(this._loc.clone(opts), formatOpts).formatDateTime(this)
             : INVALID;
@@ -1850,7 +1850,7 @@ export class DateTime {
      * @param {boolean} [options.suppressSeconds=false] - exclude seconds from the format if they're 0
      * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
      * @param {string} [options.format='extended'] - choose between the basic and extended format
-     * @example DateTime.utc(1982, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
+     * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
      * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
      * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
      * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
@@ -1918,7 +1918,7 @@ export class DateTime {
     }
 
     /**
-     * Returns an RFC 2822-compatible string representation of this DateTime, always in UTC
+     * Returns an RFC 2822-compatible string representation of this DateTime
      * @example DateTime.utc(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 +0000'
      * @example DateTime.local(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 -0400'
      * @return {string}
@@ -1928,7 +1928,7 @@ export class DateTime {
     }
 
     /**
-     * Returns a string representation of this DateTime appropriate for use in HTTP headers.
+     * Returns a string representation of this DateTime appropriate for use in HTTP headers. The output is always expressed in GMT
      * Specifically, the string conforms to RFC 1123.
      * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
      * @example DateTime.utc(2014, 7, 13).toHTTP() //=> 'Sun, 13 Jul 2014 00:00:00 GMT'
@@ -2140,8 +2140,8 @@ export class DateTime {
         }
 
         const inputMs = otherDateTime.valueOf();
-        const otherZoneDateTime = this.setZone(otherDateTime.zone, { keepLocalTime: true });
-        return +otherZoneDateTime.startOf(unit) <= inputMs && inputMs <= +otherZoneDateTime.endOf(unit);
+        const adjustedToZone = this.setZone(otherDateTime.zone, { keepLocalTime: true });
+        return +adjustedToZone.startOf(unit) <= inputMs && inputMs <= +adjustedToZone.endOf(unit);
     }
 
     /**
