@@ -1,4 +1,4 @@
-* [&lt; Back to site](/ ':ignore :target=_self')
+* [&lt; Back to demo site](../ ':ignore :target=_self')
 
 * [Home](/)
 * [Install guide](install.md)
