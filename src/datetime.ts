@@ -1252,7 +1252,7 @@ export class DateTime {
     }
 
     /**
-     * Check if an object is a DateTime. Works across context boundaries
+     * Check if an object is an instance of DateTime. Works across context boundaries
      * @param {Object} o
      * @return {boolean}
      */
@@ -1922,18 +1922,21 @@ export class DateTime {
 
     /**
      * Returns a string representation of this DateTime appropriate for use in SQL Time
-     *
+     * @param {Object} opts - options
+     * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
+     * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
      * @example DateTime.utc().toSQL() //=> '05:15:16.345'
      * @example DateTime.now().toSQL() //=> '05:15:16.345 -04:00'
      * @example DateTime.now().toSQL({ includeOffset: false }) //=> '05:15:16.345'
      * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
      * @return {string}
      */
-    toSQLTime({ includeOffset = !0, includeZone = !1 }: ToSQLOptions = {}) {
+    toSQLTime({ includeOffset = !0, includeZone = !1, includeOffsetSpace = !0 }: ToSQLOptions = {}) {
         let fmt = "HH:mm:ss.SSS";
 
         if (includeZone || includeOffset) {
-            fmt += " ";
+            includeOffsetSpace && (fmt += " ");
             if (includeZone) {
                 fmt += "z";
             }
@@ -1950,6 +1953,7 @@ export class DateTime {
      * @param {Object} opts - options
      * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
      * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
      * @example DateTime.utc(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 Z'
      * @example DateTime.local(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 -04:00'
      * @example DateTime.local(2014, 7, 13).toSQL({ includeOffset: false }) //=> '2014-07-13 00:00:00.000'
@@ -1994,6 +1998,14 @@ export class DateTime {
      */
     toSeconds() {
         return this.isValid ? this._ts / 1000 : NaN;
+    }
+
+    /**
+     * Returns the epoch seconds (as a whole number) of this DateTime.
+     * @return {number}
+     */
+    toUnixInteger() {
+        return this.isValid ? Math.floor(this.ts / 1000) : NaN;
     }
 
     /**

@@ -17,7 +17,8 @@ function makeDTF(zone: string) {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit"
+                second: "2-digit",
+                era: "short"
             });
         } catch {
             throw new InvalidZoneError(zone);
@@ -30,38 +31,31 @@ const typeToPos: Partial<Record<Intl.DateTimeFormatPartTypes, number>> = {
     year: 0,
     month: 1,
     day: 2,
-    hour: 3,
-    minute: 4,
-    second: 5
+    era: 3,
+    hour: 4,
+    minute: 5,
+    second: 6
 };
 
 function hackyOffset(dtf: Intl.DateTimeFormat, date: Date) {
-    const formatted = dtf.format(date).replace(/\u200E/g, ""),
-        parsed = /(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/.exec(formatted);
+    const formatted = dtf.format(date).replace(/\u200E/g, "");
+    const parsed: RegExpExecArray = /(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(formatted) as RegExpExecArray;
+    const [, fMonth, fDay, fYear, fadOrBc, fHour, fMinute, fSecond] = parsed;
 
-    if (parsed !== null) {
-        const [, month, day, year, hour, minute, second] = parsed;
-        return [
-            parseInt(year, 10),
-            parseInt(month, 10),
-            parseInt(day, 10),
-            parseInt(hour, 10),
-            parseInt(minute, 10),
-            parseInt(second, 10)
-        ];
-    }
-
-    return [0, 0, 0, 0, 0, 0];
+    return [fYear, fMonth, fDay, fadOrBc, fHour, fMinute, fSecond];
 }
 
 function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
-    const formatted = dtf.formatToParts(date),
-        filled = [];
+    const formatted = dtf.formatToParts(date);
+    const filled = [];
     for (let i = 0; i < formatted.length; i++) {
-        const { type, value } = formatted[i],
-            pos = typeToPos[type];
+        const { type, value } = formatted[i];
+        const pos = typeToPos[type] as number;
 
-        if (!isUndefined(pos)) {
+        if (type === "era") {
+            filled[pos] = value;
+        }
+        else if (!isUndefined(pos)) {
             filled[pos] = parseInt(value, 10);
         }
     }
@@ -105,7 +99,7 @@ export class IANAZone extends Zone {
      * @param {string} s - The string to check validity on
      * @example IANAZone.isValidSpecifier("America/New_York") //=> true
      * @example IANAZone.isValidSpecifier("Sport~~blorp") //=> false
-     * @deprecated This method returns false some valid IANA names. Use isValidZone instead
+     * @deprecated This method returns false for some valid IANA names. Use isValidZone instead.
      * @return {boolean}
      */
     static isValidSpecifier(s: string) {
@@ -168,28 +162,33 @@ export class IANAZone extends Zone {
     /** @override **/
     offset(ts: number) {
         const date = new Date(ts);
-
         if (isNaN(+date)) {
             return NaN;
         }
+        const dtf = makeDTF(this.name);
+        let yearAlt;
+        const [year, month, day, adOrBc, hour, minute, second] = typeof dtf.formatToParts === typeof isNaN
+            ? partsOffset(dtf, date)
+            : hackyOffset(dtf, date);
 
-        const dtf = makeDTF(this.name),
-            [year, month, day, hour, minute, second] =
-                dtf.formatToParts === undefined ? hackyOffset(dtf, date) : partsOffset(dtf, date),
-            // work around https://bugs.chromium.org/p/chromium/issues/detail?id=1025564&can=2&q=%2224%3A00%22%20datetimeformat
-            adjustedHour = hour === 24 ? 0 : hour;
+        if (adOrBc === "BC") {
+            yearAlt = -Math.abs(+year) + 1;
+        }
+
+        // because we're using hour12 and https://bugs.chromium.org/p/chromium/issues/detail?id=1025564&can=2&q=%2224%3A00%22%20datetimeformat
+        const adjustedHour = hour === 24 ? 0 : hour;
 
         const asUTC = objToLocalTS({
-            year,
-            month,
-            day,
-            hour: adjustedHour,
-            minute,
-            second,
+            year: yearAlt || +year,
+            month: +month,
+            day: +day,
+            hour: +adjustedHour,
+            minute: +minute,
+            second: +second,
             millisecond: 0
         });
 
-        let asTS = date.valueOf();
+        let asTS = +date;
         const over = asTS % 1000;
         asTS -= over >= 0 ? over : 1000 + over;
         return (asUTC - asTS) / (60 * 1000);

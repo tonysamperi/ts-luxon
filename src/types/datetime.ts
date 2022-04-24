@@ -43,6 +43,7 @@ export interface ToRelativeCalendarOptions {
 
 export interface ToSQLOptions {
     includeOffset?: boolean;
+    includeOffsetSpace?: boolean;
     includeZone?: boolean;
 }
 

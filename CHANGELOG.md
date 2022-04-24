@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.0 (Luxon 2.3.2) 
+* NOTE: I'm doing a major version since there's added functionality. Don't know why in Luxon they only bumped patch
+* Added an `includeOffsetSpace` option to `toSQL` and `toSQLTime`
+* Added `toUnixInteger`
+* Don't use `-0` when negating durations with zeros in them
+* Fix timezone calculations for negative years
+* add week formatting token "w" for durations
+* fix weekday computation for years 0-100
+
 ## 3.1.0 (Luxon 2.3.0)
 
 * api-docs: fixed links

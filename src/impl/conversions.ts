@@ -21,7 +21,11 @@ function unitOutOfRange(unit: string, value: number | string): Invalid {
 }
 
 function dayOfWeek(year: number, month: number, day: number) {
-    const js = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+    const d = new Date(Date.UTC(year, month - 1, day));
+    if (year < 100 && year >= 0) {
+        d.setUTCFullYear(d.getUTCFullYear() - 1900);
+    }
+    const js = d.getUTCDay();
 
     return js === 0 ? 7 : js;
 }

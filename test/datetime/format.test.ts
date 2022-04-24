@@ -244,6 +244,12 @@ test("DateTime#toSQLTime() accepts an includeOffset option", () => {
     expect(dt.setZone("America/New_York").toSQLTime({ includeOffset: false })).toBe("05:23:54.123");
 });
 
+test("DateTime#toSQLTime() accepts an includeOffsetSpace option", () => {
+    expect(dt.setZone("America/New_York").toSQLTime({ includeOffsetSpace: false })).toBe(
+        "05:23:54.123-04:00"
+    );
+});
+
 test("DateTime#toSQLTime() accepts an includeZone option", () => {
     expect(dt.toUTC().toSQLTime({ includeZone: true })).toBe("09:23:54.123 UTC");
     expect(dt.setZone("America/New_York").toSQLTime({ includeZone: true })).toBe(

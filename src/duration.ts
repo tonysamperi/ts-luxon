@@ -480,6 +480,7 @@ export class Duration implements NormalizedDurationObject {
      * * `m` for minutes
      * * `h` for hours
      * * `d` for days
+     * * `w` for weeks
      * * `M` for months
      * * `y` for years
      * Notes:
@@ -506,8 +507,9 @@ export class Duration implements NormalizedDurationObject {
     }
 
     /**
-     * Returns a string representation of a Duration with all units included
-     * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant. See {@link Intl.NumberFormat}.
+     * Returns a string representation of a Duration with all units included.
+     * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
      * @param opts - On option object to override the formatting. Accepts the same keys as the options parameter of the native `Int.NumberFormat` constructor, as well as `listStyle`.
      * @example
      * ```js
@@ -517,7 +519,7 @@ export class Duration implements NormalizedDurationObject {
      * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
      * ```
      */
-    toHuman(opts: Intl.NumberFormatOptions&{listStyle?: Intl.ListFormatOptions["style"]} = {}) {
+    toHuman(opts: Intl.NumberFormatOptions & { listStyle?: Intl.ListFormatOptions["style"] } = {}) {
         const l = orderedUnits
             .map((unit) => {
                 const val = this._values[unit];
@@ -530,7 +532,10 @@ export class Duration implements NormalizedDurationObject {
             })
             .filter((n) => n);
 
-        const mergedOpts = { type: "conjunction", style: opts.listStyle || "narrow", ...opts } as Intl.ListFormatOptions;
+        const mergedOpts = {
+            type: "conjunction",
+            style: opts.listStyle || "narrow", ...opts
+        } as Intl.ListFormatOptions;
 
         return this._loc
             .listFormatter(mergedOpts)
@@ -889,7 +894,7 @@ export class Duration implements NormalizedDurationObject {
         }
         const negated: NormalizedDurationObject = {};
         (Object.keys(this._values) as NormalizedDurationUnit[]).forEach((unit: NormalizedDurationUnit) => {
-            negated[unit] = -(this._values[unit] as number);
+            negated[unit] = this._values[unit] === 0 ? 0 : -(this._values[unit] as number);
         });
 
         return this._clone(this, { _values: negated }, true);

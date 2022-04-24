@@ -11,7 +11,7 @@ import { Settings } from "./settings";
 
 export * from "./types/public";
 
-const VERSION = "3.1.0";
+const VERSION = "3.2.0";
 
 export {
     DateTime,
