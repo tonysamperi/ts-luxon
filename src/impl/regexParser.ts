@@ -41,7 +41,7 @@ function combineExtractors(...extractors: CombinableExtractor[]) {
             .reduce<CombinableParseResult>(
                 ([mergedVals, mergedZone, cursor], ex) => {
                     const [val, zone, next] = ex(m, cursor);
-                    return [{ ...mergedVals, ...val }, mergedZone || zone, next];
+                    return [{ ...mergedVals, ...val }, zone || mergedZone, next];
                 },
                 [{}, null, 1]
             )
@@ -76,20 +76,21 @@ function simpleParse(...keys: (keyof GenericDateTime)[]) {
 }
 
 // ISO and SQL parsing
-const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/,
-    isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/,
-    isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${offsetRegex.source}?`),
-    isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`),
-    isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/,
-    isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/,
-    isoOrdinalRegex = /(\d{4})-?(\d{3})/,
-    extractISOWeekData = simpleParse("weekYear", "weekNumber", "weekday"),
-    extractISOOrdinalData = simpleParse("year", "ordinal"),
-    sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/, // dumbed-down version of the ISO one
-    sqlTimeRegex = RegExp(
-        `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${IANA_REGEX.source}))?`
-    ),
-    sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
+const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;
+const isoExtendedZone = `(?:${offsetRegex.source}?(?:\\[(${IANA_REGEX.source})\\])?)?`;
+const isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;
+const isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);
+const isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`);
+const isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;
+const isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/;
+const isoOrdinalRegex = /(\d{4})-?(\d{3})/;
+const extractISOWeekData = simpleParse("weekYear", "weekNumber", "weekday");
+const extractISOOrdinalData = simpleParse("year", "ordinal");
+const sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/; // dumbed-down version of the ISO one
+const sqlTimeRegex = RegExp(
+    `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${IANA_REGEX.source}))?`
+);
+const sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
 
 function int(match: RegExpExecArray, pos: number, fallback: number) {
 
@@ -135,20 +136,12 @@ const isoTimeOnly = RegExp(`^T?${isoTimeBaseRegex.source}$`);
 
 // ISO duration parsing
 
-const isoDuration = /^-?P(?:(?:(-?\d{1,9}(?:\.\d{1,9})?)Y)?(?:(-?\d{1,9}(?:\.\d{1,9})?)M)?(?:(-?\d{1,9}(?:\.\d{1,9})?)W)?(?:(-?\d{1,9}(?:\.\d{1,9})?)D)?(?:T(?:(-?\d{1,9}(?:\.\d{1,9})?)H)?(?:(-?\d{1,9}(?:\.\d{1,9})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,9}))?S)?)?)$/;
+const isoDuration =
+    /^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;
 
 function extractISODuration(match: RegExpExecArray): any {
-    const [
-        s,
-        yearStr,
-        monthStr,
-        weekStr,
-        dayStr,
-        hourStr,
-        minuteStr,
-        secondStr,
-        millisecondsStr
-    ] = match;
+    const [s, yearStr, monthStr, weekStr, dayStr, hourStr, minuteStr, secondStr, millisecondsStr] =
+        match;
 
     const hasNegativePrefix: boolean = s.startsWith("-");
     const negativeSeconds: boolean = !!secondStr && secondStr.startsWith("-");
@@ -183,15 +176,7 @@ const obsOffsets: Record<string, number> = {
     PST: -8 * 60
 };
 
-function fromStrings(
-    weekdayStr: string,
-    yearStr: string,
-    monthStr: string,
-    dayStr: string,
-    hourStr: string,
-    minuteStr: string,
-    secondStr: string
-) {
+function fromStrings(weekdayStr: string, yearStr: string, monthStr: string, dayStr: string, hourStr: string, minuteStr: string, secondStr: string) {
     let weekday;
     if (weekdayStr) {
         weekday = weekdayStr.length > 3
@@ -277,10 +262,29 @@ const isoWeekWithTimeExtensionRegex = combineRegexes(isoWeekRegex, isoTimeExtens
 const isoOrdinalWithTimeExtensionRegex = combineRegexes(isoOrdinalRegex, isoTimeExtensionRegex);
 const isoTimeCombinedRegex = combineRegexes(isoTimeRegex);
 
-const extractISOYmdTimeAndOffset = combineExtractors(extractISOYmd, extractISOTime, extractISOOffset);
-const extractISOWeekTimeAndOffset = combineExtractors(extractISOWeekData, extractISOTime, extractISOOffset);
-const extractISOOrdinalDateAndTime = combineExtractors(extractISOOrdinalData, extractISOTime, extractISOOffset);
-const extractISOTimeAndOffset = combineExtractors(extractISOTime, extractISOOffset);
+const extractISOYmdTimeAndOffset = combineExtractors(
+    extractISOYmd,
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
+);
+const extractISOWeekTimeAndOffset = combineExtractors(
+    extractISOWeekData,
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
+);
+const extractISOOrdinalDateAndTime = combineExtractors(
+    extractISOOrdinalData,
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
+);
+const extractISOTimeAndOffset = combineExtractors(
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
+);
 
 /**
  * end @private
@@ -320,12 +324,6 @@ export function parseRFC2822Date(s: string) {
 const sqlYmdWithTimeExtensionRegex = combineRegexes(sqlYmdRegex, sqlTimeExtensionRegex);
 const sqlTimeCombinedRegex = combineRegexes(sqlTimeRegex);
 
-const extractISOYmdTimeOffsetAndIANAZone = combineExtractors(
-    extractISOYmd,
-    extractISOTime,
-    extractISOOffset,
-    extractIANAZone
-);
 const extractISOTimeOffsetAndIANAZone = combineExtractors(
     extractISOTime,
     extractISOOffset,
@@ -335,7 +333,7 @@ const extractISOTimeOffsetAndIANAZone = combineExtractors(
 export function parseSQL(s: string) {
     return parse(
         s,
-        [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeOffsetAndIANAZone],
+        [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
         [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
     );
 }

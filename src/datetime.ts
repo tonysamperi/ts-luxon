@@ -787,7 +787,7 @@ export class DateTime {
         }
         else {
             return (
-                this.offset > this.set({ month: 1 }).offset || this.offset > this.set({ month: 5 }).offset
+                this.offset > this.set({ month: 1, day: 1 }).offset || this.offset > this.set({ month: 5 }).offset
             );
         }
     }
@@ -1804,6 +1804,7 @@ export class DateTime {
      * @param {boolean} [options.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
      * @param {boolean} [options.suppressSeconds=false] - exclude seconds from the format if they're 0
      * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     * @param {boolean} [options.extendedZone=true] - add the time zone format extension
      * @param {string} [options.format='extended'] - choose between the basic and extended format
      * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
      * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
@@ -1815,7 +1816,8 @@ export class DateTime {
               format = "extended",
               suppressSeconds = false,
               suppressMilliseconds = false,
-              includeOffset = true
+              includeOffset = true,
+              extendedZone = false
           }: ToISOTimeOptions = {}): string | null {
 
         if (!this.isValid) {
@@ -1826,7 +1828,7 @@ export class DateTime {
         return [
             this._toISODate(ext),
             "T",
-            this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset)
+            this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
         ].join("");
     }
 
@@ -1858,11 +1860,12 @@ export class DateTime {
 
     /**
      * Returns an ISO 8601-compliant string representation of this DateTime's time component
-     * @param {Object} options - options
-     * @param {boolean} [options.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
-     * @param {boolean} [options.suppressSeconds=false] - exclude seconds from the format if they're 0
-     * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-     * @param {string} [options.format='extended'] - choose between the basic and extended format
+     * @param {Object} opts - options
+     * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
+     * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
+     * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
+     * @param {string} [opts.format='extended'] - choose between the basic and extended format
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
@@ -1873,6 +1876,7 @@ export class DateTime {
                   suppressSeconds = false,
                   includeOffset = true,
                   includePrefix = false,
+                  extendedZone = false,
                   format = "extended"
               }: ToISOTimeOptions = {}) {
         if (!this.isValid) {
@@ -1881,7 +1885,7 @@ export class DateTime {
 
         return [
             includePrefix ? "T" : "",
-            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset)
+            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
         ].join("");
     }
 
@@ -2321,10 +2325,26 @@ export class DateTime {
         return c;
     }
 
+    /**
+     * Returns an ISO 8601-compliant string representation of this DateTime's time component
+     * @param {Object} opts - options
+     * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
+     * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
+     * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+     * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
+     * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
+     * @param {string} [opts.format='extended'] - choose between the basic and extended format
+     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
+     * @return {string}
+     */
     private _toISOTime(extended: boolean,
                        suppressSeconds: boolean,
                        suppressMilliseconds: boolean,
-                       includeOffset: boolean): string {
+                       includeOffset: boolean,
+                       extendedZone?: boolean): string {
         let c = padStart(this._c.hour);
         if (extended) {
             c += ":";
@@ -2347,7 +2367,7 @@ export class DateTime {
         }
 
         if (includeOffset) {
-            if (this.isOffsetFixed && this.offset === 0) {
+            if (this.isOffsetFixed && this.offset === 0 && !extendedZone) {
                 c += "Z";
             }
             else if (this._o < 0) {
@@ -2363,6 +2383,11 @@ export class DateTime {
                 c += padStart(Math.trunc(this._o % 60));
             }
         }
+
+        if (extendedZone) {
+            c += "[" + this.zone.ianaName + "]";
+        }
+
         return c;
     }
 

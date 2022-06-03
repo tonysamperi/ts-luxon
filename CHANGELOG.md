@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.0 (Luxon 2.4.0)
+* fix: change NBSP regex to a non-matching group #1169 (#1194)
+* fix bug 908 isInDST() incorrect (#1199)
+* Update math.md (#1180)
+* add support for extended zones
+* Increase number of allowed digits when parsing ISO duration (#1213)
+
 ## 3.2.0 (Luxon 2.3.2) 
 * NOTE: I'm doing a major version since there's added functionality. Don't know why in Luxon they only bumped patch
 * Added an `includeOffsetSpace` option to `toSQL` and `toSQLTime`

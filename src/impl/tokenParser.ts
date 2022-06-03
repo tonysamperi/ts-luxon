@@ -35,14 +35,13 @@ function intUnit(regex: RegExp, post: (a: number) => number = i => i): CoreUnitP
     return { regex, deser: ([s]) => post(parseDigits(s)) };
 }
 
-const NBSP = String.fromCharCode(160);
-const spaceOrNBSP = `( |${NBSP})`;
-const spaceOrNBSPRegExp = new RegExp(spaceOrNBSP, "g");
+const spaceOrNBSPPattern = `[ ${String.fromCharCode(160)}]`;
+const spaceOrNBSPRegExp = new RegExp(spaceOrNBSPPattern, "g");
 
 function fixListRegex(s: string) {
     // make dots optional and also make them literal
     // make space and non breakable space characters interchangeable
-    return s.replace(/\./g, "\\.?").replace(spaceOrNBSPRegExp, spaceOrNBSP);
+    return s.replace(/\./g, "\\.?").replace(spaceOrNBSPRegExp, spaceOrNBSPPattern);
 }
 
 function stripInsensitivities(s: string) {

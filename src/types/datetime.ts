@@ -50,6 +50,7 @@ export interface ToSQLOptions {
 export type ToISOFormat = "basic" | "extended";
 
 export interface ToISOTimeOptions {
+    extendedZone?: boolean;
     format?: ToISOFormat;
     includeOffset?: boolean;
     includePrefix?: boolean;
