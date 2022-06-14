@@ -1,4 +1,4 @@
-import { DateTime, DateTimeWithZoneOptions, Settings } from "../../src";
+import { DateTime, DateTimeOptions, Settings } from "../../src";
 import { ConflictingSpecificationError } from "../../src/errors";
 import { Helpers } from "../helpers";
 
@@ -446,7 +446,7 @@ test("DateTime.fromFormat() returns invalid when quarter value is not valid", ()
 });
 
 test("DateTime.fromFormat() returns invalid for out-of-range values", () => {
-  const rejects = (s: string, fmt: string, opts: DateTimeWithZoneOptions = {} as DateTimeWithZoneOptions) =>
+  const rejects = (s: string, fmt: string, opts: DateTimeOptions = {} as DateTimeOptions) =>
     expect(DateTime.fromFormat(s, fmt, opts).isValid).toBeFalsy();
 
   rejects("8, 05/25/1982", "E, MM/dd/yyyy", { locale: "fr" });

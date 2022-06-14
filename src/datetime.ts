@@ -44,7 +44,6 @@ import {
 } from "./errors";
 import { Zone } from "./zone";
 import {
-    DateTimeOptions,
     ToISOTimeOptions,
     ToISOFormat,
     ToSQLOptions,
@@ -55,13 +54,12 @@ import {
     WeekDateTime,
     OrdinalDateTime,
     GenericDateTime,
-    DateTimeWithZoneOptions,
     DefaultUnitValues,
     DefaultWeekUnitValues,
     DefaultOrdinalUnitValues,
     TimeObject,
     InnerBuildObjectConfig,
-    GenericDateTimePlurals, GenericDateTimeExtended
+    GenericDateTimePlurals, GenericDateTimeExtended, DateTimeOptions
 } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
 import { LocaleOptions, CalendarSystem } from "./types/locale";
@@ -125,7 +123,7 @@ function objToTS(obj: GregorianDateTime, offset: number, zone: Zone) {
 // by handling the zone options
 function parseDataToDateTime(parsed: GenericDateTime | null,
                              parsedZone: Zone | null,
-                             opts: DateTimeWithZoneOptions,
+                             opts: DateTimeOptions,
                              format: string,
                              text: string,
                              specificOffset?: number) {
@@ -1039,7 +1037,7 @@ export class DateTime {
      * @return {DateTime}
      */
     static fromObject(obj: DurationObject & GenericDateTime = {},
-                      opts: DateTimeWithZoneOptions = {} as DateTimeOptions) {
+                      opts: DateTimeOptions = {} as DateTimeOptions) {
         const zoneToUse = normalizeZone(opts.zone, Settings.defaultZone);
         if (!zoneToUse.isValid) {
 
@@ -1120,7 +1118,7 @@ export class DateTime {
      * @example DateTime.fromISO('2016-W05-4')
      * @return {DateTime}
      */
-    static fromISO(text: string, opts: DateTimeWithZoneOptions = {}): DateTime {
+    static fromISO(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseISODate(text);
 
         return parseDataToDateTime(vals, parsedZone, opts, "ISO 8601", text);
@@ -1140,7 +1138,7 @@ export class DateTime {
      * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
      * @return {DateTime}
      */
-    static fromRFC2822(text: string, opts: DateTimeWithZoneOptions = {}) {
+    static fromRFC2822(text: string, opts: DateTimeOptions = {}) {
         const [vals, parsedZone] = parseRFC2822Date(text);
         return parseDataToDateTime(vals, parsedZone, opts, "RFC 2822", text);
     }
@@ -1160,7 +1158,7 @@ export class DateTime {
      * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
      * @return {DateTime}
      */
-    static fromHTTP(text: string, opts: DateTimeWithZoneOptions = {}): DateTime {
+    static fromHTTP(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseHTTPDate(text);
 
         return parseDataToDateTime(vals, parsedZone, opts, "HTTP", text);
@@ -1180,7 +1178,7 @@ export class DateTime {
      * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
      * @return {DateTime}
      */
-    static fromFormat(text: string, fmt: string, opts: DateTimeWithZoneOptions = {}): DateTime {
+    static fromFormat(text: string, fmt: string, opts: DateTimeOptions = {}): DateTime {
         if (isUndefined(text) || isUndefined(fmt)) {
             throw new InvalidArgumentError("fromFormat requires an input string and a format");
         }
@@ -1203,7 +1201,7 @@ export class DateTime {
     /**
      * @deprecated use fromFormat instead
      */
-    static fromString(text: string, fmt: string, opts: DateTimeWithZoneOptions = {}) {
+    static fromString(text: string, fmt: string, opts: DateTimeOptions = {}) {
         return DateTime.fromFormat(text, fmt, opts);
     }
 
@@ -1227,7 +1225,7 @@ export class DateTime {
      * @example DateTime.fromSQL('09:12:34.342')
      * @return {DateTime}
      */
-    static fromSQL(text: string, opts: DateTimeWithZoneOptions = {}): DateTime {
+    static fromSQL(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseSQL(text);
 
         return parseDataToDateTime(vals, parsedZone, opts, "SQL", text);
@@ -1748,7 +1746,7 @@ export class DateTime {
      * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
      * @return {string}
      */
-    toFormat(fmt: string, opts: LocaleOptions = {}) {
+    toFormat(fmt: string, opts: DateTimeOptions = {}) {
         return this.isValid
             ? Formatter.create(this._loc.redefaultToEN(opts)).formatDateTimeFromString(this, fmt)
             : INVALID;

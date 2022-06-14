@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1 (Luxon 2.4.0)
+* Fixed wrong type in toFormat, DateTimeOptions instead of LocaleOptions
+* Removed useless type DateTimeWithZoneOptions, unified everything under DateTimeOptions
+
 ## 3.3.0 (Luxon 2.4.0)
 * fix: change NBSP regex to a non-matching group #1169 (#1194)
 * fix bug 908 isInDST() incorrect (#1199)

@@ -1,7 +1,7 @@
 import { DateTime, DateTimeLike } from "./datetime";
 import { Duration, DurationLike } from "./duration";
 import { InvalidArgumentError, InvalidIntervalError } from "./errors";
-import { ToISOTimeOptions, DateTimeWithZoneOptions } from "./types/datetime";
+import { ToISOTimeOptions, DateTimeOptions } from "./types/datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
 import { IntervalObject } from "./types/interval";
 import { Invalid } from "./types/invalid";
@@ -186,7 +186,7 @@ export class Interval {
      * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
      * @return {Interval}
      */
-    static fromISO(text: string, opts: DateTimeWithZoneOptions = {}) {
+    static fromISO(text: string, opts: DateTimeOptions = {}) {
         const [s, e] = (text || "").split("/", 2);
         if (s && e) {
             let start, startIsValid;

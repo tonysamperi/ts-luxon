@@ -60,11 +60,8 @@ export interface ToISOTimeOptions {
 
 export interface DateTimeOptions extends LocaleOptions {
     zone?: string | Zone;
-}
-
-export interface DateTimeWithZoneOptions extends DateTimeOptions {
-    specificOffset?: number;
     setZone?: boolean;
+    specificOffset?: number;
 }
 
 interface BaseObject {
