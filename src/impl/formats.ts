@@ -1,4 +1,4 @@
-// import Intl from "../types/intl-2020";
+import Intl from "../types/intl-next";
 
 /**
  * @private

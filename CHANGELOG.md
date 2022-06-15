@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.2 (Luxon 2.4.0)
+* Fixed version
+* Downgrade typescript version to ~3.9.7, since emitted globalThis for types breaks TS compilation when using the library
+
 ## 3.3.1 (Luxon 2.4.0)
 * Fixed wrong type in toFormat, DateTimeOptions instead of LocaleOptions
 * Removed useless type DateTimeWithZoneOptions, unified everything under DateTimeOptions
