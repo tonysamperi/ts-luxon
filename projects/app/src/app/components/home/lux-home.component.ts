@@ -57,6 +57,7 @@ DateTime.local().toFormat("DD/MM/YYYY @ HH:mm");`,
         {value: "dark-theme", description: "Dark"}
     ];
     unpkgLink: string = "https://unpkg.com/ts-luxon@latest/dist/ts-luxon.umd.js";
+    year: number = DateTime.now().year;
 
     constructor(titleService: Title) {
         this.selectedTheme = this.themes[0];
