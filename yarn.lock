@@ -7953,10 +7953,10 @@ tree-kill@1.2.2:
   resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.2.tgz#4ca09a9092c88b73a7cdc5e8a01b507b0790a0cc"
   integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
-ts-luxon@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ts-luxon/-/ts-luxon-3.0.0.tgz#4428c540273a1342ef041b2f67e00b24f293d78d"
-  integrity sha512-aizciVaFVF0hJXIV9kOz6UCunW23nv44LhYhFo3P59lhetb8v5aGsNqWmsltoM3fw6ON6XtNR4+ojJq+h52cfg==
+ts-luxon@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ts-luxon/-/ts-luxon-3.4.0.tgz#1208fb59674f6a81aa9a25470e107227f789240d"
+  integrity sha512-GM4ukCrRWJXVpmXezsi/yXAhTAwAvgIdTn4muQcxgdOrbyRHd6h27N6AtJLQ/sDnSfpayncVOVDd/Fc716q1SA==
 
 ts-node@^10.3.1:
   version "10.3.1"
