@@ -8,10 +8,12 @@ import { IANAZone } from "./zones/IANAZone";
 import { InvalidZone } from "./zones/invalidZone";
 import { SystemZone } from "./zones/systemZone";
 import { Settings } from "./settings";
+import { ORDERED_UNITS, REVERSE_ORDERED_UNITS } from "./impl/util";
+import { NormalizedDurationUnit } from "./types/duration";
 
 export * from "./types/public";
 
-const VERSION = "3.3.2";
+const VERSION = "3.4.0";
 
 export {
     DateTime,
@@ -24,5 +26,8 @@ export {
     InvalidZone,
     SystemZone,
     Settings,
-    VERSION
+    VERSION,
+    ORDERED_UNITS,
+    REVERSE_ORDERED_UNITS,
+    NormalizedDurationUnit
 };

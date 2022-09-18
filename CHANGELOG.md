@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.4.0 (Luxon 2.5.0)
+* Wednesday support for RFC 850 (#1225)
+* Fix link to duration months (#1232)
+* Mention escaping behavior in Duration.toFormat docstring (#1221)
+* Exported ORDERED_UNITS, REVERSE_ORDERED_UNITS and NormalizedDurationUnit for util purposes
+* Fixed Duration.toHuman (#1134)
+* Added option to exclude quarters and weeks in Duration.toHuman
+
 ## 3.3.2 (Luxon 2.4.0)
 * Fixed version
 * Downgrade typescript version to ~3.9.7, since emitted globalThis for types breaks TS compilation when using the library

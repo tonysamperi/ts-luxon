@@ -4,6 +4,7 @@ import sourceMaps from "rollup-plugin-sourcemaps";
 import typescript from "rollup-plugin-typescript2";
 import cleaner from "rollup-plugin-cleaner";
 import { uglify } from "rollup-plugin-uglify";
+import { terser } from "rollup-plugin-terser";
 
 const pkg = require("./package.json");
 
@@ -29,6 +30,8 @@ export default {
         typescript({ tsconfig: "tsconfig.json" }),
         // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
         commonjs(),
+        // Enable Terser
+        terser(),
         // Allow node_modules resolution, so you can use 'external' to control
         // which external modules to include in the bundle
         // https://github.com/rollup/rollup-plugin-node-resolve#usage

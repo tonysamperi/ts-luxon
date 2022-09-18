@@ -295,3 +295,20 @@ test("Duration#toHuman works in differt languages", () => {
         "1 an, 2 mois, 1 semaine, 3 jours, 4 heures, 5 minutes, 6 secondes, 7 millisecondes"
     );
 });
+
+test("Duration#toHuman returns all not zero values even when creating from a smaller one", () => {
+    expect(Duration.fromMillis(1000 * 60 * 60 * 52 + 3009).toHuman()).toEqual(
+        "2 giorni, 4 ore, 3 secondi e 9 millisecondi"
+    );
+});
+
+test("Duration#toHuman doesn't return quarters and weeks when passing onlyHumanUnits", () => {
+    expect(Duration.fromObject({
+        years: 1,
+        quarters: 2,
+        weeks: 2,
+        days: 2
+    }).toHuman({onlyHumanUnits: !0})).toEqual(
+        "1 anno, 6 mesi e 16 giorni"
+    );
+});

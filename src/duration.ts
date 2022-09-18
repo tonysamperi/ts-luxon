@@ -1,4 +1,13 @@
-import { asNumber, isUndefined, isNumber, normalizeObject, roundTo } from "./impl/util";
+import {
+    asNumber,
+    isUndefined,
+    isNumber,
+    normalizeObject,
+    roundTo,
+    ORDERED_UNITS,
+    REVERSE_ORDERED_UNITS,
+    HUMAN_ORDERED_UNITS
+} from "./impl/util";
 import { Locale } from "./impl/locale";
 import { Formatter } from "./impl/formatter";
 import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser";
@@ -7,7 +16,12 @@ import {
     DurationObject,
     DurationOptions,
     DurationToFormatOptions,
-    DurationUnit, UnparsedDurationObject
+    DurationUnit,
+    UnparsedDurationObject,
+    NormalizedDurationUnit,
+    NormalizedDurationObject,
+    DurationToHumanOptions,
+    NormalizedHumanDurationUnit
 } from "./types/duration";
 import { ConversionAccuracy } from "./types/common";
 import { Settings } from "./settings";
@@ -15,20 +29,6 @@ import { Invalid } from "./types/invalid";
 import { NumberingSystem } from "./types/locale";
 import { ToISOTimeOptions } from "./types/datetime";
 import Intl from "./types/intl-next";
-
-interface NormalizedDurationObject {
-    years?: number;
-    quarters?: number;
-    months?: number;
-    weeks?: number;
-    days?: number;
-    hours?: number;
-    minutes?: number;
-    seconds?: number;
-    milliseconds?: number;
-}
-
-type NormalizedDurationUnit = keyof NormalizedDurationObject;
 
 type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
 type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
@@ -118,21 +118,6 @@ const accurateMatrix: ConversionMatrix = {
     ...lowOrderMatrix
 };
 
-// units ordered by size
-const orderedUnits: NormalizedDurationUnit[] = [
-    "years",
-    "quarters",
-    "months",
-    "weeks",
-    "days",
-    "hours",
-    "minutes",
-    "seconds",
-    "milliseconds"
-];
-
-const reverseUnits = orderedUnits.slice(0).reverse();
-
 function antiTrunc(n: number) {
     return n < 0 ? Math.floor(n) : Math.ceil(n);
 }
@@ -165,7 +150,7 @@ function eq(v1: number | undefined, v2: number | undefined) {
 // NB: mutates vals parameters
 function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObject) {
     let previousUnit: NormalizedDurationUnit | undefined;
-    reverseUnits.forEach(unit => {
+    REVERSE_ORDERED_UNITS.forEach(unit => {
         if (!isUndefined(vals[unit])) {
             if (previousUnit) {
                 convert(matrix, vals, previousUnit, vals, unit as ConversionMatrixUnit);
@@ -187,7 +172,7 @@ interface Config {
  * Here is a brief overview of commonly used methods and getters in Duration:
  *
  * * **Creation** To create a Duration, use {@link Duration#fromMillis}, {@link Duration#fromObject}, or {@link Duration#fromISO}.
- * * **Unit values** See the {@link Duration#years}, {@link Duration.months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
+ * * **Unit values** See the {@link Duration#years}, {@link Duration#months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
  * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
  * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
  * * **Output** To convert the Duration into other representations, see {@link Duration#as}, {@link Duration#toISO}, {@link Duration#toFormat}, and {@link Duration#toJSON}
@@ -473,6 +458,28 @@ export class Duration implements NormalizedDurationObject {
         return normalized;
     }
 
+
+    /**
+     * Returns the max unit in the duration, forcing the shifting to the max possible.
+     * Forcing solves having bigger units at 0, when creating with a smaller unit.
+     * Es. Duration.fromMillis(4945676146971854)
+     * By default it uses all the units, but a flag can be passed to use only Human duration units (all except quarters and weeks)
+     * @param onlyHuman - Choose if using ORDERED_UNITS (default) or HUMAN_ORDERED_UNITS
+     * @example
+     * ```js
+     * var dur = Duration.fromObject({ minutes: 61 })
+     * dur.getMaxUnit() //=> 'hours'
+     * ```
+     */
+    getMaxUnit(onlyHuman: false): NormalizedDurationUnit;
+    getMaxUnit(onlyHuman: true): NormalizedHumanDurationUnit;
+    getMaxUnit(onlyHuman: boolean = !1): NormalizedDurationUnit | NormalizedHumanDurationUnit {
+        const refUnits = onlyHuman ? HUMAN_ORDERED_UNITS : ORDERED_UNITS;
+        const val: NormalizedDurationObject = this.shiftTo(...refUnits).toObject();
+
+        return refUnits.find((k: NormalizedDurationUnit) => (val[k] || 0) > 0) || REVERSE_ORDERED_UNITS[0];
+    }
+
     /**
      * Returns a string representation of this Duration formatted according to the specified format string. You may use these tokens:
      * * `S` for milliseconds
@@ -485,6 +492,7 @@ export class Duration implements NormalizedDurationObject {
      * * `y` for years
      * Notes:
      * * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
+     * * Tokens can be escaped by wrapping with single quotes.
      * * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations' conversion accuracy setting.
      * @param {string} fmt - the format string
      * @param {Object} opts - options
@@ -509,6 +517,7 @@ export class Duration implements NormalizedDurationObject {
     /**
      * Returns a string representation of a Duration with all units included.
      * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
+     * You can also exclude quarters and weeks, by passing { onlyHumanUnits: true }
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
      * @param opts - On option object to override the formatting. Accepts the same keys as the options parameter of the native `Int.NumberFormat` constructor, as well as `listStyle`.
      * @example
@@ -519,11 +528,15 @@ export class Duration implements NormalizedDurationObject {
      * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
      * ```
      */
-    toHuman(opts: Intl.NumberFormatOptions & { listStyle?: Intl.ListFormatOptions["style"] } = {}) {
-        const l = orderedUnits
-            .map((unit) => {
-                const val = this._values[unit];
-                if (isUndefined(val)) {
+    toHuman(opts: Intl.NumberFormatOptions & DurationToHumanOptions = {}) {
+        const maxUnit: NormalizedHumanDurationUnit = this.getMaxUnit(!0);
+        const refUnits = !!opts.onlyHumanUnits ? HUMAN_ORDERED_UNITS : ORDERED_UNITS;
+        const shifted = this.shiftTo(...refUnits.slice(refUnits.indexOf(maxUnit)));
+        const shiftedValues = shifted.toObject();
+        const l = refUnits
+            .map((unit: NormalizedDurationUnit) => {
+                const val = shiftedValues[unit];
+                if (isUndefined(val) || val === 0) {
                     return null;
                 }
                 return this._loc
@@ -704,7 +717,7 @@ export class Duration implements NormalizedDurationObject {
         const dur = Duration.fromDurationLike(duration),
             result: NormalizedDurationObject = {};
 
-        orderedUnits.forEach(unit => {
+        ORDERED_UNITS.forEach(unit => {
             if (dur._values[unit] !== undefined || this._values[unit] !== undefined) {
                 result[unit] = dur.get(unit) + this.get(unit);
             }
@@ -835,7 +848,7 @@ export class Duration implements NormalizedDurationObject {
             vals: DurationObject = this.toObject();
         let lastUnit: NormalizedDurationUnit;
 
-        orderedUnits.forEach((k: NormalizedDurationUnit) => {
+        ORDERED_UNITS.forEach((k: NormalizedDurationUnit) => {
             if (units.indexOf(k) >= 0) {
                 lastUnit = k;
 
@@ -858,7 +871,7 @@ export class Duration implements NormalizedDurationObject {
                 // plus anything further down the chain that should be rolled up in to this
                 // for (const down in vals) {
                 Object.keys(vals).forEach((down: string) => {
-                    if (orderedUnits.indexOf(down as NormalizedDurationUnit) > orderedUnits.indexOf(k)) {
+                    if (ORDERED_UNITS.indexOf(down as NormalizedDurationUnit) > ORDERED_UNITS.indexOf(k)) {
                         convert(this._matrix, vals, down as NormalizedDurationUnit, built, k as ConversionMatrixUnit);
                     }
                 });
@@ -983,7 +996,7 @@ export class Duration implements NormalizedDurationObject {
             return false;
         }
 
-        for (const u of orderedUnits) {
+        for (const u of ORDERED_UNITS) {
             if (!eq(this._values[u], other._values[u])) {
                 return false;
             }

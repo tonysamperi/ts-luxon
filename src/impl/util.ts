@@ -7,6 +7,7 @@
 import { InvalidArgumentError } from "../errors";
 import { TimeObject, GregorianDateTime } from "../types/datetime";
 import { ZoneOffsetFormat } from "../types/zone";
+import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/duration";
 
 import Intl from "../types/intl-next";
 
@@ -280,3 +281,28 @@ export function timeObject(obj: TimeObject): TimeObject {
 }
 
 export const IANA_REGEX = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
+
+// units ordered by size
+export const ORDERED_UNITS: NormalizedDurationUnit[] = [
+    "years",
+    "quarters",
+    "months",
+    "weeks",
+    "days",
+    "hours",
+    "minutes",
+    "seconds",
+    "milliseconds"
+];
+
+export const REVERSE_ORDERED_UNITS = ORDERED_UNITS.slice(0).reverse();
+
+export const HUMAN_ORDERED_UNITS: NormalizedHumanDurationUnit[] = [
+    "years",
+    "months",
+    "days",
+    "hours",
+    "minutes",
+    "seconds",
+    "milliseconds"
+];
