@@ -8,6 +8,7 @@ import { FixedOffsetZone } from "../zones/fixedOffsetZone";
 import { isUndefined, isString, isNumber } from "./util";
 import { ZoneLike } from "../types/zone";
 import { InvalidZone } from "../zones/invalidZone";
+import { SystemZone } from "../zones/systemZone";
 
 export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
     if (isUndefined(input) || input === null) {
@@ -18,8 +19,11 @@ export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
     }
     else if (isString(input)) {
         const lowered = input.toLowerCase();
-        if (lowered === "local" || lowered === "system") {
+        if (lowered === "default") {
             return defaultZone;
+        }
+        else if (lowered === "local" || lowered === "system") {
+            return SystemZone.instance;
         }
         else if (lowered === "utc" || lowered === "gmt") {
             return FixedOffsetZone.utcInstance;

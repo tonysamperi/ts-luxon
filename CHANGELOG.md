@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.0 (Luxon 3.0.1)
+* Add "default" as an option for specifying a zone, and change "system" to really mean the system zone (breaking change)
+* Add DateTime.parseFormatForOpts
+
 ## 3.4.0 (Luxon 2.5.0)
 * Wednesday support for RFC 850 (#1225)
 * Fix link to duration months (#1232)

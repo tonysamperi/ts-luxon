@@ -13,7 +13,7 @@ import { NormalizedDurationUnit } from "./types/duration";
 
 export * from "./types/public";
 
-const VERSION = "3.4.0";
+const VERSION = "4.0.0";
 
 export {
     DateTime,

@@ -99,9 +99,11 @@ test("Info.normalizeZone converts null and undefined to default Zone", () => {
     expect(Info.normalizeZone(undefined)).toBe(Settings.defaultZone);
 });
 
-test("Info.normalizeZone converts local to default Zone", () => {
+// Local zone no longer refers to default one but behaves as system
+// As per Docker Container, zone is Europe/Rome
+test("Info.normalizeZone converts local to system Zone", () => {
     expect(Info.normalizeZone("local")).toBe(Settings.defaultZone);
-    Helpers.withDefaultZone("Europe/Paris", () => {
-        expect(Info.normalizeZone("local").name).toBe("Europe/Paris");
+    Helpers.withDefaultZone("America/New_York", () => {
+        expect(Info.normalizeZone("local").name).toBe("Europe/Rome");
     });
 });

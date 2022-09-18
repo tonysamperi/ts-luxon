@@ -210,7 +210,7 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
     return { ...unit, token };
 }
 
-type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era" | "dayPeriod" | "timeZoneName">;
+type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era" | "dayPeriod">;
 const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: Record<string, string> } = {
     // literal: void 0, era: void 0, dayPeriod: void 0, timeZoneName: void 0,
     year: {
@@ -242,6 +242,10 @@ const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: Record<st
     second: {
         numeric: "s",
         "2-digit": "ss"
+    },
+    timeZoneName: {
+        long: "ZZZZZ",
+        short: "ZZZ"
     }
 };
 
@@ -385,9 +389,11 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
 
 let dummyDateTimeCache: DateTime | undefined;
 
-function getDummyDateTime() {
+function getDummyDateTime(locale: Locale) {
     if (dummyDateTimeCache === void 0) {
-        dummyDateTimeCache = DateTime.fromMillis(1555555555555);
+        dummyDateTimeCache = DateTime.fromMillis(1555555555555, {
+            locale: locale.locale
+        });
     }
 
     return dummyDateTimeCache;
@@ -399,14 +405,8 @@ function maybeExpandMacroToken(token: FormatToken, locale: Locale): FormatToken 
         return token;
     }
     const formatOpts = Formatter.macroTokenToFormatOpts(token.val);
-    if (!formatOpts) {
-
-        return token;
-    }
-    const formatter = Formatter.create(locale, formatOpts);
-    const parts = formatter.formatDateTimeParts(getDummyDateTime());
-    const tokens = parts.map((p: Intl.DateTimeFormatPart) => tokenForPart(p, formatOpts));
-    if (tokens.indexOf(undefined) >= 0) {
+    const tokens = formatOptsToTokens(formatOpts, locale);
+    if (tokens == null || tokens.includes(undefined)) {
 
         return token;
     }
@@ -454,4 +454,15 @@ export function parseFromTokens(locale: Locale,
                                 format: string): [GenericDateTime | null | void, Zone | null | void, number | undefined, string | void] {
     const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, input, format);
     return [result, zone, specificOffset, invalidReason];
+}
+
+export function formatOptsToTokens(formatOpts: Intl.DateTimeFormatOptions, locale: Locale) {
+    if (!formatOpts) {
+        return null;
+    }
+
+    const formatter = Formatter.create(locale, formatOpts);
+    const parts = formatter.formatDateTimeParts(getDummyDateTime(locale));
+
+    return parts.map((p) => tokenForPart(p, formatOpts));
 }
