@@ -13,7 +13,7 @@ I decided to fork his work, because we don't know for sure if and when Luxon wil
 
 I realized moment wasn't suitable anymore for my projects, but I couldn't wait to have a more stable version and at this time Luxon (v 1.25.0) had structural issues, which resulted in errors in my Angular projects.
 
-## Upgrading to 3.x
+## Upgrading to 4.x
 
 See the [docs page](https://tonysamperi.github.io/ts-luxon/docs)
 

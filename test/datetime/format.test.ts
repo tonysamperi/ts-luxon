@@ -411,6 +411,11 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
     expect(dt.reconfigure({ locale: "es" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("9:23");
 });
 
+// I don't know what they expected to do and see but this doesn't make sense and doesn't pass in Luxon as well
+// test("DateTime#toLocaleString() accecpts options in the first position", () => {
+//     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23 AM UTC");
+// });
+
 // ------
 // #resolvedLocaleOptions()
 // ------

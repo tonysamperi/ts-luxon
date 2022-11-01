@@ -21,7 +21,10 @@ import {
     NormalizedDurationUnit,
     NormalizedDurationObject,
     DurationToHumanOptions,
-    NormalizedHumanDurationUnit
+    NormalizedHumanDurationUnit,
+    ConversionMatrixUnit,
+    ConversionMatrix,
+    DurationConfig as Config, DurationConfig
 } from "./types/duration";
 import { ConversionAccuracy } from "./types/common";
 import { Settings } from "./settings";
@@ -29,9 +32,6 @@ import { Invalid } from "./types/invalid";
 import { NumberingSystem } from "./types/locale";
 import { ToISOTimeOptions } from "./types/datetime";
 import Intl from "./types/intl-next";
-
-type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
-type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 const INVALID = "Invalid Duration";
 
@@ -55,7 +55,8 @@ export const lowOrderMatrix = {
     minutes: { seconds: 60, milliseconds: 60 * 1000 },
     seconds: { milliseconds: 1000 }
 };
-const casualMatrix: ConversionMatrix = {
+// tslint:disable-next-line:naming-convention
+export const casualMatrix: ConversionMatrix = {
     years: {
         quarters: 4,
         months: 12,
@@ -160,18 +161,11 @@ function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObjec
     });
 }
 
-interface Config {
-    conversionAccuracy?: ConversionAccuracy;
-    invalid?: Invalid;
-    values?: NormalizedDurationObject;
-    loc?: Locale;
-}
-
 /**
  * A Duration object represents a period of time, like "2 months" or "1 day, 1 hour". Conceptually, it's just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime#plus} to add a Duration object to a DateTime, producing another DateTime. *
  * Here is a brief overview of commonly used methods and getters in Duration:
  *
- * * **Creation** To create a Duration, use {@link Duration#fromMillis}, {@link Duration#fromObject}, or {@link Duration#fromISO}.
+ * * **Creation** To create a Duration, use {@link Duration.fromMillis}, {@link Duration.fromObject}, or {@link Duration.fromISO}.
  * * **Unit values** See the {@link Duration#years}, {@link Duration#months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
  * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
  * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
@@ -223,6 +217,14 @@ export class Duration implements NormalizedDurationObject {
     }
 
     /**
+     * Get the conversion matrix of a Duration
+     * @type {ConversionMatrix}
+     */
+    get matrix(): ConversionMatrix {
+        return this._matrix;
+    }
+
+    /**
      * Get the numbering system of a Duration, such 'beng'. The numbering system is used when formatting the Duration
      *
      * @type {NumberingSystem}
@@ -244,6 +246,19 @@ export class Duration implements NormalizedDurationObject {
      */
     private constructor(config: Config) {
         const accurate = config.conversionAccuracy === "longterm" || false;
+        let matrix: ConversionMatrix, conversionAccuracy: ConversionAccuracy;
+        if (accurate) {
+            conversionAccuracy = "longterm";
+            matrix = accurateMatrix;
+        }
+        else {
+            conversionAccuracy = "casual";
+            matrix = casualMatrix;
+        }
+
+        if (config.matrix) {
+            matrix = config.matrix;
+        }
         /**
          * @access private
          */
@@ -255,7 +270,7 @@ export class Duration implements NormalizedDurationObject {
         /**
          * @access private
          */
-        this._conversionAccuracy = accurate ? "longterm" : "casual";
+        this._conversionAccuracy = conversionAccuracy;
         /**
          * @access private
          */
@@ -263,7 +278,7 @@ export class Duration implements NormalizedDurationObject {
         /**
          * @access private
          */
-        this._matrix = accurate ? accurateMatrix : casualMatrix;
+        this._matrix = matrix;
         /**
          * @access private
          */
@@ -277,7 +292,8 @@ export class Duration implements NormalizedDurationObject {
      * @param {Object} opts - options for parsing
      * @param {string} [opts.locale='en-US'] - the locale to use
      * @param {string} opts.numberingSystem - the numbering system to use
-     * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+     * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+     * @param {string} [opts.matrix=Object] - the conversion system to use
      * @see https://en.wikipedia.org/wiki/ISO_8601#Times
      * @example Duration.fromISOTime('11:22:33.444').toObject() //=> { hours: 11, minutes: 22, seconds: 33, milliseconds: 444 }
      * @example Duration.fromISOTime('11:00').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
@@ -325,7 +341,8 @@ export class Duration implements NormalizedDurationObject {
      * @param {Object} [opts=[]] - options for creating this Duration
      * @param {string} [opts.locale='en-US'] - the locale to use
      * @param {string} opts.numberingSystem - the numbering system to use
-     * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+     * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+     * @param {string} [opts.matrix=Object] - the custom conversion system to use
      * @return {Duration}
      */
     static fromObject(obj: UnparsedDurationObject | null, opts: DurationOptions = {}): Duration {
@@ -340,7 +357,8 @@ export class Duration implements NormalizedDurationObject {
         return new Duration({
             values: normalizeObject(obj as Record<string, any>, Duration.normalizeUnit),
             loc: Locale.fromObject(opts),
-            conversionAccuracy: opts.conversionAccuracy
+            conversionAccuracy: opts.conversionAccuracy,
+            matrix: opts.matrix
         });
     }
 
@@ -377,7 +395,8 @@ export class Duration implements NormalizedDurationObject {
      * @param {Object} opts - options for parsing
      * @param {string} [opts.locale='en-US'] - the locale to use
      * @param {string} opts.numberingSystem - the numbering system to use
-     * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+     * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+     * @param {string} [opts.matrix=Object] - the preset conversion system to use
      * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
      * @example Duration.fromISO('P3Y6M1W4DT12H30M5S').toObject() //=> { years: 3, months: 6, weeks: 1, days: 4, hours: 12, minutes: 30, seconds: 5 }
      * @example Duration.fromISO('PT23H').toObject() //=> { hours: 23 }
@@ -723,7 +742,7 @@ export class Duration implements NormalizedDurationObject {
             }
         });
 
-        return this._clone(this, { _values: result }, !0);
+        return this._clone(this, { values: result }, !0);
     }
 
     /**
@@ -743,7 +762,7 @@ export class Duration implements NormalizedDurationObject {
      * Scale this Duration by the specified amount. Return a newly-constructed Duration.
      * @param {function} fn - The function to apply to each unit. Arity is 1 or 2: the value of the unit and, optionally, the unit name. Must return a number.
      * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits(x => x * 2) //=> { hours: 2, minutes: 60 }
-     * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits((x, u) => u === "hour" ? x * 2 : x) //=> { hours: 2, minutes: 30 }
+     * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits((x, u) => u === "hours" ? x * 2 : x) //=> { hours: 2, minutes: 30 }
      * @return {Duration}
      */
     mapUnits(fn: (x: number, unit: DurationUnit) => number): Duration {
@@ -756,7 +775,7 @@ export class Duration implements NormalizedDurationObject {
             result[unit] = asNumber(fn(this._values[unit] as number, unit));
         });
 
-        return this._clone(this, { _values: result }, true);
+        return this._clone(this, { values: result }, true);
     }
 
     /**
@@ -787,7 +806,7 @@ export class Duration implements NormalizedDurationObject {
             ...normalizeObject(values as Record<string, number>, Duration.normalizeUnit)
         };
 
-        return this._clone(this, { _values: mixed });
+        return this._clone(this, { values: mixed });
     }
 
     /**
@@ -795,13 +814,11 @@ export class Duration implements NormalizedDurationObject {
      * @example dur.reconfigure({ locale: 'en-GB' })
      * @return {Duration}
      */
-    reconfigure({ locale, numberingSystem, conversionAccuracy }: DurationOptions = {}): Duration {
-        const conf = {
-            values: this._values,
-            loc: this._loc.clone({ locale, numberingSystem }),
-            conversionAccuracy: conversionAccuracy || this._conversionAccuracy
-        };
-        return new Duration(conf);
+    reconfigure({ locale, numberingSystem, conversionAccuracy, matrix }: DurationOptions = {}): Duration {
+        const loc = this._loc.clone({ locale, numberingSystem });
+        const opts: DurationConfig = { loc, matrix, conversionAccuracy };
+
+        return this._clone(this, opts);
     }
 
     /**
@@ -828,7 +845,7 @@ export class Duration implements NormalizedDurationObject {
         }
         const vals = this.toObject();
         normalizeValues(this._matrix, vals);
-        return this._clone(this, { _values: vals }, !0);
+        return this._clone(this, { values: vals }, !0);
     }
 
     /**
@@ -893,7 +910,7 @@ export class Duration implements NormalizedDurationObject {
             }
         });
 
-        return this._clone(this, { _values: built }, true).normalize();
+        return this._clone(this, { values: built }, true).normalize();
     }
 
     /**
@@ -910,7 +927,7 @@ export class Duration implements NormalizedDurationObject {
             negated[unit] = this._values[unit] === 0 ? 0 : -(this._values[unit] as number);
         });
 
-        return this._clone(this, { _values: negated }, true);
+        return this._clone(this, { values: negated }, true);
     }
 
     /**
@@ -992,6 +1009,10 @@ export class Duration implements NormalizedDurationObject {
      * @return {boolean}
      */
     equals(other: Duration) {
+        if (!this.isValid || !other.isValid) {
+            return false;
+        }
+
         if (!this._loc.equals(other._loc)) {
             return false;
         }
@@ -1009,14 +1030,13 @@ export class Duration implements NormalizedDurationObject {
      * @private
      */
     // clone really means "create another instance just like this one, but with these changes"
-    private _clone(dur: Duration, alts: { _values: NormalizedDurationObject, _loc?: Locale, conversionAccuracy?: ConversionAccuracy }, clear = true): Duration {
+    private _clone(dur: Duration, alts: Config, clear = false): Duration {
         // deep merge for vals
         const conf = {
-            values: clear ? alts._values : { ...dur._values, ...(alts._values || {}) },
-            loc: dur._loc.clone({
-                locale: alts._loc?.locale
-            }),
-            conversionAccuracy: alts.conversionAccuracy || dur.conversionAccuracy
+            values: clear ? alts.values : { ...dur._values, ...(alts.values || {}) },
+            loc: dur._loc.clone(alts.loc),
+            conversionAccuracy: alts.conversionAccuracy || dur.conversionAccuracy,
+            matrix: alts.matrix || dur.matrix
         };
         return new Duration(conf);
     }

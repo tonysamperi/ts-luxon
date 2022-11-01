@@ -3,6 +3,14 @@
 ## 4.0.0 (Luxon 3.0.1)
 * Add "default" as an option for specifying a zone, and change "system" to really mean the system zone (breaking change)
 * Add DateTime.parseFormatForOpts
+* Fixed JSDocs for static members (#1272)
+* Adds 'at' to FULL and HUGE examples for en_US (#1256)
+* Update parsing docs to show syntax for literals (#1271)
+* Exported ConversionMatrixUnit and ConversionMatrix
+* Created interface DurationConfig and fixed weirdly underscored props in Duration._clone.
+* Duration support custom matrix (#1220)
+* Added DateTime.expandFormat
+* Added support for custom conversion matrices in Durations
 
 ## 3.4.0 (Luxon 2.5.0)
 * Wednesday support for RFC 850 (#1225)

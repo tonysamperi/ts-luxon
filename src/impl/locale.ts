@@ -313,8 +313,8 @@ export class Locale {
         locale: string,
         numberingSystem?: NumberingSystem,
         outputCalendar?: CalendarSystem,
-        specifiedLocale?: string
-    ) {
+        specifiedLocale?: string) {
+
         const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
 
         this.locale = parsedLocale;
@@ -388,7 +388,7 @@ export class Locale {
         return isActuallyEn && hasNoWeirdness ? "en" : "intl";
     }
 
-    clone(alts: LocaleOptions): Locale {
+    clone(alts?: LocaleOptions): Locale {
         if (!alts || Object.getOwnPropertyNames(alts).length === 0) {
             return this;
         }

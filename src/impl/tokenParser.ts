@@ -414,12 +414,12 @@ function maybeExpandMacroToken(token: FormatToken, locale: Locale): FormatToken 
     return tokens;
 }
 
-function expandMacroTokens(tokens: FormatToken[], locale: Locale): Array<FormatToken | TokenForPart> {
-    return Array.prototype.concat(...tokens.map(t => maybeExpandMacroToken(t, locale)));
-}
-
 function isInvalidUnitParser(parser: unknown): parser is InvalidUnitParser {
     return !!parser && !!(parser as { invalidReason: string | undefined }).invalidReason;
+}
+
+export function expandMacroTokens(tokens: FormatToken[], locale: Locale): Array<FormatToken | TokenForPart> {
+    return Array.prototype.concat(...tokens.map(t => maybeExpandMacroToken(t, locale)));
 }
 
 /**

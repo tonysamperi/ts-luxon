@@ -1,11 +1,17 @@
 import { ConversionAccuracy } from "./common";
 import { NumberingSystem } from "./locale";
+import { Locale } from "../impl/locale";
+import { Invalid } from "./invalid";
 import Intl from "./intl-next";
+
+export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
+export type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 export interface DurationOptions {
     locale?: string;
     numberingSystem?: NumberingSystem;
     conversionAccuracy?: ConversionAccuracy;
+    matrix?: ConversionMatrix;
 }
 
 export interface DurationObject {
@@ -75,4 +81,12 @@ export type NormalizedHumanDurationUnit = Exclude<NormalizedDurationUnit, "quart
 export interface DurationToHumanOptions {
     listStyle?: Intl.ListFormatOptions["style"];
     onlyHumanUnits?: boolean;
+}
+
+export interface DurationConfig {
+    conversionAccuracy?: ConversionAccuracy;
+    invalid?: Invalid;
+    loc?: Locale;
+    matrix?: ConversionMatrix;
+    values?: NormalizedDurationObject;
 }

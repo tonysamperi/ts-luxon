@@ -24,7 +24,12 @@ import {
 import { normalizeZone } from "./impl/zoneUtil";
 import { diff } from "./impl/diff";
 import { parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL } from "./impl/regexParser";
-import { parseFromTokens, explainFromTokens, formatOptsToTokens } from "./impl/tokenParser";
+import {
+    parseFromTokens,
+    explainFromTokens,
+    formatOptsToTokens,
+    expandMacroTokens
+} from "./impl/tokenParser";
 import {
     gregorianToWeek,
     weekToGregorian,
@@ -280,7 +285,7 @@ interface Config extends DateTimeConfig {
  *
  * Here is a brief overview of the most commonly used functionality it provides:
  *
- * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime#local}, {@link DateTime#utc}, and (most flexibly) {@link DateTime#fromObject}. To create one from a standard string format, use {@link DateTime#fromISO}, {@link DateTime#fromHTTP}, and {@link DateTime#fromRFC2822}. To create one from a custom string format, use {@link DateTime#fromFormat}. To create one from a native JS date, use {@link DateTime#fromJSDate}.
+ * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime.local}, {@link DateTime.utc}, and (most flexibly) {@link DateTime.fromObject}. To create one from a standard string format, use {@link DateTime.fromISO}, {@link DateTime.fromHTTP}, and {@link DateTime.fromRFC2822}. To create one from a custom string format, use {@link DateTime.fromFormat}. To create one from a native JS date, use {@link DateTime.fromJSDate}.
  * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
  * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
  * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
@@ -1327,6 +1332,18 @@ export class DateTime {
     }
 
     /**
+     * Produce the fully expanded format token for the locale
+     * Does NOT quote characters, so quoted tokens will not round trip correctly
+     * @param fmt
+     * @param localeOpts
+     * @returns {string}
+     */
+    static expandFormat(fmt: string, localeOpts: LocaleOptions = {}) {
+        const expanded = expandMacroTokens(Formatter.parseFormat(fmt), Locale.fromObject(localeOpts));
+        return expanded.map((t) => t.val).join("");
+    }
+
+    /**
      * @private
      */
     private static _buildObject<T extends TimeObject>(config: InnerBuildObjectConfig,
@@ -1774,8 +1791,8 @@ export class DateTime {
      * @param {Object} opts - opts to override the configuration options on this DateTime
      * @example DateTime.now().toLocaleString(); //=> 4/20/2017
      * @example DateTime.now().setLocale('en-gb').toLocaleString(); //=> '20/04/2017'
-     * @example DateTime.now().toLocaleString({ locale: 'en-gb' }); //=> '20/04/2017'
      * @example DateTime.now().toLocaleString(DateTime.DATE_FULL); //=> 'April 20, 2017'
+     * @example DateTime.now().toLocaleString(DateTime.DATE_FULL, { locale: 'fr' }); //=> '28 août 2022'
      * @example DateTime.now().toLocaleString(DateTime.TIME_SIMPLE); //=> '11:32 AM'
      * @example DateTime.now().toLocaleString(DateTime.DATETIME_SHORT); //=> '4/20/2017, 11:32 AM'
      * @example DateTime.now().toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' }); //=> 'Thursday, April 20'
@@ -1814,7 +1831,7 @@ export class DateTime {
      * @param {boolean} [options.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
      * @param {boolean} [options.suppressSeconds=false] - exclude seconds from the format if they're 0
      * @param {boolean} [options.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-     * @param {boolean} [options.extendedZone=true] - add the time zone format extension
+     * @param {boolean} [options.extendedZone=false] - add the time zone format extension
      * @param {string} [options.format='extended'] - choose between the basic and extended format
      * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
      * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'

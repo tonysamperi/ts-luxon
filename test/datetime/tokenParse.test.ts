@@ -1084,3 +1084,17 @@ test("DateTime.parseFormatForOpts returns a parsing format", () => {
     const format = DateTime.parseFormatForOpts("");
     expect(format).toBeNull();
 });
+
+// ------
+// .expandFormat
+// -------
+//
+test("DateTime.expandFormat works with the default locale", () => {
+    const format = DateTime.expandFormat("D");
+    expect(format).toBe("d/M/yyyyy");
+});
+
+test("DateTime.expandFormat works with other locales", () => {
+    const format = DateTime.expandFormat("D", { locale: "en-gb" });
+    expect(format).toBe("d/M/yyyyy");
+});
