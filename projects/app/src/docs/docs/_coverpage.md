@@ -1,6 +1,6 @@
 ![logo](_media/Luxon_icon_64x64.png)
 
-# TSLuxon <small>3.x</small>
+# TSLuxon <small>4.x</small>
 
 > A powerful, modern, and friendly wrapper for JavaScript dates and times.
 

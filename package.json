@@ -1,6 +1,6 @@
 {
-  "name": "ts-luxon",
-  "version": "3.1.0",
+  "name": "ts-luxon-web",
+  "version": "4.0.0",
   "license": "MIT",
   "description": "ts-luxon is luxon with sources in typescript, you can use in both javascript and typescript projects!",
   "homepage": "https://tonysamperi.github.io/ts-luxon",
