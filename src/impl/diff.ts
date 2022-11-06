@@ -19,6 +19,7 @@ function highOrderDiffs(
 ): [DateTime, DurationObject, DateTime, DurationUnit | undefined] {
     const differs: [DurationUnit, (a: DateTime, b: DateTime) => number][] = [
         ["years", (a, b) => b.year - a.year],
+        ["quarters", (a, b) => b.quarter - a.quarter],
         ["months", (a, b) => b.month - a.month + (b.year - a.year) * 12],
         [
             "weeks",
