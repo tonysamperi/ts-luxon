@@ -10,6 +10,7 @@
         "typescript"
     ],
     "repository": "https://github.com/tonysamperi/ts-luxon",
+    "homepage": "https://tonysamperi.github.io/ts-luxon/",
     "main": "dist/ts-luxon.umd.js",
     "module": "dist/ts-luxon.es6.js",
     "typings": "dist/index.d.ts",
