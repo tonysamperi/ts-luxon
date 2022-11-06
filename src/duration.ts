@@ -160,6 +160,17 @@ function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObjec
     });
 }
 
+// Remove all properties with a value of 0 from an object
+function removeZeroes(vals: DurationObject = {}): DurationObject {
+    return Object.entries(vals).reduce((acc, [key, value]) => {
+        if (value !== 0) {
+            acc[key as DurationUnit] = value;
+        }
+
+        return acc;
+    }, {} as DurationObject);
+}
+
 interface Config {
     conversionAccuracy?: ConversionAccuracy;
     invalid?: Invalid;
@@ -832,6 +843,19 @@ export class Duration implements NormalizedDurationObject {
     }
 
     /**
+     * Rescale units to its largest representation
+     * @example Duration.fromObject({ milliseconds: 90000 }).rescale().toObject() //=> { minutes: 1, seconds: 30 }
+     * @return {Duration}
+     */
+    rescale() {
+        if (!this.isValid) {
+            return this;
+        }
+        const vals = removeZeroes(this.normalize().shiftToAll().toObject());
+        return this._clone(this, { _values: vals }, true);
+    }
+
+    /**
      * Convert this Duration into its representation in a different set of units.
      * @example Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo('minutes', 'milliseconds').toObject() //=> { minutes: 60, milliseconds: 30000 }
      * @return {Duration}
@@ -894,6 +918,29 @@ export class Duration implements NormalizedDurationObject {
         });
 
         return this._clone(this, { _values: built }, true).normalize();
+    }
+
+
+    /**
+     * Shift this Duration to all available units.
+     * Same as shiftTo("years", "months", "weeks", "days", "hours", "minutes", "seconds", "milliseconds")
+     * @return {Duration}
+     */
+    shiftToAll() {
+        if (!this.isValid) {
+            return this;
+        }
+
+        return this.shiftTo(
+            "years",
+            "months",
+            "weeks",
+            "days",
+            "hours",
+            "minutes",
+            "seconds",
+            "milliseconds"
+        );
     }
 
     /**
