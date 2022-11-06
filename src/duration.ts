@@ -24,7 +24,7 @@ import {
     NormalizedHumanDurationUnit,
     ConversionMatrixUnit,
     ConversionMatrix,
-    DurationConfig as Config, DurationConfig
+    DurationConfig as Config
 } from "./types/duration";
 import { ConversionAccuracy } from "./types/common";
 import { Settings } from "./settings";
@@ -170,13 +170,6 @@ function removeZeroes(vals: DurationObject = {}): DurationObject {
 
         return acc;
     }, {} as DurationObject);
-}
-
-interface Config {
-    conversionAccuracy?: ConversionAccuracy;
-    invalid?: Invalid;
-    values?: NormalizedDurationObject;
-    loc?: Locale;
 }
 
 /**
@@ -834,7 +827,7 @@ export class Duration implements NormalizedDurationObject {
      */
     reconfigure({ locale, numberingSystem, conversionAccuracy, matrix }: DurationOptions = {}): Duration {
         const loc = this._loc.clone({ locale, numberingSystem });
-        const opts: DurationConfig = { loc, matrix, conversionAccuracy };
+        const opts: Config = { loc, matrix, conversionAccuracy };
 
         return this._clone(this, opts);
     }
@@ -876,7 +869,7 @@ export class Duration implements NormalizedDurationObject {
             return this;
         }
         const vals = removeZeroes(this.normalize().shiftToAll().toObject());
-        return this._clone(this, { _values: vals }, true);
+        return this._clone(this, { values: vals }, true);
     }
 
     /**
