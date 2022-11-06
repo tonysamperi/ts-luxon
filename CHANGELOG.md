@@ -12,6 +12,11 @@
 * Added DateTime.expandFormat
 * Added support for custom conversion matrices in Durations
 
+## 3.5.0 (Luxon 2.5.x)
+* DateTime.diff produces wrong results with unit quarter fix. (#1279)
+* dt.toLocaleString(DateTime.DATETIME_FULL); //=> 'April 20, 2017 at 11:32 AM EDT'
+* Add Duration.rescale
+
 ## 3.4.1 (Luxon 2.5.0)
 * fix #776 (#872)
 
