@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.4.1 (Luxon 2.5.0)
+* fix #776 (#872)
+
 ## 3.4.0 (Luxon 2.5.0)
 * Wednesday support for RFC 850 (#1225)
 * Fix link to duration months (#1232)
