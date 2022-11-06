@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0 (Luxon 3.0.1)
+## 4.0.0 (Luxon 3.1.0)
 * Add "default" as an option for specifying a zone, and change "system" to really mean the system zone (breaking change)
 * Add DateTime.parseFormatForOpts
 * Fixed JSDocs for static members (#1272)
