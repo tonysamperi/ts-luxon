@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",

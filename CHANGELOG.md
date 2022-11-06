@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.1 (Luxon 3.1.0)
+* Version bump, added homepage to package.json
+
 ## 4.0.0 (Luxon 3.1.0)
 * Add "default" as an option for specifying a zone, and change "system" to really mean the system zone (breaking change)
 * Add DateTime.parseFormatForOpts
