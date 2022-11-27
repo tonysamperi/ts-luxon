@@ -32,7 +32,7 @@ var DateTime = tsLuxon.DateTime;
 Supports Node.js 6+. Install via NPM:
 
 ```
-npm install --save luxon
+npm install --save ts-luxon
 ```
 
 ```js
