@@ -85,7 +85,7 @@ export class Info {
      * Return an array of format month names.
      * Format months differ from standalone months in that they're meant to appear next to the day of the month. In some languages, that
      * changes the string.
-     * See {@link Info#months}
+     * See {@link Info.months}
      * @param {string} [length='long'] - the length of the month representation, such as "numeric", "2-digit", "narrow", "short", "long"
      * @param {Object} opts - options
      * @param {string} [opts.locObj] - an existing locale object to use

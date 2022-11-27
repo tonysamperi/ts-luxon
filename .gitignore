@@ -8,4 +8,4 @@ transpiled/
 .idea/
 .vscode/
 *.tgz
-build/
+docs/

@@ -8,6 +8,7 @@ import { InvalidArgumentError } from "../errors";
 import { TimeObject, GregorianDateTime } from "../types/datetime";
 import { ZoneOffsetFormat } from "../types/zone";
 import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/duration";
+import { Settings } from "../settings";
 
 import Intl from "../types/intl-next";
 
@@ -194,7 +195,7 @@ export function untruncateYear(year: number) {
         return year;
     }
     else {
-        return year > 60 ? 1900 + year : 2000 + year;
+        return year > Settings.twoDigitCutoffYear ? 1900 + year : 2000 + year;
     }
 }
 
