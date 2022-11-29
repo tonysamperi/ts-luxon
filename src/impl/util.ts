@@ -281,8 +281,6 @@ export function timeObject(obj: TimeObject): TimeObject {
     return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
 
-export const IANA_REGEX = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
-
 // units ordered by size
 export const ORDERED_UNITS: NormalizedDurationUnit[] = [
     "years",

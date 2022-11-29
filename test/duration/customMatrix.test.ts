@@ -1,8 +1,7 @@
 /* global test expect */
 
-import { Duration } from "../../src/duration";
 import { casualMatrix } from "../../src/duration";
-import { DurationUnit } from "ts-luxon";
+import { DurationUnit, Duration } from "../../src";
 
 const businessMatrix = {
     ...casualMatrix,

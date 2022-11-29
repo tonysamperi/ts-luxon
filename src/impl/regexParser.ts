@@ -3,7 +3,6 @@ import {
     signedOffset,
     parseInteger,
     parseMillis,
-    IANA_REGEX,
     isUndefined,
     parseFloating
 } from "./util";
@@ -76,6 +75,7 @@ function simpleParse(...keys: (keyof GenericDateTime)[]) {
 }
 
 // ISO and SQL parsing
+export const IANA_REGEX = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
 const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;
 const isoExtendedZone = `(?:${offsetRegex.source}?(?:\\[(${IANA_REGEX.source})\\])?)?`;
 const isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;

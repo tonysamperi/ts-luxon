@@ -1,8 +1,0 @@
-sudo: true
-services:
- - docker
-before_install:
-  - docker pull tonysamperi/ts-luxon
-  - docker run --rm -v ${pwd}:/ts-luxon -w /tonysamperi/ts-luxon tonysamperi/ts-luxon ./docker/workflow.sh
-script:
- - echo foo

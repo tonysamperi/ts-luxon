@@ -1,0 +1,35 @@
+name: Test
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    build-and-test:
+
+        runs-on: ubuntu-latest
+
+        env:
+            LANG: it_IT.utf8
+            LIMIT_JEST: yes
+            TZ: Europe/Rome
+
+        strategy:
+            matrix:
+                node-version: [16.16.0]
+
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
+            - run: npm i -g yarn
+            - run: yarn --check-files
+            - run: npm run build
+            - run: npm run test
+            - run: npm run typedoc
+            - run: bash <(curl -s https://codecov.io/bash)
