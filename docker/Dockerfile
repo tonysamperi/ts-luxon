@@ -1,4 +1,4 @@
-FROM node:13
+FROM node:16.16.0
 
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
