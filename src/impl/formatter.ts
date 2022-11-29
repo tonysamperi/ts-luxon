@@ -8,6 +8,7 @@ import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";
 import Intl from "../types/intl-next";
+import { Interval } from "../interval";
 
 function stringifyTokens(
     splits: FormatToken[],
@@ -141,6 +142,16 @@ export class Formatter {
         return df.formatToParts();
     }
 
+    formatInterval(interval: Interval, opts: FormatterOptions = {}) {
+        if (interval.invalidReason) {
+            return void 0;
+        }
+        // tslint:disable-next-line:no-non-null-assertion
+        const df = this._loc.dtFormatter(interval.start!, { ...this._opts, ...opts });
+        // tslint:disable-next-line:no-non-null-assertion
+        return df.dtf.formatRange(interval.start!.toJSDate(), interval.end!.toJSDate());
+    }
+
     resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
         const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
         return df.resolvedOptions();
@@ -183,8 +194,8 @@ export class Formatter {
                 knownEnglish
                     ? English.weekdayForDateTime(dt, length)
                     : string(
-                    standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
-                    "weekday"
+                        standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
+                        "weekday"
                     ),
             maybeMacro = (token: string) => {
                 const formatOpts = Formatter.macroTokenToFormatOpts(token);

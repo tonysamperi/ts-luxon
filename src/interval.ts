@@ -7,6 +7,10 @@ import { IntervalObject } from "./types/interval";
 import { Invalid } from "./types/invalid";
 import { Settings } from "./settings";
 import { isNumber } from "./impl/util";
+import { Formatter } from "./impl/formatter";
+import { DATE_SHORT } from "./impl/formats";
+import { LocaleOptions } from "./types/locale";
+import Intl from "./types/intl-next";
 
 const INVALID = "Invalid Interval";
 
@@ -64,8 +68,8 @@ interface Config {
  * * **Interrogation** To analyze the Interval, use {@link Interval#count}, {@link Interval#length}, {@link Interval#hasSame}, {@link Interval#contains}, {@link Interval#isAfter}, or {@link Interval#isBefore}.
  * * **Transformation** To create other Intervals out of this one, use {@link Interval#set}, {@link Interval#splitAt}, {@link Interval#splitBy}, {@link Interval#divideEqually}, {@link Interval.merge}, {@link Interval.xor}, {@link Interval#union}, {@link Interval#intersection}, or {@link Interval#difference}.
  * * **Comparison** To compare this Interval to another one, use {@link Interval#equals}, {@link Interval#overlaps}, {@link Interval#abutsStart}, {@link Interval#abutsEnd}, {@link Interval#engulfs}
- * * **Output** To convert the Interval into other representations, see {@link Interval#toString}, {@link Interval#toISO}, {@link Interval#toISODate}, {@link Interval#toISOTime}, {@link Interval#toFormat}, and {@link Interval#toDuration}.
- * */
+ * * **Output** To convert the Interval into other representations, see {@link Interval#toString}, {@link Interval#toLocaleString}, {@link Interval#toISO}, {@link Interval#toISODate}, {@link Interval#toISOTime}, {@link Interval#toFormat}, and {@link Interval#toDuration}.
+ */
 export class Interval {
 
     /**
@@ -590,6 +594,30 @@ export class Interval {
     }
 
     /**
+     * Returns a localized string representing this Interval. Accepts the same options as the
+     * Intl.DateTimeFormat constructor and any presets defined by Luxon, such as
+     * {@link DateTime.DATE_FULL} or {@link DateTime.TIME_SIMPLE}. The exact behavior of this method
+     * is browser-specific, but in general it will return an appropriate representation of the
+     * Interval in the assigned locale. Defaults to the system's locale if no locale has been
+     * specified.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
+     * @param {Object} [formatOpts=DateTime.DATE_SHORT] - Either a DateTime preset or
+     * Intl.DateTimeFormat constructor options.
+     * @param {Object} opts - Options to override the configuration of the start DateTime.
+     * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(); //=> 11/7/2022 – 11/8/2022
+     * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL); //=> November 7 – 8, 2022
+     * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL, { locale: 'fr-FR' }); //=> 7–8 novembre 2022
+     * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString(DateTime.TIME_SIMPLE); //=> 6:00 – 8:00 PM
+     * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> Mon, Nov 07, 6:00 – 8:00 p
+     * @return {string}
+     */
+    toLocaleString(formatOpts: Intl.DateTimeFormatOptions & LocaleOptions = DATE_SHORT, opts = {}) {
+        return this.isValid
+            ? Formatter.create(this._s.loc.clone(opts), formatOpts).formatInterval(this)
+            : INVALID;
+    }
+
+    /**
      * Returns an ISO 8601-compliant string representation of this Interval.
      * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
      * @param {Object} options - The same options as {@link DateTime#toISO}
@@ -631,17 +659,21 @@ export class Interval {
     }
 
     /**
-     * Returns a string representation of this Interval formatted according to the specified format string.
-     * @param {string} dateFormat - the format string. This string formats the start and end time. See {@link DateTime#toFormat} for details.
-     * @param {Object} options - options
-     * @param {string} [options.separator =  ' – '] - a separator to place between the start and end representations
+     * Returns a string representation of this Interval formatted according to the specified format
+     * string. **You may not want this.** See {@link Interval#toLocaleString} for a more flexible
+     * formatting tool.
+     * @param {string} dateFormat - The format string. This string formats the start and end time.
+     * See {@link DateTime#toFormat} for details.
+     * @param {Object} opts - Options.
+     * @param {string} [opts.separator =  ' – '] - A separator to place between the start and end
+     * representations.
      * @return {string}
      */
-    toFormat(dateFormat: string, options = { separator: " – " }) {
+    toFormat(dateFormat: string, { separator = " -" }: { separator?: string } = {}) {
         if (!this.isValid) {
             return INVALID;
         }
-        return `${this._s.toFormat(dateFormat)}${options.separator}${this._e.toFormat(dateFormat)}`;
+        return `${this._s.toFormat(dateFormat)}${separator}${this._e.toFormat(dateFormat)}`;
     }
 
     /**

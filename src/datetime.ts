@@ -535,6 +535,15 @@ export class DateTime {
     }
 
     /**
+     * Get a clone of the Locale instance of a DateTime.
+     *
+     * @type {Locale}
+     */
+    get loc() {
+        return this._loc.clone();
+    }
+
+    /**
      * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
      *
      * @type {string}

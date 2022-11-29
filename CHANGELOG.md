@@ -1,7 +1,8 @@
 # Changelog
 
-## 4.1.0 (Luxon 3.?.?)
+## 4.1.0 (Luxon 3.1.1)
 * Add Settings.twoDigitCutoffYear to configure parsing 'yy' token. (#1330)
+* Add Interval.toLocaleString() (#1320)
 
 ## 4.0.1 (Luxon 3.1.0)
 * Version bump, added homepage to package.json

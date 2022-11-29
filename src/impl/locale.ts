@@ -189,6 +189,11 @@ class PolyNumberFormatter {
  */
 
 class PolyDateFormatter {
+
+    get dtf(): Intl.DateTimeFormat {
+        return this._dtf;
+    }
+
     private _opts: Readonly<Intl.DateTimeFormatOptions>;
     private _dt: DateTime;
     private _dtf: Readonly<Intl.DateTimeFormat>;

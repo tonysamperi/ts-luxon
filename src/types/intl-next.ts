@@ -117,6 +117,12 @@ declare namespace Intl {
     interface DateTimeFormat {
         format(date?: Date | number): string;
 
+        /**
+         * The Intl.DateTimeFormat.prototype.formatRange() formats a date range in the most concise way based on the locale and options provided when instantiating Intl.DateTimeFormat object
+         * @param startDate
+         * @param endDate
+         */
+        formatRange(startDate: Date, endDate: Date): string;
         resolvedOptions(): ResolvedDateTimeFormatOptions;
     }
 
