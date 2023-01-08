@@ -17,9 +17,8 @@ Here are some vague notes on Luxon's design philosophy:
 
 ## Building and testing
 
-Building and testing is done through npm scripts. The tests run in Node and require Node 10+ with full-icu support. This is because some of the features available in TS-Luxon (like internationalization and time zones) need that stuff and we test it all. On any platform, if you have Node 10 installed with full-icu, you're good to go; just run npm scripts like `npm run test`. But you probably don't have that, so read on.
-
-**IMPORTANT: your tests will likely fail if you're not in Italy, that's why I strongly suggest using docker for a guaranteed success!**
+Building and testing is done through npm scripts. The tests run in Node and require Node 18 with full-icu support. This is because some of the features available in Luxon (like internationalization and time zones) need that stuff and we test it all. On any platform, if you have Node 16+ installed with full-icu, you're good to go; just run `scripts/test`. But you probably don't have that, so read on.
+**IMPORTANT: I removed docker and the associated image, because we can now test through github actions! The new scripts/test should suffice!**
 
 ### OSX
 

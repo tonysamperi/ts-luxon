@@ -540,7 +540,7 @@ export class DateTime {
      * @type {Locale}
      */
     get loc() {
-        return this._loc.clone();
+        return this.isValid ? this._loc.clone() : void 0;
     }
 
     /**
@@ -2177,7 +2177,7 @@ export class DateTime {
 
     /**
      * Equality check
-     * Two DateTimes are equal iff they represent the same millisecond and have the same zone and location.
+     * Two DateTimes are equal if and only if they represent the same millisecond, have the same zone and location, and are both valid.
      * To compare just the millisecond values, use `+dt1 === +dt2`.
      * @param {DateTime} other - the other DateTime
      * @return {boolean}

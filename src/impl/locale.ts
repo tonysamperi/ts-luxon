@@ -76,28 +76,42 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
     // b) if it does, use Intl to resolve everything
     // c) if Intl fails, try again without the -u
 
+    // private subtags and unicode subtags have ordering requirements,
+    // and we're not properly parsing this, so just strip out the
+    // private ones if they exist.
+    const xIndex: number = localeStr.indexOf("-x-");
+    if (xIndex !== -1) {
+        localeStr = localeStr.substring(0, xIndex);
+    }
+
     const uIndex = localeStr.indexOf("-u-");
     if (uIndex === -1) {
         return [localeStr];
     }
     else {
         let options: Intl.ResolvedDateTimeFormatOptions;
-        const smaller = localeStr.substring(0, uIndex);
+        let selectedStr;
         try {
             options = getCachedDTF(localeStr).resolvedOptions();
-        } catch (e) {
+            selectedStr = localeStr;
+        }
+        catch (e) {
+            const smaller = localeStr.substring(0, uIndex);
             options = getCachedDTF(smaller).resolvedOptions();
+            selectedStr = smaller;
         }
 
         const { numberingSystem, calendar } = options;
-        // return the smaller one so that we can append the calendar and numbering overrides to it
-        return [smaller, numberingSystem as NumberingSystem, calendar as CalendarSystem];
+
+        return [selectedStr, numberingSystem as NumberingSystem, calendar as CalendarSystem];
     }
 }
 
 function intlConfigString(localeStr: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem) {
     if (outputCalendar || numberingSystem) {
-        localeStr += "-u";
+        if (!localeStr.includes("-u-")) {
+            localeStr += "-u";
+        }
 
         if (outputCalendar) {
             localeStr += `-ca-${outputCalendar}`;
@@ -115,7 +129,9 @@ function intlConfigString(localeStr: string, numberingSystem?: NumberingSystem, 
 
 function mapMonths<T>(f: (d: DateTime) => T): T[] {
     const ms = [];
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 1;
+         i <= 12;
+         i++) {
         const dt = DateTime.utc(2016, i, 1);
         ms.push(f(dt));
     }
@@ -124,7 +140,9 @@ function mapMonths<T>(f: (d: DateTime) => T): T[] {
 
 function mapWeekdays<T>(f: (d: DateTime) => T): T[] {
     const ms = [];
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 1;
+         i <= 7;
+         i++) {
         const dt = DateTime.utc(2016, 11, 13 + i);
         ms.push(f(dt));
     }
@@ -239,10 +257,10 @@ class PolyDateFormatter {
             this._dt = dt;
             z = dt.zone.name;
         }
-        const intlOpts = { ...this._opts };
-        if (z) {
-            intlOpts.timeZone = z;
-        }
+        const intlOpts = {
+            ...this._opts,
+            timeZone: this._opts.timeZone || z
+        };
         this._dtf = getCachedDTF(intl, intlOpts);
     }
 

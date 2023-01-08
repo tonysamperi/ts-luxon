@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es5",
     "sourceMap": true,
-    "rootDir": "./test",
+    "rootDir": "./",
     "baseUrl": "./",
     "paths": {
       "ts-luxon": ["../dist"],

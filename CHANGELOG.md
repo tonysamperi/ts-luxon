@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.2.0 (Luxon 3.2.1)
+* Allow timeZone to be specified as an intl option
+* Fix for diff's handling of end-of-month when crossing leap years (#1340)
+* Add Interval.toLocaleString() (#1320)
+* Fixed Datetime#loc accessor
+* preserve language tags (#1354)
+* fix rfc2822 regex
+
 ## 4.1.0 (Luxon 3.1.1)
 * Add Settings.twoDigitCutoffYear to configure parsing 'yy' token. (#1330)
 * Add Interval.toLocaleString() (#1320)

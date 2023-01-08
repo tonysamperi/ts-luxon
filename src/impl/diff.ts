@@ -13,10 +13,10 @@ function dayDiff(earlier: DateTime, later: DateTime) {
 }
 
 function highOrderDiffs(
-    earlier: DateTime,
+    cursor: DateTime,
     later: DateTime,
     units: DurationUnit[]
-): [DateTime, DurationObject, DateTime, DurationUnit | undefined] {
+): [DateTime, DurationObject, DateTime | undefined, DurationUnit | undefined] {
     const differs: [DurationUnit, (a: DateTime, b: DateTime) => number][] = [
         ["years", (a, b) => b.year - a.year],
         ["quarters", (a, b) => b.quarter - a.quarter + (b.year - a.year) * 4],
@@ -32,26 +32,24 @@ function highOrderDiffs(
     ];
 
     const results: DurationObject = {};
+    const earlier = cursor;
     let lowestOrder: DurationUnit | undefined,
-        highWater = earlier,
-        cursor = earlier.reconfigure({});
+        highWater;
 
     for (const [unit, differ] of differs) {
         if (units.indexOf(unit) >= 0) {
             lowestOrder = unit;
 
-            let delta = differ(cursor, later);
-            highWater = cursor.plus({ [unit]: delta });
+            results[unit] = differ(cursor, later);
+            highWater = earlier.plus(results);
 
             if (highWater > later) {
-                cursor = cursor.plus({ [unit]: delta - 1 });
-                delta -= 1;
+                (results[unit] as number)--;
+                cursor = earlier.plus(results);
             }
             else {
                 cursor = highWater;
             }
-
-            results[unit] = delta;
         }
     }
 
@@ -69,11 +67,13 @@ export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], 
     );
 
     if (lowerOrderUnits.length === 0) {
+        // @ts-ignore
         if (highWater < later) {
             highWater = cursor.plus({ [lowestOrder as string]: 1 });
         }
 
         if (highWater !== cursor) {
+            // @ts-ignore
             results[lowestOrder as keyof DurationObject] = (results[lowestOrder as keyof DurationObject] || 0) + remainingMillis / (+highWater - +cursor);
         }
     }

@@ -97,7 +97,7 @@ test("Interval#toLocaleString shows things in the right IANA zone", () => {
             interval.start!.setZone("Australia/Melbourne"),
             interval.end!
         ).toLocaleString(DateTime.DATETIME_SHORT)
-    ).toBe("5/25/1982, 7:00 PM – 10/14/1983, 11:30 PM");
+    ).toBe("25/5/1982, 19:00 - 14/10/1983, 23:30");
 });
 
 test("Interval#toLocaleString shows things in the right fixed-offset zone", () => {
@@ -105,7 +105,7 @@ test("Interval#toLocaleString shows things in the right fixed-offset zone", () =
         Interval.fromDateTimes(interval.start!.setZone("UTC-8"), interval.end!).toLocaleString(
             DateTime.DATETIME_SHORT
         )
-    ).toBe("5/25/1982, 1:00 AM – 10/14/1983, 5:30 AM");
+    ).toBe("25/5/1982, 01:00 - 14/10/1983, 05:30");
 });
 
 test("Interval#toLocaleString shows things in the right fixed-offset zone when showing the zone", () => {
@@ -113,7 +113,7 @@ test("Interval#toLocaleString shows things in the right fixed-offset zone when s
         Interval.fromDateTimes(interval.start!.setZone("UTC-8"), interval.end!).toLocaleString(
             DateTime.DATETIME_FULL
         )
-    ).toBe("May 25, 1982 at 1:00 AM GMT-8 – October 14, 1983 at 5:30 AM GMT-8");
+    ).toBe("25 maggio 1982, 01:00 GMT-8 - 14 ottobre 1983, 05:30 GMT-8");
 });
 
 test("Interval#toLocaleString shows things with UTC if fixed-offset with 0 offset is used", () => {
@@ -121,7 +121,7 @@ test("Interval#toLocaleString shows things with UTC if fixed-offset with 0 offse
         Interval.fromDateTimes(interval.start!.setZone("UTC"), interval.end!).toLocaleString(
             DateTime.DATETIME_FULL
         )
-    ).toBe("May 25, 1982 at 9:00 AM UTC – October 14, 1983 at 1:30 PM UTC");
+    ).toBe("25 maggio 1982, 09:00 UTC - 14 ottobre 1983, 13:30 UTC");
 });
 
 test("Interval#toLocaleString does the best it can with unsupported fixed-offset zone when showing the zone", () => {
@@ -129,7 +129,7 @@ test("Interval#toLocaleString does the best it can with unsupported fixed-offset
         Interval.fromDateTimes(interval.start!.setZone("UTC+4:30"), interval.end!).toLocaleString(
             DateTime.DATETIME_FULL
         )
-    ).toBe("May 25, 1982 at 9:00 AM UTC – October 14, 1983 at 1:30 PM UTC");
+    ).toBe("25 maggio 1982, 09:00 UTC - 14 ottobre 1983, 13:30 UTC");
 });
 
 test("Interval#toLocaleString uses locale-appropriate time formats", () => {
@@ -171,7 +171,7 @@ test("Interval#toLocaleString uses locale-appropriate time formats", () => {
 
 test("Interval#toLocaleString sets the separator between days for same-month dates", () => {
     expect(Interval.after(interval.start!, { day: 2 }).toLocaleString(DateTime.DATE_MED)).toBe(
-        "May 25 – 27, 1982"
+        "25–27 mag 1982"
     );
 });
 
@@ -218,8 +218,8 @@ test("Interval#toISOTime accepts ISO options", () => {
 // ------
 
 test("Interval#toFormat accepts date formats", () => {
-  expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("Tue, May 25, 1982 – Fri, Oct 14, 1983");
-  expect(interval.toFormat("HH:mm")).toBe("09:00 – 13:30");
+  expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("Tue, May 25, 1982 - Fri, Oct 14, 1983");
+  expect(interval.toFormat("HH:mm")).toBe("09:00 - 13:30");
 });
 
 test("Interval#toFormat accepts date formats", () => {

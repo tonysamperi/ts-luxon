@@ -613,7 +613,8 @@ export class Interval {
      */
     toLocaleString(formatOpts: Intl.DateTimeFormatOptions & LocaleOptions = DATE_SHORT, opts = {}) {
         return this.isValid
-            ? Formatter.create(this._s.loc.clone(opts), formatOpts).formatInterval(this)
+            // tslint:disable-next-line:no-non-null-assertion
+            ? Formatter.create(this._s.loc!.clone(opts), formatOpts).formatInterval(this)
             : INVALID;
     }
 
@@ -669,7 +670,7 @@ export class Interval {
      * representations.
      * @return {string}
      */
-    toFormat(dateFormat: string, { separator = " -" }: { separator?: string } = {}) {
+    toFormat(dateFormat: string, { separator = " - " }: { separator?: string } = {}) {
         if (!this.isValid) {
             return INVALID;
         }

@@ -416,6 +416,24 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 //     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23 AM UTC");
 // });
 
+test("DateTime#toLocaleString() respects language tags", () => {
+    expect(dt.reconfigure({ locale: "en-US-u-hc-h23" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe(
+        "09:23"
+    );
+});
+
+test("DateTime#toLocaleString() accepts a zone even when the zone is set", () => {
+    expect(
+        dt.toLocaleString({
+            hour: "numeric",
+            minute: "numeric",
+            timeZoneName: "short",
+            timeZone: "America/Los_Angeles",
+        })
+    ).toBe("2:23 AM PDT");
+});
+
+
 // ------
 // #resolvedLocaleOptions()
 // ------

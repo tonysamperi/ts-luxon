@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+TZ="Europe/Rome" NODE_ICU_DATA="$(pwd)/node_modules/full-icu" LANG=it_IT.utf8 npm run test
