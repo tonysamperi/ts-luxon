@@ -7,6 +7,7 @@
 * Fixed Datetime#loc accessor
 * preserve language tags (#1354)
 * fix rfc2822 regex
+* added test script to compensate for removed Docker
 
 ## 4.1.0 (Luxon 3.1.1)
 * Add Settings.twoDigitCutoffYear to configure parsing 'yy' token. (#1330)
