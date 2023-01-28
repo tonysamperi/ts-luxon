@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.2.1 (ahead of Luxon)
+* allow parsing of just an offset
+
 ## 4.2.0 (Luxon 3.2.1)
 * Allow timeZone to be specified as an intl option
 * Fix for diff's handling of end-of-month when crossing leap years (#1340)

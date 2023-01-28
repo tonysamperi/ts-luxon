@@ -126,16 +126,17 @@ function objToTS(obj: GregorianDateTime, offset: number, zone: Zone) {
 
 // helper useful in turning the results of parsing into real dates
 // by handling the zone options
-function parseDataToDateTime(parsed: GenericDateTime | null,
+function parseDataToDateTime(parsed: GenericDateTime | null | void,
                              parsedZone: Zone | null,
                              opts: DateTimeOptions,
                              format: string,
                              text: string,
                              specificOffset?: number) {
     const { setZone, zone } = opts;
-    if (parsed && Object.keys(parsed).length > 0) {
+    if ((parsed && Object.keys(parsed).length !== 0) || parsedZone) {
         const interpretationZone = parsedZone || zone;
-        const inst = DateTime.fromObject(parsed, {
+        // While null is not a suitable value for the arg default, void is.
+        const inst = DateTime.fromObject(parsed || void 0, {
             ...opts,
             zone: interpretationZone,
             specificOffset
