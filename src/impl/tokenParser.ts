@@ -449,10 +449,14 @@ export function explainFromTokens(locale: Locale, input: string, format: string)
     }
 }
 
+export function sanitizeSpaces(input: string): string {
+    return input.replace(/\u202F/g, " ");
+}
+
 export function parseFromTokens(locale: Locale,
                                 input: string,
                                 format: string): [GenericDateTime | null | void, Zone | null | void, number | undefined, string | void] {
-    const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, input, format);
+    const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, sanitizeSpaces(input), sanitizeSpaces(format));
     return [result, zone, specificOffset, invalidReason];
 }
 

@@ -1,7 +1,9 @@
 # Changelog
 
-## 4.2.1 (ahead of Luxon)
+## 4.2.1 (Luxon next 3.3.0)
 * allow parsing of just an offset
+* fix parsing issue for Chromium browsers above v 109 (fixes #4)
+* upgrade typescript version from 4.6 to 4.7
 
 ## 4.2.0 (Luxon 3.2.1)
 * Allow timeZone to be specified as an intl option
