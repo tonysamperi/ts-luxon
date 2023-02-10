@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "4.2.1",
+    "version": "4.2.2",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
@@ -32,6 +32,9 @@
         "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
     },
     "devDependencies": {
+        "@rollup/plugin-json": "^6.0.0",
+        "@rollup/plugin-replace": "^5.0.2",
+        "@rollup/plugin-typescript": "^11.0.0",
         "@types/benchmark": "^2.1.0",
         "@types/jest": "^27.4.0",
         "benchmark": "^2.0.0",
@@ -41,7 +44,6 @@
         "rollup": "~2.33.3",
         "rollup-plugin-cleaner": "^1.0.0",
         "rollup-plugin-commonjs": "^10.1.0",
-        "rollup-plugin-json": "^4.0.0",
         "rollup-plugin-node-resolve": "^5.2.0",
         "rollup-plugin-sourcemaps": "~0.6.3",
         "rollup-plugin-terser": "^7.0.2",

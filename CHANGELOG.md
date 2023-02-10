@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.2.2 (Luxon next 3.3.0)
+* fix property VERSION now reading directly the package.json to avoid misalignment
+
 ## 4.2.1 (Luxon next 3.3.0)
 * allow parsing of just an offset
 * fix parsing issue for Chromium browsers above v 109 (fixes #4)
