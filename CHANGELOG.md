@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.5.2 (Luxon 2.5.x)
+* fix parsing issue for Chromium browsers above v 109 (fixes #4)
+
 ## 3.5.1 (Luxon 2.5.x)
 * Fixed version + version handling as per v4
 
