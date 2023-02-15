@@ -451,11 +451,15 @@ export function explainFromTokens(locale: Locale, input: string, format: string)
   }
 }
 
+export function sanitizeSpaces(input: string): string {
+    return input.replace(/\u202F/g, " ");
+}
+
 export function parseFromTokens(
   locale: Locale,
   input: string,
   format: string
 ): [GenericDateTime | null | undefined, Zone | null | undefined, string | undefined] {
-  const { result, zone, invalidReason } = explainFromTokens(locale, input, format);
+  const { result, zone, invalidReason } = explainFromTokens(locale, sanitizeSpaces(input), sanitizeSpaces(format));
   return [result, zone, invalidReason];
 }

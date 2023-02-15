@@ -39,3 +39,5 @@
 * feat: multiple units support in toRelative
 * update node install instructions.
 
+##2.2.1 (Luxon 1.27.x)
+* fix parsing issue for Chromium browsers above v 109 (fixes #4)

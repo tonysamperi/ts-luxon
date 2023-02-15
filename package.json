@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "license": "MIT",
     "description": "Immutable date wrapper",
     "author": "Tony Samperi",
@@ -18,7 +18,7 @@
         "README.md"
     ],
     "engines": {
-        "node": ">=13"
+        "node": ">=13 <14"
     },
     "scripts": {
         "build:watch": "rollup -c rollup.config.js -w",
@@ -29,7 +29,8 @@
         "site": "cp -r site dist",
         "benchmark": "babel-node benchmarks/index.js",
         "codecov": "codecov",
-        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
+        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
+        "publish": "npm publish --tag latest-v2"
     },
     "husky": {
         "hooks": {
@@ -38,6 +39,7 @@
     },
     "devDependencies": {
         "@types/benchmark": "^2.1.0",
+        "@types/jest": "^26.0.24",
         "benchmark": "^2.0.0",
         "codecov": "^3.0.0",
         "esdoc": "^1.0.0",
