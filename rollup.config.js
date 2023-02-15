@@ -5,6 +5,7 @@ import typescript from "rollup-plugin-typescript2";
 import cleaner from "rollup-plugin-cleaner";
 import { uglify } from "rollup-plugin-uglify";
 import { terser } from "rollup-plugin-terser";
+import pluginReplace from "@rollup/plugin-replace";
 
 const pkg = require("./package.json");
 
@@ -37,6 +38,12 @@ export default {
         // https://github.com/rollup/rollup-plugin-node-resolve#usage
         resolve(),
         // Resolve source maps to the original source
-        sourceMaps()
+        sourceMaps(),
+        pluginReplace({
+            preventAssignment: !0,
+            values: {
+                __BUILD_VRS__: () => pkg.version
+            }
+        })
     ]
 };

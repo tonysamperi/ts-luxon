@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
@@ -29,9 +29,11 @@
         "site": "cp -r site dist",
         "benchmark": "babel-node benchmarks/index.js",
         "codecov": "codecov",
-        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
+        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
+        "publish": "npm publish --tag latest-v3"
     },
     "devDependencies": {
+        "@rollup/plugin-replace": "^5.0.2",
         "@types/benchmark": "^2.1.0",
         "@types/jest": "^27.4.0",
         "benchmark": "^2.0.0",

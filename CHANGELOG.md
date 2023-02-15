@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.5.1 (Luxon 2.5.x)
+* Fixed version + version handling as per v4
+
 ## 3.5.0 (Luxon 2.5.x)
 * DateTime.diff produces wrong results with unit quarter fix. (#1279)
 * dt.toLocaleString(DateTime.DATETIME_FULL); //=> 'April 20, 2017 at 11:32 AM EDT'
