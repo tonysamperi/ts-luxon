@@ -1,5 +1,4 @@
-import { DateTime, FixedOffsetZone, Zone } from "../../src";
-import { ZoneOffsetFormat, ZoneOffsetOptions } from "ts-luxon";
+import { DateTime, FixedOffsetZone, Zone, ZoneOffsetFormat, ZoneOffsetOptions } from "../../src";
 
 const dtMaker = () =>
         DateTime.fromObject({

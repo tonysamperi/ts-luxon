@@ -1,6 +1,5 @@
-import { Info, WeekUnitLengths } from "../../src";
+import { Info, WeekUnitLengths, UnitLength } from "../../src";
 import { Helpers } from "../helpers";
-import { UnitLength } from "ts-luxon";
 
 // ------
 // .months()

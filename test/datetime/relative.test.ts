@@ -1,7 +1,6 @@
-import { DateTime } from "../../src";
+import { DateTime, ToRelativeCalendarUnit } from "../../src";
 
 import { Helpers } from "../helpers";
-import { ToRelativeCalendarUnit } from "ts-luxon";
 
 const sharedBase = DateTime.fromObject({ year: 1983, month: 10, day: 14 }).setLocale("en-US");
 const baseUtc = sharedBase.toUTC();
