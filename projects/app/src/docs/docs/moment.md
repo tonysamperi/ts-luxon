@@ -1,10 +1,10 @@
 # For Moment users
 
-Luxon borrows lots of ideas from [Moment.js](http://momentjs.com), but there are a lot of differences too. This document clarifies what they are.
+TSLuxon borrows lots of ideas from [Moment.js](https://momentjs.com), but there are a lot of differences too. This document clarifies what they are.
 
 ## Immutability
 
-Luxon's objects are immutable, whereas Moment's are mutable. For example, in Moment:
+TSLuxon's objects are immutable, whereas Moment's are mutable. For example, in Moment:
 
 ```js
 var m1 = moment();
@@ -24,7 +24,7 @@ This happens because the `plus` method returns a new instance, leaving `d1` unmo
 
 ## Major functional differences
 
-1. Months in Luxon are 1-indexed instead of 0-indexed like in Moment and the native Date type.
+1. Months in TSLuxon are 1-indexed instead of 0-indexed like in Moment and the native Date type.
 1. Localizations and time zones are implemented by the native Intl API (or a polyfill of it), instead of by the library itself.
 1. Luxon has both a Duration type and an Interval type. The Interval type is like Twix.
 
@@ -71,7 +71,7 @@ Here's a rough mapping of DateTime methods in Moment to ones in Luxon. I haven't
 #### Unit getters
 
 | Property               | Moment                               | Luxon         | Notes                                  |
-| ---------------------- | ------------------------------------ | ------------- | -------------------------------------- |
+| ---------------------- | ------------------------------------ | ------------- |----------------------------------------|
 | Year                   | `year()`                             | `year`        |                                        |
 | Month                  | `month()`                            | `month`       |                                        |
 | Day of month           | `date()`                             | `day`         |                                        |
@@ -82,7 +82,7 @@ Here's a rough mapping of DateTime methods in Moment to ones in Luxon. I haven't
 | Second of minute       | `second()`                           | `second`      |                                        |
 | Millisecond of seconds | `millisecond()`                      | `millisecond` |                                        |
 | Week of ISO week year  | `weekYear`, `isoWeekYear`            | `weekYear`    |                                        |
-| Quarter                | `quarter`                            | None          | Just divide the months by 4            |
+| Quarter                | `quarter`                            | None          | Just divide the months by 3            |
 
 #### Programmatic get and set
 
