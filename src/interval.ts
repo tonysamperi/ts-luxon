@@ -197,7 +197,8 @@ export class Interval {
             try {
                 start = DateTime.fromISO(s, opts);
                 startIsValid = start.isValid;
-            } catch (e) {
+            }
+            catch (e) {
                 startIsValid = false;
             }
 
@@ -205,7 +206,8 @@ export class Interval {
             try {
                 end = DateTime.fromISO(e, opts);
                 endIsValid = end.isValid;
-            } catch (e) {
+            }
+            catch (e) {
                 endIsValid = false;
             }
 
@@ -304,7 +306,8 @@ export class Interval {
             flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
             arr = flattened.sort((a, b) => +a.time - +b.time);
 
-        for (const i of arr) {
+        for (const i of
+            arr) {
             currentCount += i.type === "s" ? 1 : -1;
 
             if (currentCount === 1) {
@@ -343,10 +346,10 @@ export class Interval {
             return NaN;
         }
         // start is not null because not invalid
-        const start = (this.start as DateTime).startOf(unit);
+        const start = this.start!.startOf(unit);
         // end is not null because not invalid
-        const end = (this.end as DateTime).startOf(unit);
-        return Math.floor(end.diff(start, unit).get(unit)) + 1;
+        const end = this.end!.startOf(unit);
+        return Math.floor(end.diff(start, unit).get(unit)) + +(end.valueOf() !== this.end!.valueOf());
     }
 
     /**
@@ -577,8 +580,8 @@ export class Interval {
      */
     difference(...intervals: Interval[]): Interval[] {
         return Interval.xor([this as Interval].concat(intervals))
-            .map(i => this.intersection(i))
-            .filter(i => i && !i.isEmpty()) as Interval[];
+                       .map(i => this.intersection(i))
+                       .filter(i => i && !i.isEmpty()) as Interval[];
     }
 
     /**

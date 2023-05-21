@@ -210,9 +210,16 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
     return { ...unit, token };
 }
 
-type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era" | "dayPeriod">;
-const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: Record<string, string> } = {
-    // literal: void 0, era: void 0, dayPeriod: void 0, timeZoneName: void 0,
+type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era"> | "hour12" | "hour24";
+
+interface TokensForPartTypes {
+    "2-digit"?: string;
+    "numeric"?: string;
+    "short"?: string;
+    "long"?: string;
+}
+
+const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: TokensForPartTypes | string } = {
     year: {
         "2-digit": "yy",
         numeric: "yyyyy"
@@ -230,6 +237,15 @@ const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: Record<st
     weekday: {
         short: "EEE",
         long: "EEEE"
+    },
+    dayPeriod: "a",
+    hour12: {
+        numeric: "h",
+        "2-digit": "hh"
+    },
+    hour24: {
+        numeric: "H",
+        "2-digit": "HH"
     },
     hour: {
         numeric: "h",
@@ -249,35 +265,54 @@ const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: Record<st
     }
 };
 
-function tokenForPart(part: Intl.DateTimeFormatPart, formatOptions: Intl.DateTimeFormatOptions): TokenForPart | void {
+function tokenForPart(part: Intl.DateTimeFormatPart,
+                      formatOpts: Intl.DateTimeFormatOptions,
+                      resolvedOpts: Intl.ResolvedDateTimeFormatOptions): TokenForPart | void {
     const { type, value } = part;
+
     if (type === "literal") {
-
+        const isSpace = /^\s+$/.test(value);
         return {
-            literal: true,
-            val: value
-        };
-    }
-    if (type === "dayPeriod") {
-
-        return {
-            literal: false,
-            val: "a"
+            literal: !isSpace,
+            val: isSpace ? " " : value
         };
     }
 
-    const tokenVals = partTypeStyleToTokenVal[type as SlimDateTimeFormatPartTypes];
-    if (tokenVals !== void 0) {
-        const style = formatOptions[type];
-        if (style) {
-            const val = tokenVals[style];
-            if (val !== undefined) {
-                return {
-                    literal: false,
-                    val
-                };
+    const style = (formatOpts as any)[type];
+
+    // The user might have explicitly specified hour12 or hourCycle
+    // if so, respect their decision
+    // if not, refer back to the resolvedOpts, which are based on the locale
+    let actualType: SlimDateTimeFormatPartTypes | keyof Intl.DateTimeFormatOptions = type;
+    if (type === "hour") {
+        if (formatOpts.hour12 != null) {
+            actualType = formatOpts.hour12 ? "hour12" : "hour24";
+        }
+        else if (formatOpts.hourCycle != null) {
+            if (formatOpts.hourCycle === "h11" || formatOpts.hourCycle === "h12") {
+                actualType = "hour12";
+            }
+            else {
+                actualType = "hour24";
             }
         }
+        else {
+            // tokens only differentiate between 24 hours or not,
+            // so we do not need to check hourCycle here, which is less supported anyways
+            actualType = resolvedOpts.hour12 ? "hour12" : "hour24";
+        }
+    }
+    // TODO: would like a more reliable typing here...
+    let val = (partTypeStyleToTokenVal as any)[actualType];
+    if (typeof val === "object") {
+        val = val[style];
+    }
+
+    if (val) {
+        return {
+            literal: false,
+            val
+        };
     }
 
     return void 0;
@@ -456,7 +491,12 @@ export function sanitizeSpaces(input: string): string {
 export function parseFromTokens(locale: Locale,
                                 input: string,
                                 format: string): [GenericDateTime | null | void, Zone | null | void, number | undefined, string | void] {
-    const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, sanitizeSpaces(input), sanitizeSpaces(format));
+    const {
+        result,
+        zone,
+        specificOffset,
+        invalidReason
+    } = explainFromTokens(locale, sanitizeSpaces(input), sanitizeSpaces(format));
     return [result, zone, specificOffset, invalidReason];
 }
 
@@ -466,7 +506,8 @@ export function formatOptsToTokens(formatOpts: Intl.DateTimeFormatOptions, local
     }
 
     const formatter = Formatter.create(locale, formatOpts);
-    const parts = formatter.formatDateTimeParts(getDummyDateTime(locale));
-
-    return parts.map((p) => tokenForPart(p, formatOpts));
+    const df = formatter.dtFormatter(getDummyDateTime(locale));
+    const parts = df.formatToParts();
+    const resolvedOpts = df.resolvedOptions();
+    return parts.map((p) => tokenForPart(p, formatOpts, resolvedOpts));
 }

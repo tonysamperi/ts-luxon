@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.3.0 (Luxon 3.3.0)
+* Handle dates in year 99 rolling over into year 100 behaving as if year 100 was a leap year (#1390 / #1389)
+* Fix support for Node 18 (tests included)
+* Add toUnixInteger() to the formatting documentation (#1379)
+* Custom zone formatting support (#1377)
+* Update docs on react native android support (#1367 / #864)
+* fix notes for quarter workaround (#1265)
+* zones.md assign to defaultZoneName (#1264)
+* Improve DateTime#diff for cross-zone diffs in certain situations (#1165)
+* Fix Duration#toISOTime depending on the locale (#1404)
+* Correctly handle hourCycle when expanding macro tokens (#1391 / #1197)
+* Fixing typos (#1408)
+* Expose method on DateTime to get all possible offsets for ambiguous local times (#1405)
+
 ## 4.2.2 (Luxon next 3.3.0)
 * fix property VERSION now reading directly the package.json to avoid misalignment
 

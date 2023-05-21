@@ -46,7 +46,8 @@ export function isDate(o: unknown): o is Date {
 export function hasRelative() {
     try {
         return typeof Intl !== "undefined" && !!(Intl as any).RelativeTimeFormat;
-    } catch (e) {
+    }
+    catch (e) {
         return false;
     }
 }
@@ -157,8 +158,8 @@ export function daysInMonth(year: number, month: number) {
 }
 
 // convert a calendar object to a local timestamp (epoch, but with the offset baked in)
-export function objToLocalTS(obj: GregorianDateTime) {
-    const ts = Date.UTC(
+export function objToLocalTS(obj: GregorianDateTime): number {
+    let d: Date | number = Date.UTC(
         obj.year,
         obj.month - 1,
         obj.day,
@@ -169,22 +170,23 @@ export function objToLocalTS(obj: GregorianDateTime) {
     );
 
     // for legacy reasons, years between 0 and 99 are interpreted as 19XX; revert that
-    if (integerBetween(obj.year, 0, 99)) {
-        const date = new Date(ts);
-        date.setUTCFullYear(date.getUTCFullYear() - 1900);
-        return date.getTime();
+    if (obj.year < 100 && obj.year >= 0) {
+        d = new Date(d);
+        // set the month and day again, this is necessary because year 2000 is a leap year, but year 100 is not
+        // so if obj.year is in 99, but obj.day makes it roll over into year 100,
+        // the calculations done by Date.UTC are using year 2000 - which is incorrect
+        d.setUTCFullYear(obj.year, obj.month - 1, obj.day);
     }
-
-    return ts;
+    return +d;
 }
 
 export function weeksInWeekYear(weekYear: number) {
     const p1 =
-        (weekYear +
-            Math.floor(weekYear / 4) -
-            Math.floor(weekYear / 100) +
-            Math.floor(weekYear / 400)) %
-        7,
+            (weekYear +
+                Math.floor(weekYear / 4) -
+                Math.floor(weekYear / 100) +
+                Math.floor(weekYear / 400)) %
+            7,
         last = weekYear - 1,
         p2 = (last + Math.floor(last / 4) - Math.floor(last / 100) + Math.floor(last / 400)) % 7;
     return p1 === 4 || p2 === 3 ? 53 : 52;

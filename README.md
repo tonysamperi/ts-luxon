@@ -67,8 +67,8 @@ Pleas, read the CONTRIBUTING.md you can find in the master branch.
 
 [initial-author]: https://github.com/GillesDebunne
 [original-luxon]: https://github.com/moment/luxon
-[license-image]: http://img.shields.io/badge/license-MIT-blue.svg
-[license]: license.md
+[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
+[license]: LICENSE.md
 
 [gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22Docker+tests%22
 [gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/Docker%20tests/badge.svg?branch=master

@@ -49,13 +49,13 @@ test("DateTime.fromFormat() parses meridiems", () => {
   expect(i.day).toBe(25);
   expect(i.hour).toBe(21);
 
-  i = DateTime.fromFormat("1982/05/25 9 AM", "yyyy/MM/dd h a");
+  i = DateTime.fromFormat("1982/05/25 9 AM", "yyyy/MM/dd h a");
   expect(i.year).toBe(1982);
   expect(i.month).toBe(5);
   expect(i.day).toBe(25);
   expect(i.hour).toBe(9);
 
-  i = DateTime.fromFormat("1982/05/25 12 AM", "yyyy/MM/dd h a");
+  i = DateTime.fromFormat("1982/05/25 12 AM", "yyyy/MM/dd h a");
   expect(i.year).toBe(1982);
   expect(i.month).toBe(5);
   expect(i.day).toBe(25);
@@ -726,7 +726,7 @@ test("DateTime.fromFormat validates weekdays", () => {
   expect(dt.isValid).toBe(false);
 });
 
-test("DateTime.fromFormat containg special regex token", () => {
+test("DateTime.fromFormat containing special regex token", () => {
   const ianaFormat = "yyyy-MM-dd'T'HH-mm[z]";
   const dt = DateTime.fromFormat("2019-01-14T11-30[Indian/Maldives]", ianaFormat, {
     setZone: true
@@ -1076,7 +1076,7 @@ test("DateTime.fromString is an alias for DateTime.fromFormat", () => {
 
 test("DateTime.parseFormatForOpts returns a parsing format", () => {
     const format = DateTime.parseFormatForOpts(DateTime.DATETIME_FULL);
-    expect(format).toEqual("d MMMM yyyyy, h:m ZZZ");
+    expect(format).toEqual("d MMMM yyyyy alle ore H:m ZZZ");
 });
 
 test("DateTime.parseFormatForOpts returns a parsing format", () => {

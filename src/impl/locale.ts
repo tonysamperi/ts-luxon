@@ -6,6 +6,8 @@ import { IANAZone } from "../zones/IANAZone";
 import Intl from "../types/intl-next";
 import { StringUnitLength, UnitLength, WeekUnitLengths } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem } from "../types/locale";
+import { Zone } from "../zone";
+import { ZoneOffsetOptions } from "../types/zone";
 
 // todo - remap caching
 
@@ -206,12 +208,13 @@ class PolyNumberFormatter {
  * @private
  */
 
-class PolyDateFormatter {
+export class PolyDateFormatter {
 
     get dtf(): Intl.DateTimeFormat {
         return this._dtf;
     }
 
+    private _originalZone?: Zone;
     private _opts: Readonly<Intl.DateTimeFormatOptions>;
     private _dt: DateTime;
     private _dtf: Readonly<Intl.DateTimeFormat>;
@@ -220,7 +223,11 @@ class PolyDateFormatter {
         this._opts = opts;
 
         let z;
-        if (dt.zone.isUniversal) {
+        if (this._opts.timeZone) {
+            // Don't apply any workarounds if a timeZone is explicitly provided in opts
+            this._dt = dt;
+        }
+        else if (dt.zone.type === "fixed") {
             // UTC-8 or Etc/UTC-8 are not part of tzdata, only Etc/GMT+8 and the like.
             // That is why fixed-offset TZ is set to that unless it is:
             // 1. Representing offset 0 when UTC is used to maintain previous behavior and does not become GMT.
@@ -234,28 +241,25 @@ class PolyDateFormatter {
                 this._dt = dt;
             }
             else {
-                // Not all fixed-offset zones like Etc/+4:30 are present in tzdata.
-                // So we have to make do. Two cases:
-                // 1. The format options tell us to show the zone. We can't do that, so the best
-                // we can do is format the date in UTC.
-                // 2. The format options don't tell us to show the zone. Then we can adjust them
-                // the time and tell the formatter to show it to us in UTC, so that the time is right
-                // and the bad zone doesn't show up.
+                // Not all fixed-offset zones like Etc/+4:30 are present in tzdata so
+                // we manually apply the offset and substitute the zone as needed.
                 z = "UTC";
-                if (opts.timeZoneName) {
-                    this._dt = dt;
-                }
-                else {
-                    this._dt = dt.offset === 0 ? dt : DateTime.fromMillis(dt.ts + dt.offset * 60 * 1000);
-                }
+                this._dt = dt.offset === 0 ? dt : dt.setZone("UTC").plus({ minutes: dt.offset });
+                this._originalZone = dt.zone;
             }
         }
         else if (dt.zone.type === "system") {
             this._dt = dt;
         }
-        else {
+        else if (dt.zone.type === "iana") {
             this._dt = dt;
             z = dt.zone.name;
+        }
+        else {
+            // Custom zones can have any offset / offsetName, so we just manually apply the offset and substitute the zone as needed.
+            z = "UTC";
+            this._dt = dt.setZone("UTC").plus({ minutes: dt.offset });
+            this._originalZone = dt.zone;
         }
         const intlOpts = {
             ...this._opts,
@@ -264,12 +268,41 @@ class PolyDateFormatter {
         this._dtf = getCachedDTF(intl, intlOpts);
     }
 
-    format() {
-        return this._dtf.format(this._dt.toJSDate());
+    format(): string {
+        if (this._originalZone) {
+            // If we have to substitute in the actual zone name, we have to use
+            // formatToParts so that the timezone can be replaced.
+            return this.formatToParts()
+                       .map(({ value }) => value)
+                       .join("");
+        }
+
+        return this.dtf.format(this._dt.toJSDate());
     }
 
-    formatToParts() {
-        return this._dtf.formatToParts(this._dt.toJSDate());
+    formatToParts(): Intl.DateTimeFormatPart[] {
+        const parts = this.dtf.formatToParts(this._dt.toJSDate());
+        if (!!this._originalZone) {
+            return parts.map((part: Intl.DateTimeFormatPart) => {
+                if (part.type === "timeZoneName") {
+                    // tslint:disable-next-line:no-non-null-assertion
+                    const offsetName = this._originalZone!.offsetName(this._dt.ts, {
+                        locale: this._dt.locale,
+                        format: this._opts.timeZoneName as ZoneOffsetOptions["format"]
+                    });
+
+                    return {
+                        ...part,
+                        // tslint:disable-next-line:no-non-null-assertion
+                        value: offsetName!
+                    };
+                }
+                else {
+                    return part;
+                }
+            });
+        }
+        return parts;
     }
 
     resolvedOptions() {

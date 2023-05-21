@@ -60,7 +60,7 @@ test("Interval#count('years') returns 2 if the interval crosses the new year", (
 
 test("Interval#count() uses milliseconds by default", () => {
   const i = DateTime.fromISO("2016-05-25T03:00").until(DateTime.fromISO("2016-05-25T14:00"));
-  expect(i.count()).toBe(39600001);
+  expect(i.count()).toBe(39600000);
 });
 
 test("Interval#count() returns NaN for invalid intervals", () => {

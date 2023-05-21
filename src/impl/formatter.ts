@@ -1,7 +1,7 @@
 import * as English from "./english";
 import * as Formats from "./formats";
 import { padStart } from "./util";
-import { Locale } from "./locale";
+import { Locale, PolyDateFormatter } from "./locale";
 import { DateTime } from "../datetime";
 import { Duration } from "../duration";
 import { StringUnitLength } from "../types/common";
@@ -15,7 +15,8 @@ function stringifyTokens(
     tokenToString: (token: string) => string | undefined
 ) {
     let s = "";
-    for (const token of splits) {
+    for (const token of
+        splits) {
         if (token.literal) {
             s += token.val;
         }
@@ -78,15 +79,19 @@ export class Formatter {
     }
 
     static parseFormat(fmt: string) {
+        // white-space is always considered a literal in user-provided formats
+        // the " " token has a special meaning (see unitForToken)
         let current = null,
             currentFull = "",
             bracketed = false;
         const splits = [];
-        for (let i = 0; i < fmt.length; i++) {
+        for (let i = 0;
+             i < fmt.length;
+             i++) {
             const c = fmt.charAt(i);
             if (c === "'") {
                 if (currentFull.length > 0) {
-                    splits.push({ literal: bracketed, val: currentFull });
+                    splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
                 }
                 current = null;
                 currentFull = "";
@@ -100,7 +105,7 @@ export class Formatter {
             }
             else {
                 if (currentFull.length > 0) {
-                    splits.push({ literal: false, val: currentFull });
+                    splits.push({ literal: /^\s+$/.test(currentFull), val: currentFull });
                 }
                 currentFull = c;
                 current = c;
@@ -108,7 +113,7 @@ export class Formatter {
         }
 
         if (currentFull.length > 0) {
-            splits.push({ literal: bracketed, val: currentFull });
+            splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
         }
 
         return splits;
@@ -132,29 +137,29 @@ export class Formatter {
         return df.format();
     }
 
-    formatDateTime(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): string {
-        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
-        return df.format();
+    dtFormatter(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): PolyDateFormatter {
+        return this._loc.dtFormatter(dt, { ...this._opts, ...opts });
     }
 
-    formatDateTimeParts(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
-        return df.formatToParts();
+    formatDateTime(dt: DateTime, opts?: Intl.DateTimeFormatOptions): string {
+        return this.dtFormatter(dt, opts).format();
     }
 
-    formatInterval(interval: Interval, opts: FormatterOptions = {}) {
-        if (interval.invalidReason) {
-            return void 0;
+    formatDateTimeParts(dt: DateTime, opts?: Intl.DateTimeFormatOptions): Intl.DateTimeFormatPart[] {
+        return this.dtFormatter(dt, opts).formatToParts();
+    }
+
+    formatInterval(interval: Interval, opts: FormatterOptions = {}): string {
+        if (!interval.isValid) {
+            throw Error("Invalid Interval provided!");
         }
-        // tslint:disable-next-line:no-non-null-assertion
-        const df = this._loc.dtFormatter(interval.start!, { ...this._opts, ...opts });
-        // tslint:disable-next-line:no-non-null-assertion
+        const df = this.dtFormatter(interval.start!, opts);
+
         return df.dtf.formatRange(interval.start!.toJSDate(), interval.end!.toJSDate());
     }
 
-    resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}) {
-        const df = this._loc.dtFormatter(dt, { ...this._opts, ...opts });
-        return df.resolvedOptions();
+    resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): Intl.ResolvedDateTimeFormatOptions {
+        return this.dtFormatter(dt, opts).resolvedOptions();
     }
 
     num(n: number, p = 0) {
@@ -163,7 +168,7 @@ export class Formatter {
 
             return padStart(n, p);
         }
-        const opts = { ...this._opts };
+        const opts: Intl.NumberFormatOptions = { ...this._opts };
         if (p > 0) {
             opts.padTo = p;
         }
@@ -209,7 +214,7 @@ export class Formatter {
             era = (length: StringUnitLength) =>
                 knownEnglish ? English.eraForDateTime(dt, length) : string({ era: length }, "era"),
             tokenToString = (token: string): string => {
-                // Where possible: http://cldr.unicode.org/translation/date-time-1/date-time#TOC-Standalone-vs.-Format-Styles
+                // Where possible: https://cldr.unicode.org/translation/date-time/date-time-symbols
                 switch (token) {
                     // ms
                     case "S":

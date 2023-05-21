@@ -115,6 +115,12 @@ test("Duration#toISOTime returns null if the value is outside the range of one d
     expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
 });
 
+test("Duration#toISOTime is not influenced by the locale", () => {
+    expect(Duration.fromObject({ hours: 3, minutes: 10 }, { locale: "ar-QA" }).toISOTime()).toBe(
+        "03:10:00.000"
+    );
+});
+
 // ------
 // #toMillis()
 // ------
@@ -286,7 +292,7 @@ test("Duration#toHuman accepts a listStyle", () => {
 
 test("Duration#toHuman accepts number format opts", () => {
     expect(dur().toHuman({ unitDisplay: "short" })).toEqual(
-        "1 anno, 2 mesi, 1 settimana, 3 giorni, 4 h, 5 min, 6 s e 7 ms"
+        "1 anno, 2 mesi, 1 sett., 3 giorni, 4 h, 5 min, 6 s e 7 ms"
     );
 });
 

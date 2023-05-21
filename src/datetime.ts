@@ -1523,6 +1523,42 @@ export class DateTime {
     }
 
     /**
+     * Get those DateTimes which have the same local time as this DateTime, but a different offset from UTC
+     * in this DateTime's zone. During DST changes local time can be ambiguous, for example
+     * `2023-10-29T02:30:00` in `Europe/Berlin` can have offset `+01:00` or `+02:00`.
+     * This method will return both possible DateTimes if this DateTime's local time is ambiguous.
+     */
+    getPossibleOffsets(): DateTime[] {
+        if (!this.isValid || this.isOffsetFixed) {
+            return [this];
+        }
+        const dayMs = 86400000;
+        const minuteMs = 60000;
+        const localTS = objToLocalTS(this._c);
+        const oEarlier = this.zone.offset(localTS - dayMs);
+        const oLater = this.zone.offset(localTS + dayMs);
+
+        const o1 = this.zone.offset(localTS - oEarlier * minuteMs);
+        const o2 = this.zone.offset(localTS - oLater * minuteMs);
+        if (o1 === o2) {
+            return [this];
+        }
+        const ts1 = localTS - o1 * minuteMs;
+        const ts2 = localTS - o2 * minuteMs;
+        const c1 = tsToObj(ts1, o1);
+        const c2 = tsToObj(ts2, o2);
+        if (
+            c1.hour === c2.hour &&
+            c1.minute === c2.minute &&
+            c1.second === c2.second &&
+            c1.millisecond === c2.millisecond
+        ) {
+            return [this._clone({ ts: ts1 }), this._clone({ ts: ts2 })];
+        }
+        return [this];
+    }
+
+    /**
      * Returns the resolved Intl options for this DateTime.
      * This is useful in understanding the behavior of formatting methods
      * @param {Object} opts - the same options as toLocaleString
@@ -1564,10 +1600,10 @@ export class DateTime {
     /**
      * "Set" the DateTime's zone to specified zone. Returns a newly-constructed DateTime.
      *
-     * By default, the setter keeps the underlying instant the same (as in, the same timestamp), but the new instance will report different local time and consider DSTs when making computations, as with {@link DateTime.plus}. You may wish to use {@link DateTime.toSystemZone} and {@link DateTime.toUTC} which provide simple convenience wrappers for commonly used zones.
-     * @param {string|Zone} [zone='default'] - a zone identifier. As a string, that can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3', or the strings 'default', 'system' or 'utc'. You may also supply an instance of a {@link Zone} class.
-     * @param {Object} options - options
-     * @param {boolean} [options.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
+     * By default, the setter keeps the underlying time the same (as in, the same timestamp), but the new instance will report different local times and consider DSTs when making computations, as with {@link DateTime#plus}. You may wish to use {@link DateTime#toLocal} and {@link DateTime#toUTC} which provide simple convenience wrappers for commonly used zones.
+     * @param {string|Zone} [zone='local'] - a zone identifier. As a string, that can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3', or the strings 'local' or 'utc'. You may also supply an instance of a {@link Zone} class.
+     * @param {Object} opts - options
+     * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
      * @return {DateTime}
      */
     setZone(zone: ZoneLike, { keepLocalTime = false, keepCalendarTime = false }: SetZoneOptions = {}) {
@@ -1902,10 +1938,12 @@ export class DateTime {
      * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
      * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
      * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
+     * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
      * @param {string} [opts.format='extended'] - choose between the basic and extended format
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
      * @return {string}
      */
     toISOTime({
@@ -2362,21 +2400,6 @@ export class DateTime {
         return c;
     }
 
-    /**
-     * Returns an ISO 8601-compliant string representation of this DateTime's time component
-     * @param {Object} opts - options
-     * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
-     * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
-     * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-     * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
-     * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
-     * @param {string} [opts.format='extended'] - choose between the basic and extended format
-     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
-     * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
-     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
-     * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
-     * @return {string}
-     */
     private _toISOTime(extended: boolean,
                        suppressSeconds: boolean,
                        suppressMilliseconds: boolean,
@@ -2386,7 +2409,7 @@ export class DateTime {
         if (extended) {
             c += ":";
             c += padStart(this._c.minute);
-            if (this._c.second !== 0 || !suppressSeconds) {
+            if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
                 c += ":";
             }
         }
@@ -2394,7 +2417,7 @@ export class DateTime {
             c += padStart(this._c.minute);
         }
 
-        if (this._c.second !== 0 || !suppressSeconds) {
+        if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
             c += padStart(this._c.second);
 
             if (this._c.millisecond !== 0 || !suppressMilliseconds) {

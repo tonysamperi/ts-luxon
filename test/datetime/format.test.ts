@@ -1,4 +1,5 @@
-import { DateTime } from "../../src";
+import { DateTime, FixedOffsetZone, Zone } from "../../src";
+import { ZoneOffsetFormat, ZoneOffsetOptions } from "ts-luxon";
 
 const dtMaker = () =>
         DateTime.fromObject({
@@ -18,6 +19,52 @@ const dtMaker = () =>
     dt = dtMaker(),
     invalid = DateTime.invalid("because");
 
+
+class CustomZone extends Zone {
+
+    private _name: string;
+    private _offset: number;
+
+    constructor(name: string, offset: number) {
+        super();
+        this._name = name;
+        this._offset = offset;
+    }
+
+    get isUniversal(): boolean {
+        return true;
+    }
+
+    get isValid(): boolean {
+        return true;
+    }
+
+    get name(): string {
+        return this._name;
+    }
+
+    get type(): "custom" {
+        return "custom";
+    }
+
+    equals(zone: Zone): boolean {
+        return zone instanceof CustomZone && zone._name === this._name && zone._offset === this._offset;
+    }
+
+    offset(_ms: number): number {
+        return this._offset;
+    }
+
+    offsetName(_ms: number, { format }: ZoneOffsetOptions) {
+        return this._name.substring(0, format === "short" ? void 0 : 4);
+    }
+
+    formatOffset(...args: [number, ZoneOffsetFormat]) {
+        // @ts-ignore
+        return FixedOffsetZone.prototype.formatOffset(...args);
+    }
+}
+
 // ------
 // #toJSON()
 // ------
@@ -32,7 +79,7 @@ test("DateTime#toISO() shows 'Z' for UTC", () => {
     expect(dt.toISO()).toBe("1982-05-25T09:23:54.123Z");
 });
 
-test("DateTime#toISO() shows the offset, unless explicitely asked", () => {
+test("DateTime#toISO() shows the offset, unless explicitly asked", () => {
     const offsetted = dt.toUTC(-6 * 60);
     expect(offsetted.toISO()).toBe("1982-05-25T03:23:54.123-06:00");
     expect(offsetted.toISO({ includeOffset: false })).toBe("1982-05-25T03:23:54.123");
@@ -50,6 +97,12 @@ test("DateTime#toISO() suppresses [milli]seconds", () => {
     const noZeroSeconds = { suppressSeconds: true, suppressMilliseconds: true };
     expect(dt.set({ millisecond: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23:54Z");
     expect(dt.set({ seconds: 0, milliseconds: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23Z");
+
+    const suppressOnlySeconds = { suppressSeconds: true };
+    expect(dt.set({ seconds: 0 }).toISO(suppressOnlySeconds)).toBe("1982-05-25T09:23:00.123Z");
+    expect(dt.set({ seconds: 0, milliseconds: 0 }).toISO(suppressOnlySeconds)).toBe(
+        "1982-05-25T09:23Z"
+    );
 });
 
 test("DateTime#toISO() returns null for invalid DateTimes", () => {
@@ -60,8 +113,8 @@ test("DateTime#toISO() returns null for invalid DateTimes", () => {
 test("DateTime#toISO() rounds fractional timezone minute offsets", () => {
     expect(
         DateTime.fromMillis(-62090696591000)
-            .setZone("America/Chicago")
-            .toISO()
+                .setZone("America/Chicago")
+                .toISO()
     ).toBe("0002-06-04T10:26:13.000-05:50");
 });
 
@@ -372,34 +425,56 @@ test("DateTime#toLocaleString() returns something different for invalid DateTime
 
 test("DateTime#toLocaleString() shows things in the right IANA zone", () => {
     expect(dt.setZone("America/New_York").toLocaleString(DateTime.DATETIME_SHORT)).toBe(
-        "5/25/1982, 5:23 AM"
+        "5/25/1982, 5:23 AM"
     );
 });
 
 test("DateTime#toLocaleString() shows things in the right fixed-offset zone", () => {
-    expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_SHORT)).toBe("5/25/1982, 1:23 AM");
+    expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_SHORT)).toBe("5/25/1982, 1:23 AM");
 });
 
 test("DateTime#toLocaleString() shows things in the right fixed-offset zone when showing the zone", () => {
     expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982, 1:23 AM GMT-8"
+        "May 25, 1982 at 1:23 AM GMT-8"
     );
 });
 
 test("DateTime#toLocaleString() shows things with UTC if fixed-offset zone with 0 offset is used", () => {
     expect(dt.setZone("UTC").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982, 9:23 AM UTC"
+        "May 25, 1982 at 9:23 AM UTC"
     );
 });
 
 test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone when showing the zone", () => {
     expect(dt.setZone("UTC+4:30").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982, 9:23 AM UTC"
+        "May 25, 1982 at 1:53 PM UTC+4:30"
+    );
+});
+
+test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone with timeStyle full", () => {
+    expect(dt.setZone("UTC+4:30").toLocaleString({ timeStyle: "full" })).toBe("1:53:54 PM UTC+4:30");
+});
+
+test("DateTime#toLocaleString() shows things in the right custom zone", () => {
+    expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString(DateTime.DATETIME_SHORT)).toBe(
+        "5/25/1982, 9:53 AM"
+    );
+});
+
+test("DateTime#toLocaleString() shows things in the right custom zone when showing the zone", () => {
+    expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString(DateTime.DATETIME_FULL)).toBe(
+        "May 25, 1982 at 9:53 AM CUSTOM"
+    );
+});
+
+test("DateTime#toLocaleString() shows things in the right custom zone with timeStyle full", () => {
+    expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString({ timeStyle: "full" })).toBe(
+        "9:53:54 AM CUST"
     );
 });
 
 test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23 AM");
+    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23 AM");
     expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
 
     // France has 24-hour time by default
@@ -413,7 +488,7 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 
 // I don't know what they expected to do and see but this doesn't make sense and doesn't pass in Luxon as well
 // test("DateTime#toLocaleString() accecpts options in the first position", () => {
-//     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23 AM UTC");
+//     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23 AM UTC");
 // });
 
 test("DateTime#toLocaleString() respects language tags", () => {
@@ -428,9 +503,9 @@ test("DateTime#toLocaleString() accepts a zone even when the zone is set", () =>
             hour: "numeric",
             minute: "numeric",
             timeZoneName: "short",
-            timeZone: "America/Los_Angeles",
+            timeZone: "America/Los_Angeles"
         })
-    ).toBe("2:23 AM PDT");
+    ).toBe("2:23 AM PDT");
 });
 
 
@@ -448,12 +523,12 @@ test("DateTime#resolvedLocaleOptions returns a thing", () => {
 
 test("DateTime#resolvedLocaleOptions reflects changes to the locale", () => {
     const res = DateTime.now()
-        .reconfigure({
-            locale: "be",
-            numberingSystem: "mong",
-            outputCalendar: "coptic"
-        })
-        .resolvedLocaleOptions();
+                        .reconfigure({
+                            locale: "be",
+                            numberingSystem: "mong",
+                            outputCalendar: "coptic"
+                        })
+                        .resolvedLocaleOptions();
 
     expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
     expect(res.outputCalendar).toBe("coptic");

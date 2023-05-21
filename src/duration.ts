@@ -32,6 +32,7 @@ import { Invalid } from "./types/invalid";
 import { NumberingSystem } from "./types/locale";
 import { ToISOTimeOptions } from "./types/datetime";
 import Intl from "./types/intl-next";
+import { DateTime } from "./datetime";
 
 const INVALID = "Invalid Duration";
 
@@ -570,8 +571,8 @@ export class Duration implements NormalizedDurationObject {
                     return null;
                 }
                 return this._loc
-                    .numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) })
-                    .format(val);
+                           .numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) })
+                           .format(val);
             })
             .filter((n) => n);
 
@@ -581,8 +582,8 @@ export class Duration implements NormalizedDurationObject {
         } as Intl.ListFormatOptions;
 
         return this._loc
-            .listFormatter(mergedOpts)
-            .format(l);
+                   .listFormatter(mergedOpts)
+                   .format(l);
     }
 
     /**
@@ -679,27 +680,13 @@ export class Duration implements NormalizedDurationObject {
             suppressSeconds: false,
             includePrefix: false,
             format: "extended",
-            ...opts
+            ...opts,
+            includeOffset: false
         };
 
-        const value = this.shiftTo("hours", "minutes", "seconds", "milliseconds");
+        const dateTime = DateTime.fromMillis(millis, { zone: "UTC" });
 
-        let fmt = opts.format === "basic" ? "hhmm" : "hh:mm";
-
-        if (!opts.suppressSeconds || value.seconds !== 0 || value.milliseconds !== 0) {
-            fmt += opts.format === "basic" ? "ss" : ":ss";
-            if (!opts.suppressMilliseconds || value.milliseconds !== 0) {
-                fmt += ".SSS";
-            }
-        }
-
-        let str = value.toFormat(fmt);
-
-        if (opts.includePrefix) {
-            str = "T" + str;
-        }
-
-        return str;
+        return dateTime.toISOTime(opts);
     }
 
     /**
@@ -1064,7 +1051,8 @@ export class Duration implements NormalizedDurationObject {
             return false;
         }
 
-        for (const u of ORDERED_UNITS) {
+        for (const u of
+            ORDERED_UNITS) {
             if (!eq(this._values[u], other._values[u])) {
                 return false;
             }
