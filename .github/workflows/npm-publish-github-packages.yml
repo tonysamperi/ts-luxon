@@ -15,6 +15,7 @@ jobs:
             -   uses: actions/setup-node@v3
                 with:
                     node-version: 18.3.0
+                    registry-url: https://registry.npmjs.org/
             -   run: npm i -g yarn
             -   run: yarn install --check-files
             -   run: npm run build
