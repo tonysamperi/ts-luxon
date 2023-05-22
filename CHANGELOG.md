@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.3.1 (Luxon 3.3.0)
+* Fix typings path issue (#6)[https://github.com/tonysamperi/ts-luxon/issues/6]
+
 ## 4.3.0 (Luxon 3.3.0)
 * Handle dates in year 99 rolling over into year 100 behaving as if year 100 was a leap year (#1390 / #1389)
 * Fix support for Node 18 (tests included)
