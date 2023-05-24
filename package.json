@@ -22,6 +22,7 @@
         "node": ">=13"
     },
     "scripts": {
+        "prepublishOnly": "node ./test/test-dist.js",
         "build:watch": "rollup -c rollup.config.js -w",
         "build": "rollup -c rollup.config.js",
         "jest": "jest",
