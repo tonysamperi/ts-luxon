@@ -11,4 +11,4 @@
 [GitHub](https://github.com/tonysamperi/ts-luxon/)
 [Get started](#TSLuxon)
 
-![color](#e8dffc)
+![color](#3f3f3f)
