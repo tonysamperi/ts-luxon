@@ -24,7 +24,7 @@
     "ng": "ng",
     "start": "ng serve",
     "test": "ng test",
-    "build:demo": "ng build --configuration=production --baseHref=",
+    "build:demo": "ng build --configuration=production",
     "pack": "gulp pack",
     "lint": "ng lint",
     "e2e": "ng e2e"
