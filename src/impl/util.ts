@@ -43,7 +43,7 @@ export function isDate(o: unknown): o is Date {
 
 // CAPABILITIES
 
-export function hasRelative() {
+export function hasRelative(): boolean {
     try {
         return typeof Intl !== "undefined" && !!(Intl as any).RelativeTimeFormat;
     }
@@ -54,7 +54,7 @@ export function hasRelative() {
 
 // OBJECTS AND ARRAYS
 
-export function maybeArray<T>(thing: T | T[]) {
+export function maybeArray<T>(thing: T | T[]): T[] {
     return Array.isArray(thing) ? thing : [thing];
 }
 
@@ -75,7 +75,7 @@ export function bestBy<T, U>(arr: T[], by: (a: T) => U, compare: (a: U, b: U) =>
     return bestResult[1];
 }
 
-export function pick<T, K extends keyof T>(obj: T, keys: K[]) {
+export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
     return keys.reduce<Partial<Pick<T, K>>>((a, k) => {
         a[k] = obj[k];
         return a;
@@ -84,17 +84,17 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]) {
 
 // NUMBERS AND STRINGS
 
-export function integerBetween(thing: number, bottom: number, top: number) {
+export function integerBetween(thing: number, bottom: number, top: number): boolean {
     return isInteger(thing) && thing >= bottom && thing <= top;
 }
 
 // x % n but takes the sign of n instead of x
-export function floorMod(x: number, n: number) {
+export function floorMod(x: number, n: number): number {
     return x - n * Math.floor(x / n);
 }
 
-export function padStart(input: string | number, n = 2) {
-    const minus = input < 0 ? "-" : "";
+export function padStart(input: string | number, n = 2) : string{
+    const minus = +input < 0 ? "-" : "";
     const target = minus ? +input * -1 : input;
     let result;
 
@@ -124,7 +124,7 @@ export function parseFloating(text: string): number | undefined {
     return void 0;
 }
 
-export function parseMillis(fraction: string | null | undefined) {
+export function parseMillis(fraction: string | null | undefined): number {
     // Return undefined (instead of 0) in these cases, where fraction is not set
     if (isUndefined(fraction) || fraction === null || fraction === "") {
         return undefined;
@@ -135,7 +135,7 @@ export function parseMillis(fraction: string | null | undefined) {
     }
 }
 
-export function roundTo(value: number, digits: number, towardZero = false) {
+export function roundTo(value: number, digits: number, towardZero = false): number {
     const factor = 10 ** digits,
         rounder = towardZero ? Math.trunc : Math.round;
     return rounder(value * factor) / factor;
@@ -143,15 +143,15 @@ export function roundTo(value: number, digits: number, towardZero = false) {
 
 // DATE BASICS
 
-export function isLeapYear(year: number) {
+export function isLeapYear(year: number): boolean {
     return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
-export function daysInYear(year: number) {
+export function daysInYear(year: number): 366 | 365 {
     return isLeapYear(year) ? 366 : 365;
 }
 
-export function daysInMonth(year: number, month: number) {
+export function daysInMonth(year: number, month: number) : number {
     const modMonth = floorMod(month - 1, 12) + 1,
         modYear = year + (month - modMonth) / 12;
     return [31, isLeapYear(modYear) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][modMonth - 1];
@@ -180,7 +180,7 @@ export function objToLocalTS(obj: GregorianDateTime): number {
     return +d;
 }
 
-export function weeksInWeekYear(weekYear: number) {
+export function weeksInWeekYear(weekYear: number): 53 | 52 {
     const p1 =
             (weekYear +
                 Math.floor(weekYear / 4) -
@@ -192,7 +192,7 @@ export function weeksInWeekYear(weekYear: number) {
     return p1 === 4 || p2 === 3 ? 53 : 52;
 }
 
-export function untruncateYear(year: number) {
+export function untruncateYear(year: number): number {
     if (year > 99) {
         return year;
     }
@@ -208,7 +208,7 @@ export function parseZoneInfo(
     offsetFormat?: string,
     locale?: string,
     timeZone?: string
-) {
+): string {
     const date = new Date(ts);
     const intlOpts = {
         hourCycle: "h23",
@@ -229,7 +229,7 @@ export function parseZoneInfo(
 }
 
 // signedOffset('-5', '30') -> -330
-export function signedOffset(offHourStr: string, offMinuteStr: string) {
+export function signedOffset(offHourStr: string, offMinuteStr: string): number {
     let offHour = parseInt(offHourStr, 10);
 
     // don't || this because we want to preserve -0
@@ -244,7 +244,7 @@ export function signedOffset(offHourStr: string, offMinuteStr: string) {
 
 // COERCION
 
-export function asNumber(value: unknown) {
+export function asNumber(value: unknown): number {
     const numericValue = Number(value);
     if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue)) {
         throw new InvalidArgumentError(`Invalid unit value ${value}`);
@@ -262,7 +262,7 @@ export function normalizeObject(obj: Record<string, unknown>,
 
 }
 
-export function formatOffset(offset: number, format: ZoneOffsetFormat) {
+export function formatOffset(offset: number, format: ZoneOffsetFormat): string {
     const hours = Math.trunc(Math.abs(offset / 60)),
         minutes = Math.trunc(Math.abs(offset % 60)),
         sign = offset >= 0 ? "+" : "-";
@@ -296,7 +296,7 @@ export const ORDERED_UNITS: NormalizedDurationUnit[] = [
     "milliseconds"
 ];
 
-export const REVERSE_ORDERED_UNITS = ORDERED_UNITS.slice(0).reverse();
+export const REVERSE_ORDERED_UNITS: NormalizedDurationUnit[] = ORDERED_UNITS.slice(0).reverse();
 
 export const HUMAN_ORDERED_UNITS: NormalizedHumanDurationUnit[] = [
     "years",

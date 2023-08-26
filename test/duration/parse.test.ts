@@ -1,5 +1,4 @@
-import { Duration } from "../../src";
-import { DurationObject } from "../../src/types/duration";
+import { Duration, DurationObject } from "../../src";
 
 // ------
 // #fromISO()

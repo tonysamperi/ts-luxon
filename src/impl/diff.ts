@@ -79,7 +79,7 @@ function highOrderDiffs(
 }
 
 export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], opts: DurationOptions): Duration => {
-    // tslint:disable-next-line:prefer-const
+    // eslint-disable-next-line prefer-const
     let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
 
     const remainingMillis = +later - +cursor;
@@ -89,13 +89,11 @@ export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], 
     );
 
     if (lowerOrderUnits.length === 0) {
-        // @ts-ignore
         if (highWater < later) {
             highWater = cursor.plus({ [lowestOrder as string]: 1 });
         }
 
         if (highWater !== cursor) {
-            // @ts-ignore
             results[lowestOrder as keyof DurationObject] = (results[lowestOrder as keyof DurationObject] || 0) + remainingMillis / (+highWater - +cursor);
         }
     }

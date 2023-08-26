@@ -8,52 +8,52 @@ export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds
 export type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 export interface DurationOptions {
-    locale?: string;
-    numberingSystem?: NumberingSystem;
     conversionAccuracy?: ConversionAccuracy;
+    locale?: string;
     matrix?: ConversionMatrix;
+    numberingSystem?: NumberingSystem;
 }
 
 export interface DurationObject {
-    years?: number;
-    year?: number;
-    quarters?: number;
-    quarter?: number;
-    months?: number;
-    month?: number;
-    weeks?: number;
-    week?: number;
-    days?: number;
     day?: number;
-    hours?: number;
+    days?: number;
     hour?: number;
-    minutes?: number;
-    minute?: number;
-    seconds?: number;
-    second?: number;
-    milliseconds?: number;
+    hours?: number;
     millisecond?: number;
+    milliseconds?: number;
+    minute?: number;
+    minutes?: number;
+    month?: number;
+    months?: number;
+    quarter?: number;
+    quarters?: number;
+    second?: number;
+    seconds?: number;
+    week?: number;
+    weeks?: number;
+    year?: number;
+    years?: number;
 }
 
 export interface UnparsedDurationObject {
-    years?: string | number;
-    year?: string | number;
-    quarters?: string | number;
-    quarter?: string | number;
-    months?: string | number;
-    month?: string | number;
-    weeks?: string | number;
-    week?: string | number;
-    days?: string | number;
     day?: string | number;
-    hours?: string | number;
+    days?: string | number;
     hour?: string | number;
-    minutes?: string | number;
-    minute?: string | number;
-    seconds?: string | number;
-    second?: string | number;
-    milliseconds?: string | number;
+    hours?: string | number;
     millisecond?: string | number;
+    milliseconds?: string | number;
+    minute?: string | number;
+    minutes?: string | number;
+    month?: string | number;
+    months?: string | number;
+    quarter?: string | number;
+    quarters?: string | number;
+    second?: string | number;
+    seconds?: string | number;
+    week?: string | number;
+    weeks?: string | number;
+    year?: string | number;
+    years?: string | number;
 }
 
 export type DurationUnit = keyof DurationObject;
@@ -64,15 +64,15 @@ export interface DurationToFormatOptions {
 }
 
 export interface NormalizedDurationObject {
-    years?: number;
-    quarters?: number;
-    months?: number;
-    weeks?: number;
     days?: number;
     hours?: number;
-    minutes?: number;
-    seconds?: number;
     milliseconds?: number;
+    minutes?: number;
+    months?: number;
+    quarters?: number;
+    seconds?: number;
+    weeks?: number;
+    years?: number;
 }
 
 export type NormalizedDurationUnit = keyof NormalizedDurationObject;

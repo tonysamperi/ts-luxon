@@ -25,7 +25,7 @@ function getCachedLF(locString: string, opts: Intl.ListFormatOptions = {}) {
 
 let intlDTCache: Record<string, Intl.DateTimeFormat> = {};
 
-function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {}) {
+function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {}): Intl.DateTimeFormat {
     const key = JSON.stringify([locString, options]);
     let dtf = intlDTCache[key];
     if (!dtf) {
@@ -37,7 +37,7 @@ function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {
 
 let intlNumCache: Record<string, Intl.NumberFormat> = {};
 
-function getCachedINF(locString: string, options: Intl.NumberFormatOptions) {
+function getCachedINF(locString: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
     const key = JSON.stringify([locString, options]);
     let inf = intlNumCache[key];
     if (!inf) {
@@ -49,7 +49,7 @@ function getCachedINF(locString: string, options: Intl.NumberFormatOptions) {
 
 let intlRelCache: Record<string, Intl.RelativeTimeFormat> = {};
 
-function getCachedRTF(locale: Intl.UnicodeBCP47LocaleIdentifier, options: Intl.RelativeTimeFormatOptions = {}) {
+function getCachedRTF(locale: Intl.UnicodeBCP47LocaleIdentifier, options: Intl.RelativeTimeFormatOptions = {}): Intl.RelativeTimeFormat {
     const key = JSON.stringify([locale, options]);
     let inf = intlRelCache[key];
     if (!inf) {
@@ -61,7 +61,7 @@ function getCachedRTF(locale: Intl.UnicodeBCP47LocaleIdentifier, options: Intl.R
 
 let sysLocaleCache: string | void;
 
-function systemLocale() {
+function systemLocale(): string {
     if (!sysLocaleCache) {
         sysLocaleCache = new Intl.DateTimeFormat().resolvedOptions().locale;
     }
@@ -109,7 +109,7 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
     }
 }
 
-function intlConfigString(localeStr: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem) {
+function intlConfigString(localeStr: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem): string {
     if (outputCalendar || numberingSystem) {
         if (!localeStr.includes("-u-")) {
             localeStr += "-u";
@@ -134,7 +134,7 @@ function mapMonths<T>(f: (d: DateTime) => T): T[] {
     for (let i = 1;
          i <= 12;
          i++) {
-        const dt = DateTime.utc(2016, i, 1);
+        const dt = DateTime.utc(2009, i, 1);
         ms.push(f(dt));
     }
     return ms;
@@ -156,7 +156,7 @@ function listStuff<T extends UnitLength>(
     length: T,
     englishFn: (length: T) => string[],
     intlFn: (length: T) => string[]
-) {
+): string[] {
     const mode = loc.listingMode();
 
     // In Luxon a check on mode === "error" was kept, but could never be true
@@ -173,25 +173,26 @@ function listStuff<T extends UnitLength>(
  */
 
 class PolyNumberFormatter {
-    private readonly _padTo: number;
+
     private readonly _floor: boolean;
     private _inf?: Readonly<Intl.NumberFormat>;
+    private readonly _padTo: number;
 
     constructor(intl: string, forceSimple: boolean, opts: Intl.NumberFormatOptions) {
-        this._padTo = opts.padTo || 0;
-        this._floor = opts.floor || false;
         const { padTo, floor, ...otherOpts } = opts;
+        this._padTo = padTo || 0;
+        this._floor = floor || false;
 
         if (!forceSimple || Object.keys(otherOpts).length > 0) {
             const intlOpts: Intl.NumberFormatOptions = { useGrouping: false, ...opts };
             if (this._padTo > 0) {
-                intlOpts.minimumIntegerDigits = opts.padTo;
+                intlOpts.minimumIntegerDigits = padTo;
             }
             this._inf = getCachedINF(intl, intlOpts);
         }
     }
 
-    format(i: number) {
+    format(i: number): string {
         if (this._inf) {
             const fixed = this._floor ? Math.floor(i) : i;
             return this._inf.format(fixed);
@@ -214,10 +215,10 @@ export class PolyDateFormatter {
         return this._dtf;
     }
 
-    private _originalZone?: Zone;
-    private _opts: Readonly<Intl.DateTimeFormatOptions>;
     private _dt: DateTime;
     private _dtf: Readonly<Intl.DateTimeFormat>;
+    private _opts: Readonly<Intl.DateTimeFormatOptions>;
+    private _originalZone?: Zone;
 
     constructor(dt: DateTime, intl: string, opts: Intl.DateTimeFormatOptions) {
         this._opts = opts;
@@ -305,7 +306,7 @@ export class PolyDateFormatter {
         return parts;
     }
 
-    resolvedOptions() {
+    resolvedOptions(): Intl.ResolvedDateTimeFormatOptions {
         return this._dtf.resolvedOptions();
     }
 }
@@ -314,6 +315,7 @@ export class PolyDateFormatter {
  * @private
  */
 class PolyRelFormatter {
+
     private _opts: Readonly<Intl.RelativeTimeFormatOptions>;
     private _rtf?: Readonly<Intl.RelativeTimeFormat>;
 
@@ -324,7 +326,7 @@ class PolyRelFormatter {
         }
     }
 
-    format(count: number, unit: Intl.RelativeTimeFormatUnit) {
+    format(count: number, unit: Intl.RelativeTimeFormatUnit): string {
         if (this._rtf) {
             return this._rtf.format(count, unit);
         }
@@ -338,7 +340,7 @@ class PolyRelFormatter {
         }
     }
 
-    formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit) {
+    formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit): string[] {
         if (this._rtf) {
             return this._rtf.formatToParts(count, unit);
         }
@@ -365,6 +367,26 @@ type EraCache = Partial<Record<StringUnitLength, string[]>>;
  */
 export class Locale {
 
+    get fastNumbers(): boolean {
+        if (this._fastNumbersCached === undefined) {
+            this._fastNumbersCached = this._supportsFastNumbers();
+        }
+
+        return this._fastNumbersCached;
+    }
+
+    readonly locale: string;
+    numberingSystem?: Readonly<NumberingSystem>;
+    outputCalendar?: Readonly<CalendarSystem>;
+
+    private _eraCache: EraCache;
+    private _fastNumbersCached?: boolean;
+    private readonly _intl: string;
+    private _meridiemCache?: Readonly<string[]>;
+    private _monthsCache: Readonly<MonthCache>;
+    private readonly _specifiedLocale?: string;
+    private _weekdaysCache: Readonly<WeekDaysCache>;
+
     private constructor(
         locale: string,
         numberingSystem?: NumberingSystem,
@@ -387,61 +409,30 @@ export class Locale {
         this._fastNumbersCached = undefined;
     }
 
-    get fastNumbers() {
-        if (this._fastNumbersCached === undefined) {
-            this._fastNumbersCached = this._supportsFastNumbers();
-        }
-
-        return this._fastNumbersCached;
-    }
-
-    public readonly locale: string;
-    public numberingSystem?: Readonly<NumberingSystem>;
-    public outputCalendar?: Readonly<CalendarSystem>;
-
-    private readonly _intl: string;
-
-    private _weekdaysCache: Readonly<WeekDaysCache>;
-    private _monthsCache: Readonly<MonthCache>;
-    private _meridiemCache?: Readonly<string[]>;
-    private _eraCache: EraCache;
-
-    private readonly _specifiedLocale?: string;
-    private _fastNumbersCached?: boolean;
-
-    static fromOpts(opts: LocaleOptions) {
-        return Locale.create(opts.locale, opts.numberingSystem, opts.outputCalendar, opts.defaultToEN);
-    }
-
-    static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, defaultToEN = !1) {
-        const specifiedLocale = locale || Settings.defaultLocale,
+    static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, defaultToEN = !1): Locale {
+        const specifiedLocale = locale || Settings.defaultLocale;
             // the system locale is useful for human readable strings but annoying for parsing/formatting known formats
-            localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale()),
-            numberingSystemR = numberingSystem || Settings.defaultNumberingSystem,
-            outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
+            const localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale());
+            const numberingSystemR = numberingSystem || Settings.defaultNumberingSystem;
+            const outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
 
         return new Locale(localeR, numberingSystemR, outputCalendarR, specifiedLocale);
     }
 
-    static resetCache() {
+    static fromObject({ locale, numberingSystem, outputCalendar }: LocaleOptions = {}): Locale {
+        return Locale.create(locale, numberingSystem, outputCalendar);
+    }
+
+    static fromOpts(opts: LocaleOptions): Locale {
+        return Locale.create(opts.locale, opts.numberingSystem, opts.outputCalendar, opts.defaultToEN);
+    }
+
+    static resetCache(): void {
         sysLocaleCache = undefined;
         intlLFCache = {};
         intlDTCache = {};
         intlNumCache = {};
         intlRelCache = {};
-    }
-
-    static fromObject({ locale, numberingSystem, outputCalendar }: LocaleOptions = {}) {
-        return Locale.create(locale, numberingSystem, outputCalendar);
-    }
-
-    // In Luxon boolean param "defaultOK" was still there, although unused
-    listingMode() {
-        const isActuallyEn = this.isEnglish();
-        const hasNoWeirdness =
-            (this.numberingSystem === null || this.numberingSystem === "latn") &&
-            (this.outputCalendar === null || this.outputCalendar === "gregory");
-        return isActuallyEn && hasNoWeirdness ? "en" : "intl";
     }
 
     clone(alts?: LocaleOptions): Locale {
@@ -458,59 +449,19 @@ export class Locale {
         }
     }
 
-    redefaultToEN(alts: LocaleOptions = {}) {
-        return this.clone({ ...alts, defaultToEN: true });
+    dtFormatter(dt: DateTime, intlOptions: Intl.DateTimeFormatOptions = {}): PolyDateFormatter {
+        return new PolyDateFormatter(dt, this._intl, intlOptions);
     }
 
-    redefaultToSystem(alts: LocaleOptions = {}): Locale {
-        return this.clone({ ...alts, defaultToEN: false });
-    }
-
-    months(length: UnitLength, format: boolean = false): string[] {
-        return listStuff(this, length, English.months, len => {
-            const intl: Intl.DateTimeFormatOptions = format ? { month: len, day: "numeric" } : { month: len },
-                formatStr = format ? "format" : "standalone";
-            if (!this._monthsCache[formatStr][len]) {
-                this._monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
-            }
-            return this._monthsCache[formatStr][len] as string[];
-        });
-    }
-
-    weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
-        return listStuff(this, length, English.weekdays, len => {
-            const intl: Intl.DateTimeFormatOptions = format
-                ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
-                : { weekday: len };
-            const formatStr = format ? "format" : "standalone";
-            if (!this._weekdaysCache[formatStr][len]) {
-                this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
-            }
-            return this._weekdaysCache[formatStr][len] as string[];
-        });
-    }
-
-    meridiems() {
-        return listStuff(
-            this,
-            "long", // arbitrary unused value
-            () => English.meridiems,
-            () => {
-                // In theory there could be aribitrary day periods. We're gonna assume there are exactly two
-                // for AM and PM. This is probably wrong, but it makes parsing way easier.
-                if (this._meridiemCache === undefined) {
-                    this._meridiemCache = [
-                        DateTime.utc(2016, 11, 13, 9),
-                        DateTime.utc(2016, 11, 13, 19)
-                    ].map(dt => this.extract(dt, { hour: "numeric", hourCycle: "h12" }, "dayPeriod"));
-                }
-
-                return this._meridiemCache as string[];
-            }
+    equals(other: Locale): boolean {
+        return (
+            this.locale === other.locale &&
+            this.numberingSystem === other.numberingSystem &&
+            this.outputCalendar === other.outputCalendar
         );
     }
 
-    eras(length: StringUnitLength) {
+    eras(length: StringUnitLength): string[] {
         return listStuff(this, length, English.eras, len => {
             const intl = { era: len };
 
@@ -537,22 +488,6 @@ export class Locale {
         return matching.value;
     }
 
-    numberFormatter(options: Intl.NumberFormatOptions = {}): PolyNumberFormatter {
-        return new PolyNumberFormatter(this._intl, this.fastNumbers, options);
-    }
-
-    dtFormatter(dt: DateTime, intlOptions: Intl.DateTimeFormatOptions = {}): PolyDateFormatter {
-        return new PolyDateFormatter(dt, this._intl, intlOptions);
-    }
-
-    relFormatter(options: Intl.RelativeTimeFormatOptions = {}): PolyRelFormatter {
-        return new PolyRelFormatter(this._intl, this.isEnglish(), options);
-    }
-
-    listFormatter(opts: Intl.ListFormatOptions = {}) {
-        return getCachedLF(this._intl, opts);
-    }
-
     isEnglish(): boolean {
         return (
             // tslint:disable-next-line:no-bitwise
@@ -561,15 +496,80 @@ export class Locale {
         );
     }
 
-    equals(other: Locale) {
-        return (
-            this.locale === other.locale &&
-            this.numberingSystem === other.numberingSystem &&
-            this.outputCalendar === other.outputCalendar
+    listFormatter(opts: Intl.ListFormatOptions = {}): Intl.ListFormat {
+        return getCachedLF(this._intl, opts);
+    }
+
+    // In Luxon boolean param "defaultOK" was still there, although unused
+    listingMode(): "en" | "intl" {
+        const isActuallyEn = this.isEnglish();
+        const hasNoWeirdness =
+            (this.numberingSystem === null || this.numberingSystem === "latn") &&
+            (this.outputCalendar === null || this.outputCalendar === "gregory");
+        return isActuallyEn && hasNoWeirdness ? "en" : "intl";
+    }
+
+    meridiems(): string[] {
+        return listStuff(
+            this,
+            "long", // arbitrary unused value
+            () => English.meridiems,
+            () => {
+                // In theory there could be aribitrary day periods. We're gonna assume there are exactly two
+                // for AM and PM. This is probably wrong, but it makes parsing way easier.
+                if (this._meridiemCache === undefined) {
+                    this._meridiemCache = [
+                        DateTime.utc(2016, 11, 13, 9),
+                        DateTime.utc(2016, 11, 13, 19)
+                    ].map(dt => this.extract(dt, { hour: "numeric", hourCycle: "h12" }, "dayPeriod"));
+                }
+
+                return this._meridiemCache as string[];
+            }
         );
     }
 
-    private _supportsFastNumbers() {
+    months(length: UnitLength, format: boolean = false): string[] {
+        return listStuff(this, length, English.months, len => {
+            const intl: Intl.DateTimeFormatOptions = format ? { month: len, day: "numeric" } : { month: len };
+            const formatStr = format ? "format" : "standalone";
+            if (!this._monthsCache[formatStr][len]) {
+                this._monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
+            }
+            return this._monthsCache[formatStr][len] as string[];
+        });
+    }
+
+    numberFormatter(options: Intl.NumberFormatOptions = {}): PolyNumberFormatter {
+        return new PolyNumberFormatter(this._intl, this.fastNumbers, options);
+    }
+
+    redefaultToEN(alts: LocaleOptions = {}): Locale {
+        return this.clone({ ...alts, defaultToEN: true });
+    }
+
+    redefaultToSystem(alts: LocaleOptions = {}): Locale {
+        return this.clone({ ...alts, defaultToEN: false });
+    }
+
+    relFormatter(options: Intl.RelativeTimeFormatOptions = {}): PolyRelFormatter {
+        return new PolyRelFormatter(this._intl, this.isEnglish(), options);
+    }
+
+    weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
+        return listStuff(this, length, English.weekdays, len => {
+            const intl: Intl.DateTimeFormatOptions = format
+                ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
+                : { weekday: len };
+            const formatStr = format ? "format" : "standalone";
+            if (!this._weekdaysCache[formatStr][len]) {
+                this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
+            }
+            return this._weekdaysCache[formatStr][len] as string[];
+        });
+    }
+
+    private _supportsFastNumbers(): boolean {
         if (this.numberingSystem && this.numberingSystem !== "latn") {
             return false;
         }

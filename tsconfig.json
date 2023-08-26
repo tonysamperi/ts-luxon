@@ -19,6 +19,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
+        "strictNullChecks": false,
         "moduleResolution": "node",
         "baseUrl": "./",
         "paths": {

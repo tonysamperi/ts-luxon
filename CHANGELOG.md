@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.4.0 (Luxon 3.4.1)
+* Switched to eslint (finally!)
+* Refactored everything to respect alphabetic order rule
+* Fix parsing.md docs: remove "TTT" from valid parsing tokens (#1427)
+* Fix math.md docs: add missing "leap" in "leap years" (#1438)
+* Fix zones.md docs: fix default zone name (#1394)
+* Fix DateTime.invalid documentation (#1470)
+* Fix normalize() to handle partially negative inputs (#1467)
+* Fix Info.months for Islamic calendar (#1464)
+* Added search in docs (#1481)
+* Handle invalid Durations in toHuman and toMillis (#1489)
+* Improve Duration#shiftTo and Duration#normalize now having a better handling (#1493)
+
 ## 4.3.1 (Luxon 3.3.0)
 * Fix typings path issue (#6)[https://github.com/tonysamperi/ts-luxon/issues/6]
 

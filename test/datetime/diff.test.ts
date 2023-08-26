@@ -74,6 +74,13 @@ test("DateTime#diff makes simple diffs", () => {
     ).toEqual({ hours: 24 * 3 + 8 });
 });
 
+test("DateTime#diff simple diff", () => {
+    const o1 = { year: 2016, month: 6, day: 28, hour: 13 };
+    const o2 = { year: 2016, month: 6, day: 25, hour: 5 };
+    const diff = DateTime.fromObject(o1).diff(DateTime.fromObject(o2), "hours");
+    expect(diff.toObject()).toEqual({ hours: 24 * 3 + 8 });
+});
+
 test("DateTime#diff accepts multiple units", () => {
     expect(
         diffObjs(

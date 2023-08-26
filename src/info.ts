@@ -14,12 +14,39 @@ import { ZoneLike } from "./types/zone";
  * The Info class contains static methods for retrieving general time and date related data. For example, it has methods for finding out if a time zone has a DST, for listing the months in any supported locale, and for discovering which of Luxon features are available in the current environment.
  */
 export class Info {
+
+    /**
+     * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
+     * @param {string} [length='short'] - the length of the era representation, such as "short" or "long".
+     * @param {Object} options - options
+     * @param {string} [options.locale] - the locale code
+     * @example Info.eras() //=> [ 'BC', 'AD' ]
+     * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
+     * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
+     * @return {string[]}
+     */
+    static eras(length: StringUnitLength = "short", { locale }: InfoOptions = {}): string[] {
+        return Locale.create(locale, undefined, "gregory").eras(length);
+    }
+
+    /**
+     * Return the set of available features in this environment.
+     * Some features of Luxon are not available in all environments. For example, on older browsers, relative time formatting support is not available. Use this function to figure out if that's the case.
+     * Keys:
+     * * `relative`: whether this environment supports relative time formatting
+     * @example Info.features() //=> { relative: false }
+     * @return {Object}
+     */
+    static features(): Features {
+        return { relative: hasRelative() };
+    }
+
     /**
      * Return whether the specified zone contains a DST.
      * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
      * @return {boolean}
      */
-    static hasDST(zone: ZoneLike = Settings.defaultZone) {
+    static hasDST(zone: ZoneLike = Settings.defaultZone): boolean {
         const proto = DateTime.now().setZone(zone).set({ month: 12 });
 
         return !(zone as Zone).isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
@@ -30,29 +57,20 @@ export class Info {
      * @param {string} zone - Zone to check
      * @return {boolean}
      */
-    static isValidIANAZone(zone: string) {
+    static isValidIANAZone(zone: string): boolean {
         return IANAZone.isValidZone(zone);
     }
 
     /**
-     * Converts the input into a {@link Zone} instance.
-     *
-     * * If `input` is already a Zone instance, it is returned unchanged.
-     * * If `input` is a string containing a valid IANA time zone name, a Zone instance
-     *   with that name is returned.
-     * * If `input` is the string "system", the system's time zone is returned.
-     * * If `input` is the string "default", the default time zone, as defined in
-     *   Settings.defaultZone is returned.
-     * * If `input` is a string that doesn't refer to a known time zone, a Zone
-     *   instance with {@link Zone#isValid} == false is returned.
-     * * If `input is a number, a Zone instance with the specified fixed offset
-     *   in minutes is returned.
-     * * If `input` is `null` or `undefined`, the default zone is returned.
-     * @param {string|Zone|number} [input] - the value to be converted
-     * @return {Zone}
+     * Return an array of meridiems.
+     * @param {Object} options - options
+     * @param {string} [options.locale] - the locale code
+     * @example Info.meridiems() //=> [ 'AM', 'PM' ]
+     * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
+     * @return {string[]}
      */
-    static normalizeZone(input?: ZoneLike) {
-        return normalizeZone(input, Settings.defaultZone);
+    static meridiems({ locale }: InfoOptions = {}): string[] {
+        return Locale.create(locale).meridiems();
     }
 
     /**
@@ -73,9 +91,9 @@ export class Info {
      * @return {string[]}
      */
     static months(length: UnitLength = "long", {
-        locale,
-        locObj,
-        numberingSystem,
+        locale = null,
+        locObj = null,
+        numberingSystem = null,
         outputCalendar = "gregory"
     }: InfoCalendarOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length);
@@ -104,6 +122,27 @@ export class Info {
     }
 
     /**
+     * Converts the input into a {@link Zone} instance.
+     *
+     * * If `input` is already a Zone instance, it is returned unchanged.
+     * * If `input` is a string containing a valid IANA time zone name, a Zone instance
+     *   with that name is returned.
+     * * If `input` is the string "system", the system's time zone is returned.
+     * * If `input` is the string "default", the default time zone, as defined in
+     *   Settings.defaultZone is returned.
+     * * If `input` is a string that doesn't refer to a known time zone, a Zone
+     *   instance with {@link Zone#isValid} == false is returned.
+     * * If `input is a number, a Zone instance with the specified fixed offset
+     *   in minutes is returned.
+     * * If `input` is `null` or `undefined`, the default zone is returned.
+     * @param {string|Zone|number} [input] - the value to be converted
+     * @return {Zone}
+     */
+    static normalizeZone(input?: ZoneLike): Zone {
+        return normalizeZone(input, Settings.defaultZone);
+    }
+
+    /**
      * Return an array of standalone week names.
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
      * @param {string} [length='long'] - the length of the weekday representation, such as "narrow", "short", "long".
@@ -117,7 +156,7 @@ export class Info {
      * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
      * @return {string[]}
      */
-    static weekdays(length: WeekUnitLengths = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}) {
+    static weekdays(length: WeekUnitLengths = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length);
     }
 
@@ -136,45 +175,8 @@ export class Info {
         locale,
         locObj,
         numberingSystem
-    }: InfoUnitOptions = {}) {
+    }: InfoUnitOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length, true);
     }
 
-    /**
-     * Return an array of meridiems.
-     * @param {Object} options - options
-     * @param {string} [options.locale] - the locale code
-     * @example Info.meridiems() //=> [ 'AM', 'PM' ]
-     * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
-     * @return {string[]}
-     */
-    static meridiems({ locale }: InfoOptions = {}) {
-        return Locale.create(locale).meridiems();
-    }
-
-    /**
-     * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
-     * @param {string} [length='short'] - the length of the era representation, such as "short" or "long".
-     * @param {Object} options - options
-     * @param {string} [options.locale] - the locale code
-     * @example Info.eras() //=> [ 'BC', 'AD' ]
-     * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
-     * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
-     * @return {string[]}
-     */
-    static eras(length: StringUnitLength = "short", { locale }: InfoOptions = {}) {
-        return Locale.create(locale, undefined, "gregory").eras(length);
-    }
-
-    /**
-     * Return the set of available features in this environment.
-     * Some features of Luxon are not available in all environments. For example, on older browsers, relative time formatting support is not available. Use this function to figure out if that's the case.
-     * Keys:
-     * * `relative`: whether this environment supports relative time formatting
-     * @example Info.features() //=> { relative: false }
-     * @return {Object}
-     */
-    static features(): Features {
-        return { relative: hasRelative() };
-    }
 }

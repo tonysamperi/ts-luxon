@@ -137,7 +137,7 @@ export function formatRelativeTime(
   count: number,
   numeric: Intl.RelativeTimeFormatNumeric = "always",
   narrow = false
-) {
+) : string {
   const units = {
     years: ["year", "yr."],
     quarters: ["quarter", "qtr."],
@@ -147,7 +147,7 @@ export function formatRelativeTime(
     hours: ["hour", "hr."],
     minutes: ["minute", "min."],
     seconds: ["second", "sec."],
-    milliseconds: [] // never used
+    milliseconds: [] as string[] // never used
   };
 
   const normalizedUnit = Duration.normalizeUnit(unit),

@@ -1,16 +1,20 @@
-import { parseMillis, isUndefined, untruncateYear, signedOffset, isDefined } from "./util";
+import { parseMillis, untruncateYear, signedOffset, isDefined } from "./util";
 import { Formatter, FormatToken } from "./formatter";
 import { FixedOffsetZone } from "../zones/fixedOffsetZone";
 import { IANAZone } from "../zones/IANAZone";
 import { digitRegex, parseDigits } from "./digits";
 import { Locale } from "./locale";
-import { GenericDateTime, ExplainedFormat, GenericDateTimeExtended } from "../types/datetime";
+import {
+    GenericDateTime,
+    ExplainedFormat,
+    GenericDateTimeExtended
+} from "../types/datetime";
 import { Zone } from "../zone";
 import { DateTime } from "../datetime";
 import { ConflictingSpecificationError } from "../errors";
 import Intl from "../types/intl-next";
 
-const MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
+const missingFtp = "missing Intl.DateTimeFormat.formatToParts support";
 
 interface TokenForPart {
     literal: boolean;
@@ -18,10 +22,10 @@ interface TokenForPart {
 }
 
 interface UnitParser {
-    regex: RegExp;
     deser: (a: string[]) => number | string;
     groups?: number;
     literal?: boolean; // TODO investigate if this shall not be merged with token.literal
+    regex: RegExp;
     token: FormatToken;
 }
 
@@ -31,20 +35,20 @@ interface InvalidUnitParser {
 
 type CoreUnitParser = Omit<UnitParser, "token">;
 
-function intUnit(regex: RegExp, post: (a: number) => number = i => i): CoreUnitParser {
+function intUnit(regex: RegExp, post: (a: number) => number = (i: number): number => i): CoreUnitParser {
     return { regex, deser: ([s]) => post(parseDigits(s)) };
 }
 
 const spaceOrNBSPPattern = `[ ${String.fromCharCode(160)}]`;
 const spaceOrNBSPRegExp = new RegExp(spaceOrNBSPPattern, "g");
 
-function fixListRegex(s: string) {
+function fixListRegex(s: string): string {
     // make dots optional and also make them literal
-    // make space and non breakable space characters interchangeable
+    // make space and non-breakable space characters interchangeable
     return s.replace(/\./g, "\\.?").replace(spaceOrNBSPRegExp, spaceOrNBSPPattern);
 }
 
-function stripInsensitivities(s: string) {
+function stripInsensitivities(s: string): string {
     return s
         .replace(/\./g, "") // ignore dots that were made optional
         .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
@@ -67,10 +71,14 @@ function simple(regex: RegExp): CoreUnitParser {
     return { regex, deser: ([s]) => s };
 }
 
-function escapeToken(value: string) {
+function escapeToken(value: string): string {
     return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
 
+/**
+ * @param token
+ * @param {Locale} loc
+ */
 function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidReason: string } {
     const one = digitRegex(loc),
         two = digitRegex(loc, "{2}"),
@@ -88,7 +96,7 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
             deser: ([s]) => s,
             literal: true
         }),
-        unitate = (t: FormatToken) => {
+        unitate = (t: FormatToken): CoreUnitParser => {
             if (token.literal) {
                 return literal(t);
             }
@@ -204,7 +212,7 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
         };
 
     const unit = unitate(token) || {
-        invalidReason: MISSING_FTP
+        invalidReason: missingFtp
     };
 
     return { ...unit, token };
@@ -213,10 +221,11 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
 type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era"> | "hour12" | "hour24";
 
 interface TokensForPartTypes {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "2-digit"?: string;
+    "long"?: string;
     "numeric"?: string;
     "short"?: string;
-    "long"?: string;
 }
 
 const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: TokensForPartTypes | string } = {
@@ -298,7 +307,7 @@ function tokenForPart(part: Intl.DateTimeFormatPart,
         }
         else {
             // tokens only differentiate between 24 hours or not,
-            // so we do not need to check hourCycle here, which is less supported anyways
+            // so we do not need to check hourCycle here, which is less supported anyway
             actualType = resolvedOpts.hour12 ? "hour12" : "hour24";
         }
     }
@@ -318,7 +327,7 @@ function tokenForPart(part: Intl.DateTimeFormatPart,
     return void 0;
 }
 
-function buildRegex(units: UnitParser[]) {
+function buildRegex(units: UnitParser[]): string {
     const re = units.map(u => u.regex).reduce((f, r) => `${f}(${r.source})`, "");
     return `^${re}$`;
 }
@@ -342,7 +351,7 @@ function match(input: string, regex: RegExp, handlers: UnitParser[]): [RegExpMat
 }
 
 function dateTimeFromMatches(matches: Record<string, string | number>): [GenericDateTimeExtended, Zone | null, number | undefined] {
-    const toField = (token: string) => {
+    const toField = (token: string): keyof GenericDateTimeExtended | null => {
         switch (token) {
             case "S":
                 return "millisecond";
@@ -389,12 +398,12 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
         specificOffset = +matches.Z;
     }
 
-    if (!isUndefined(matches.q)) {
+    if (isDefined(matches.q)) {
         matches.M = ((matches.q as number) - 1) * 3 + 1;
     }
 
-    if (!isUndefined(matches.h)) {
-        if (matches.h < 12 && matches.a === 1) {
+    if (isDefined(matches.h)) {
+        if (+matches.h < 12 && matches.a === 1) {
             matches.h = (matches.h as number) + 12;
         }
         else if (matches.h === 12 && matches.a === 0) {
@@ -406,25 +415,25 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
         matches.y = -matches.y;
     }
 
-    if (!isUndefined(matches.u)) {
+    if (isDefined(matches.u)) {
         matches.S = parseMillis(matches.u as string) || 0;
     }
 
-    const vals = Object.keys(matches).reduce((r: GenericDateTimeExtended, k: string) => {
+    const values: GenericDateTimeExtended = Object.keys(matches).reduce((r: Record<string, string | number>, k: string) => {
         const f = toField(k);
         if (f) {
             r[f] = matches[k] as number;
         }
 
         return r;
-    }, {} as GenericDateTimeExtended);
+    }, {});
 
-    return [vals, zone, specificOffset];
+    return [values, zone, specificOffset];
 }
 
 let dummyDateTimeCache: DateTime | undefined;
 
-function getDummyDateTime(locale: Locale) {
+function getDummyDateTime(locale: Locale): DateTime {
     if (dummyDateTimeCache === void 0) {
         dummyDateTimeCache = DateTime.fromMillis(1555555555555, {
             locale: locale.locale
@@ -500,7 +509,7 @@ export function parseFromTokens(locale: Locale,
     return [result, zone, specificOffset, invalidReason];
 }
 
-export function formatOptsToTokens(formatOpts: Intl.DateTimeFormatOptions, locale: Locale) {
+export function formatOptsToTokens(formatOpts: Intl.DateTimeFormatOptions, locale: Locale): (void | TokenForPart)[] {
     if (!formatOpts) {
         return null;
     }

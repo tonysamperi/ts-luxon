@@ -659,7 +659,6 @@ test("DateTime.fromISO() accepts some technically incorrect stuff", () => {
 
 test("DateTime.fromISO() rejects poop", () => {
   const rejects = (s: string) => expect(DateTime.fromISO(s).isValid).toBeFalsy();
-  // @ts-expect-error
   rejects(null);
   rejects("");
   rejects(" ");

@@ -13,7 +13,7 @@ import { Interval } from "../interval";
 function stringifyTokens(
     splits: FormatToken[],
     tokenToString: (token: string) => string | undefined
-) {
+): string {
     let s = "";
     for (const token of
         splits) {
@@ -27,8 +27,9 @@ function stringifyTokens(
     return s;
 }
 
-// tslint:disable-next-line:naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const TokenToFormatOpts: Record<string, Intl.DateTimeFormatOptions> = {
+    /* eslint-disable @typescript-eslint/naming-convention */
     D: Formats.DATE_SHORT,
     DD: Formats.DATE_MED,
     DDD: Formats.DATE_FULL,
@@ -49,6 +50,7 @@ const TokenToFormatOpts: Record<string, Intl.DateTimeFormatOptions> = {
     FF: Formats.DATETIME_MED_WITH_SECONDS,
     FFF: Formats.DATETIME_FULL_WITH_SECONDS,
     FFFF: Formats.DATETIME_HUGE_WITH_SECONDS
+    /* eslint-enable @typescript-eslint/naming-convention */
 };
 
 export interface FormatToken {
@@ -58,10 +60,10 @@ export interface FormatToken {
 
 interface FormatterOptions extends Intl.DateTimeFormatOptions {
     allowZ?: boolean;
+    floor?: boolean;
     forceSimple?: boolean;
     format?: ZoneOffsetFormat;
     padTo?: number;
-    floor?: boolean;
 }
 
 /**
@@ -69,16 +71,26 @@ interface FormatterOptions extends Intl.DateTimeFormatOptions {
  */
 
 export class Formatter {
-    // Private readonly fields
-    private _opts: Readonly<FormatterOptions>;
-    private _loc: Locale;
+
+    private readonly _loc: Locale;
+    private readonly _opts: Readonly<FormatterOptions>;
     private _systemLoc?: Locale;
 
-    static create(locale: Locale, options: FormatterOptions = {}) {
+    constructor(locale: Locale, formatOptions: FormatterOptions) {
+        this._opts = formatOptions;
+        this._loc = locale;
+        this._systemLoc = void 0;
+    }
+
+    static create(locale: Locale, options: FormatterOptions = {}): Formatter {
         return new Formatter(locale, options);
     }
 
-    static parseFormat(fmt: string) {
+    static macroTokenToFormatOpts(token: string): Intl.DateTimeFormatOptions {
+        return TokenToFormatOpts[token];
+    }
+
+    static parseFormat(fmt: string): {literal: boolean; val: string}[] {
         // white-space is always considered a literal in user-provided formats
         // the " " token has a special meaning (see unitForToken)
         let current = null,
@@ -119,61 +131,12 @@ export class Formatter {
         return splits;
     }
 
-    static macroTokenToFormatOpts(token: string) {
-        return TokenToFormatOpts[token];
-    }
-
-    constructor(locale: Locale, formatOptions: FormatterOptions) {
-        this._opts = formatOptions;
-        this._loc = locale;
-        this._systemLoc = void 0;
-    }
-
-    formatWithSystemDefault(dt: DateTime, opts: Intl.DateTimeFormatOptions) {
-        if (this._systemLoc === void 0) {
-            this._systemLoc = this._loc.redefaultToSystem();
-        }
-        const df = this._systemLoc.dtFormatter(dt, { ...this._opts, ...opts });
-        return df.format();
-    }
-
     dtFormatter(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): PolyDateFormatter {
         return this._loc.dtFormatter(dt, { ...this._opts, ...opts });
     }
 
     formatDateTime(dt: DateTime, opts?: Intl.DateTimeFormatOptions): string {
         return this.dtFormatter(dt, opts).format();
-    }
-
-    formatDateTimeParts(dt: DateTime, opts?: Intl.DateTimeFormatOptions): Intl.DateTimeFormatPart[] {
-        return this.dtFormatter(dt, opts).formatToParts();
-    }
-
-    formatInterval(interval: Interval, opts: FormatterOptions = {}): string {
-        if (!interval.isValid) {
-            throw Error("Invalid Interval provided!");
-        }
-        const df = this.dtFormatter(interval.start!, opts);
-
-        return df.dtf.formatRange(interval.start!.toJSDate(), interval.end!.toJSDate());
-    }
-
-    resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): Intl.ResolvedDateTimeFormatOptions {
-        return this.dtFormatter(dt, opts).resolvedOptions();
-    }
-
-    num(n: number, p = 0) {
-        // we get some perf out of doing this here, annoyingly
-        if (this._opts.forceSimple) {
-
-            return padStart(n, p);
-        }
-        const opts: Intl.NumberFormatOptions = { ...this._opts };
-        if (p > 0) {
-            opts.padTo = p;
-        }
-
-        return this._loc.numberFormatter(opts).format(n);
     }
 
     formatDateTimeFromString(dt: DateTime, fmt: string): string {
@@ -399,7 +362,11 @@ export class Formatter {
         return stringifyTokens(Formatter.parseFormat(fmt), tokenToString);
     }
 
-    formatDurationFromString(dur: Duration, format: string) {
+    formatDateTimeParts(dt: DateTime, opts?: Intl.DateTimeFormatOptions): Intl.DateTimeFormatPart[] {
+        return this.dtFormatter(dt, opts).formatToParts();
+    }
+
+    formatDurationFromString(dur: Duration, format: string): string {
         const tokenToField = (token: string): DurationUnit | undefined => {
             switch (token[0]) {
                 case "S":
@@ -438,4 +405,40 @@ export class Formatter {
 
         return stringifyTokens(tokens, tokenToString(collapsed));
     }
+
+    formatInterval(interval: Interval, opts: FormatterOptions = {}): string {
+        if (!interval.isValid) {
+            throw Error("Invalid Interval provided!");
+        }
+        const df = this.dtFormatter(interval.start!, opts);
+
+        return df.dtf.formatRange(interval.start!.toJSDate(), interval.end!.toJSDate());
+    }
+
+    formatWithSystemDefault(dt: DateTime, opts: Intl.DateTimeFormatOptions): string {
+        if (this._systemLoc === void 0) {
+            this._systemLoc = this._loc.redefaultToSystem();
+        }
+        const df = this._systemLoc.dtFormatter(dt, { ...this._opts, ...opts });
+        return df.format();
+    }
+
+    num(n: number, p = 0): string {
+        // we get some perf out of doing this here, annoyingly
+        if (this._opts.forceSimple) {
+
+            return padStart(n, p);
+        }
+        const opts: Intl.NumberFormatOptions = { ...this._opts };
+        if (p > 0) {
+            opts.padTo = p;
+        }
+
+        return this._loc.numberFormatter(opts).format(n);
+    }
+
+    resolvedOptions(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): Intl.ResolvedDateTimeFormatOptions {
+        return this.dtFormatter(dt, opts).resolvedOptions();
+    }
+
 }

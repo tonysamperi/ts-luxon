@@ -35,9 +35,8 @@ export const normalizeZone = (input: ZoneLike, defaultZone: Zone): Zone => {
     else if (isNumber(input)) {
         return FixedOffsetZone.instance(input);
     }
-    else if (typeof input === "object" && input["offset"] && typeof input["offset"] === "number") {
-        // This is dumb, but the instanceof check above doesn't seem to really work
-        // so we're duck checking it
+    else if (typeof input === "object" && "offset" in input && typeof input["offset"] === "function") {
+        // This is dumb, but the instanceof check above doesn't seem to really work, so we're duck checking it
         return input;
     }
     else {

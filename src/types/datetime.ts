@@ -6,27 +6,27 @@ import { Locale } from "../impl/locale";
 import Intl from "./intl-next";
 
 export interface SetZoneOptions {
-    keepLocalTime?: boolean;
     keepCalendarTime?: boolean;
+    keepLocalTime?: boolean;
 }
 
 export interface ToRelativeOptions {
     /** The DateTime to use as the basis to which this time is compared. Defaults to now. */
     base?: DateTime;
     locale?: string;
-    style?: Intl.RelativeTimeFormatStyle;
-    /** If omitted, the method will pick the unit. */
-    unit?: Intl.RelativeTimeFormatUnit;
-    /** Defaults to `true`. */
-    round?: boolean;
+    /** The Intl system may choose not to honor this */
+    numberingSystem?: NumberingSystem;
     /**
      * Padding in milliseconds. This allows you to round up the result if it fits inside the threshold.
      * Don't use in combination with {round: false} because the decimal output will include the padding.
      * Defaults to 0.
      */
     padding?: number;
-    /** The Intl system may choose not to honor this */
-    numberingSystem?: NumberingSystem;
+    /** Defaults to `true`. */
+    round?: boolean;
+    style?: Intl.RelativeTimeFormatStyle;
+    /** If omitted, the method will pick the unit. */
+    unit?: Intl.RelativeTimeFormatUnit;
 }
 
 export type ToRelativeCalendarUnit = "years" | "quarters" | "months" | "weeks" | "days";
@@ -35,10 +35,10 @@ export interface ToRelativeCalendarOptions {
     /** The DateTime to use as the basis to which this time is compared. Defaults to now. */
     base?: DateTime;
     locale?: string;
-    /** If omitted, the method will pick the unit. */
-    unit?: ToRelativeCalendarUnit;
     /** The Intl system may choose not to honor this. */
     numberingSystem?: NumberingSystem;
+    /** If omitted, the method will pick the unit. */
+    unit?: ToRelativeCalendarUnit;
 }
 
 export interface ToSQLOptions {
@@ -59,9 +59,9 @@ export interface ToISOTimeOptions {
 }
 
 export interface DateTimeOptions extends LocaleOptions {
-    zone?: string | Zone;
     setZone?: boolean;
     specificOffset?: number;
+    zone?: string | Zone;
 }
 
 interface BaseObject {
@@ -70,26 +70,26 @@ interface BaseObject {
 
 export interface TimeObject {
     hour: number;
+    millisecond: number;
     minute: number;
     second: number;
-    millisecond: number;
 }
 
 export interface GregorianDateTime extends TimeObject {
-    year: number;
-    month: number;
     day: number;
+    month: number;
+    year: number;
 }
 
 export interface WeekDateTime extends TimeObject {
-    weekYear: number;
     weekNumber: number;
+    weekYear: number;
     weekday: number;
 }
 
 export interface OrdinalDateTime extends TimeObject {
-    year: number;
     ordinal: number;
+    year: number;
 }
 
 export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions>;
@@ -97,51 +97,51 @@ export type GenericDateTimeExtended = Partial<GregorianDateTime & WeekDateTime &
 
 export interface ExplainedFormat {
     input: string;
-    tokens: FormatToken[];
-    regex?: RegExp;
-    rawMatches?: RegExpMatchArray | null;
-    matches?: Record<string, string | number>;
-    result?: GenericDateTime | null;
-    zone?: Zone | null;
     invalidReason?: string;
+    matches?: Record<string, string | number>;
+    rawMatches?: RegExpMatchArray | null;
+    regex?: RegExp;
+    result?: GenericDateTime | null;
     specificOffset?: number;
+    tokens: FormatToken[];
+    zone?: Zone | null;
 }
 
 export interface DefaultUnitValues extends BaseObject {
-    year: 0 | 1;
-    month: 0 | 1;
     day: 0 | 1;
     hour: 0 | 1;
-    minute: 0 | 1;
-    second: 0 | 1;
     millisecond: 0 | 1;
+    minute: 0 | 1;
+    month: 0 | 1;
+    second: 0 | 1;
+    year: 0 | 1;
 }
 
 export interface DefaultWeekUnitValues extends BaseObject {
-    weekNumber: 0 | 1;
-    weekday: 0 | 1;
     hour: 0 | 1;
+    millisecond: 0 | 1;
     minute: 0 | 1;
     second: 0 | 1;
-    millisecond: 0 | 1;
+    weekNumber: 0 | 1;
+    weekday: 0 | 1;
 }
 
 export interface DefaultOrdinalUnitValues extends BaseObject {
-    ordinal: 0 | 1;
     hour: 0 | 1;
-    minute: 0 | 1;
-    second: 0 | 1;
     millisecond: 0 | 1;
+    minute: 0 | 1;
+    ordinal: 0 | 1;
+    second: 0 | 1;
 }
 
 export interface InnerBuildObjectConfig {
     containsGregor: boolean;
-    loc: Locale;
-    useWeekData: number | boolean;
     containsOrdinal: boolean;
+    loc: Locale;
     normalized: { [key: string]: number; };
     obj: Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime>;
     offsetProvis: number;
+    useWeekData: number | boolean;
     zoneToUse: Zone;
 }
 
@@ -149,26 +149,26 @@ export interface InnerBuildObjectConfig {
 
 export interface TimeObjectPlurals {
     hours: number;
+    milliseconds: number;
     minutes: number;
     seconds: number;
-    milliseconds: number;
 }
 
 export interface GregorianDateTimePlurals extends TimeObjectPlurals {
-    years: number;
-    months: number;
     days: number;
+    months: number;
+    years: number;
 }
 
 export interface WeekDateTimePlurals extends TimeObjectPlurals {
     weekYears: number;
-    weeksNumber: number;
     weekdays: number;
+    weeksNumber: number;
 }
 
 export interface OrdinalDateTimePlurals extends TimeObjectPlurals {
-    years: number;
     ordinal: number;
+    years: number;
 }
 
 export type GenericDateTimePlurals = Partial<GregorianDateTimePlurals & WeekDateTimePlurals & OrdinalDateTimePlurals & DateTimeOptions>;
