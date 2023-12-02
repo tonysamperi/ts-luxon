@@ -424,56 +424,56 @@ test("DateTime#toLocaleString() returns something different for invalid DateTime
 
 test("DateTime#toLocaleString() shows things in the right IANA zone", () => {
     expect(dt.setZone("America/New_York").toLocaleString(DateTime.DATETIME_SHORT)).toBe(
-        "5/25/1982, 5:23 AM"
+        "5/25/1982, 5:23 AM"
     );
 });
 
 test("DateTime#toLocaleString() shows things in the right fixed-offset zone", () => {
-    expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_SHORT)).toBe("5/25/1982, 1:23 AM");
+    expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_SHORT)).toBe("5/25/1982, 1:23 AM");
 });
 
 test("DateTime#toLocaleString() shows things in the right fixed-offset zone when showing the zone", () => {
     expect(dt.setZone("UTC-8").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982 at 1:23 AM GMT-8"
+        "May 25, 1982 at 1:23 AM GMT-8"
     );
 });
 
 test("DateTime#toLocaleString() shows things with UTC if fixed-offset zone with 0 offset is used", () => {
     expect(dt.setZone("UTC").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982 at 9:23 AM UTC"
+        "May 25, 1982 at 9:23\u202FAM UTC"
     );
 });
 
 test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone when showing the zone", () => {
     expect(dt.setZone("UTC+4:30").toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982 at 1:53 PM UTC+4:30"
+        "May 25, 1982 at 1:53\u202FPM UTC+4:30"
     );
 });
 
 test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone with timeStyle full", () => {
-    expect(dt.setZone("UTC+4:30").toLocaleString({ timeStyle: "full" })).toBe("1:53:54 PM UTC+4:30");
+    expect(dt.setZone("UTC+4:30").toLocaleString({ timeStyle: "full" })).toBe("1:53:54\u202FPM UTC+4:30");
 });
 
 test("DateTime#toLocaleString() shows things in the right custom zone", () => {
     expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString(DateTime.DATETIME_SHORT)).toBe(
-        "5/25/1982, 9:53 AM"
+        "5/25/1982, 9:53\u202FAM"
     );
 });
 
 test("DateTime#toLocaleString() shows things in the right custom zone when showing the zone", () => {
     expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString(DateTime.DATETIME_FULL)).toBe(
-        "May 25, 1982 at 9:53 AM CUSTOM"
+        "May 25, 1982 at 9:53\u202FAM CUSTOM"
     );
 });
 
 test("DateTime#toLocaleString() shows things in the right custom zone with timeStyle full", () => {
     expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString({ timeStyle: "full" })).toBe(
-        "9:53:54 AM CUST"
+        "9:53:54\u202FAM CUST"
     );
 });
 
 test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23 AM");
+    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23\u202FAM");
     expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
 
     // France has 24-hour time by default
@@ -487,7 +487,7 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 
 // I don't know what they expected to do and see but this doesn't make sense and doesn't pass in Luxon as well
 // test("DateTime#toLocaleString() accecpts options in the first position", () => {
-//     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23 AM UTC");
+//     expect(dt.toLocaleString("fr")).toBe("May 25, 1982, 9:23\u202FAM UTC");
 // });
 
 test("DateTime#toLocaleString() respects language tags", () => {
@@ -504,7 +504,7 @@ test("DateTime#toLocaleString() accepts a zone even when the zone is set", () =>
             timeZoneName: "short",
             timeZone: "America/Los_Angeles"
         })
-    ).toBe("2:23 AM PDT");
+    ).toBe("2:23 AM PDT");
 });
 
 

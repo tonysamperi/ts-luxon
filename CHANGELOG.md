@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.1 (Luxon 3.4.4)
+* Fixed space characters in tests for Node 20
+* Improve DateTime#diff for cross-zone diffs in certain situations (#1165)
+* Improved normalization functions
+
 ## 4.4.0 (Luxon 3.4.1)
 * Switched to eslint (finally!)
 * Refactored everything to respect alphabetic order rule

@@ -120,7 +120,8 @@ const accurateMatrix: ConversionMatrix = {
 
 function durationToMillis(matrix: ConversionMatrix, vals: NormalizedDurationObject): number {
     let sum = vals.milliseconds ?? 0;
-    for (const unit of REVERSE_ORDERED_UNITS.slice(1)) {
+    for (const unit of
+        REVERSE_ORDERED_UNITS.slice(1)) {
         if (vals[unit]) {
             sum += vals[unit] * matrix[unit as ConversionMatrixUnit]["milliseconds"];
         }
@@ -166,6 +167,22 @@ function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObjec
                 const rollUp = Math.floor(previousVal / conv);
                 vals[current] += rollUp * factor;
                 vals[previous] -= rollUp * conv * factor;
+            }
+            return current;
+        }
+        else {
+            return previous;
+        }
+    }, null);
+
+    // try to convert any decimals into smaller units if possible
+    // for example for { years: 2.5, days: 0, seconds: 0 } we want to get { years: 2, days: 182, hours: 12 }
+    ORDERED_UNITS.reduce((previous, current) => {
+        if (!isUndefined(vals[current])) {
+            if (previous) {
+                const fraction = vals[previous] % 1;
+                vals[previous] -= fraction;
+                vals[current] += fraction * matrix[previous as ConversionMatrixUnit][current];
             }
             return current;
         }
@@ -699,7 +716,14 @@ export class Duration implements NormalizedDurationObject {
 
     /**
      * Reduce this Duration to its canonical representation in its current units.
+     * Assuming the overall value of the Duration is positive, this means:
+     * - excessive values for lower-order units are converted to higher order units (if possible, see first and second example)
+     * - negative lower-order units are converted to higher order units (there must be such a higher order unit, otherwise
+     *   the overall value would be negative, see third example)
+     *
+     * If the overall value is negative, the result of this method is equivalent to `this.negate().normalize().negate()`.
      * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=> { years: 15, days: 255 }
+     * @example Duration.fromObject({ days: 5000 }).normalize().toObject() //=> { days: 5000 }
      * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=> { hours: 11, minutes: 15 }
      * @return {Duration}
      */
@@ -708,12 +732,8 @@ export class Duration implements NormalizedDurationObject {
             return this;
         }
         const vals = this.toObject();
-        if (this.valueOf() >= 0) {
-            normalizeValues(this._matrix, vals);
-            return this._clone(this, { values: vals }, !0);
-        }
-
-        return this.negate().normalize().negate();
+        normalizeValues(this._matrix, vals);
+        return this._clone(this, { values: vals }, !0);
     }
 
     /**
@@ -1042,14 +1062,10 @@ export class Duration implements NormalizedDurationObject {
      * @return {number}
      */
     toMillis(): number {
-        // let sum = this._values.milliseconds ?? 0;
-        // for (const unit of
-        //     REVERSE_ORDERED_UNITS.slice(1)) {
-        //     if (this._values[unit]) {
-        //         sum += this._values[unit] * this.matrix[unit as ConversionMatrixUnit]["milliseconds"];
-        //     }
-        // }
-        // return sum;
+        if (!this.isValid) {
+            return NaN;
+        }
+
         return durationToMillis(this.matrix, this._values);
     }
 

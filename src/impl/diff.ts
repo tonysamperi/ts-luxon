@@ -2,8 +2,8 @@ import { Duration } from "../duration";
 import { DateTime } from "../datetime";
 import { DurationUnit, DurationOptions, DurationObject } from "../types/duration";
 
-function dayDiff(earlier: DateTime, later: DateTime) {
-    const utcDayStart = (dt: DateTime) =>
+function dayDiff(earlier: DateTime, later: DateTime): number {
+    const utcDayStart = (dt: DateTime): number =>
             dt
                 .toUTC(0, { keepLocalTime: true })
                 .startOf("days")
@@ -44,7 +44,8 @@ function highOrderDiffs(
      this is used later to potentially convert any difference smaller than the smallest higher order unit
      into a fraction of that smallest higher order unit
      */
-    for (const [unit, differ] of differs) {
+    for (const [unit, differ] of
+        differs) {
         if (units.indexOf(unit) >= 0) {
             lowestOrder = unit;
             // we overshot the end point, backtrack cursor by 1
@@ -102,8 +103,8 @@ export const diff = (earlier: DateTime, later: DateTime, units: DurationUnit[], 
 
     if (lowerOrderUnits.length > 0) {
         return Duration.fromMillis(remainingMillis, opts)
-            .shiftTo(...lowerOrderUnits)
-            .plus(duration);
+                       .shiftTo(...lowerOrderUnits)
+                       .plus(duration);
     }
     else {
         return duration;
