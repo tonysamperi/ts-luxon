@@ -219,6 +219,10 @@ The macro options available correspond one-to-one with the preset formats define
 | kkkk             |              | ISO week year, padded to 4                                     | `2014`                                                        |
 | W                |              | ISO week number, unpadded                                      | `32`                                                          |
 | WW               |              | ISO week number, padded to 2                                   | `32`                                                          |
+| ii               |              | Local week year, unpadded                                      | `14`                                                          |
+| iiii             |              | Local week year, padded to 4                                   | `2014`                                                        |
+| n                |              | Local week number, unpadded                                    | `32`                                                          |
+| nn               |              | Local week number, padded to 2                                 | `32`                                                          |
 | o                |              | ordinal (day of year), unpadded                                | `218`                                                         |
 | ooo              |              | ordinal (day of year), padded to 3                             | `218`                                                         |
 | q                |              | quarter, no padding                                            | `3`                                                           |
