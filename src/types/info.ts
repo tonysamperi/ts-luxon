@@ -16,5 +16,6 @@ export interface InfoCalendarOptions extends InfoUnitOptions {
 }
 
 export interface Features {
+    localeWeek: boolean;
     relative: boolean;
 }

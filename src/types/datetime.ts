@@ -87,13 +87,22 @@ export interface WeekDateTime extends TimeObject {
     weekday: number;
 }
 
+export interface LocalWeekDateTime {
+    localWeekNumber: number;
+    localWeekYear: number;
+    localWeekday: number;
+}
+
 export interface OrdinalDateTime extends TimeObject {
     ordinal: number;
     year: number;
 }
 
 export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions>;
-export type GenericDateTimeExtended = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions & { quarter: number, quarters: number }>;
+export type GenericDateTimeExtended = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions & LocalWeekDateTime & {
+    quarter: number,
+    quarters: number
+}>;
 
 export interface ExplainedFormat {
     input: string;
@@ -166,9 +175,15 @@ export interface WeekDateTimePlurals extends TimeObjectPlurals {
     weeksNumber: number;
 }
 
+export interface LocalWeekDateTimePlurals {
+    localWeekNumbers: number;
+    localWeekYears: number;
+    localWeekdays: number;
+}
+
 export interface OrdinalDateTimePlurals extends TimeObjectPlurals {
     ordinal: number;
     years: number;
 }
 
-export type GenericDateTimePlurals = Partial<GregorianDateTimePlurals & WeekDateTimePlurals & OrdinalDateTimePlurals & DateTimeOptions>;
+export type GenericDateTimePlurals = Partial<GregorianDateTimePlurals & WeekDateTimePlurals & LocalWeekDateTimePlurals & OrdinalDateTimePlurals & DateTimeOptions>;

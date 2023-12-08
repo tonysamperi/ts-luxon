@@ -572,6 +572,12 @@ export class Duration implements NormalizedDurationObject {
             quarters: "quarters",
             month: "months",
             months: "months",
+            localWeekNumber: "localWeekNumbers",
+            localWeekYear: "localWeekYears",
+            localWeekday: "localWeekdays",
+            localWeekNumbers: "localWeekNumbers",
+            localWeekYears: "localWeekYears",
+            localWeekdays: "localWeekdays",
             week: "weeks",
             weeks: "weeks",
             day: "days",
@@ -639,7 +645,7 @@ export class Duration implements NormalizedDurationObject {
      * @return {number}
      */
     get(unit: DurationUnit): number {
-        return this[Duration.normalizeUnit(unit)];
+        return (this as NormalizedDurationObject)[Duration.normalizeUnit(unit)];
     }
 
 

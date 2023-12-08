@@ -1,16 +1,18 @@
 /*
  This is just a junk drawer, containing anything used across multiple classes.
- Because Luxon is small(ish), this should stay small and we won't worry about splitting
+ Because Luxon is small(ish), this should stay small, and we won't worry about splitting
  it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
  */
 
 import { InvalidArgumentError } from "../errors";
-import { TimeObject, GregorianDateTime } from "../types/datetime";
+import { TimeObject, GregorianDateTime, GenericDateTimeExtended } from "../types/datetime";
 import { ZoneOffsetFormat } from "../types/zone";
 import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/duration";
 import { Settings } from "../settings";
+import { dayOfWeek, isoWeekdayToLocal } from "./conversions";
 
 import Intl from "../types/intl-next";
+import { WeekSettings } from "../types/locale";
 
 /**
  * @private
@@ -52,6 +54,19 @@ export function hasRelative(): boolean {
     }
 }
 
+export function hasLocaleWeekInfo(): boolean {
+    try {
+        return (
+          typeof Intl !== "undefined" &&
+          !!Intl.Locale &&
+          ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype)
+        );
+    }
+    catch (e) {
+        return false;
+    }
+}
+
 // OBJECTS AND ARRAYS
 
 export function maybeArray<T>(thing: T | T[]): T[] {
@@ -82,6 +97,31 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
     }, {}) as Pick<T, K>;
 }
 
+export function validateWeekSettings(settings?: WeekSettings | void): WeekSettings | void {
+    if (!settings) {
+        return void 0;
+    }
+    else if (typeof settings !== "object") {
+        throw new InvalidArgumentError("Week settings must be an object");
+    }
+    else {
+        if (
+          !integerBetween(settings.firstDay, 1, 7) ||
+          !integerBetween(settings.minimalDays, 1, 7) ||
+          !Array.isArray(settings.weekend) ||
+          settings.weekend.some((v) => !integerBetween(v, 1, 7))
+        ) {
+            throw new InvalidArgumentError("Invalid week settings");
+        }
+        return {
+            firstDay: settings.firstDay,
+            minimalDays: settings.minimalDays,
+            weekend: settings.weekend
+        };
+    }
+}
+
+
 // NUMBERS AND STRINGS
 
 export function integerBetween(thing: number, bottom: number, top: number): boolean {
@@ -93,7 +133,7 @@ export function floorMod(x: number, n: number): number {
     return x - n * Math.floor(x / n);
 }
 
-export function padStart(input: string | number, n = 2) : string{
+export function padStart(input: string | number, n = 2): string {
     const minus = +input < 0 ? "-" : "";
     const target = minus ? +input * -1 : input;
     let result;
@@ -137,7 +177,7 @@ export function parseMillis(fraction: string | null | undefined): number {
 
 export function roundTo(value: number, digits: number, towardZero = false): number {
     const factor = 10 ** digits,
-        rounder = towardZero ? Math.trunc : Math.round;
+      rounder = towardZero ? Math.trunc : Math.round;
     return rounder(value * factor) / factor;
 }
 
@@ -151,22 +191,22 @@ export function daysInYear(year: number): 366 | 365 {
     return isLeapYear(year) ? 366 : 365;
 }
 
-export function daysInMonth(year: number, month: number) : number {
+export function daysInMonth(year: number, month: number): number {
     const modMonth = floorMod(month - 1, 12) + 1,
-        modYear = year + (month - modMonth) / 12;
+      modYear = year + (month - modMonth) / 12;
     return [31, isLeapYear(modYear) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][modMonth - 1];
 }
 
 // convert a calendar object to a local timestamp (epoch, but with the offset baked in)
 export function objToLocalTS(obj: GregorianDateTime): number {
     let d: Date | number = Date.UTC(
-        obj.year,
-        obj.month - 1,
-        obj.day,
-        obj.hour,
-        obj.minute,
-        obj.second,
-        obj.millisecond
+      obj.year,
+      obj.month - 1,
+      obj.day,
+      obj.hour,
+      obj.minute,
+      obj.second,
+      obj.millisecond
     );
 
     // for legacy reasons, years between 0 and 99 are interpreted as 19XX; revert that
@@ -180,16 +220,16 @@ export function objToLocalTS(obj: GregorianDateTime): number {
     return +d;
 }
 
-export function weeksInWeekYear(weekYear: number): 53 | 52 {
-    const p1 =
-            (weekYear +
-                Math.floor(weekYear / 4) -
-                Math.floor(weekYear / 100) +
-                Math.floor(weekYear / 400)) %
-            7,
-        last = weekYear - 1,
-        p2 = (last + Math.floor(last / 4) - Math.floor(last / 100) + Math.floor(last / 400)) % 7;
-    return p1 === 4 || p2 === 3 ? 53 : 52;
+// adapted from moment.js: https://github.com/moment/moment/blob/000ac1800e620f770f4eb31b5ae908f6167b0ab2/src/lib/units/week-calendar-utils.js
+function firstWeekOffset(year: number, minDaysInFirstWeek: number, startOfWeek: number): number {
+    const fwdlw = isoWeekdayToLocal(dayOfWeek(year, 1, minDaysInFirstWeek), startOfWeek);
+    return -fwdlw + minDaysInFirstWeek - 1;
+}
+
+export function weeksInWeekYear(weekYear: number, minDaysInFirstWeek = 4, startOfWeek = 1): number {
+    const weekOffset = firstWeekOffset(weekYear, minDaysInFirstWeek, startOfWeek);
+    const weekOffsetNext = firstWeekOffset(weekYear + 1, minDaysInFirstWeek, startOfWeek);
+    return (daysInYear(weekYear) - weekOffset + weekOffsetNext) / 7;
 }
 
 export function untruncateYear(year: number): number {
@@ -204,10 +244,10 @@ export function untruncateYear(year: number): number {
 // PARSING
 
 export function parseZoneInfo(
-    ts: number,
-    offsetFormat?: string,
-    locale?: string,
-    timeZone?: string
+  ts: number,
+  offsetFormat?: string,
+  locale?: string,
+  timeZone?: string
 ): string {
     const date = new Date(ts);
     const intlOpts = {
@@ -222,8 +262,8 @@ export function parseZoneInfo(
 
     const modified: Intl.DateTimeFormatOptions = { timeZoneName: offsetFormat, ...intlOpts };
     const parsed = new Intl.DateTimeFormat(locale, modified)
-        .formatToParts(date)
-        .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
+      .formatToParts(date)
+      .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
 
     return parsed ? parsed.value : null;
 }
@@ -238,7 +278,7 @@ export function signedOffset(offHourStr: string, offMinuteStr: string): number {
     }
 
     const offMin = parseInt(offMinuteStr, 10) || 0,
-        offMinSigned = offHour < 0 || Object.is(offHour, -0) ? -offMin : offMin;
+      offMinSigned = offHour < 0 || Object.is(offHour, -0) ? -offMin : offMin;
     return offHour * 60 + offMinSigned;
 }
 
@@ -264,8 +304,8 @@ export function normalizeObject(obj: Record<string, unknown>,
 
 export function formatOffset(offset: number, format: ZoneOffsetFormat): string {
     const hours = Math.trunc(Math.abs(offset / 60)),
-        minutes = Math.trunc(Math.abs(offset % 60)),
-        sign = offset >= 0 ? "+" : "-";
+      minutes = Math.trunc(Math.abs(offset % 60)),
+      sign = offset >= 0 ? "+" : "-";
 
     switch (format) {
         case "short":
@@ -307,3 +347,42 @@ export const HUMAN_ORDERED_UNITS: NormalizedHumanDurationUnit[] = [
     "seconds",
     "milliseconds"
 ];
+
+export const PLURAL_MAPPING: Record<string, keyof GenericDateTimeExtended> = {
+    year: "year",
+    years: "year",
+    quarter: "quarter",
+    quarters: "quarter",
+    month: "month",
+    months: "month",
+    day: "day",
+    days: "day",
+    hour: "hour",
+    hours: "hour",
+    localWeekNumber: "localWeekNumber",
+    localWeekNumbers: "localWeekNumber",
+    localWeekday: "localWeekday",
+    localWeekdays: "localWeekday",
+    localWeekYear: "localWeekYear",
+    localWeekYears: "localWeekYear",
+    minute: "minute",
+    minutes: "minute",
+    second: "second",
+    seconds: "second",
+    millisecond: "millisecond",
+    milliseconds: "millisecond",
+    weekday: "weekday",
+    weekdays: "weekday",
+    weeknumber: "weekNumber",
+    weeksnumber: "weekNumber",
+    weeknumbers: "weekNumber",
+    weekyear: "weekYear",
+    weekyears: "weekYear",
+    ordinal: "ordinal"
+};
+
+export const FALLBACK_WEEK_SETTINGS: WeekSettings = {
+    firstDay: 1,
+    minimalDays: 4,
+    weekend: [6, 7]
+};

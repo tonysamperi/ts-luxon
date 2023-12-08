@@ -3,8 +3,9 @@ import { NumberingSystem } from "./locale";
 import { Locale } from "../impl/locale";
 import { Invalid } from "./invalid";
 import Intl from "./intl-next";
+import { LocalWeekDateTime, LocalWeekDateTimePlurals } from "./datetime";
 
-export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds">;
+export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds" | keyof LocalWeekDateTime>;
 export type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
 
 export interface DurationOptions {
@@ -14,7 +15,7 @@ export interface DurationOptions {
     numberingSystem?: NumberingSystem;
 }
 
-export interface DurationObject {
+export type DurationObject = {
     day?: number;
     days?: number;
     hour?: number;
@@ -33,28 +34,9 @@ export interface DurationObject {
     weeks?: number;
     year?: number;
     years?: number;
-}
+} & Partial<LocalWeekDateTime> & Partial<LocalWeekDateTimePlurals>;
 
-export interface UnparsedDurationObject {
-    day?: string | number;
-    days?: string | number;
-    hour?: string | number;
-    hours?: string | number;
-    millisecond?: string | number;
-    milliseconds?: string | number;
-    minute?: string | number;
-    minutes?: string | number;
-    month?: string | number;
-    months?: string | number;
-    quarter?: string | number;
-    quarters?: string | number;
-    second?: string | number;
-    seconds?: string | number;
-    week?: string | number;
-    weeks?: string | number;
-    year?: string | number;
-    years?: string | number;
-}
+export type UnparsedDurationObject = Partial<Record<keyof DurationObject, string | number>>;
 
 export type DurationUnit = keyof DurationObject;
 
