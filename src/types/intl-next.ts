@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering, @typescript-eslint/no-namespace, @typescript-eslint/naming-convention */
 // We keep this file to integrate modifications which aren't in ts lib intl yey
 
 // This file can be removed once es2020.intl is part of TS
@@ -5,10 +6,10 @@
 
 declare namespace Intl {
     interface CollatorOptions {
-        usage?: string;
+        caseFirst?: string;
         localeMatcher?: string;
         numeric?: boolean;
-        caseFirst?: string;
+        usage?: string;
         sensitivity?: string;
         ignorePunctuation?: boolean;
     }
@@ -29,7 +30,6 @@ declare namespace Intl {
         resolvedOptions(): ResolvedCollatorOptions;
     }
 
-    // tslint:disable-next-line:naming-convention
     let Collator: {
         new(locales?: string | string[], options?: CollatorOptions): Collator;
         (locales?: string | string[], options?: CollatorOptions): Collator;
@@ -216,8 +216,8 @@ declare namespace Intl {
 
     interface ListFormatOptions {
         localeMatcher?: "lookup" | "best fit";
-        type?: ListType;
         style?: "long" | "short" | "narrow";
+        type?: ListType;
     }
 
     interface ListFormatPart {
@@ -238,6 +238,65 @@ declare namespace Intl {
         ): string[];
     }
 
+}
+
+declare namespace Intl {
+    type LocaleHourCycleKey = "h12" | "h23" | "h11" | "h24";
+    type LocaleCollationCaseFirst = "upper" | "lower" | "false";
+
+    interface LocaleOptions {
+        /** A string containing the language, and the script and region if available. */
+        baseName?: string;
+        /** The part of the Locale that indicates the locale's calendar era. */
+        calendar?: string;
+        /** Flag that defines whether case is taken into account for the locale's collation rules. */
+        caseFirst?: LocaleCollationCaseFirst;
+        /** The collation type used for sorting */
+        collation?: string;
+        /** The time keeping format convention used by the locale. */
+        hourCycle?: LocaleHourCycleKey;
+        /** The primary language subtag associated with the locale. */
+        language?: string;
+        /** The numeral system used by the locale. */
+        numberingSystem?: string;
+        /** Flag that defines whether the locale has special collation handling for numeric characters. */
+        numeric?: boolean;
+        /** The region of the world (usually a country) associated with the locale. Possible values are region codes as defined by ISO 3166-1. */
+        region?: string;
+        /** The script used for writing the particular language used in the locale. Possible values are script codes as defined by ISO 15924. */
+        script?: string;
+    }
+
+    interface Locale extends LocaleOptions {
+        /** A string containing the language, and the script and region if available. */
+        baseName: string;
+        /** The primary language subtag associated with the locale. */
+        language: string;
+        /** Gets the most likely values for the language, script, and region of the locale based on existing values. */
+        maximize(): Locale;
+        /** Attempts to remove information about the locale that would be added by calling `Locale.maximize()`. */
+        minimize(): Locale;
+        /** Returns the locale's full locale identifier string. */
+        toString(): BCP47LanguageTag;
+    }
+
+    /**
+     * Constructor creates [Intl.Locale](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale)
+     * objects
+     *
+     * @param tag - A string with a [BCP 47 language tag](http://tools.ietf.org/html/rfc5646).
+     *  For the general form and interpretation of the locales argument,
+     *  see the [`Intl` page](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation).
+     *
+     * @param options - An [object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/Locale#Parameters) with some or all of the options of the locale.
+     *
+     * @returns [Intl.Locale](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale) object.
+     *
+     * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale).
+     */
+    const Locale: {
+        new (tag: BCP47LanguageTag | Locale, options?: LocaleOptions): Locale;
+    };
 }
 
 export default Intl;

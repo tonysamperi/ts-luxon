@@ -120,7 +120,8 @@ const accurateMatrix: ConversionMatrix = {
 
 function durationToMillis(matrix: ConversionMatrix, vals: NormalizedDurationObject): number {
     let sum = vals.milliseconds ?? 0;
-    for (const unit of REVERSE_ORDERED_UNITS.slice(1)) {
+    for (const unit of
+        REVERSE_ORDERED_UNITS.slice(1)) {
         if (vals[unit]) {
             sum += vals[unit] * matrix[unit as ConversionMatrixUnit]["milliseconds"];
         }
@@ -166,6 +167,22 @@ function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObjec
                 const rollUp = Math.floor(previousVal / conv);
                 vals[current] += rollUp * factor;
                 vals[previous] -= rollUp * conv * factor;
+            }
+            return current;
+        }
+        else {
+            return previous;
+        }
+    }, null);
+
+    // try to convert any decimals into smaller units if possible
+    // for example for { years: 2.5, days: 0, seconds: 0 } we want to get { years: 2, days: 182, hours: 12 }
+    ORDERED_UNITS.reduce((previous, current) => {
+        if (!isUndefined(vals[current])) {
+            if (previous) {
+                const fraction = vals[previous] % 1;
+                vals[previous] -= fraction;
+                vals[current] += fraction * matrix[previous as ConversionMatrixUnit][current];
             }
             return current;
         }
@@ -534,7 +551,6 @@ export class Duration implements NormalizedDurationObject {
         }
     }
 
-
     /**
      * Check if an object is a Duration. Works across context boundaries
      * @param {Object} o
@@ -555,6 +571,12 @@ export class Duration implements NormalizedDurationObject {
             quarters: "quarters",
             month: "months",
             months: "months",
+            localWeekNumber: "localWeekNumbers",
+            localWeekYear: "localWeekYears",
+            localWeekday: "localWeekdays",
+            localWeekNumbers: "localWeekNumbers",
+            localWeekYears: "localWeekYears",
+            localWeekdays: "localWeekdays",
             week: "weeks",
             weeks: "weeks",
             day: "days",
@@ -575,6 +597,21 @@ export class Duration implements NormalizedDurationObject {
 
         return normalized;
     }
+
+    // PUBLIC INSTANCE
+
+    /**
+     * Returns a string representation of this Duration appropriate for the REPL.
+     * @return {string}
+     */
+    [Symbol.for("nodejs.util.inspect.custom")](): string {
+        if (this.isValid) {
+            return `Duration { values: ${JSON.stringify(this._values)} }`;
+        } else {
+            return `Duration { Invalid, reason: ${this.invalidReason} }`;
+        }
+    }
+
 
     /**
      * Return the length of the duration in the specified unit.
@@ -622,9 +659,8 @@ export class Duration implements NormalizedDurationObject {
      * @return {number}
      */
     get(unit: DurationUnit): number {
-        return this[Duration.normalizeUnit(unit)];
+        return (this as NormalizedDurationObject)[Duration.normalizeUnit(unit)];
     }
-
 
     /**
      * Returns the max unit in the duration, forcing the shifting to the max possible.
@@ -699,7 +735,14 @@ export class Duration implements NormalizedDurationObject {
 
     /**
      * Reduce this Duration to its canonical representation in its current units.
+     * Assuming the overall value of the Duration is positive, this means:
+     * - excessive values for lower-order units are converted to higher order units (if possible, see first and second example)
+     * - negative lower-order units are converted to higher order units (there must be such a higher order unit, otherwise
+     *   the overall value would be negative, see third example)
+     *
+     * If the overall value is negative, the result of this method is equivalent to `this.negate().normalize().negate()`.
      * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=> { years: 15, days: 255 }
+     * @example Duration.fromObject({ days: 5000 }).normalize().toObject() //=> { days: 5000 }
      * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=> { hours: 11, minutes: 15 }
      * @return {Duration}
      */
@@ -708,12 +751,8 @@ export class Duration implements NormalizedDurationObject {
             return this;
         }
         const vals = this.toObject();
-        if (this.valueOf() >= 0) {
-            normalizeValues(this._matrix, vals);
-            return this._clone(this, { values: vals }, !0);
-        }
-
-        return this.negate().normalize().negate();
+        normalizeValues(this._matrix, vals);
+        return this._clone(this, { values: vals }, !0);
     }
 
     /**
@@ -899,10 +938,10 @@ export class Duration implements NormalizedDurationObject {
 
     /**
      * Returns a string representation of a Duration with all units included.
-     * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
-     * You can also exclude quarters and weeks, by passing { onlyHumanUnits: true }
-     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
-     * @param opts - On option object to override the formatting. Accepts the same keys as the options parameter of the native `Int.NumberFormat` constructor, as well as `listStyle`.
+     * To modify its behavior, use `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
+     * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
+     * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
      * @example
      * ```js
      * var dur = Duration.fromObject({ days: 1, hours: 5, minutes: 6 })
@@ -1042,14 +1081,10 @@ export class Duration implements NormalizedDurationObject {
      * @return {number}
      */
     toMillis(): number {
-        // let sum = this._values.milliseconds ?? 0;
-        // for (const unit of
-        //     REVERSE_ORDERED_UNITS.slice(1)) {
-        //     if (this._values[unit]) {
-        //         sum += this._values[unit] * this.matrix[unit as ConversionMatrixUnit]["milliseconds"];
-        //     }
-        // }
-        // return sum;
+        if (!this.isValid) {
+            return NaN;
+        }
+
         return durationToMillis(this.matrix, this._values);
     }
 

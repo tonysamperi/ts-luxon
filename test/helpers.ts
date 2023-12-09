@@ -4,7 +4,9 @@ import {
     NumberingSystem,
     CalendarSystem,
     Duration
-} from "../src";
+}
+// @ts-ignore
+    from "../src";
 
 export class Helpers {
 
@@ -86,6 +88,19 @@ export class Helpers {
         return null;
     }
 
+    static setUnset<T extends keyof typeof Settings>(prop: T): (value: unknown, f: () => void) => void {
+        return (value: unknown, f) => {
+            const existing = Settings[prop];
+            try {
+                // @ts-ignore
+                Settings[prop] = value;
+                f();
+            } finally {
+                Settings[prop] = existing;
+            }
+        };
+    }
+
     // WITH
 
     static withDefaultLocale(locale: string | undefined, f: Function) {
@@ -93,7 +108,8 @@ export class Helpers {
         try {
             Settings.defaultLocale = locale;
             f();
-        } finally {
+        }
+        finally {
             Settings.defaultLocale = previousDefaultLocale;
         }
     }
@@ -103,7 +119,8 @@ export class Helpers {
         try {
             Settings.defaultNumberingSystem = numberingSystem;
             f();
-        } finally {
+        }
+        finally {
             Settings.defaultNumberingSystem = previousNumberingSystem;
         }
     }
@@ -113,7 +130,8 @@ export class Helpers {
         try {
             Settings.defaultOutputCalendar = outputCalendar;
             f();
-        } finally {
+        }
+        finally {
             Settings.defaultOutputCalendar = previousOutputCalendar;
         }
     }
@@ -122,7 +140,8 @@ export class Helpers {
         try {
             Settings.defaultZoneLike = zone;
             f();
-        } finally {
+        }
+        finally {
             Settings.defaultZoneLike = null;
         }
     }
@@ -134,18 +153,37 @@ export class Helpers {
             try {
                 Settings.now = () => dt.valueOf();
                 f();
-            } finally {
+            }
+            finally {
                 Settings.now = previousNow;
             }
         });
     }
+
+    static withoutLocaleWeekInfo = function(name: string, f: () => void) {
+        const fullName = `With no Intl.Locale.weekInfo support, ${name}`;
+        test(fullName, () => {
+            const l = Intl.Locale;
+            try {
+                // @ts-ignore
+                Intl.Locale = undefined;
+                Settings.resetCaches();
+                f();
+            }
+            finally {
+                // @ts-ignore
+                Intl.Locale = l;
+            }
+        });
+    };
 
     static withThrowOnInvalid(value: boolean, callback: Function) {
         const existing = Settings.throwOnInvalid;
         try {
             Settings.throwOnInvalid = value;
             callback();
-        } finally {
+        }
+        finally {
             Settings.throwOnInvalid = existing;
         }
     }
@@ -155,14 +193,14 @@ export class Helpers {
     static withoutRTF(name: string, f: Function) {
         const fullName = `With no RelativeTimeFormat support, ${name}`;
         test(fullName, () => {
-            // @ts-ignore
             const rtf = Intl.RelativeTimeFormat;
             try {
-                // @ts-expect-error
+                // @ts-ignore
                 Intl.RelativeTimeFormat = undefined;
                 Settings.resetCaches();
                 f();
-            } finally {
+            }
+            finally {
                 // @ts-ignore
                 Intl.RelativeTimeFormat = rtf;
             }

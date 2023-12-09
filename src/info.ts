@@ -5,8 +5,8 @@ import { IANAZone } from "./zones/IANAZone";
 import { Zone } from "./zone";
 import { normalizeZone } from "./impl/zoneUtil";
 
-import { hasRelative } from "./impl/util";
-import { StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common";
+import { hasRelative, hasLocaleWeekInfo } from "./impl/util";
+import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common";
 import { InfoOptions, InfoCalendarOptions, InfoUnitOptions, Features } from "./types/info";
 import { ZoneLike } from "./types/zone";
 
@@ -35,10 +35,43 @@ export class Info {
      * Keys:
      * * `relative`: whether this environment supports relative time formatting
      * @example Info.features() //=> { relative: false }
-     * @return {Object}
      */
     static features(): Features {
-        return { relative: hasRelative() };
+        return { relative: hasRelative(), localeWeek: hasLocaleWeekInfo() };
+    }
+
+    /**
+     * Get the minimum number of days necessary in a week before it is considered part of the next year according
+     * to the given locale.
+     * @param {Object} opts - options
+     * @param {string} [opts.locale] - the locale code
+     * @param {string} [opts.locObj=null] - an existing locale object to use
+     */
+    static getMinimumDaysInFirstWeek({ locale, locObj }: { locale?: string; locObj?: Locale } = {}): number {
+        return (locObj || Locale.create(locale)).getMinDaysInFirstWeek();
+    }
+
+    /**
+     * Get the weekday on which the week starts according to the given locale.
+     * @param {Object} opts - options
+     * @param {string} [opts.locale] - the locale code
+     * @param {string} [opts.locObj=null] - an existing locale object to use
+     * @returns {number} the start of the week, 1 for Monday through 7 for Sunday
+     */
+    static getStartOfWeek({ locale, locObj }: { locale?: string; locObj?: Locale } = {}): number {
+        return (locObj || Locale.create(locale)).getStartOfWeek();
+    }
+
+    /**
+     * Get the weekdays, which are considered the weekend according to the given locale
+     * @param {Object} opts - options
+     * @param {string} [opts.locale] - the locale code
+     * @param {string} [opts.locObj=null] - an existing locale object to use
+     * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
+     */
+    static getWeekendWeekdays({ locale, locObj }: { locale?: string; locObj?: Locale } = {}): [DayOfWeek, DayOfWeek] {
+        // copy the array, because we cache it internally
+        return (locObj || Locale.create(locale)).getWeekendDays().slice() as [DayOfWeek, DayOfWeek];
     }
 
     /**
@@ -156,7 +189,11 @@ export class Info {
      * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
      * @return {string[]}
      */
-    static weekdays(length: WeekUnitLengths = "long", { locale, locObj, numberingSystem }: InfoUnitOptions = {}): string[] {
+    static weekdays(length: WeekUnitLengths = "long", {
+        locale,
+        locObj,
+        numberingSystem
+    }: InfoUnitOptions = {}): string[] {
         return (locObj || Locale.create(locale, numberingSystem)).weekdays(length);
     }
 

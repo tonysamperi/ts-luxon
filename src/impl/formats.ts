@@ -4,61 +4,61 @@ import Intl from "../types/intl-next";
  * @private
  */
 
-const n: "numeric" = "numeric",
-    s: "short" = "short",
-    l: "long" = "long";
+const n = "numeric" as const,
+    s = "short" as const,
+    l = "long" as const;
 
-export const DATE_SHORT = {
+export const DATE_SHORT: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day"> = {
     year: n,
     month: n,
     day: n
 };
 
-export const DATE_MED = {
+export const DATE_MED: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day"> = {
     year: n,
     month: s,
     day: n
 };
 
-export const DATE_MED_WITH_WEEKDAY = {
+export const DATE_MED_WITH_WEEKDAY: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "weekday"> = {
     year: n,
     month: s,
     day: n,
     weekday: s
 };
 
-export const DATE_FULL = {
+export const DATE_FULL: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day"> = {
     year: n,
     month: l,
     day: n
 };
 
-export const DATE_HUGE = {
+export const DATE_HUGE: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "weekday"> = {
     year: n,
     month: l,
     day: n,
     weekday: l
 };
 
-export const TIME_SIMPLE = {
+export const TIME_SIMPLE: Pick<Intl.DateTimeFormatOptions, "hour" | "minute"> = {
     hour: n,
     minute: n
 };
 
-export const TIME_WITH_SECONDS = {
+export const TIME_WITH_SECONDS: Pick<Intl.DateTimeFormatOptions, "hour" | "minute" | "second"> = {
     hour: n,
     minute: n,
     second: n
 };
 
-export const TIME_WITH_SHORT_OFFSET = {
+export const TIME_WITH_SHORT_OFFSET: Pick<Intl.DateTimeFormatOptions, "hour" | "minute" | "second" | "timeZoneName"> = {
     hour: n,
     minute: n,
     second: n,
     timeZoneName: s
 };
 
-export const TIME_WITH_LONG_OFFSET = {
+export const TIME_WITH_LONG_OFFSET: Pick<Intl.DateTimeFormatOptions, "hour" | "minute" | "second" | "timeZoneName"> = {
     hour: n,
     minute: n,
     second: n,
@@ -94,7 +94,7 @@ export const TIME_24_WITH_LONG_OFFSET: Pick<Intl.DateTimeFormatOptions, "hour" |
     timeZoneName: l
 };
 
-export const DATETIME_SHORT = {
+export const DATETIME_SHORT: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute"> = {
     year: n,
     month: n,
     day: n,
@@ -102,7 +102,7 @@ export const DATETIME_SHORT = {
     minute: n
 };
 
-export const DATETIME_SHORT_WITH_SECONDS = {
+export const DATETIME_SHORT_WITH_SECONDS: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "second"> = {
     year: n,
     month: n,
     day: n,
@@ -111,7 +111,7 @@ export const DATETIME_SHORT_WITH_SECONDS = {
     second: n
 };
 
-export const DATETIME_MED = {
+export const DATETIME_MED: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute"> = {
     year: n,
     month: s,
     day: n,
@@ -119,7 +119,7 @@ export const DATETIME_MED = {
     minute: n
 };
 
-export const DATETIME_MED_WITH_SECONDS = {
+export const DATETIME_MED_WITH_SECONDS: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "second"> = {
     year: n,
     month: s,
     day: n,
@@ -128,7 +128,7 @@ export const DATETIME_MED_WITH_SECONDS = {
     second: n
 };
 
-export const DATETIME_MED_WITH_WEEKDAY = {
+export const DATETIME_MED_WITH_WEEKDAY: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "weekday" | "hour" | "minute"> = {
     year: n,
     month: s,
     day: n,
@@ -137,7 +137,7 @@ export const DATETIME_MED_WITH_WEEKDAY = {
     minute: n
 };
 
-export const DATETIME_FULL = {
+export const DATETIME_FULL: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "timeZoneName"> = {
     year: n,
     month: l,
     day: n,
@@ -146,7 +146,7 @@ export const DATETIME_FULL = {
     timeZoneName: s
 };
 
-export const DATETIME_FULL_WITH_SECONDS = {
+export const DATETIME_FULL_WITH_SECONDS: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "second" | "timeZoneName"> = {
     year: n,
     month: l,
     day: n,
@@ -156,7 +156,7 @@ export const DATETIME_FULL_WITH_SECONDS = {
     timeZoneName: s
 };
 
-export const DATETIME_HUGE = {
+export const DATETIME_HUGE: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "weekday" | "hour" | "minute" | "timeZoneName"> = {
     year: n,
     month: l,
     day: n,
@@ -166,7 +166,7 @@ export const DATETIME_HUGE = {
     timeZoneName: l
 };
 
-export const DATETIME_HUGE_WITH_SECONDS = {
+export const DATETIME_HUGE_WITH_SECONDS: Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "weekday" | "hour" | "minute" | "second" | "timeZoneName"> = {
     year: n,
     month: l,
     day: n,

@@ -1,3 +1,5 @@
+import { DayOfWeek } from "./common";
+
 export type NumberingSystem =
   | "arab"
   | "arabext"
@@ -37,9 +39,16 @@ export type CalendarSystem =
   | "persian"
   | "roc";
 
+export interface WeekSettings {
+    firstDay: DayOfWeek;
+    minimalDays: DayOfWeek;
+    weekend: [DayOfWeek, DayOfWeek];
+}
+
 export interface LocaleOptions {
-  locale?: string;
-  outputCalendar?: CalendarSystem;
-  numberingSystem?: NumberingSystem;
-  defaultToEN?: boolean;
+    defaultToEN?: boolean;
+    locale?: string;
+    numberingSystem?: NumberingSystem;
+    outputCalendar?: CalendarSystem;
+    weekSettings?: WeekSettings;
 }

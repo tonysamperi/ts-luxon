@@ -9,3 +9,4 @@ transpiled/
 .vscode/
 *.tgz
 docs/
+.run
