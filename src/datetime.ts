@@ -267,7 +267,7 @@ interface Config extends DateTimeConfig {
  * Here is a brief overview of the most commonly used functionality it provides:
  *
  * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime.local}, {@link DateTime.utc}, and (most flexibly) {@link DateTime.fromObject}. To create one from a standard string format, use {@link DateTime.fromISO}, {@link DateTime.fromHTTP}, and {@link DateTime.fromRFC2822}. To create one from a custom string format, use {@link DateTime.fromFormat}. To create one from a native JS date, use {@link DateTime.fromJSDate}.
- * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
+ * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e. as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
  * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
  * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
  * * **Configuration** See the {@link DateTime#locale} and {@link DateTime#numberingSystem} accessors.
@@ -377,7 +377,7 @@ export class DateTime {
     static readonly TIME_SIMPLE = Formats.TIME_SIMPLE;
 
     /**
-     * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+     * {@link DateTime#toLocaleString} format like "09:30:23 AM Eastern Daylight Time". Only 12-hour if the locale is.
      */
     static readonly TIME_WITH_LONG_OFFSET = Formats.TIME_WITH_LONG_OFFSET;
 
@@ -569,7 +569,7 @@ export class DateTime {
     }
 
     /**
-     * Get the numbering system of a DateTime, such 'beng'. The numbering system is used when formatting the DateTime
+     * Get the numbering system of a DateTime, such as "beng". The numbering system is used when formatting the DateTime
      */
     get numberingSystem(): Readonly<NumberingSystem> {
         return this.isValid ? this._loc.numberingSystem : void 0;
@@ -891,7 +891,7 @@ export class DateTime {
      * @param {Object} opts - options to affect the creation
      * @param {string|Zone} [opts.zone='local'] - convert the time to this zone. Since HTTP dates are always in UTC, this has no effect on the interpretation of string, merely the zone the resulting DateTime is expressed in.
      * @param {boolean} [opts.setZone=false] - override the zone with the fixed-offset zone specified in the string. For HTTP dates, this is always UTC, so this option is equivalent to setting the `zone` option to 'utc', but this option is included for consistency with similar methods.
-     * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+     * @param {string} [opts.locale="system's locale"] - a locale to set on the resulting DateTime instance
      * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
      * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
      * @example DateTime.fromHTTP('Sun, 06 Nov 1994 08:49:37 GMT')
@@ -915,7 +915,7 @@ export class DateTime {
      * @param {string} [opts.numberingSystem] - the numbering system to set on the resulting DateTime instance
      * @example DateTime.fromISO('2016-05-25T09:08:34.123')
      * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00')
-     * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00', {setZone: true})
+     * @example DateTime.fromISO("2016-05-25T09:08:34.123+06:00", {setZone: true})
      * @example DateTime.fromISO('2016-05-25T09:08:34.123', {zone: 'utc'})
      * @example DateTime.fromISO('2016-W05-4')
      * @return {DateTime}
@@ -972,7 +972,7 @@ export class DateTime {
             );
         }
         else if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
-            // this isn't perfect because because we can still end up out of range because of additional shifting, but it's a start
+            // this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
             return DateTime.invalid("Timestamp out of range");
         }
         else {
@@ -1002,8 +1002,8 @@ export class DateTime {
      * @param {number} obj.second - second of the minute, 0-59
      * @param {number} obj.millisecond - millisecond of the second, 0-999
      * @param {Object} opts - options for creating this DateTime
-     * @param {string|Zone} [opts.zone='local'] - interpret the numbers in the context of a particular zone. Can take any value taken as the first argument to setZone()
-     * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+     * @param {string|Zone} [opts.zone="local"] - interpret the numbers in the context of a particular zone. Can take any value taken as the first argument to setZone()
+     * @param {string} [opts.locale="system's locale"] - a locale to set on the resulting DateTime instance
      * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
      * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
      * @example DateTime.fromObject({ year: 1982, month: 5, day: 25}).toISODate() //=> '1982-05-25'
@@ -1376,6 +1376,10 @@ export class DateTime {
             );
         }
 
+        if (!inst.isValid) {
+            return DateTime.invalid(inst._invalid);
+        }
+
         return inst;
     }
 
@@ -1478,6 +1482,18 @@ export class DateTime {
     }
 
     // PUBLIC
+
+    /**
+     * Returns a string representation of this DateTime appropriate for the REPL.
+     * @return {string}
+     */
+    [Symbol.for("nodejs.util.inspect.custom")](): string {
+        if (this.isValid) {
+            return `DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }`;
+        } else {
+            return `DateTime { Invalid, reason: ${this.invalidReason} }`;
+        }
+    }
 
     /**
      * Returns the difference between two DateTimes as a Duration.
@@ -2016,16 +2032,16 @@ export class DateTime {
     }
 
     /**
-     * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
+     * Returns an array of format "parts", meaning individual tokens along with metadata. This allows callers to post-process individual sections of the formatted output.
      * Defaults to the system's locale if no locale has been specified
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat/formatToParts
      * @param opts {Object} - Intl.DateTimeFormat constructor options, same as `toLocaleString`.
      * @example DateTime.now().toLocaleParts(); //=> [
-     *                                   //=>   { type: 'day', value: '25' },
-     *                                   //=>   { type: 'literal', value: '/' },
+     *                                   //=>   { type: "day", value: "25" },
+     *                                   //=>   { type: "literal", value: "/" },
      *                                   //=>   { type: 'month', value: '05' },
-     *                                   //=>   { type: 'literal', value: '/' },
-     *                                   //=>   { type: 'year', value: '1982' }
+     *                                   //=>   { type: "literal", value: "/" },
+     *                                   //=>   { type: "year", value: "1982" }
      *                                   //=> ]
      */
     toLocaleParts(opts: Intl.DateTimeFormatOptions & LocaleOptions = {}): Intl.DateTimeFormatPart[] {
@@ -2154,7 +2170,7 @@ export class DateTime {
      * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
      * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
      */
-    toRelativeCalendar(options: ToRelativeCalendarOptions = {}) {
+    toRelativeCalendar(options: ToRelativeCalendarOptions = {}): string {
         if (!this.isValid) {
             return null;
         }
@@ -2212,7 +2228,7 @@ export class DateTime {
      * @example DateTime.utc().toSQL() //=> '05:15:16.345'
      * @example DateTime.now().toSQL() //=> '05:15:16.345 -04:00'
      * @example DateTime.now().toSQL({ includeOffset: false }) //=> '05:15:16.345'
-     * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
+     * @example DateTime.now().toSQL({ includeZone: false }) //=> "05:15:16.345 America/New_York"
      * @return {string}
      */
     toSQLTime({ includeOffset = !0, includeZone = !1, includeOffsetSpace = !0 }: ToSQLOptions = {}): string {

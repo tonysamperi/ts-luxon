@@ -5,6 +5,8 @@
 * Improve DateTime#diff for cross-zone diffs in certain situations (#1165)
 * Improved normalization functions
 * Implement localized week information (#1454)
+* Fix Interval.splitAt datetime sorting (#1524)
+* Add custom inspect for node without dependency (#1526)
 
 ## 4.4.0 (Luxon 3.4.1)
 * Switched to eslint (finally!)

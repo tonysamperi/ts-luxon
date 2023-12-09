@@ -36,7 +36,7 @@ function validateStartEnd(start?: DateTime, end?: DateTime): Interval | void {
     }
 }
 
-function friendlyDateTime(dateTimeish: DateTimeLike) {
+function friendlyDateTime(dateTimeish: DateTimeLike): DateTime {
     if (DateTime.isDateTime(dateTimeish)) {
         return dateTimeish;
     }
@@ -315,7 +315,19 @@ export class Interval {
         return Interval.merge(results);
     }
 
-    // PUBLIC
+    // PUBLIC INSTANCE
+
+    /**
+     * Returns a string representation of this Interval appropriate for the REPL.
+     * @return {string}
+     */
+    [Symbol.for("nodejs.util.inspect.custom")](): string {
+        if (this.isValid) {
+            return `Interval { start: ${this._s.toISO()}, end: ${this._e.toISO()} }`;
+        } else {
+            return `Interval { Invalid, reason: ${this.invalidReason} }`;
+        }
+    }
 
     /**
      * Return whether this Interval's start is adjacent to the specified Interval's end.
@@ -533,7 +545,7 @@ export class Interval {
         const sorted = dateTimes
             .map(friendlyDateTime)
             .filter((d: DateTime) => this.contains(d))
-            .sort();
+            .sort((a, b) => a.toMillis() - b.toMillis());
         const results = [];
         let s = this._s,
             i = 0;

@@ -551,7 +551,6 @@ export class Duration implements NormalizedDurationObject {
         }
     }
 
-
     /**
      * Check if an object is a Duration. Works across context boundaries
      * @param {Object} o
@@ -598,6 +597,21 @@ export class Duration implements NormalizedDurationObject {
 
         return normalized;
     }
+
+    // PUBLIC INSTANCE
+
+    /**
+     * Returns a string representation of this Duration appropriate for the REPL.
+     * @return {string}
+     */
+    [Symbol.for("nodejs.util.inspect.custom")](): string {
+        if (this.isValid) {
+            return `Duration { values: ${JSON.stringify(this._values)} }`;
+        } else {
+            return `Duration { Invalid, reason: ${this.invalidReason} }`;
+        }
+    }
+
 
     /**
      * Return the length of the duration in the specified unit.
@@ -647,7 +661,6 @@ export class Duration implements NormalizedDurationObject {
     get(unit: DurationUnit): number {
         return (this as NormalizedDurationObject)[Duration.normalizeUnit(unit)];
     }
-
 
     /**
      * Returns the max unit in the duration, forcing the shifting to the max possible.
@@ -925,10 +938,10 @@ export class Duration implements NormalizedDurationObject {
 
     /**
      * Returns a string representation of a Duration with all units included.
-     * To modify its behavior use the `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
-     * You can also exclude quarters and weeks, by passing { onlyHumanUnits: true }
-     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
-     * @param opts - On option object to override the formatting. Accepts the same keys as the options parameter of the native `Int.NumberFormat` constructor, as well as `listStyle`.
+     * To modify its behavior, use `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
+     * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
+     * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
      * @example
      * ```js
      * var dur = Duration.fromObject({ days: 1, hours: 5, minutes: 6 })

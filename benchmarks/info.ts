@@ -1,8 +1,9 @@
 /* eslint import/no-extraneous-dependencies: off */
 /* eslint no-console: off */
 import Benchmark from "benchmark";
+//
 import { Info } from "../src";
-import { Locale } from "../src/impl/locale.js";
+import { Locale } from "../src/impl/locale";
 
 function runWeekdaysSuite() {
     return new Promise((resolve, reject) => {
