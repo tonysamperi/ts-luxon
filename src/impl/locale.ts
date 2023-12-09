@@ -394,14 +394,14 @@ export class Locale {
     private _meridiemCache?: Readonly<string[]>;
     private _monthsCache: Readonly<MonthCache>;
     private readonly _specifiedLocale?: string;
-    private _weekSettings: WeekSettings;
+    private _weekSettings: WeekSettings | void;
     private _weekdaysCache: Readonly<WeekDaysCache>;
 
     private constructor(
       locale: string,
       numberingSystem?: NumberingSystem,
       outputCalendar?: CalendarSystem,
-      weekSettings?: WeekSettings,
+      weekSettings?: WeekSettings | void,
       specifiedLocale?: string) {
 
         const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
@@ -419,14 +419,15 @@ export class Locale {
         this._fastNumbersCached = undefined;
     }
 
-    static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, weekSettings?: WeekSettings, defaultToEN = !1): Locale {
+    static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, weekSettings?: WeekSettings | void, defaultToEN = !1): Locale {
         const specifiedLocale = locale || Settings.defaultLocale;
         // the system locale is useful for human-readable strings but annoying for parsing/formatting known formats
         const localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale());
         const numberingSystemR = numberingSystem || Settings.defaultNumberingSystem;
         const outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
+        const weekSettingsR = validateWeekSettings(weekSettings) || Settings.defaultWeekSettings;
 
-        return new Locale(localeR, numberingSystemR, outputCalendarR, weekSettings, specifiedLocale);
+        return new Locale(localeR, numberingSystemR, outputCalendarR, weekSettingsR, specifiedLocale);
     }
 
     static fromObject({ locale, numberingSystem, outputCalendar, weekSettings }: LocaleOptions = {}): Locale {

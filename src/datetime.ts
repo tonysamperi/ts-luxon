@@ -73,6 +73,7 @@ import { LocaleOptions, CalendarSystem, NumberingSystem } from "./types/locale";
 import { ZoneLike } from "./types/zone";
 import { Invalid } from "./types/invalid";
 import Intl from "./types/intl-next";
+import { DayOfWeek } from "./types/common";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid DateTime";
@@ -478,6 +479,14 @@ export class DateTime {
     }
 
     /**
+     * Returns true if this date is on a weekend according to the locale, false otherwise
+     * @returns {boolean}
+     */
+    get isWeekend(): boolean {
+        return this.isValid && this.loc.getWeekendDays().includes(this.weekday as DayOfWeek);
+    }
+
+    /**
      * Get a clone of the Locale instance of a DateTime.
      */
     get loc(): Locale {
@@ -689,6 +698,22 @@ export class DateTime {
      */
     get weekdayShort(): string | null {
         return this.isValid ? Info.weekdays("short", { locObj: this._loc })[this.weekday - 1] : null;
+    }
+
+    /**
+     * Returns the number of weeks in this DateTime's local week year
+     * @example DateTime.local(2020, 6, {locale: 'en-US'}).weeksInLocalWeekYear //=> 52
+     * @example DateTime.local(2020, 6, {locale: 'de-DE'}).weeksInLocalWeekYear //=> 53
+     * @type {number}
+     */
+    get weeksInLocalWeekYear(): number {
+        return this.isValid
+            ? weeksInWeekYear(
+                this.localWeekYear,
+                this.loc.getMinDaysInFirstWeek(),
+                this.loc.getStartOfWeek()
+            )
+            : NaN;
     }
 
     /**
@@ -1515,9 +1540,9 @@ export class DateTime {
      * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
      * @return {DateTime}
      */
-    endOf(unit: DurationUnit, opts: { useLocaleWeeks?: boolean }): DateTime {
+    endOf(unit: DurationUnit, { useLocaleWeeks = false }: { useLocaleWeeks?: boolean } = {}): DateTime {
         return this.plus({ [unit]: 1 })
-                   .startOf(unit, opts)
+                   .startOf(unit, { useLocaleWeeks })
                    .minus({ milliseconds: 1 });
     }
 
@@ -1779,7 +1804,7 @@ export class DateTime {
      * @example DateTime.local(2014, 3, 3, 5, 30).startOf('day').toISOTime(); //=> '00:00.000-05:00'
      * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
      */
-    startOf(unit: DurationUnit, { useLocaleWeeks = false } = {}): DateTime {
+    startOf(unit: DurationUnit, { useLocaleWeeks = false }: { useLocaleWeeks?: boolean } = {}): DateTime {
         if (!this.isValid) {
             return this;
         }
@@ -2327,7 +2352,7 @@ export class DateTime {
     }
 
     private _possiblyCachedLocalWeekData(dt: DateTime): WeekDateTime {
-        if (dt._localWeekData === null) {
+        if (!dt._localWeekData) {
             dt._localWeekData = gregorianToWeek(
                 dt._c,
                 dt.loc.getMinDaysInFirstWeek(),

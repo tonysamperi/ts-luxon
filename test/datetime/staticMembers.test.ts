@@ -1,6 +1,6 @@
 import { DateTime } from "../../src/datetime";
 
-const staticKeys = [
+const staticKeys: (keyof typeof DateTime)[] = [
     "DATETIME_FULL",
     "DATETIME_FULL_WITH_SECONDS",
     "DATETIME_HUGE",
@@ -27,6 +27,6 @@ const staticKeys = [
 
 test("Static members are defined", () => {
     staticKeys.forEach((k) => {
-        expect(DateTime[k]).toBeTruthy();
+        expect(DateTime[k as keyof typeof DateTime]).toBeTruthy();
     });
 });

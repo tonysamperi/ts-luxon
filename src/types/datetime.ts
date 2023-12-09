@@ -98,7 +98,7 @@ export interface OrdinalDateTime extends TimeObject {
     year: number;
 }
 
-export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions>;
+export type GenericDateTime = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions & LocalWeekDateTime>;
 export type GenericDateTimeExtended = Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime & DateTimeOptions & LocalWeekDateTime & {
     quarter: number,
     quarters: number

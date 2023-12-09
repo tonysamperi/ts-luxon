@@ -5,7 +5,7 @@ import { NumberingSystem, CalendarSystem, WeekSettings } from "./types/locale";
 import { Zone } from "./zone";
 import { SystemZone } from "./zones/systemZone";
 import { ZoneLike } from "./types/zone";
-import { validateWeekSettings } from "./impl/util.js";
+import { validateWeekSettings } from "./impl/util";
 
 let now = (): number => Date.now(),
     defaultZone: ZoneLike | null = "system",

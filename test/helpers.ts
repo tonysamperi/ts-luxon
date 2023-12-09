@@ -88,6 +88,19 @@ export class Helpers {
         return null;
     }
 
+    static setUnset<T extends keyof typeof Settings>(prop: T): (value: unknown, f: () => void) => void {
+        return (value: unknown, f) => {
+            const existing = Settings[prop];
+            try {
+                // @ts-ignore
+                Settings[prop] = value;
+                f();
+            } finally {
+                Settings[prop] = existing;
+            }
+        };
+    }
+
     // WITH
 
     static withDefaultLocale(locale: string | undefined, f: Function) {
@@ -147,7 +160,7 @@ export class Helpers {
         });
     }
 
-    static withoutLocaleWeekInfo = function(name, f) {
+    static withoutLocaleWeekInfo = function(name: string, f: () => void) {
         const fullName = `With no Intl.Locale.weekInfo support, ${name}`;
         test(fullName, () => {
             const l = Intl.Locale;
