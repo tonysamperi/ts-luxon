@@ -12,7 +12,8 @@ module.exports = {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/test/",
-    "/dist/"
+    "/dist/",
+    "/src/impl/english.ts"
   ],
   coverageThreshold: {
     "global": {

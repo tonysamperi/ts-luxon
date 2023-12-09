@@ -57,16 +57,6 @@ export class InvalidZoneError extends TsLuxonError {
 /**
  * @private
  */
-export class UnparsableStringError extends TsLuxonError {
-  constructor(format: string, text: string) {
-    super(`can't parse ${text} into format ${format}`);
-    Object.setPrototypeOf(this, UnparsableStringError.prototype);
-  }
-}
-
-/**
- * @private
- */
 export class ConflictingSpecificationError extends TsLuxonError {
   constructor(message: string) {
     super(message);
