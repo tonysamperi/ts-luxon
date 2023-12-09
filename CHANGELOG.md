@@ -4,6 +4,7 @@
 * Fixed space characters in tests for Node 20
 * Improve DateTime#diff for cross-zone diffs in certain situations (#1165)
 * Improved normalization functions
+* Implement localized week information (#1454)
 
 ## 4.4.0 (Luxon 3.4.1)
 * Switched to eslint (finally!)
