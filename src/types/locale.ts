@@ -40,7 +40,7 @@ export type CalendarSystem =
   | "roc";
 
 export interface WeekSettings {
-    firstDay: number;
+    firstDay: DayOfWeek;
     minimalDays: DayOfWeek;
     weekend: [DayOfWeek, DayOfWeek];
 }

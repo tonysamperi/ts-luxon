@@ -348,6 +348,7 @@ export const HUMAN_ORDERED_UNITS: NormalizedHumanDurationUnit[] = [
     "milliseconds"
 ];
 
+// All keys here are lowercase because it's searched that way in normalizeUnit
 export const PLURAL_MAPPING: Record<string, keyof GenericDateTimeExtended> = {
     year: "year",
     years: "year",
@@ -359,12 +360,12 @@ export const PLURAL_MAPPING: Record<string, keyof GenericDateTimeExtended> = {
     days: "day",
     hour: "hour",
     hours: "hour",
-    localWeekNumber: "localWeekNumber",
-    localWeekNumbers: "localWeekNumber",
-    localWeekday: "localWeekday",
-    localWeekdays: "localWeekday",
-    localWeekYear: "localWeekYear",
-    localWeekYears: "localWeekYear",
+    localweeknumber: "localWeekNumber",
+    localweeknumbers: "localWeekNumber",
+    localweekday: "localWeekday",
+    localweekdays: "localWeekday",
+    localweekyear: "localWeekYear",
+    localweekyears: "localWeekYear",
     minute: "minute",
     minutes: "minute",
     second: "second",

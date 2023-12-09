@@ -58,7 +58,7 @@ export function gregorianToWeek(gregObj: GregorianDateTime,
     const ordinal = computeOrdinal(year, month, day);
     const weekday = isoWeekdayToLocal(dayOfWeek(year, month, day), startOfWeek);
 
-    let weekNumber = Math.floor((ordinal - weekday + 10) / 7),
+    let weekNumber = Math.floor((ordinal - weekday + 14 - minDaysInFirstWeek) / 7),
       weekYear;
 
     if (weekNumber < 1) {
@@ -76,7 +76,7 @@ export function gregorianToWeek(gregObj: GregorianDateTime,
     return { weekYear, weekNumber, weekday, ...timeObject(gregObj) };
 }
 
-export function weekToGregorian(weekData: WeekDateTime, minDaysInFirstWeek: number = 4, startOfWeek: number = 1): GregorianDateTime {
+export function weekToGregorian(weekData: WeekDateTime, minDaysInFirstWeek: number = FALLBACK_WEEK_SETTINGS.minimalDays, startOfWeek: number = FALLBACK_WEEK_SETTINGS.firstDay): GregorianDateTime {
     const { weekYear, weekNumber, weekday } = weekData;
     const weekdayOfJan4 = isoWeekdayToLocal(dayOfWeek(weekYear, 1, minDaysInFirstWeek), startOfWeek);
     const yearInDays = daysInYear(weekYear);
@@ -237,6 +237,6 @@ export function usesLocalWeekValues(obj: GenericDateTimeExtended, loc: Locale): 
         };
     }
     else {
-        return { minDaysInFirstWeek: 4, startOfWeek: 1 };
+        return { minDaysInFirstWeek: FALLBACK_WEEK_SETTINGS.minimalDays, startOfWeek: FALLBACK_WEEK_SETTINGS.firstDay };
     }
 }
