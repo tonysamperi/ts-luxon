@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.5.1 (Luxon 3.4.4)
+* Fixed DateTime.toISODate implementation
+* Removed null on return types of DateTime (avoid needing not nullish operators): 
+  * monthLong / monthShort
+  * offsetNameLong / offsetNameShort
+  * weekdayLong / weekdayShort
+  * zoneName
+  * toISO / toISOTime / toISOWeekDate
+  * toSQL
+  * toString
+
 ## 4.5.0 (Luxon 3.4.4)
 * Fixed space characters in tests for Node 20
 * Improve DateTime#diff for cross-zone diffs in certain situations (#1165)

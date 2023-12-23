@@ -555,7 +555,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).monthLong //=> October
      */
-    get monthLong(): string | null {
+    get monthLong(): string  {
         return this.isValid ? Info.months("long", { locObj: this._loc })[this.month - 1] : null;
     }
 
@@ -564,7 +564,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
      */
-    get monthShort(): string | null {
+    get monthShort(): string  {
         return this.isValid ? Info.months("short", { locObj: this._loc })[this.month - 1] : null;
     }
 
@@ -588,7 +588,7 @@ export class DateTime {
      * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
      * Defaults to the system's locale if no locale has been specified
      */
-    get offsetNameLong(): string | null {
+    get offsetNameLong(): string  {
         if (!this.isValid) {
             return null;
         }
@@ -603,7 +603,7 @@ export class DateTime {
      * Get the short human name for the zone's current offset, for example "EST" or "EDT".
      * Defaults to the system's locale if no locale has been specified
      */
-    get offsetNameShort(): string | null {
+    get offsetNameShort(): string  {
         if (!this.isValid) {
             return null;
         }
@@ -687,7 +687,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
      */
-    get weekdayLong(): string | null {
+    get weekdayLong(): string  {
         return this.isValid ? Info.weekdays("long", { locObj: this._loc })[this.weekday - 1] : null;
     }
 
@@ -696,7 +696,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
      */
-    get weekdayShort(): string | null {
+    get weekdayShort(): string  {
         return this.isValid ? Info.weekdays("short", { locObj: this._loc })[this.weekday - 1] : null;
     }
 
@@ -744,7 +744,7 @@ export class DateTime {
     /**
      * Get the name of the time zone.
      */
-    get zoneName(): string | null {
+    get zoneName(): string  {
         return this.isValid ? this.zone.name : null;
     }
 
@@ -1932,7 +1932,7 @@ export class DateTime {
               suppressMilliseconds = false,
               includeOffset = true,
               extendedZone = false
-          }: ToISOTimeOptions = {}): string | null {
+          }: ToISOTimeOptions = {}): string {
 
         if (!this.isValid) {
             return null;
@@ -1949,18 +1949,17 @@ export class DateTime {
     /**
      * Returns an ISO 8601-compliant string representation of this DateTime's date component
      * @param {Object} options - options
-     * @param {string} [options.format='extended'] - choose between the basic and extended format
+     * @param {string} [options.format="extended"] - choose between the basic and extended (default) format
      * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
      * @return {string}
      */
-    toISODate(options: { format?: ToISOFormat } = { format: "extended" }): string {
-        let fmt = options.format === "basic" ? "yyyyMMdd" : "yyyy-MM-dd";
-        if (this.year > 9999) {
-            fmt = "+" + fmt;
+    toISODate({format = "extended"} : { format?: ToISOFormat } = { format: "extended" }): string {
+        if (!this.isValid) {
+            return null;
         }
 
-        return toTechFormat(this, fmt);
+        return this._toISODate(format === "extended");
     }
 
     /**
@@ -1985,7 +1984,7 @@ export class DateTime {
                   includePrefix = false,
                   extendedZone = false,
                   format = "extended"
-              }: ToISOTimeOptions = {}): string | null {
+              }: ToISOTimeOptions = {}): string {
         if (!this.isValid) {
             return null;
         }
@@ -2001,7 +2000,7 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISOWeekDate() //=> '1982-W21-2'
      * @return {string}
      */
-    toISOWeekDate(): string | null {
+    toISOWeekDate(): string  {
         return toTechFormat(this, "kkkk-'W'WW-c");
     }
 
@@ -2198,7 +2197,7 @@ export class DateTime {
      * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
      * @return {string}
      */
-    toSQL(opts: ToSQLOptions = {}): string | null {
+    toSQL(opts: ToSQLOptions = {}): string  {
         if (!this.isValid) {
             return null;
         }
@@ -2259,7 +2258,7 @@ export class DateTime {
      * Returns a string representation of this DateTime appropriate for debugging
      * @return {string}
      */
-    toString(): string | null {
+    toString(): string  {
         return this.isValid ? this.toISO() : INVALID;
     }
 
