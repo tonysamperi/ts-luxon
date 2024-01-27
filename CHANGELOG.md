@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.5.2 (Luxon 3.4.4)
+* Fixed Datetime docs for: fromJSDate, fromMillis, fromSeconds, diff (Closes [#9](https://github.com/tonysamperi/ts-luxon/issues/9))
+
 ## 4.5.1 (Luxon 3.4.4)
 * Fixed DateTime.toISODate implementation
 * Removed null on return types of DateTime (avoid needing not nullish operators): 
