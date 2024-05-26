@@ -1,7 +1,6 @@
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
 import sourceMaps from "rollup-plugin-sourcemaps";
-// import typescript from "rollup-plugin-typescript2";
 import typescript from "@rollup/plugin-typescript";
 import cleaner from "rollup-plugin-cleaner";
 import { uglify } from "rollup-plugin-uglify";
@@ -15,8 +14,8 @@ export default {
     output: [
         { file: pkg.main, name: "tsLuxon", format: "umd", sourcemap: true },
         { file: pkg.main.replace(".js", ".min.js"), name: "tsLuxon", format: "umd", sourcemap: "inline", plugins: [uglify()] },
-        { file: pkg.module, format: "es", sourcemap: true },
-        { file: pkg.module.replace(".js", ".min.js"), format: "es", sourcemap: "inline", plugins: [uglify()] }
+        { file: pkg.exports["."].import, format: "es", sourcemap: true },
+        { file: pkg.exports["."].import.replace(".mjs", ".min.mjs"), format: "es", sourcemap: "inline", plugins: [uglify()] }
     ],
     external: [],
     watch: {
