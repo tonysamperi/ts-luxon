@@ -302,6 +302,13 @@ export function normalizeObject(obj: Record<string, unknown>,
 
 }
 
+/**
+ * Returns the offset's value as a string
+ * @param {number} offset - Epoch milliseconds for which to get the offset
+ * @param {string} format - What style of offset to return.
+ *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
+ * @return {string}
+ */
 export function formatOffset(offset: number, format: ZoneOffsetFormat): string {
     const hours = Math.trunc(Math.abs(offset / 60)),
       minutes = Math.trunc(Math.abs(offset % 60)),

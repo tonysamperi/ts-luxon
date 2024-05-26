@@ -324,7 +324,8 @@ export class Interval {
     [Symbol.for("nodejs.util.inspect.custom")](): string {
         if (this.isValid) {
             return `Interval { start: ${this._s.toISO()}, end: ${this._e.toISO()} }`;
-        } else {
+        }
+        else {
             return `Interval { Invalid, reason: ${this.invalidReason} }`;
         }
     }
@@ -403,7 +404,9 @@ export class Interval {
     }
 
     /**
-     * Return whether this Interval engulfs the start and end of the specified Interval.
+     * Returns true if this Interval fully contains the specified Interval,
+     * specifically if the intersection (of this Interval and the other Interval) is equal to the other Interval;
+     * false otherwise.
      * @param {Interval} other
      * @return {boolean}
      */

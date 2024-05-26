@@ -20,7 +20,13 @@ export abstract class Zone {
         throw new ZoneIsAbstractError();
     }
 
-    get ianaName() {
+    /**
+     * The IANA name of this zone.
+     * Defaults to `name` if not overwritten by a subclass.
+     * @abstract
+     * @type {string}
+     */
+    get ianaName(): string {
         return this.name;
     }
 

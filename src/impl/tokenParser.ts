@@ -327,9 +327,9 @@ function tokenForPart(part: Intl.DateTimeFormatPart,
     return void 0;
 }
 
-function buildRegex(units: UnitParser[]): string {
-    const re = units.map(u => u.regex).reduce((f, r) => `${f}(${r.source})`, "");
-    return `^${re}$`;
+function buildRegex(units: UnitParser[]): [string, UnitParser[]] {
+    const re = units.map((u) => u.regex).reduce((f, r) => `${f}(${r.source})`, "");
+    return [`^${re}$`, units];
 }
 
 function match(input: string, regex: RegExp, handlers: UnitParser[]): [RegExpMatchArray | null, Record<string, number | string>] {
@@ -458,10 +458,6 @@ function maybeExpandMacroToken(token: FormatToken, locale: Locale): FormatToken 
     return tokens;
 }
 
-function isInvalidUnitParser(parser: unknown): parser is InvalidUnitParser {
-    return !!parser && !!(parser as { invalidReason: string | undefined }).invalidReason;
-}
-
 export function expandMacroTokens(tokens: FormatToken[], locale: Locale): Array<FormatToken | TokenForPart> {
     return Array.prototype.concat(...tokens.map(t => maybeExpandMacroToken(t, locale)));
 }
@@ -469,28 +465,73 @@ export function expandMacroTokens(tokens: FormatToken[], locale: Locale): Array<
 /**
  * @private
  */
-export function explainFromTokens(locale: Locale, input: string, format: string): ExplainedFormat {
-    const tokens = expandMacroTokens(Formatter.parseFormat(format), locale);
-    const units = tokens.map((t: FormatToken) => unitForToken(t, locale));
-    const disqualifyingUnit = units.find(isInvalidUnitParser);
 
-    if (disqualifyingUnit) {
-        return { input, tokens, invalidReason: disqualifyingUnit.invalidReason };
+export class TokenParser {
+
+    get invalidReason(): string | null {
+        return this.disqualifyingUnit ? this.disqualifyingUnit.invalidReason : null;
     }
-    else {
-        const regexString = buildRegex(units as UnitParser[]),
-            regex = RegExp(regexString, "i"),
-            [rawMatches, matches] = match(input, regex, units as UnitParser[]),
-            [result, zone, specificOffset] = matches
-                ? dateTimeFromMatches(matches)
-                : [null, null, void 0];
-        if ("a" in matches && "H" in matches) {
-            throw new ConflictingSpecificationError(
-                "Can't include meridiem when specifying 24-hour format"
-            );
+
+    get isValid(): boolean {
+        return !this.disqualifyingUnit;
+    }
+
+    disqualifyingUnit: { invalidReason: string };
+    handlers: UnitParser[];
+    regex: RegExp;
+    tokens: Array<FormatToken | TokenForPart> = expandMacroTokens(Formatter.parseFormat(this.format), this.locale);
+    units: UnitParser[];
+
+    constructor(public locale: Locale, public format: string) {
+        this._mapTokens();
+    }
+
+    explainFromTokens(input: string): ExplainedFormat {
+        if (!this.isValid) {
+            return { input, tokens: this.tokens, invalidReason: this.invalidReason };
         }
-        return { input, tokens, regex, rawMatches, matches, result, zone, specificOffset };
+        else {
+            const [rawMatches, matches] = match(input, this.regex, this.handlers),
+                [result, zone, specificOffset] = matches
+                    ? dateTimeFromMatches(matches)
+                    : [null, null, undefined];
+            if (matches.hasOwnProperty("a") && matches.hasOwnProperty("H")) {
+                throw new ConflictingSpecificationError(
+                    "Can't include meridiem when specifying 24-hour format"
+                );
+            }
+            return {
+                input,
+                tokens: this.tokens,
+                regex: this.regex,
+                rawMatches,
+                matches,
+                result,
+                zone,
+                specificOffset
+            };
+        }
     }
+
+    private _mapTokens(): void {
+        const units = this.tokens.map((t) => unitForToken(t, this.locale));
+        this.disqualifyingUnit = units.find((t) => (t as InvalidUnitParser).invalidReason) as {
+            invalidReason: string
+        };
+        this.units = units.filter(u => !(u as InvalidUnitParser).invalidReason) as UnitParser[];
+
+        if (!this.disqualifyingUnit) {
+            const [regexString, handlers] = buildRegex(this.units);
+            this.regex = RegExp(regexString, "i");
+            this.handlers = handlers;
+        }
+    }
+
+}
+
+export function explainFromTokens(locale: Locale, input: string, format: string): ExplainedFormat {
+    const parser = new TokenParser(locale, format);
+    return parser.explainFromTokens(input);
 }
 
 export function sanitizeSpaces(input: string): string {

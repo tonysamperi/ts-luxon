@@ -8,9 +8,10 @@ function runDateTimeSuite() {
         const suite = new Benchmark.Suite();
 
         const dt = DateTime.now();
+        const formatParser = DateTime.buildFormatParser("yyyy/MM/dd HH:mm:ss.SSS");
 
         suite
-            .add("DateTime.local", () => {
+            .add("DateTime.now", () => {
                 DateTime.now();
             })
             .add("DateTime.fromObject with locale", () => {
@@ -18,6 +19,9 @@ function runDateTimeSuite() {
             })
             .add("DateTime.local with numbers", () => {
                 DateTime.local(2017, 5, 15);
+            })
+            .add("DateTime.local with numbers and zone", () => {
+                DateTime.local(2017, 5, 15, 11, 7, 35, { zone: "America/New_York" });
             })
             .add("DateTime.fromISO", () => {
                 DateTime.fromISO("1982-05-25T09:10:11.445Z");
@@ -30,7 +34,15 @@ function runDateTimeSuite() {
             })
             .add("DateTime.fromFormat with zone", () => {
                 DateTime.fromFormat("1982/05/25 09:10:11.445", "yyyy/MM/dd HH:mm:ss.SSS", {
-                    zone: "America/Los_Angeles",
+                    zone: "America/Los_Angeles"
+                });
+            })
+            .add("DateTime.fromFormatParser", () => {
+                DateTime.fromFormatParser("1982/05/25 09:10:11.445", formatParser);
+            })
+            .add("DateTime.fromFormatParser with zone", () => {
+                DateTime.fromFormatParser("1982/05/25 09:10:11.445", formatParser, {
+                    zone: "America/Los_Angeles"
                 });
             })
             .add("DateTime#setZone", () => {

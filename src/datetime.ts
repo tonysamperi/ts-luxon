@@ -29,7 +29,8 @@ import {
     parseFromTokens,
     explainFromTokens,
     formatOptsToTokens,
-    expandMacroTokens
+    expandMacroTokens,
+    TokenParser
 } from "./impl/tokenParser";
 import {
     gregorianToWeek,
@@ -271,7 +272,7 @@ interface Config extends DateTimeConfig {
  * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
  * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
  * * **Configuration** See the {@link DateTime#locale} and {@link DateTime#numberingSystem} accessors.
- * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime.plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toLocal}.
+ * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime#plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toLocal}.
  * * **Output**: To convert the DateTime to other representations, use the {@link DateTime#toRelative}, {@link DateTime#toRelativeCalendar}, {@link DateTime#toJSON}, {@link DateTime#toISO}, {@link DateTime#toHTTP}, {@link DateTime#toObject}, {@link DateTime#toRFC2822}, {@link DateTime#toString}, {@link DateTime#toLocaleString}, {@link DateTime#toFormat}, {@link DateTime#toMillis} and {@link DateTime#toJSDate}.
  *
  * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
@@ -390,6 +391,9 @@ export class DateTime {
      * {@link DateTime#toLocaleString} format like "09:30:23 AM EDT". Only 12-hour if the locale is.
      */
     static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
+
+    private static _zoneOffsetGuessCache: Map<Zone, number> = new Map();
+    private static _zoneOffsetTs: number;
 
     /**
      * Get the day of the month (1-30ish).
@@ -555,7 +559,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).monthLong //=> October
      */
-    get monthLong(): string  {
+    get monthLong(): string {
         return this.isValid ? Info.months("long", { locObj: this._loc })[this.month - 1] : null;
     }
 
@@ -564,7 +568,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
      */
-    get monthShort(): string  {
+    get monthShort(): string {
         return this.isValid ? Info.months("short", { locObj: this._loc })[this.month - 1] : null;
     }
 
@@ -588,7 +592,7 @@ export class DateTime {
      * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
      * Defaults to the system's locale if no locale has been specified
      */
-    get offsetNameLong(): string  {
+    get offsetNameLong(): string {
         if (!this.isValid) {
             return null;
         }
@@ -603,7 +607,7 @@ export class DateTime {
      * Get the short human name for the zone's current offset, for example "EST" or "EDT".
      * Defaults to the system's locale if no locale has been specified
      */
-    get offsetNameShort(): string  {
+    get offsetNameShort(): string {
         if (!this.isValid) {
             return null;
         }
@@ -687,7 +691,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
      */
-    get weekdayLong(): string  {
+    get weekdayLong(): string {
         return this.isValid ? Info.weekdays("long", { locObj: this._loc })[this.weekday - 1] : null;
     }
 
@@ -696,7 +700,7 @@ export class DateTime {
      * Defaults to the system's locale if no locale has been specified
      * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
      */
-    get weekdayShort(): string  {
+    get weekdayShort(): string {
         return this.isValid ? Info.weekdays("short", { locObj: this._loc })[this.weekday - 1] : null;
     }
 
@@ -744,7 +748,7 @@ export class DateTime {
     /**
      * Get the name of the time zone.
      */
-    get zoneName(): string  {
+    get zoneName(): string {
         return this.isValid ? this.zone.name : null;
     }
 
@@ -786,7 +790,8 @@ export class DateTime {
                 [c, o] = [config.old.c, config.old.o];
             }
             else {
-                const ot = zone.offset(this._ts);
+                // If an offset has been passed + we have not been called from clone(), we can trust it and avoid the offset calculation.
+                const ot = isNumber(config.o) && !config.old ? config.o : zone.offset(this.ts);
                 c = tsToObj(this._ts, ot);
                 invalid = Number.isNaN(c.year) ? new Invalid("invalid input") : null;
                 c = invalid ? void 0 : c;
@@ -822,6 +827,28 @@ export class DateTime {
          * @access private
          */
         this._isLuxonDateTime = true;
+    }
+
+    /**
+     * Build a parser for `fmt` using the given locale. This parser can be passed
+     * to {@link DateTime.fromFormatParser} to a parse a date in this format. This
+     * can be used to optimize cases where many dates need to be parsed in a
+     * specific format.
+     *
+     * @param {String} fmt - the format the string is expected to be in (see
+     * description)
+     * @param {Object} options - options used to set locale and numberingSystem
+     * for parser
+     * @returns {TokenParser} - opaque object to be used
+     */
+    static buildFormatParser(fmt: string, options: LocaleOptions = {}): TokenParser {
+        const { locale = null, numberingSystem = null } = options,
+            localeToUse = Locale.fromOpts({
+                locale,
+                numberingSystem,
+                defaultToEN: true
+            });
+        return new TokenParser(localeToUse, fmt);
     }
 
     /**
@@ -872,7 +899,7 @@ export class DateTime {
      * Explain how a string would be parsed by fromFormat()
      * @param {string} text - the string to parse
      * @param {string} fmt - the format the string is expected to be in (see description)
-     * @param {Object} options - options taken by fromFormat()
+     * @param {DateTimeOptions} options - options taken by fromFormat()
      */
     static fromFormatExplain(text: string, fmt: string, options: DateTimeOptions = {}): ExplainedFormat {
         const { locale, numberingSystem } = options,
@@ -882,6 +909,53 @@ export class DateTime {
                 defaultToEN: true
             });
         return explainFromTokens(localeToUse, text, fmt);
+    }
+
+    /**
+     * Create a DateTime from an input string and format parser.
+     *
+     * The format parser must have been created with the same locale as this call.
+     *
+     * @param {String} text - the string to parse
+     * @param {TokenParser} formatParser - parser from {@link DateTime.buildFormatParser}
+     * @param {DateTimeOptions} opts - options taken by fromFormat()
+     * @returns {DateTime}
+     */
+    static fromFormatParser(text: string, formatParser: TokenParser, opts: DateTimeOptions = {}): DateTime {
+        if (isUndefined(text) || isUndefined(formatParser)) {
+            throw new InvalidArgumentError(
+                "fromFormatParser requires an input string and a format parser"
+            );
+        }
+        const { locale = null, numberingSystem = null } = opts,
+            localeToUse = Locale.fromOpts({
+                locale,
+                numberingSystem,
+                defaultToEN: true
+            });
+
+        if (!localeToUse.equals(formatParser.locale)) {
+            throw new InvalidArgumentError(
+                `fromFormatParser called with a locale of ${localeToUse}, ` +
+                `but the format parser was created for ${formatParser.locale}`
+            );
+        }
+
+        const { result, zone, specificOffset, invalidReason } = formatParser.explainFromTokens(text);
+
+        if (invalidReason) {
+            return DateTime.invalid(invalidReason);
+        }
+        else {
+            return parseDataToDateTime(
+                result,
+                zone,
+                opts,
+                `format ${formatParser.format}`,
+                text,
+                specificOffset
+            );
+        }
     }
 
     /**
@@ -1281,6 +1355,11 @@ export class DateTime {
         return !tokenList ? null : tokenList.map((t) => (t ? t.val : null)).join("");
     }
 
+    static resetCache(): void {
+        this._zoneOffsetTs = void 0;
+        this._zoneOffsetGuessCache = new Map();
+    }
+
     /**
      * Create a DateTime in UTC
      * @param args - The date values (year, month, etc.) and/or the configuration options for the DateTime
@@ -1415,6 +1494,38 @@ export class DateTime {
 
     /**
      * @private
+     * cache offsets for zones based on the current timestamp when this function is
+     * first called. When we are handling a datetime from components like (year,
+     * month, day, hour) in a time zone, we need a guess about what the timezone
+     * offset is so that we can convert into a UTC timestamp. One way is to find the
+     * offset of now in the zone. The actual date may have a different offset (for
+     * example, if we handle a date in June while we're in December in a zone that
+     * observes DST), but we can check and adjust that.
+     * When handling many dates, calculating the offset for now every time is
+     * expensive. It's just a guess, so we can cache the offset to use even if we
+     * are right on a time change boundary (we'll just correct in the other
+     * direction). Using a timestamp from first read is a slight optimization for
+     * handling dates close to the current date, since those dates will usually be
+     * in the same offset (we could set the timestamp statically, instead). We use a
+     * single timestamp for all zones to make things a bit more predictable.
+     * This is safe for quickDT (used by local() and utc()) because we don't fill in
+     * higher-order units from tsNow (as we do in fromObject, this requires that
+     * offset is calculated from tsNow).
+     */
+    private static _guessOffsetForZone(zone: Zone): number {
+        if (!this._zoneOffsetGuessCache.has(zone)) {
+            if (this._zoneOffsetTs === undefined) {
+                this._zoneOffsetTs = Settings.now();
+            }
+
+            this._zoneOffsetGuessCache.set(zone, zone.offset(this._zoneOffsetTs));
+        }
+
+        return this._zoneOffsetGuessCache.get(zone);
+    }
+
+    /**
+     * @private
      */
     private static _lastOpts(argList: (number | DateTimeOptions)[]): [DateTimeOptions, number[]] {
         let opts = {},
@@ -1438,9 +1549,13 @@ export class DateTime {
     // but doesn't do any validation, makes a bunch of assumptions about what units
     // are present, and so on.
     private static _quickDT(obj: GregorianDateTime, opts: DateTimeOptions): DateTime {
-        const zone = normalizeZone(opts.zone, Settings.defaultZone),
-            loc = Locale.fromObject(opts),
-            tsNow = Settings.now();
+        const zone = normalizeZone(opts.zone, Settings.defaultZone);
+        if (!zone.isValid) {
+            return DateTime.invalid(this._unsupportedZone(zone));
+        }
+
+        const loc = Locale.fromObject(opts);
+        const tsNow = Settings.now();
 
         let ts, o;
 
@@ -1459,7 +1574,7 @@ export class DateTime {
                 return DateTime.invalid(invalid);
             }
 
-            const offsetProvis = zone.offset(tsNow);
+            const offsetProvis = this._guessOffsetForZone(zone);
             [ts, o] = objToTS(obj, offsetProvis, zone);
         }
         else {
@@ -1485,7 +1600,8 @@ export class DateTime {
     [Symbol.for("nodejs.util.inspect.custom")](): string {
         if (this.isValid) {
             return `DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }`;
-        } else {
+        }
+        else {
             return `DateTime { Invalid, reason: ${this.invalidReason} }`;
         }
     }
@@ -1946,7 +2062,7 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
      * @return {string}
      */
-    toISODate({format = "extended"} : { format?: ToISOFormat } = { format: "extended" }): string {
+    toISODate({ format = "extended" }: { format?: ToISOFormat } = { format: "extended" }): string {
         if (!this.isValid) {
             return null;
         }
@@ -1992,7 +2108,7 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISOWeekDate() //=> '1982-W21-2'
      * @return {string}
      */
-    toISOWeekDate(): string  {
+    toISOWeekDate(): string {
         return toTechFormat(this, "kkkk-'W'WW-c");
     }
 
@@ -2189,7 +2305,7 @@ export class DateTime {
      * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
      * @return {string}
      */
-    toSQL(opts: ToSQLOptions = {}): string  {
+    toSQL(opts: ToSQLOptions = {}): string {
         if (!this.isValid) {
             return null;
         }
@@ -2250,7 +2366,7 @@ export class DateTime {
      * Returns a string representation of this DateTime appropriate for debugging
      * @return {string}
      */
-    toString(): string  {
+    toString(): string {
         return this.isValid ? this.toISO() : INVALID;
     }
 

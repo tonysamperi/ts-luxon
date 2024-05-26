@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.6.0 (Luxon next 3.4.4)
+* Validate time zone in quickDT prior to guessing offset (#1575)
+* Use getPrototypeOf instead of __proto__ (#1592)
+* Perf: Memoize digitsRegex (#1581)
+* Add DateTime.buildFormatParser and DateTime.fromFormatParser (#1582)
+* Perf: Use computed offset passed in DateTime constructor (#1576)
+* Update interval.js doc per #742 (#1565)
+* Added some JS doc for time zones (#1499)
+* Fix cutoff year docs
+* Perf: Cache ts offset guesses for quickDT (#1579)
+
 ## 4.5.2 (Luxon 3.4.4)
 * Fixed Datetime docs for: fromJSDate, fromMillis, fromSeconds, diff (Closes [#9](https://github.com/tonysamperi/ts-luxon/issues/9))
 

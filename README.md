@@ -1,7 +1,7 @@
 # TS Luxon
 
 [![MIT License][license-image]][license] [![Build Status][gh-actions-image]][gh-actions-url] [![NPM version][npm-version-image]][npm-url] [![Coverage Status][test-coverage-image]][test-coverage-url] ![PRs welcome][contributing-image]
-[![Size](https://img.shields.io/bundlephobia/minzip/ts-luxon)](https://unpkg.com/ts-luxon@latest/bundles/ts-luxon.umd.min.js)
+[![Size](https://img.shields.io/bundlephobia/minzip/ts-luxon)](https://unpkg.com/ts-luxon@latest/dist/ts-luxon.min.umd.js)
 
 TS Luxon is a library for working with dates and times in Javscript and Typescript.
 
@@ -70,8 +70,8 @@ Pleas, read the CONTRIBUTING.md you can find in the master branch.
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license]: LICENSE.md
 
-[gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22Docker+tests%22
-[gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/Docker%20tests/badge.svg?branch=master
+[gh-actions-url]: https://github.com/tonysamperi/ts-luxon/actions?query=workflow%3A%22Test%22
+[gh-actions-image]: https://github.com/tonysamperi/ts-luxon/workflows/Test/badge.svg?branch=master
 
 [npm-url]: https://npmjs.org/package/ts-luxon
 [npm-version-image]: https://badge.fury.io/js/ts-luxon.svg

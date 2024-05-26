@@ -60,13 +60,16 @@ export function parseDigits(str: string) {
     }
 
     let digits = "";
-    for (let i = 0; i < str.length; i++) {
+    for (let i = 0;
+         i < str.length;
+         i++) {
         const code = str.charCodeAt(i);
         if (str[i].search(numberingSystems.hanidec) !== -1) {
             digits += hanidecChars.indexOf(str[i]);
         }
         else {
-            for (const key in numberingSystemsUTF16) {
+            for (const key in
+                numberingSystemsUTF16) {
                 const [min, max] = numberingSystemsUTF16[key as NumberingSystemUTF16];
                 if (code >= min && code <= max) {
                     digits += code - min;
@@ -78,6 +81,22 @@ export function parseDigits(str: string) {
     return parseInt(digits, 10);
 }
 
-export function digitRegex(locale: Locale, append = "") {
-    return new RegExp(`${numberingSystems[locale.numberingSystem || "latn"]}${append}`);
+// cache of {numberingSystem: {append: regex}}
+let digitRegexCache: Record<Partial<NumberingSystem>, Record<string, RegExp>> = {} as Record<Partial<NumberingSystem>, Record<string, RegExp>>;
+
+export function resetDigitRegexCache(): void {
+    digitRegexCache = {} as Record<Partial<NumberingSystem>, Record<string, RegExp>>;
+}
+
+export function digitRegex({ numberingSystem }: Locale, append: string = ""): RegExp {
+    const ns = numberingSystem || "latn" as NumberingSystem;
+
+    if (!digitRegexCache[ns]) {
+        digitRegexCache[ns] = {};
+    }
+    if (!digitRegexCache[ns][append]) {
+        digitRegexCache[ns][append] = new RegExp(`${numberingSystems[ns]}${append}`);
+    }
+
+    return digitRegexCache[ns][append];
 }

@@ -159,10 +159,10 @@ function mapWeekdays<T>(f: (d: DateTime) => T): T[] {
 }
 
 function listStuff<T extends UnitLength>(
-  loc: Locale,
-  length: T,
-  englishFn: (length: T) => string[],
-  intlFn: (length: T) => string[]
+    loc: Locale,
+    length: T,
+    englishFn: (length: T) => string[],
+    intlFn: (length: T) => string[]
 ): string[] {
     const mode = loc.listingMode();
 
@@ -339,10 +339,10 @@ class PolyRelFormatter {
         }
         else {
             return English.formatRelativeTime(
-              unit,
-              count,
-              this._opts.numeric,
-              this._opts.style !== "long"
+                unit,
+                count,
+                this._opts.numeric,
+                this._opts.style !== "long"
             );
         }
     }
@@ -398,11 +398,11 @@ export class Locale {
     private _weekdaysCache: Readonly<WeekDaysCache>;
 
     private constructor(
-      locale: string,
-      numberingSystem?: NumberingSystem,
-      outputCalendar?: CalendarSystem,
-      weekSettings?: WeekSettings | void,
-      specifiedLocale?: string) {
+        locale: string,
+        numberingSystem?: NumberingSystem,
+        outputCalendar?: CalendarSystem,
+        weekSettings?: WeekSettings | void,
+        specifiedLocale?: string) {
 
         const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
 
@@ -454,11 +454,11 @@ export class Locale {
         }
         else {
             return Locale.create(
-              alts.locale || this._specifiedLocale,
-              alts.numberingSystem || this.numberingSystem,
-              alts.outputCalendar || this.outputCalendar,
-              validateWeekSettings(alts.weekSettings) || this._weekSettings,
-              alts.defaultToEN || false
+                alts.locale || this._specifiedLocale,
+                alts.numberingSystem || this.numberingSystem,
+                alts.outputCalendar || this.outputCalendar,
+                validateWeekSettings(alts.weekSettings) || this._weekSettings,
+                alts.defaultToEN || false
             );
         }
     }
@@ -469,9 +469,9 @@ export class Locale {
 
     equals(other: Locale): boolean {
         return (
-          this.locale === other.locale &&
-          this.numberingSystem === other.numberingSystem &&
-          this.outputCalendar === other.outputCalendar
+            this.locale === other.locale &&
+            this.numberingSystem === other.numberingSystem &&
+            this.outputCalendar === other.outputCalendar
         );
     }
 
@@ -483,7 +483,7 @@ export class Locale {
             // to definitely enumerate them.
             if (!this._eraCache[len]) {
                 this._eraCache[len] = [DateTime.utc(-40, 1, 1), DateTime.utc(2017, 1, 1)].map(dt =>
-                  this.extract(dt, intl, "era")
+                    this.extract(dt, intl, "era")
                 );
             }
 
@@ -493,8 +493,8 @@ export class Locale {
 
     extract(dt: DateTime, intlOptions: Intl.DateTimeFormatOptions, field: Intl.DateTimeFormatPartTypes): string {
         const df = this.dtFormatter(dt, intlOptions),
-          results = df.formatToParts(),
-          matching = results.find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === field.toLowerCase());
+            results = df.formatToParts(),
+            matching = results.find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === field.toLowerCase());
         if (!matching) {
             throw new Error(`Invalid extract field ${field}`);
         }
@@ -528,9 +528,9 @@ export class Locale {
 
     isEnglish(): boolean {
         return (
-          // tslint:disable-next-line:no-bitwise
-          !!~["en", "en-us"].indexOf(this.locale.toLowerCase()) ||
-          new Intl.DateTimeFormat(this._intl).resolvedOptions().locale.startsWith("en-us")
+            // tslint:disable-next-line:no-bitwise
+            !!~["en", "en-us"].indexOf(this.locale.toLowerCase()) ||
+            new Intl.DateTimeFormat(this._intl).resolvedOptions().locale.startsWith("en-us")
         );
     }
 
@@ -542,28 +542,28 @@ export class Locale {
     listingMode(): "en" | "intl" {
         const isActuallyEn = this.isEnglish();
         const hasNoWeirdness =
-          (this.numberingSystem === null || this.numberingSystem === "latn") &&
-          (this.outputCalendar === null || this.outputCalendar === "gregory");
+            (this.numberingSystem === null || this.numberingSystem === "latn") &&
+            (this.outputCalendar === null || this.outputCalendar === "gregory");
         return isActuallyEn && hasNoWeirdness ? "en" : "intl";
     }
 
     meridiems(): string[] {
         return listStuff(
-          this,
-          "long", // arbitrary unused value
-          () => English.meridiems,
-          () => {
-              // In theory there could be aribitrary day periods. We're gonna assume there are exactly two
-              // for AM and PM. This is probably wrong, but it makes parsing way easier.
-              if (this._meridiemCache === undefined) {
-                  this._meridiemCache = [
-                      DateTime.utc(2016, 11, 13, 9),
-                      DateTime.utc(2016, 11, 13, 19)
-                  ].map(dt => this.extract(dt, { hour: "numeric", hourCycle: "h12" }, "dayPeriod"));
-              }
+            this,
+            "long", // arbitrary unused value
+            () => English.meridiems,
+            () => {
+                // In theory there could be aribitrary day periods. We're gonna assume there are exactly two
+                // for AM and PM. This is probably wrong, but it makes parsing way easier.
+                if (this._meridiemCache === undefined) {
+                    this._meridiemCache = [
+                        DateTime.utc(2016, 11, 13, 9),
+                        DateTime.utc(2016, 11, 13, 19)
+                    ].map(dt => this.extract(dt, { hour: "numeric", hourCycle: "h12" }, "dayPeriod"));
+                }
 
-              return this._meridiemCache as string[];
-          }
+                return this._meridiemCache as string[];
+            }
         );
     }
 
@@ -594,11 +594,15 @@ export class Locale {
         return new PolyRelFormatter(this._intl, this.isEnglish(), options);
     }
 
+    toString(): string {
+        return `Locale(${this.locale}, ${this.numberingSystem}, ${this.outputCalendar})`;
+    }
+
     weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
         return listStuff(this, length, English.weekdays, len => {
             const intl: Intl.DateTimeFormatOptions = format
-              ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
-              : { weekday: len };
+                ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
+                : { weekday: len };
             const formatStr = format ? "format" : "standalone";
             if (!this._weekdaysCache[formatStr][len]) {
                 this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
@@ -628,10 +632,10 @@ export class Locale {
         }
         else {
             return (
-              this.numberingSystem === "latn" ||
-              !this.locale ||
-              this.locale.startsWith("en") ||
-              Intl.DateTimeFormat(this._intl).resolvedOptions().numberingSystem === "latn"
+                this.numberingSystem === "latn" ||
+                !this.locale ||
+                this.locale.startsWith("en") ||
+                Intl.DateTimeFormat(this._intl).resolvedOptions().numberingSystem === "latn"
             );
         }
     }

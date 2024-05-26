@@ -1098,3 +1098,29 @@ test("DateTime.expandFormat works with other locales", () => {
     const format = DateTime.expandFormat("D", { locale: "en-gb" });
     expect(format).toBe("d/M/yyyyy");
 });
+
+
+// ------
+// .fromFormatParser
+// -------
+
+test("DateTime.fromFormatParser behaves equivalently to DateTime.fromFormat", () => {
+    const dateTimeStr = "1982/05/25 09:10:11.445";
+    const format = "yyyy/MM/dd HH:mm:ss.SSS";
+    const formatParser = DateTime.buildFormatParser(format);
+    const ff1 = DateTime.fromFormat(dateTimeStr, format),
+        ffP1 = DateTime.fromFormatParser(dateTimeStr, formatParser);
+
+    expect(ffP1).toEqual(ff1);
+    expect(ffP1.isValid).toBe(true);
+});
+
+test("DateTime.fromFormatParser throws error when used with a different locale than it was created with", () => {
+    const format = "yyyy/MM/dd HH:mm:ss.SSS";
+    const formatParser = DateTime.buildFormatParser(format, { locale: "es-ES" });
+    expect(() =>
+        DateTime.fromFormatParser("1982/05/25 09:10:11.445", formatParser, { locale: "es-MX" })
+    ).toThrowError(
+        "fromFormatParser called with a locale of Locale(es-MX, undefined, undefined), but the format parser was created for Locale(es-ES, undefined, undefined)"
+    );
+});
