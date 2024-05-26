@@ -69,7 +69,7 @@ jobs:
             ${{ runner.os }}-angular-build-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      - name: Static HTML export with Nuxt
+      - name: Static HTML export with Angular
         run: ${{ steps.detect-package-manager.outputs.manager }} run build:demo
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

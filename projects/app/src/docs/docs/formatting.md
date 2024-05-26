@@ -2,15 +2,16 @@
 
 This section covers creating strings to represent a DateTime. There are three types of formatting capabilities:
 
-1.  Technical formats like ISO 8601 and RFC 2822
-2.  Internationalizable human-readable formats
-3.  Token-based formatting
+1. Technical formats like ISO 8601 and RFC 2822
+2. Internationalizable human-readable formats
+3. Token-based formatting
 
 ## Technical formats (strings for computers)
 
 ### ISO 8601
 
-[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) is the most widely used set of string formats for dates and times. TSLuxon can _parse_ a wide range of them, but provides direct support for formatting only a few of them:
+[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) is the most widely used set of string formats for dates and times.
+TSLuxon can _parse_ a wide range of them, but provides direct support for formatting only a few of them:
 
 ```js
 dt.toISO(); //=> '2017-04-20T11:32:00.000-04:00'
@@ -19,11 +20,13 @@ dt.toISOWeekDate(); //=> '2017-W17-7'
 dt.toISOTime(); //=> '11:32:00.000-04:00'
 ```
 
-Generally, you'll want the first one. Use it by default when building or interacting with APIs, communicating times over a wire, etc.
+Generally, you'll want the first one. Use it by default when building or interacting with APIs, communicating times over
+a wire, etc.
 
 ### HTTP and RFC 2822
 
-There are a number of legacy standard date and time formats out there, and TSLuxon supports some of them. You shouldn't use them unless you have a specific reason to.
+There are a number of legacy standard date and time formats out there, and TSLuxon supports some of them. You shouldn't
+use them unless you have a specific reason to.
 
 ```js
 dt.toRFC2822(); //=> 'Thu, 20 Apr 2017 11:32:00 -0400'
@@ -45,7 +48,9 @@ dt.valueOf(); //=> 1492702320000, same as .toMillis()
 
 ### The basics
 
-Modern browsers (and other JS environments) provide support for human-readable, internationalized strings. TSLuxon provides convenient support for them, and you should use them anytime you want to display a time to a user. Use `toLocaleString` to do it:
+Modern browsers (and other JS environments) provide support for human-readable, internationalized strings. TSLuxon
+provides convenient support for them, and you should use them anytime you want to display a time to a user.
+Use `toLocaleString` to do it:
 
 ```js
 dt.toLocaleString(); //=> '4/20/2017'
@@ -55,10 +60,13 @@ dt.setLocale('fr').toLocaleString(DateTime.DATETIME_FULL); //=> '20 avril 2017 �
 
 ### Intl.DateTimeFormat
 
-In the example above, `DateTime.DATETIME_FULL` is one of several convenience formats provided by TSLuxon. But the arguments are really any object of options that can be provided to [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat). For example:
+In the example above, `DateTime.DATETIME_FULL` is one of several convenience formats provided by TSLuxon. But the
+arguments are really any object of options that can be provided
+to [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat).
+For example:
 
 ```js
-dt.toLocaleString({ month: 'long', day: 'numeric' }); //=> 'April 20'
+dt.toLocaleString({month: 'long', day: 'numeric'}); //=> 'April 20'
 ```
 
 And that's all the preset is:
@@ -78,7 +86,7 @@ This also means you can modify the presets as you choose:
 
 ```js
 dt.toLocaleString(DateTime.DATE_SHORT); //=>  '4/20/2017'
-var newFormat = {...DateTime.DATE_SHORT, weekday: 'long' };
+var newFormat = {...DateTime.DATE_SHORT, weekday: 'long'};
 dt.toLocaleString(newFormat); //=>  'Thursday, 4/20/2017'
 ```
 
@@ -86,33 +94,35 @@ dt.toLocaleString(newFormat); //=>  'Thursday, 4/20/2017'
 
 Here's the full set of provided presets using the October 14, 1983 at `13:30:23` as an example.
 
-| Name                         | Description                                                        | Example in en_US                                             | Example in fr                                              |
-| ---------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------- |
-| `DATE_SHORT`                 | short date                                                         | `10/14/1983`                                                 | `14/10/1983`                                               |
-| `DATE_MED`                   | abbreviated date                                                   | `Oct 14, 1983`                                               | `14 oct. 1983`                                             |
-| `DATE_MED_WITH_WEEKDAY`      | abbreviated date with abbreviated weekday                          | `Fri, Oct 14, 1983`                                          | `ven. 14 oct. 1983`                                             |
-| `DATE_FULL`                  | full date                                                          | `October 14, 1983`                                           | `14 octobre 1983`                                          |
-| `DATE_HUGE`                  | full date with weekday                                             | `Friday, October 14, 1983`                                   | `vendredi 14 octobre 1983`                                 |
-| `TIME_SIMPLE`                | time                                                               | `1:30 PM`                                                    | `13:30`                                                    |
-| `TIME_WITH_SECONDS`          | time with seconds                                                  | `1:30:23 PM`                                                 | `13:30:23`                                                 |
-| `TIME_WITH_SHORT_OFFSET`     | time with seconds and abbreviated named offset                     | `1:30:23 PM EDT`                                             | `13:30:23 UTC−4`                                           |
-| `TIME_WITH_LONG_OFFSET`      | time with seconds and full named offset                            | `1:30:23 PM Eastern Daylight Time`                           | `13:30:23 heure d’été de l’Est`                            |
-| `TIME_24_SIMPLE`             | 24-hour time                                                       | `13:30`                                                      | `13:30`                                                    |
-| `TIME_24_WITH_SECONDS`       | 24-hour time with seconds                                          | `13:30:23`                                                   | `13:30:23`                                                 |
-| `TIME_24_WITH_SHORT_OFFSET`  | 24-hour time with seconds and abbreviated named offset             | `13:30:23 EDT`                                               | `13:30:23 UTC−4`                                           |
-| `TIME_24_WITH_LONG_OFFSET`   | 24-hour time with seconds and full named offset                    | `13:30:23 Eastern Daylight Time`                             | `13:30:23 heure d’été de l’Est`                            |
-| `DATETIME_SHORT`             | short date & time                                                  | `10/14/1983, 1:30 PM`                                        | `14/10/1983 à 13:30`                                       |
-| `DATETIME_MED`               | abbreviated date & time                                            | `Oct 14, 1983, 1:30 PM`                                      | `14 oct. 1983 à 13:30`                                     |
-| `DATETIME_FULL`              | full date and time with abbreviated named offset                   | `October 14, 1983 at 1:30 PM EDT`                              | `14 octobre 1983 à 13:30 UTC−4`                            |
-| `DATETIME_HUGE`              | full date and time with weekday and full named offset              | `Friday, October 14, 1983 at 1:30 PM Eastern Daylight Time`    | `vendredi 14 octobre 1983 à 13:30 heure d’été de l’Est`    |
-| `DATETIME_SHORT_WITH_SECONDS`| short date & time with seconds                                     | `10/14/1983, 1:30:23 PM`                                     | `14/10/1983 à 13:30:23`                                    |
-| `DATETIME_MED_WITH_SECONDS`  | abbreviated date & time with seconds                               | `Oct 14, 1983, 1:30:23 PM`                                   | `14 oct. 1983 à 13:30:23`                                  |
-| `DATETIME_FULL_WITH_SECONDS` | full date and time with abbreviated named offset with seconds      | `October 14, 1983 at 1:30:23 PM EDT`                           | `14 octobre 1983 à 13:30:23 UTC−4`                         |
-| `DATETIME_HUGE_WITH_SECONDS` | full date and time with weekday and full named offset with seconds | `Friday, October 14, 1983 at 1:30:23 PM Eastern Daylight Time` | `vendredi 14 octobre 1983 à 13:30:23 heure d’été de l’Est` |
+| Name                          | Description                                                        | Example in en_US                                               | Example in fr                                              |
+|-------------------------------|--------------------------------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------|
+| `DATE_SHORT`                  | short date                                                         | `10/14/1983`                                                   | `14/10/1983`                                               |
+| `DATE_MED`                    | abbreviated date                                                   | `Oct 14, 1983`                                                 | `14 oct. 1983`                                             |
+| `DATE_MED_WITH_WEEKDAY`       | abbreviated date with abbreviated weekday                          | `Fri, Oct 14, 1983`                                            | `ven. 14 oct. 1983`                                        |
+| `DATE_FULL`                   | full date                                                          | `October 14, 1983`                                             | `14 octobre 1983`                                          |
+| `DATE_HUGE`                   | full date with weekday                                             | `Friday, October 14, 1983`                                     | `vendredi 14 octobre 1983`                                 |
+| `TIME_SIMPLE`                 | time                                                               | `1:30 PM`                                                      | `13:30`                                                    |
+| `TIME_WITH_SECONDS`           | time with seconds                                                  | `1:30:23 PM`                                                   | `13:30:23`                                                 |
+| `TIME_WITH_SHORT_OFFSET`      | time with seconds and abbreviated named offset                     | `1:30:23 PM EDT`                                               | `13:30:23 UTC−4`                                           |
+| `TIME_WITH_LONG_OFFSET`       | time with seconds and full named offset                            | `1:30:23 PM Eastern Daylight Time`                             | `13:30:23 heure d’été de l’Est`                            |
+| `TIME_24_SIMPLE`              | 24-hour time                                                       | `13:30`                                                        | `13:30`                                                    |
+| `TIME_24_WITH_SECONDS`        | 24-hour time with seconds                                          | `13:30:23`                                                     | `13:30:23`                                                 |
+| `TIME_24_WITH_SHORT_OFFSET`   | 24-hour time with seconds and abbreviated named offset             | `13:30:23 EDT`                                                 | `13:30:23 UTC−4`                                           |
+| `TIME_24_WITH_LONG_OFFSET`    | 24-hour time with seconds and full named offset                    | `13:30:23 Eastern Daylight Time`                               | `13:30:23 heure d’été de l’Est`                            |
+| `DATETIME_SHORT`              | short date & time                                                  | `10/14/1983, 1:30 PM`                                          | `14/10/1983 à 13:30`                                       |
+| `DATETIME_MED`                | abbreviated date & time                                            | `Oct 14, 1983, 1:30 PM`                                        | `14 oct. 1983 à 13:30`                                     |
+| `DATETIME_MED_WITH_WEEKDAY`   | abbreviated date & time with abbreviated weekday                   | `Oct 14, 1983, 1:30 PM`                                        | `14 oct. 1983 à 13:30`                                     |
+| `DATETIME_FULL`               | full date and time with abbreviated named offset                   | `October 14, 1983 at 1:30 PM EDT`                              | `14 octobre 1983 à 13:30 UTC−4`                            |
+| `DATETIME_HUGE`               | full date and time with weekday and full named offset              | `Friday, October 14, 1983 at 1:30 PM Eastern Daylight Time`    | `vendredi 14 octobre 1983 à 13:30 heure d’été de l’Est`    |
+| `DATETIME_SHORT_WITH_SECONDS` | short date & time with seconds                                     | `10/14/1983, 1:30:23 PM`                                       | `14/10/1983 à 13:30:23`                                    |
+| `DATETIME_MED_WITH_SECONDS`   | abbreviated date & time with seconds                               | `Oct 14, 1983, 1:30:23 PM`                                     | `14 oct. 1983 à 13:30:23`                                  |
+| `DATETIME_FULL_WITH_SECONDS`  | full date and time with abbreviated named offset with seconds      | `October 14, 1983 at 1:30:23 PM EDT`                           | `14 octobre 1983 à 13:30:23 UTC−4`                         |
+| `DATETIME_HUGE_WITH_SECONDS`  | full date and time with weekday and full named offset with seconds | `Friday, October 14, 1983 at 1:30:23 PM Eastern Daylight Time` | `vendredi 14 octobre 1983 à 13:30:23 heure d’été de l’Est` |
 
 ### Intl
 
-`toLocaleString`'s behavior is affected by the DateTime's `locale`, `numberingSystem`, and `outputCalendar` properties. See the [Intl](intl.md) section for more.
+`toLocaleString`'s behavior is affected by the DateTime's `locale`, `numberingSystem`, and `outputCalendar` properties.
+See the [Intl](intl.md) section for more.
 
 ## Formatting with tokens (strings for Cthulhu)
 
@@ -120,7 +130,10 @@ This section covers generating strings from DateTimes with programmer-specified 
 
 ### Consider alternatives
 
-You shouldn't create ad-hoc string formats if you can avoid it. If you intend for a computer to read the string, prefer ISO 8601. If a human will read it, prefer `toLocaleString`. Both are covered above. However, if you have some esoteric need where you need some specific format (e.g. because some other software expects it), then `toFormat` is how you do it.
+You shouldn't create ad-hoc string formats if you can avoid it. If you intend for a computer to read the string, prefer
+ISO 8601. If a human will read it, prefer `toLocaleString`. Both are covered above. However, if you have some esoteric
+need where you need some specific format (e.g. because some other software expects it), then `toFormat` is how you do
+it.
 
 ### toFormat
 
@@ -134,15 +147,17 @@ The supported tokens are described in the table below.
 
 ### Intl
 
-All of the strings (e.g. month names and weekday names) are internationalized by introspecting strings generated by the Intl API. Thus the exact strings you get are implementation-specific.
+All of the strings (e.g. month names and weekday names) are internationalized by introspecting strings generated by the
+Intl API. Thus the exact strings you get are implementation-specific.
 
 ```js
 DateTime.fromISO('2014-08-06T13:07:04.054')
-  .setLocale('fr')
-  .toFormat('yyyy LLL dd'); //=> '2014 août 06'
+.setLocale('fr')
+.toFormat('yyyy LLL dd'); //=> '2014 août 06'
 ```
 
-Note `toFormat` defaults to `en-US`. If you need the string to be internationalized, you need to set the locale explicitly like in the example above (or more preferably, use `toLocaleString`).
+Note `toFormat` defaults to `en-US`. If you need the string to be internationalized, you need to set the locale
+explicitly like in the example above (or more preferably, use `toLocaleString`).
 
 ### Escaping
 
@@ -154,7 +169,8 @@ DateTime.now().toFormat("HH 'hours and' mm 'minutes'"); //=> '20 hours and 55 mi
 
 ### Standalone vs format tokens
 
-Some tokens have a "standalone" and "format" version. Some languages require different forms of a word based on whether it is part of a longer phrase or just by itself (e.g. "Monday the 22nd" vs "Monday"). Use them accordingly.
+Some tokens have a "standalone" and "format" version. Some languages require different forms of a word based on whether
+it is part of a longer phrase or just by itself (e.g. "Monday the 22nd" vs "Monday"). Use them accordingly.
 
 ```js
 var d = DateTime.fromISO('2014-08-06T13:07:04.054').setLocale('ru');
@@ -164,7 +180,8 @@ d.toFormat('MMMM'); //=> 'августа' (format)
 
 ### Macro tokens
 
-Some of the formats are "macros", meaning they correspond to multiple components. These use the native Intl API and will order their constituent parts in a locale-friendly way.
+Some of the formats are "macros", meaning they correspond to multiple components. These use the native Intl API and will
+order their constituent parts in a locale-friendly way.
 
 ```js
 DateTime.fromISO('2014-08-06T13:07:04.054').toFormat('ff'); //=> 'Aug 6, 2014, 1:07 PM'
@@ -177,7 +194,7 @@ The macro options available correspond one-to-one with the preset formats define
 (Examples below given for `2014-08-06T13:07:04.054` considered as a local time in America/New_York).
 
 | Standalone token | Format token | Description                                                    | Example                                                       |
-| ---------------- | ------------ | -------------------------------------------------------------- | ------------------------------------------------------------- |
+|------------------|--------------|----------------------------------------------------------------|---------------------------------------------------------------|
 | S                |              | millisecond, no padding                                        | `54`                                                          |
 | SSS              |              | millisecond, padded to 3                                       | `054`                                                         |
 | u                |              | fractional seconds, functionally identical to SSS              | `054`                                                         |
@@ -205,7 +222,7 @@ The macro options available correspond one-to-one with the preset formats define
 | cccc             | EEEE         | day of the week, as an unabbreviated localized string          | `Wednesday`                                                   |
 | ccccc            | EEEEE        | day of the week, as a single localized letter                  | `W`                                                           |
 | L                | M            | month as an unpadded number                                    | `8`                                                           |
-| LL               | MM           | month as a padded number                                      | `08`                                                          |
+| LL               | MM           | month as a padded number                                       | `08`                                                          |
 | LLL              | MMM          | month as an abbreviated localized string                       | `Aug`                                                         |
 | LLLL             | MMMM         | month as an unabbreviated localized string                     | `August`                                                      |
 | LLLLL            | MMMMM        | month as a single localized letter                             | `A`                                                           |
