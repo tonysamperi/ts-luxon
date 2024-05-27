@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.0
+* Fix package.json for correct package interpretation
+
 ## 4.6.0 (Luxon next 3.4.4)
 * Validate time zone in quickDT prior to guessing offset (#1575)
 * Use getPrototypeOf instead of __proto__ (#1592)
