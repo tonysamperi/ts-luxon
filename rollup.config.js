@@ -1,11 +1,9 @@
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
 import sourceMaps from "rollup-plugin-sourcemaps";
-// import typescript from "rollup-plugin-typescript2";
 import typescript from "@rollup/plugin-typescript";
 import cleaner from "rollup-plugin-cleaner";
 import { uglify } from "rollup-plugin-uglify";
-import { terser } from "rollup-plugin-terser";
 import pluginReplace from "@rollup/plugin-replace";
 
 const pkg = require("./package.json");
@@ -34,8 +32,6 @@ export default {
         }),
         // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
         commonjs(),
-        // Enable Terser
-        terser(),
         // Allow node_modules resolution, so you can use 'external' to control
         // which external modules to include in the bundle
         // https://github.com/rollup/rollup-plugin-node-resolve#usage
