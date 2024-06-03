@@ -6,10 +6,10 @@
         "test"
     ],
     "compilerOptions": {
-        "module": "es6",
-        "target": "es6",
+        "module": "esnext",
+        "target": "esnext",
         "lib": [
-            "es5"
+            "esnext"
         ],
         "importHelpers": true,
         "declaration": true,

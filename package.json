@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "5.0.2",
+    "version": "5.0.3-beta.3",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
@@ -11,14 +11,16 @@
     ],
     "repository": "https://github.com/tonysamperi/ts-luxon",
     "homepage": "https://tonysamperi.github.io/ts-luxon/",
-    "main": "./dist/ts-luxon.umd.js",
+    "main": "./dist/ts-luxon.js",
     "types": "./dist/index.d.ts",
-    "module": "./dist/ts-luxon.es6.mjs",
+    "type": "module",
+    "module": "./dist/ts-luxon.js",
     "exports": {
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/ts-luxon.es6.mjs",
-            "default": "./dist/ts-luxon.umd.js"
+            "import": {
+                "types": "./dist/index.d.ts",
+                "import": "./dist/ts-luxon.js"
+            }
         }
     },
     "files": [
@@ -29,7 +31,7 @@
         "node": ">=13"
     },
     "scripts": {
-        "prepublishOnly": "node ./test/test-dist.js",
+        "prepublishOnly": "node ./test/test-dist.mjs",
         "build:watch": "npm run build -- -w",
         "build": "rimraf dist && rollup -c rollup.config.mjs",
         "jest": "jest",
