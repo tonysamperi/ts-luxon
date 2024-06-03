@@ -1,12 +1,11 @@
-import resolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
-import sourceMaps from "rollup-plugin-sourcemaps";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import cleaner from "rollup-plugin-cleaner";
 import { uglify } from "rollup-plugin-uglify";
 import pluginReplace from "@rollup/plugin-replace";
 
-const pkg = require("./package.json");
+import pkg from "./package.json" assert { type: "json" };
 
 export default {
     input: "src/index.ts",
@@ -36,8 +35,6 @@ export default {
         // which external modules to include in the bundle
         // https://github.com/rollup/rollup-plugin-node-resolve#usage
         resolve(),
-        // Resolve source maps to the original source
-        sourceMaps(),
         pluginReplace({
             preventAssignment: !0,
             values: {
