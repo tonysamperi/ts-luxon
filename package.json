@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "4.6.2",
+    "version": "5.0.2",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
@@ -11,9 +11,16 @@
     ],
     "repository": "https://github.com/tonysamperi/ts-luxon",
     "homepage": "https://tonysamperi.github.io/ts-luxon/",
-    "main": "dist/ts-luxon.umd.js",
-    "module": "dist/ts-luxon.es6.js",
-    "typings": "dist/index.d.ts",
+    "main": "./dist/ts-luxon.umd.js",
+    "types": "./dist/index.d.ts",
+    "module": "./dist/ts-luxon.es6.mjs",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/ts-luxon.es6.mjs",
+            "default": "./dist/ts-luxon.umd.js"
+        }
+    },
     "files": [
         "dist/**",
         "README.md"
@@ -31,7 +38,8 @@
         "typedoc": "typedoc src/index.ts --excludePrivate --excludeProtected --out dist/api-docs ",
         "benchmark": "ts-node benchmarks/index.ts",
         "codecov": "codecov",
-        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json"
+        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
+        "publish:beta": "npm publish --tag beta"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.8",

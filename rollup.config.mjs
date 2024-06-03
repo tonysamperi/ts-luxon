@@ -12,7 +12,7 @@ export default {
         { file: pkg.main, name: "tsLuxon", format: "umd", sourcemap: true },
         { file: pkg.main.replace(".js", ".min.js"), name: "tsLuxon", format: "umd", sourcemap: "inline", plugins: [terser()] },
         { file: pkg.module, format: "es", sourcemap: true },
-        { file: pkg.module.replace(".js", ".min.js"), format: "es", sourcemap: "inline", plugins: [terser()] }
+        { file: pkg.module.replace(".mjs", ".min.mjs"), format: "es", sourcemap: "inline", plugins: [terser()] }
     ],
     external: [],
     watch: {

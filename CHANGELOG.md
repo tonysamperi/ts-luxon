@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.0.2 (Luxon next 3.4.4)
+
+* Fixed tokenParser
+
+## 5.0.1 (Luxon next 3.4.4)
+
+* Fixed build output (removed extra terser)
+
+## 5.0.0 (Luxon next 3.4.4)
+
+* Partially fixed package.json
+
 ## 4.6.2 (Luxon next 3.4.4)
 
 * Fix tokenParser.ts

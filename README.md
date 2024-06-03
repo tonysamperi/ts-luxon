@@ -61,9 +61,13 @@ Jetbrains is now supporting this library with an open-source license, which will
 
 ![jetbrains-logo](https://user-images.githubusercontent.com/5957244/150580991-863d6fba-1090-4924-b26c-be19c6310f24.svg)
 
+---
+
+Thanks to [fire332](https://github.com/fire332) for his contribution about package.json
+
 ## Development
 
-Pleas, read the CONTRIBUTING.md you can find in the master branch.
+Please, read the CONTRIBUTING.md you can find in the master branch.
 
 [initial-author]: https://github.com/GillesDebunne
 [original-luxon]: https://github.com/moment/luxon
