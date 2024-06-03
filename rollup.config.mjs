@@ -1,8 +1,7 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
-import cleaner from "rollup-plugin-cleaner";
-import { uglify } from "rollup-plugin-uglify";
+import terser from "@rollup/plugin-terser";
 import pluginReplace from "@rollup/plugin-replace";
 
 import pkg from "./package.json" assert { type: "json" };
@@ -11,20 +10,15 @@ export default {
     input: "src/index.ts",
     output: [
         { file: pkg.main, name: "tsLuxon", format: "umd", sourcemap: true },
-        { file: pkg.main.replace(".js", ".min.js"), name: "tsLuxon", format: "umd", sourcemap: "inline", plugins: [uglify()] },
+        { file: pkg.main.replace(".js", ".min.js"), name: "tsLuxon", format: "umd", sourcemap: "inline", plugins: [terser()] },
         { file: pkg.module, format: "es", sourcemap: true },
-        { file: pkg.module.replace(".js", ".min.js"), format: "es", sourcemap: "inline", plugins: [uglify()] }
+        { file: pkg.module.replace(".js", ".min.js"), format: "es", sourcemap: "inline", plugins: [terser()] }
     ],
     external: [],
     watch: {
         include: "src/**"
     },
     plugins: [
-        cleaner({
-            targets: [
-                "./dist/"
-            ]
-        }),
         // Compile TypeScript files
         typescript({
             // tsconfig: "tsconfig.json"
