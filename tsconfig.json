@@ -6,11 +6,12 @@
         "test"
     ],
     "compilerOptions": {
-        "module": "esnext",
-        "target": "esnext",
+        "module": "CommonJS",
+        "target": "es5",
         "lib": [
             "esnext"
         ],
+        "allowJs": true,
         "importHelpers": true,
         "declaration": true,
         "sourceMap": true,
@@ -31,6 +32,6 @@
             ]
         },
         "esModuleInterop": true,
-        "outDir": "dist"
+        "outDir": "dist/umd"
     }
 }
