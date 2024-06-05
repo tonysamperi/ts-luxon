@@ -25,7 +25,7 @@ module.exports = {
         globalObject: "this",
         filename: '[name].js',
         library: {
-            type: "module"
+            type: "commonjs"
         }
     }
-};  
+};
