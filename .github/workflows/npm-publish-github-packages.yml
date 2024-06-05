@@ -14,11 +14,17 @@ jobs:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-node@v3
                 with:
-                    node-version: 18.3.0
+                    node-version: 20.9.0
                     registry-url: https://registry.npmjs.org/
             -   run: npm i -g yarn
             -   run: yarn install --check-files
             -   run: npm run build
-            -   run: npm publish
+            -   run: |
+                    pkgversion=$(node -p -e "require('./package.json').version")
+                    if [[ $pkgversion == *"beta"* ]]; then
+                        npm run publish:beta
+                    else
+                        npm publish
+                    fi
                 env:
                     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

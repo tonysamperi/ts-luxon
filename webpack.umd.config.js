@@ -13,7 +13,8 @@ module.exports = {
         'ts-luxon.umd': './src/index.ts'
     },
     output: {
-        path: resolve('dist', "umd"),
+        path: resolve('dist'),
+        globalObject: "this",
         filename: '[name].js',
         library: {
             type: "umd",

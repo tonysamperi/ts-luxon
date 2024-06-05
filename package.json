@@ -9,21 +9,23 @@
         "immutable",
         "typescript"
     ],
-    "repository": "https://github.com/tonysamperi/ts-luxon",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tonysamperi/ts-luxon.git"
+    },
     "homepage": "https://tonysamperi.github.io/ts-luxon/",
     "type": "commonjs",
-    "main": "./dist/umd/ts-luxon.umd.js",
-    "types": "./dist/umd/index.d.ts",
-    "module": "./dist/esm/ts-luxon.esm.mjs",
+    "main": "./dist/ts-luxon.umd.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "import": {
-                "types": "./dist/esm/index.d.ts",
-                "import": "./dist/esm/ts-luxon.esm.mjs"
+            "require": {
+                "types": "./dist/index.d.ts",
+                "import": "./dist/ts-luxon.cjs.js"
             },
             "default": {
-                "types": "./dist/umd/index.d.ts",
-                "default": "./dist/umd/ts-luxon.umd.js"
+                "types": "./dist/index.d.ts",
+                "default": "./dist/ts-luxon.umd.js"
             }
         }
     },
@@ -36,9 +38,9 @@
     },
     "scripts": {
         "prepublishOnly": "node ./test/test-dist.mjs",
-        "build:watch": "npm run build -- -w",
-        "build": "npm run clean && rollup -c rollup.config.mjs",
-        "build:webpack": "npm run clean && webpack --config ./webpack.umd.config.js && webpack --config ./webpack.esm.config.js",
+        "build": "npm run clean && npm run build:umd && npm run build:cjs",
+        "build:cjs": "webpack --config ./webpack.cjs.config.js",
+        "build:umd": "webpack --config ./webpack.umd.config.js",
         "clean": "rimraf dist",
         "jest": "jest",
         "test": "jest --coverage",
@@ -50,12 +52,6 @@
         "publish:beta": "npm publish --tag beta"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^25.0.8",
-        "@rollup/plugin-json": "^6.0.0",
-        "@rollup/plugin-node-resolve": "^15.2.3",
-        "@rollup/plugin-replace": "^5.0.2",
-        "@rollup/plugin-terser": "^0.4.4",
-        "@rollup/plugin-typescript": "^11.1.6",
         "@types/benchmark": "^2.1.0",
         "@types/jest": "^29.5.4",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
@@ -73,7 +69,7 @@
         "ts-node": "^10.9.2",
         "tslib": "^2.0.0",
         "typedoc": "^0.23.21",
-        "typescript": "~5.0.4",
+        "typescript": "^5.4.5",
         "webpack": "^5.91.0",
         "webpack-cli": "^5.1.4"
     },

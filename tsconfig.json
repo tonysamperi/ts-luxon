@@ -32,6 +32,6 @@
             ]
         },
         "esModuleInterop": true,
-        "outDir": "dist/umd"
+        "outDir": "dist"
     }
 }

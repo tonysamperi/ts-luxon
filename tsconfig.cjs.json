@@ -3,11 +3,12 @@
         "./tsconfig.json"
     ],
     "compilerOptions": {
-        "module": "esnext",
+        "module": "CommonJS",
         "target": "esnext",
+        "moduleResolution": "node",
         "lib": [
             "esnext"
         ],
-        "outDir": "dist/esm"
+        "outDir": "dist"
     }
 }

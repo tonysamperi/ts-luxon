@@ -6,7 +6,7 @@ webpackCommon.module.rules.push({
     use: {
         loader: 'ts-loader',
         options: {
-            configFile: "tsconfig.esm.json"
+            configFile: "tsconfig.cjs.json"
         }
     },
     exclude: /node_modules/
@@ -15,14 +15,15 @@ webpackCommon.module.rules.push({
 module.exports = {
     ...webpackCommon,
     entry: {
-        'ts-luxon.esm': './src/index.ts'
+        'ts-luxon.cjs': './src/index.ts'
     },
     experiments: {
         outputModule: true,
     },
     output: {
-        path: resolve('dist', "esm"),
-        filename: '[name].mjs',
+        path: resolve('dist'),
+        globalObject: "this",
+        filename: '[name].js',
         library: {
             type: "module"
         }

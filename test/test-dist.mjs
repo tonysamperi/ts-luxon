@@ -1,8 +1,9 @@
-import * as tsLuxon from "../dist/ts-luxon.js";
+import * as tsLuxon from "../dist/ts-luxon.umd.js";
 import pkg from "../package.json" assert { type: "json" };
 
 (() => {
     if (pkg.version !== tsLuxon.VERSION) {
-        throw new Error(`Version mismatch! Expected ${pkg.version}, got ${tsLuxon.VERSION}. Rebuild the package to solve!`);
+        console.error(`Version mismatch! Expected ${pkg.version}, got ${tsLuxon.VERSION}. Rebuild the package to solve!`)
+        throw new Error(`PGK-LIB VERSION MISMATCH!`);
     }
 })();
