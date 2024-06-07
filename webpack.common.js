@@ -7,9 +7,6 @@ module.exports = {
     optimization: {
         minimize: false
     },
-    resolve: {
-        extensions: ['.ts', ".js"]
-    },
     devtool: 'source-map',
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.
