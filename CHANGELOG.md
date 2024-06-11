@@ -1,14 +1,18 @@
 # Changelog
 
-## 5.0.2 (Luxon next 3.4.4)
+## 5.0.3 (Luxon next 3.4.4)
+
+* Fixed package.json
+
+## 5.0.2 \***DEPRECATED\***
 
 * Fixed tokenParser
 
-## 5.0.1 (Luxon next 3.4.4)
+## 5.0.1 \***DEPRECATED\***
 
 * Fixed build output (removed extra terser)
 
-## 5.0.0 (Luxon next 3.4.4)
+## 5.0.0 \***DEPRECATED\***
 
 * Partially fixed package.json
 
