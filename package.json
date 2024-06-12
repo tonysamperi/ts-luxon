@@ -1,6 +1,6 @@
 {
     "name": "ts-luxon",
-    "version": "5.0.3",
+    "version": "5.0.4",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
@@ -22,10 +22,6 @@
             "import": {
                 "types": "./dist/index.d.ts",
                 "import": "./dist/ts-luxon.cjs.js"
-            },
-            "require": {
-                "types": "./dist/index.d.ts",
-                "node": "./dist/ts-luxon.cjs.js"
             },
             "default": {
                 "types": "./dist/index.d.ts",

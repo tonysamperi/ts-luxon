@@ -1,6 +1,10 @@
 # Changelog
 
-## 5.0.3 (Luxon next 3.4.4)
+## 5.0.4 (Luxon next 3.4.4)
+
+* The extra "require" actually broke
+
+## 5.0.3  \***DEPRECATED\***
 
 * Fixed package.json
 
