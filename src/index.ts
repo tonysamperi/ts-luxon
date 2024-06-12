@@ -13,7 +13,7 @@ import { NormalizedDurationUnit } from "./types/duration";
 
 export * from "./types/public";
 
-const VERSION = "__BUILD_VRS__"; // REPLACED WITH ROLLUP
+const VERSION = "__BUILD_VRS__"; // REPLACED WITH WEBPACK
 
 export {
     DateTime,

@@ -479,7 +479,7 @@ export class TokenParser {
     disqualifyingUnit: { invalidReason: string };
     handlers: UnitParser[];
     regex: RegExp;
-    tokens: Array<FormatToken | TokenForPart> = expandMacroTokens(Formatter.parseFormat(this.format), this.locale);
+    tokens: Array<FormatToken | TokenForPart>;
     units: UnitParser[];
 
     constructor(public locale: Locale, public format: string) {
@@ -514,6 +514,7 @@ export class TokenParser {
     }
 
     private _mapTokens(): void {
+        this.tokens = expandMacroTokens(Formatter.parseFormat(this.format), this.locale);
         const units = this.tokens.map((t) => unitForToken(t, this.locale));
         this.disqualifyingUnit = units.find((t) => (t as InvalidUnitParser).invalidReason) as {
             invalidReason: string

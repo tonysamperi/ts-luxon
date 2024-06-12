@@ -18,8 +18,7 @@
     },
     "ignorePatterns": [
         "test/**/*",
-        "rollup.config.js",
-        "jest.config.js"
+        "*.js"
     ],
     "rules": {
         "accessor-pairs": [

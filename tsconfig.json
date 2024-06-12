@@ -6,11 +6,12 @@
         "test"
     ],
     "compilerOptions": {
-        "module": "es6",
-        "target": "es6",
+        "module": "CommonJS",
+        "target": "es5",
         "lib": [
-            "es5"
+            "esnext"
         ],
+        "allowJs": true,
         "importHelpers": true,
         "declaration": true,
         "sourceMap": true,

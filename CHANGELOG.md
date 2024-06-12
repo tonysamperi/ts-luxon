@@ -1,9 +1,39 @@
 # Changelog
 
-## 5.0.0
-* Fix package.json for correct package interpretation
+## 5.0.5 (Luxon next 3.4.4)
+
+* Final version of package.json exports
+
+## 5.0.4 \***DEPRECATED\***
+
+* The extra "require" actually broke
+
+## 5.0.3  \***DEPRECATED\***
+
+* Fixed package.json
+
+## 5.0.2 \***DEPRECATED\***
+
+* Fixed tokenParser
+
+## 5.0.1 \***DEPRECATED\***
+
+* Fixed build output (removed extra terser)
+
+## 5.0.0 \***DEPRECATED\***
+
+* Partially fixed package.json
+
+## 4.6.2 (Luxon next 3.4.4)
+
+* Fix tokenParser.ts
+
+## 4.6.1 (Luxon next 3.4.4)
+
+* Fix package outputs
 
 ## 4.6.0 (Luxon next 3.4.4)
+
 * Validate time zone in quickDT prior to guessing offset (#1575)
 * Use getPrototypeOf instead of __proto__ (#1592)
 * Perf: Memoize digitsRegex (#1581)
@@ -15,20 +45,24 @@
 * Perf: Cache ts offset guesses for quickDT (#1579)
 
 ## 4.5.2 (Luxon 3.4.4)
-* Fixed Datetime docs for: fromJSDate, fromMillis, fromSeconds, diff (Closes [#9](https://github.com/tonysamperi/ts-luxon/issues/9))
+
+* Fixed Datetime docs for: fromJSDate, fromMillis, fromSeconds, diff (
+  Closes [#9](https://github.com/tonysamperi/ts-luxon/issues/9))
 
 ## 4.5.1 (Luxon 3.4.4)
+
 * Fixed DateTime.toISODate implementation
-* Removed null on return types of DateTime (avoid needing not nullish operators): 
-  * monthLong / monthShort
-  * offsetNameLong / offsetNameShort
-  * weekdayLong / weekdayShort
-  * zoneName
-  * toISO / toISOTime / toISOWeekDate
-  * toSQL
-  * toString
+* Removed null on return types of DateTime (avoid needing not nullish operators):
+    * monthLong / monthShort
+    * offsetNameLong / offsetNameShort
+    * weekdayLong / weekdayShort
+    * zoneName
+    * toISO / toISOTime / toISOWeekDate
+    * toSQL
+    * toString
 
 ## 4.5.0 (Luxon 3.4.4)
+
 * Fixed space characters in tests for Node 20
 * Improve DateTime#diff for cross-zone diffs in certain situations (#1165)
 * Improved normalization functions
@@ -37,6 +71,7 @@
 * Add custom inspect for node without dependency (#1526)
 
 ## 4.4.0 (Luxon 3.4.1)
+
 * Switched to eslint (finally!)
 * Refactored everything to respect alphabetic order rule
 * Fix parsing.md docs: remove "TTT" from valid parsing tokens (#1427)
@@ -50,9 +85,11 @@
 * Improve Duration#shiftTo and Duration#normalize now having a better handling (#1493)
 
 ## 4.3.1 (Luxon 3.3.0)
+
 * Fix typings path issue (#6)[https://github.com/tonysamperi/ts-luxon/issues/6]
 
 ## 4.3.0 (Luxon 3.3.0)
+
 * Handle dates in year 99 rolling over into year 100 behaving as if year 100 was a leap year (#1390 / #1389)
 * Fix support for Node 18 (tests included)
 * Add toUnixInteger() to the formatting documentation (#1379)
@@ -67,14 +104,17 @@
 * Expose method on DateTime to get all possible offsets for ambiguous local times (#1405)
 
 ## 4.2.2 (Luxon next 3.3.0)
+
 * fix property VERSION now reading directly the package.json to avoid misalignment
 
 ## 4.2.1 (Luxon next 3.3.0)
+
 * allow parsing of just an offset
 * fix parsing issue for Chromium browsers above v 109 (fixes #4)
 * upgrade typescript version from 4.6 to 4.7
 
 ## 4.2.0 (Luxon 3.2.1)
+
 * Allow timeZone to be specified as an intl option
 * Fix for diff's handling of end-of-month when crossing leap years (#1340)
 * Add Interval.toLocaleString() (#1320)
@@ -84,13 +124,16 @@
 * added test script to compensate for removed Docker
 
 ## 4.1.0 (Luxon 3.1.1)
+
 * Add Settings.twoDigitCutoffYear to configure parsing 'yy' token. (#1330)
 * Add Interval.toLocaleString() (#1320)
 
 ## 4.0.1 (Luxon 3.1.0)
+
 * Version bump, added homepage to package.json
 
 ## 4.0.0 (Luxon 3.1.0)
+
 * Add "default" as an option for specifying a zone, and change "system" to really mean the system zone (breaking change)
 * Add DateTime.parseFormatForOpts
 * Fixed JSDocs for static members (#1272)
@@ -103,14 +146,17 @@
 * Added support for custom conversion matrices in Durations
 
 ## 3.5.0 (Luxon 2.5.x)
+
 * DateTime.diff produces wrong results with unit quarter fix. (#1279)
 * dt.toLocaleString(DateTime.DATETIME_FULL); //=> 'April 20, 2017 at 11:32 AM EDT'
 * Add Duration.rescale
 
 ## 3.4.1 (Luxon 2.5.0)
+
 * fix #776 (#872)
 
 ## 3.4.0 (Luxon 2.5.0)
+
 * Wednesday support for RFC 850 (#1225)
 * Fix link to duration months (#1232)
 * Mention escaping behavior in Duration.toFormat docstring (#1221)
@@ -119,21 +165,26 @@
 * Added option to exclude quarters and weeks in Duration.toHuman
 
 ## 3.3.2 (Luxon 2.4.0)
+
 * Fixed version
-* Downgrade typescript version to ~3.9.7, since emitted globalThis for types breaks TS compilation when using the library
+* Downgrade typescript version to ~3.9.7, since emitted globalThis for types breaks TS compilation when using the
+  library
 
 ## 3.3.1 (Luxon 2.4.0)
+
 * Fixed wrong type in toFormat, DateTimeOptions instead of LocaleOptions
 * Removed useless type DateTimeWithZoneOptions, unified everything under DateTimeOptions
 
 ## 3.3.0 (Luxon 2.4.0)
+
 * fix: change NBSP regex to a non-matching group #1169 (#1194)
 * fix bug 908 isInDST() incorrect (#1199)
 * Update math.md (#1180)
 * add support for extended zones
 * Increase number of allowed digits when parsing ISO duration (#1213)
 
-## 3.2.0 (Luxon 2.3.2) 
+## 3.2.0 (Luxon 2.3.2)
+
 * NOTE: I'm doing a major version since there's added functionality. Don't know why in Luxon they only bumped patch
 * Added an `includeOffsetSpace` option to `toSQL` and `toSQLTime`
 * Added `toUnixInteger`
@@ -155,7 +206,7 @@
 * Allow offsets to pick among ambiguous times when both an offset and zone are provided to `fromFormat`
 * Fix a floating point bug in `Duration.shiftTo()`
 * Fix http and 2822 docstrings
-* Refactored Intl typing (intl-next.ts) 
+* Refactored Intl typing (intl-next.ts)
 * Added type definitions for Intl.ListFormat
 * add Duration#toHuman
 * Upgrade typescript version to ~4.4.4
