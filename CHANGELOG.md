@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.6 (Luxon next 3.5.0)
+* Documented weekSettings opt in DateTime (#1640)
+
 ## 5.0.5 (Luxon next 3.4.4)
 
 * Final version of package.json exports
