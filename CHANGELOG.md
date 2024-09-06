@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.5 (Luxon next 3.5.0)
+* Documented weekSettings opt in DateTime (#1640)
+
+## 5.0.5 (Luxon next 3.4.4)
+* Fix package.json
+
 ## 5.0.4 (Luxon next 3.4.4)
 
 * The extra "require" actually broke
