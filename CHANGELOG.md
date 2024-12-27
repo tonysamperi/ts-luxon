@@ -1,12 +1,16 @@
 # Changelog
 
-## 5.0.5 (Luxon next 3.5.0)
+## 5.1.0
+* Add lastMoment getter to Interval (#1280)
+
+## 5.0.6 (Luxon next 3.5.0)
 * Documented weekSettings opt in DateTime (#1640)
 
 ## 5.0.5 (Luxon next 3.4.4)
-* Fix package.json
 
-## 5.0.4 (Luxon next 3.4.4)
+* Final version of package.json exports
+
+## 5.0.4 \***DEPRECATED\***
 
 * The extra "require" actually broke
 
