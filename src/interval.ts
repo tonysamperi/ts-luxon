@@ -99,7 +99,7 @@ export class Interval {
      * @type {DateTime}
      */
     get lastDateTime(): DateTime | null {
-        return this.isValid ? this._e.minus(1) : null;
+        return this.isValid ? this._e?.minus(1) || null : null;
     }
 
     /**

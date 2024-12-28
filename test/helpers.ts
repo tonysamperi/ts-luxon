@@ -80,6 +80,22 @@ export class Helpers {
         return duration.set(fourWeeks).normalize().months === 1 ? "casual" : "longterm";
     };
 
+    static getCldrMajorVersion() {
+        try {
+            const cldr = process?.versions?.cldr;
+            if (cldr) {
+                const match = cldr.match(/^(\d+)\./);
+                if (match) {
+                    return parseInt(match[1]);
+                }
+            }
+            return null;
+        }
+        catch {
+            return null;
+        }
+    };
+
     static nullify(x: number): number | null {
         if (x) {
             return x;
@@ -95,7 +111,8 @@ export class Helpers {
                 // @ts-ignore
                 Settings[prop] = value;
                 f();
-            } finally {
+            }
+            finally {
                 Settings[prop] = existing;
             }
         };
@@ -195,13 +212,13 @@ export class Helpers {
         test(fullName, () => {
             const rtf = Intl.RelativeTimeFormat;
             try {
-                // @ts-ignore
+                // @ts-expect-error no other way to override
                 Intl.RelativeTimeFormat = undefined;
                 Settings.resetCaches();
                 f();
             }
             finally {
-                // @ts-ignore
+                // @ts-expect-error no other way to override
                 Intl.RelativeTimeFormat = rtf;
             }
         });

@@ -1,7 +1,9 @@
 import { DateTime, Interval, Duration } from "../../src";
 import { Helpers } from "../helpers";
 
-const fromISOs = (s: string, e: string): Interval => DateTime.fromISO(s).until(DateTime.fromISO(e));
+const fromISOs = (s: string, e: string): Interval => {
+    return DateTime.fromISO(s).until(DateTime.fromISO(e)) as Interval;
+};
 const todayFrom = (h1: number, h2: number, uselessString?: string): Interval => {
     uselessString || "foo";
 
@@ -147,7 +149,8 @@ test("Interval.merge returns empty for an empty input", () => {
 function xor(items: Interval[], expected: Interval[]) {
     const r = Interval.xor(items);
     expect(r.length).toBe(expected.length);
-    for (const i in expected) {
+    for (const i in
+        expected) {
         if (Object.prototype.hasOwnProperty.call(expected, i)) {
             expect(r[i] && r[i].equals(expected[i])).toBeTruthy();
         }
@@ -203,7 +206,8 @@ test("Interval.xor handles funny adjacency cases", () => {
 function diff(interval: Interval, items: Interval[], expected: Interval[]) {
     const r = interval.difference(...items);
     expect(r.length).toBe(expected.length);
-    for (const i in expected) {
+    for (const i in
+        expected) {
         if (Object.prototype.hasOwnProperty.call(expected, i)) {
             expect(r[i] && r[i].equals(expected[i])).toBeTruthy();
         }
@@ -348,7 +352,7 @@ test("Interval#splitAt handles DST shifts", () => {
     expect(splitByDSTStartAndEnd).toEqual([
         "2023-10-29T00:00:00.000+02:00/2023-10-29T02:00:00.000+02:00",
         "2023-10-29T02:00:00.000+02:00/2023-10-29T02:00:00.000+01:00",
-        "2023-10-29T02:00:00.000+01:00/2023-10-30T00:00:00.000+01:00",
+        "2023-10-29T02:00:00.000+01:00/2023-10-30T00:00:00.000+01:00"
     ]);
 });
 
@@ -395,7 +399,9 @@ test("Interval#split by works across varying length months", () => {
         const months = interval.splitBy(Duration.fromISO("P1M"));
         expect(months.length).toEqual(5);
 
-        for (let i = 0; i < months.length; i++) {
+        for (let i = 0;
+             i < months.length;
+             i++) {
             const month = months[i];
             const expectedStart = start.plus({ month: i });
             const expectedEnd = start.plus({ month: i + 1 });

@@ -2040,7 +2040,7 @@ export class DateTime {
      * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
      * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
      * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
-     * @return {string}
+     * @return {string|null}
      */
     toISO({
               format = "extended",
@@ -2048,7 +2048,7 @@ export class DateTime {
               suppressMilliseconds = false,
               includeOffset = true,
               extendedZone = false
-          }: ToISOTimeOptions = {}): string {
+          }: ToISOTimeOptions = {}): string | null {
 
         if (!this.isValid) {
             return null;
@@ -2068,9 +2068,9 @@ export class DateTime {
      * @param {string} [options.format="extended"] - choose between the basic and extended (default) format
      * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
-     * @return {string}
+     * @return {string|null}
      */
-    toISODate({ format = "extended" }: { format?: ToISOFormat } = { format: "extended" }): string {
+    toISODate({ format = "extended" }: { format?: ToISOFormat } = { format: "extended" }): string | null {
         if (!this.isValid) {
             return null;
         }
@@ -2400,10 +2400,11 @@ export class DateTime {
 
     /**
      * Return an Interval spanning between this DateTime and another DateTime
-     * @param {DateTime} other - the other end point of the Interval
+     * @param {DateTime} otherDateTime - the other end point of the Interval
+     * @return {Interval|DateTime}
      */
-    until(other: DateTime): Interval {
-        return Interval.fromDateTimes(this, other);
+    until(otherDateTime: DateTime): Interval | DateTime {
+        return this.isValid ? Interval.fromDateTimes(this, otherDateTime) : this;
     }
 
     /**
