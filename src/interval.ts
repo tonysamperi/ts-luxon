@@ -95,6 +95,14 @@ export class Interval {
     }
 
     /**
+     * Returns the last DateTime included in the interval (since end is not part of the interval)
+     * @type {DateTime}
+     */
+    get lastDateTime(): DateTime | null {
+        return this.isValid ? this._e?.minus(1) || null : null;
+    }
+
+    /**
      * Returns the start of the Interval
      */
     get start(): DateTime | null {

@@ -22,3 +22,12 @@ test("Interval.end gets the end", () => {
 test("Interval.end returns null for invalid intervals", () => {
   expect(invalid.end).toBe(null);
 });
+
+test("Interval.lastDateTime returns the last date time", () => {
+    const d = todayFrom(3, 5).lastDateTime as DateTime;
+    expect(d.hour).toBe(4);
+});
+
+test("Interval.lastDateTime returns null when interval is invalid", () => {
+    expect(invalid.lastDateTime).toBe(null);
+});

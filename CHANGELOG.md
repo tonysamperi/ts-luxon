@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.1.0 (Luxon next 3.5.0)
+* Add lastMoment getter to Interval (#1280)
+* Create LocaleCache to optimize maintenance and readability of the various locale caches (#1642)
+* Fix DateTime toISODate return type
+* Fix DateTime toISO return type
+* Fix DateTime until return type
+* Optimize performance by adding caching for resolved options and parsed locale strings
+* Fix tests to work with Node 22 (#1675)
+
 ## 5.0.6 (Luxon next 3.5.0)
 * Documented weekSettings opt in DateTime (#1640)
 

@@ -15,66 +15,7 @@ import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "../typ
 import { LocaleOptions, NumberingSystem, CalendarSystem, WeekSettings } from "../types/locale";
 import { Zone } from "../zone";
 import { ZoneOffsetOptions } from "../types/zone";
-
-// todo - remap caching
-
-let intlLFCache: Record<string, Intl.ListFormat> = {};
-
-function getCachedLF(locString: string, opts: Intl.ListFormatOptions = {}) {
-    const key = JSON.stringify([locString, opts]);
-    let dtf = intlLFCache[key];
-    if (!dtf) {
-        dtf = new Intl.ListFormat(locString, opts);
-        intlLFCache[key] = dtf;
-    }
-    return dtf;
-}
-
-let intlDTCache: Record<string, Intl.DateTimeFormat> = {};
-
-function getCachedDTF(locString: string, options: Intl.DateTimeFormatOptions = {}): Intl.DateTimeFormat {
-    const key = JSON.stringify([locString, options]);
-    let dtf = intlDTCache[key];
-    if (!dtf) {
-        dtf = new Intl.DateTimeFormat(locString, options);
-        intlDTCache[key] = dtf;
-    }
-    return dtf;
-}
-
-let intlNumCache: Record<string, Intl.NumberFormat> = {};
-
-function getCachedINF(locString: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
-    const key = JSON.stringify([locString, options]);
-    let inf = intlNumCache[key];
-    if (!inf) {
-        inf = new Intl.NumberFormat(locString, options);
-        intlNumCache[key] = inf;
-    }
-    return inf;
-}
-
-let intlRelCache: Record<string, Intl.RelativeTimeFormat> = {};
-
-function getCachedRTF(locale: Intl.UnicodeBCP47LocaleIdentifier, options: Intl.RelativeTimeFormatOptions = {}): Intl.RelativeTimeFormat {
-    const key = JSON.stringify([locale, options]);
-    let inf = intlRelCache[key];
-    if (!inf) {
-        inf = new Intl.RelativeTimeFormat(locale, options);
-        intlRelCache[key] = inf;
-    }
-    return inf;
-}
-
-let sysLocaleCache: string | void;
-
-function systemLocale(): string {
-    if (!sysLocaleCache) {
-        sysLocaleCache = new Intl.DateTimeFormat().resolvedOptions().locale;
-    }
-
-    return sysLocaleCache;
-}
+import { LocaleCache } from "./locale-cache";
 
 function parseLocaleString(localeStr: string): [string, NumberingSystem?, CalendarSystem?] {
     // I really want to avoid writing a BCP 47 parser
@@ -85,7 +26,7 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
     // b) if it does, use Intl to resolve everything
     // c) if Intl fails, try again without the -u
 
-    // private subtags and unicode subtags have ordering requirements,
+    // private subtags and Unicode subtags have ordering requirements,
     // and we're not properly parsing this, so just strip out the
     // private ones if they exist.
     const xIndex: number = localeStr.indexOf("-x-");
@@ -101,12 +42,12 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
         let options: Intl.ResolvedDateTimeFormatOptions;
         let selectedStr;
         try {
-            options = getCachedDTF(localeStr).resolvedOptions();
+            options = LocaleCache.getCachedDTF(localeStr).resolvedOptions();
             selectedStr = localeStr;
         }
         catch (e) {
             const smaller = localeStr.substring(0, uIndex);
-            options = getCachedDTF(smaller).resolvedOptions();
+            options = LocaleCache.getCachedDTF(smaller).resolvedOptions();
             selectedStr = smaller;
         }
 
@@ -195,7 +136,7 @@ class PolyNumberFormatter {
             if (this._padTo > 0) {
                 intlOpts.minimumIntegerDigits = padTo;
             }
-            this._inf = getCachedINF(intl, intlOpts);
+            this._inf = LocaleCache.getCachedINF(intl, intlOpts);
         }
     }
 
@@ -273,7 +214,7 @@ export class PolyDateFormatter {
             ...this._opts,
             timeZone: this._opts.timeZone || z
         };
-        this._dtf = getCachedDTF(intl, intlOpts);
+        this._dtf = LocaleCache.getCachedDTF(intl, intlOpts);
     }
 
     format(): string {
@@ -329,7 +270,7 @@ class PolyRelFormatter {
     constructor(locale: Intl.UnicodeBCP47LocaleIdentifier, isEnglish: boolean, opts: Intl.RelativeTimeFormatOptions) {
         this._opts = { style: "long", ...opts };
         if (!isEnglish && hasRelative()) {
-            this._rtf = getCachedRTF(locale, opts);
+            this._rtf = LocaleCache.getCachedRTF(locale, opts);
         }
     }
 
@@ -422,7 +363,7 @@ export class Locale {
     static create(locale?: string, numberingSystem?: NumberingSystem, outputCalendar?: CalendarSystem, weekSettings?: WeekSettings | void, defaultToEN = !1): Locale {
         const specifiedLocale = locale || Settings.defaultLocale;
         // the system locale is useful for human-readable strings but annoying for parsing/formatting known formats
-        const localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale());
+        const localeR = specifiedLocale || (defaultToEN ? "en-US" : LocaleCache.systemLocale());
         const numberingSystemR = numberingSystem || Settings.defaultNumberingSystem;
         const outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
         const weekSettingsR = validateWeekSettings(weekSettings) || Settings.defaultWeekSettings;
@@ -439,11 +380,7 @@ export class Locale {
     }
 
     static resetCache(): void {
-        sysLocaleCache = undefined;
-        intlLFCache = {};
-        intlDTCache = {};
-        intlNumCache = {};
-        intlRelCache = {};
+        LocaleCache.reset();
     }
 
     //
@@ -530,12 +467,12 @@ export class Locale {
         return (
             // tslint:disable-next-line:no-bitwise
             !!~["en", "en-us"].indexOf(this.locale.toLowerCase()) ||
-            new Intl.DateTimeFormat(this._intl).resolvedOptions().locale.startsWith("en-us")
+            LocaleCache.getCachedIntResolvedOptions(this._intl).locale.startsWith("en-us")
         );
     }
 
     listFormatter(opts: Intl.ListFormatOptions = {}): Intl.ListFormat {
-        return getCachedLF(this._intl, opts);
+        return LocaleCache.getCachedLF(this._intl, opts);
     }
 
     // In Luxon boolean param "defaultOK" was still there, although unused

@@ -18,18 +18,20 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [20.9.0]
+                node-version:
+                    - 20.18.3 # latest 20.x
+                    - 22.14.0 # latest 22.x
 
         steps:
-            - uses: actions/checkout@v2
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v3
-              with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: 'npm'
-            - run: npm i -g yarn
-            - run: yarn --check-files
-            - run: npm run build
-            - run: npm run test
-            - run: npm run typedoc
-            - run: bash <(curl -s https://codecov.io/bash)
+            -   uses: actions/checkout@v2
+            -   name: Use Node.js ${{ matrix.node-version }}
+                uses: actions/setup-node@v3
+                with:
+                    node-version: ${{ matrix.node-version }}
+                    cache: 'npm'
+            -   run: corepack enable
+            -   run: yarn install
+            -   run: npm run build
+            -   run: npm run test
+            -   run: npm run typedoc
+            -   run: bash <(curl -s https://codecov.io/bash)

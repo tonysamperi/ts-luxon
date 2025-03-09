@@ -13,6 +13,11 @@ I decided to fork his work, because we don't know for sure if and when Luxon wil
 
 I realized moment wasn't suitable anymore for my projects, but I couldn't wait to have a more stable version and at this time Luxon (v 1.25.0) had structural issues, which resulted in errors in my Angular projects.
 
+## Upgrading to 5.x
+Compared to v4 here I only changed how the library is built and the outputs.
+It should be completely transparent to the user given the adjustments to the package.json and given the fact that the es6 export of v4 is **interpreted as CJS anyways**.
+I'm working on adding a real ESM module output to v5, but it seems there's no way of making the two cohexist.
+
 ## Upgrading to 4.x
 
 See the [docs page](https://tonysamperi.github.io/ts-luxon/docs)

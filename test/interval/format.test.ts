@@ -1,19 +1,21 @@
 import { DateTime, Interval } from "../../src";
+import { Helpers } from "../helpers";
 
-const fromISOs = (s: string, e: string) =>
-    DateTime.fromISO(s, { setZone: true }).until(DateTime.fromISO(e, { setZone: true })),
-  interval = fromISOs("1982-05-25T09:00Z", "1983-10-14T13:30Z"),
-  invalid = Interval.invalid("because");
+const fromISOs = (s: string, e: string) => {
+    return DateTime.fromISO(s, { setZone: true }).until(DateTime.fromISO(e, { setZone: true }));
+};
+const interval = fromISOs("1982-05-25T09:00Z", "1983-10-14T13:30Z") as Interval;
+const invalid = Interval.invalid("because");
 
 // ------
 // .toString()
 // ------
 
 test("Interval#toString returns a simple range format", () =>
-  expect(interval.toString()).toBe("[1982-05-25T09:00:00.000Z – 1983-10-14T13:30:00.000Z)"));
+    expect(interval.toString()).toBe("[1982-05-25T09:00:00.000Z – 1983-10-14T13:30:00.000Z)"));
 
 test("Interval#toString returns an unfriendly string for invalid intervals", () =>
-  expect(invalid.toString()).toBe("Invalid Interval"));
+    expect(invalid.toString()).toBe("Invalid Interval"));
 
 // ------
 // .toLocaleString()
@@ -28,7 +30,7 @@ test("Interval#toLocaleString returns an unfriendly string for invalid intervals
 test("Interval#toLocaleString lets the locale set the numbering system", () => {
     expect(
         Interval.after(interval.start!.reconfigure({ locale: "ja-JP" }), { hour: 2 }).toLocaleString({
-            hour: "numeric",
+            hour: "numeric"
         })
     ).toBe("9時～11時");
 });
@@ -92,20 +94,26 @@ test("Interval#toLocaleString can override the start DateTime's output calendar"
 });
 
 test("Interval#toLocaleString shows things in the right IANA zone", () => {
+    const cldr = Helpers.getCldrMajorVersion();
+    const expectedDate = cldr > 44 ? "25/05/1982" : "25/5/1982";
     expect(
         Interval.fromDateTimes(
             interval.start!.setZone("Australia/Melbourne"),
             interval.end!
         ).toLocaleString(DateTime.DATETIME_SHORT)
-    ).toBe("25/5/1982, 19:00 – 14/10/1983, 23:30");
+    ).toBe(`${expectedDate}, 19:00 – 14/10/1983, 23:30`);
 });
 
 test("Interval#toLocaleString shows things in the right fixed-offset zone", () => {
+    const cldr = Helpers.getCldrMajorVersion();
+    const expectedDate = cldr > 44 ? "25/05/1982" : "25/5/1982";
     expect(
         Interval.fromDateTimes(interval.start!.setZone("UTC-8"), interval.end!).toLocaleString(
             DateTime.DATETIME_SHORT
         )
-    ).toBe("25/5/1982, 01:00 – 14/10/1983, 05:30");
+    ).toBe(
+        `${expectedDate}, 01:00 – 14/10/1983, 05:30`
+    );
 });
 
 test("Interval#toLocaleString shows things in the right fixed-offset zone when showing the zone", () => {
@@ -180,37 +188,37 @@ test("Interval#toLocaleString sets the separator between days for same-month dat
 // ------
 
 test("Interval#toISO returns a simple ISO format", () =>
-  expect(interval.toISO()).toBe("1982-05-25T09:00:00.000Z/1983-10-14T13:30:00.000Z"));
+    expect(interval.toISO()).toBe("1982-05-25T09:00:00.000Z/1983-10-14T13:30:00.000Z"));
 
 test("Interval#toISO accepts ISO options", () =>
-  expect(interval.toISO({ suppressSeconds: true })).toBe("1982-05-25T09:00Z/1983-10-14T13:30Z"));
+    expect(interval.toISO({ suppressSeconds: true })).toBe("1982-05-25T09:00Z/1983-10-14T13:30Z"));
 
 test("Interval#toISO returns an unfriendly string for invalid intervals", () =>
-  expect(invalid.toISO()).toBe("Invalid Interval"));
+    expect(invalid.toISO()).toBe("Invalid Interval"));
 
 // ------
 // .toISODate()
 // ------
 
 test("Interval#toISODate returns a simple ISO date interval format", () =>
-  expect(interval.toISODate()).toBe("1982-05-25/1983-10-14"));
+    expect(interval.toISODate()).toBe("1982-05-25/1983-10-14"));
 
 test("Interval#toISODate returns an unfriendly string for invalid intervals", () =>
-  expect(invalid.toISODate()).toBe("Invalid Interval"));
+    expect(invalid.toISODate()).toBe("Invalid Interval"));
 
 // ------
 // .toISOTime()
 // ------
 
 test("Interval#toISOTime returns a simple ISO time interval format", () =>
-  expect(interval.toISOTime()).toBe("09:00:00.000Z/13:30:00.000Z"));
+    expect(interval.toISOTime()).toBe("09:00:00.000Z/13:30:00.000Z"));
 
 test("Interval#toISOTime returns an unfriendly string for invalid intervals", () =>
-  expect(invalid.toISOTime()).toBe("Invalid Interval"));
+    expect(invalid.toISOTime()).toBe("Invalid Interval"));
 
 test("Interval#toISOTime accepts ISO options", () => {
-  expect(interval.toISOTime({ suppressSeconds: true })).toBe("09:00Z/13:30Z");
-  expect(interval.toISOTime({ suppressMilliseconds: true })).toBe("09:00:00Z/13:30:00Z");
+    expect(interval.toISOTime({ suppressSeconds: true })).toBe("09:00Z/13:30Z");
+    expect(interval.toISOTime({ suppressMilliseconds: true })).toBe("09:00:00Z/13:30:00Z");
 });
 
 // ------
@@ -218,16 +226,16 @@ test("Interval#toISOTime accepts ISO options", () => {
 // ------
 
 test("Interval#toFormat accepts date formats", () => {
-  expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("Tue, May 25, 1982 - Fri, Oct 14, 1983");
-  expect(interval.toFormat("HH:mm")).toBe("09:00 - 13:30");
+    expect(interval.toFormat("EEE, LLL dd, yyyy")).toBe("Tue, May 25, 1982 - Fri, Oct 14, 1983");
+    expect(interval.toFormat("HH:mm")).toBe("09:00 - 13:30");
 });
 
 test("Interval#toFormat accepts date formats", () => {
-  expect(interval.toFormat("EEE, LLL dd, yyyy", { separator: " until " })).toBe(
-    "Tue, May 25, 1982 until Fri, Oct 14, 1983"
-  );
+    expect(interval.toFormat("EEE, LLL dd, yyyy", { separator: " until " })).toBe(
+        "Tue, May 25, 1982 until Fri, Oct 14, 1983"
+    );
 });
 
 test("Interval#toFormat returns an unfriendly string for invalid intervals", () => {
-  expect(invalid.toFormat("EEE, LLL dd, yyyy")).toBe("Invalid Interval");
+    expect(invalid.toFormat("EEE, LLL dd, yyyy")).toBe("Invalid Interval");
 });

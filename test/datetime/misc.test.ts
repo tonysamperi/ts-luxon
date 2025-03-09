@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime, Interval } from "../../src";
 
 // you hate to see a class like this, but here we are
 
@@ -63,7 +63,7 @@ test("DateTime#hasSame() returns false for invalid DateTimes", () => {
 test("DateTime#until() creates an Interval", () => {
   const dt = DateTime.now(),
     other = dt.plus({ days: 1 }),
-    i = dt.until(other);
+    i: Interval = dt.until(other) as Interval;
 
   expect(i.start).toBe(dt);
   expect(i.end).toBe(other);
