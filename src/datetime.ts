@@ -2579,3 +2579,5 @@ export class DateTime {
 }
 
 export type DateTimeLike = DateTime | Date | GenericDateTime;
+
+export default DateTime;

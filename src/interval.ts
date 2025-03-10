@@ -730,3 +730,5 @@ export class Interval {
         return Interval.fromDateTimes(s, e);
     }
 }
+
+export default Interval;

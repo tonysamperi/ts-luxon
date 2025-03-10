@@ -1136,3 +1136,5 @@ export class Duration implements NormalizedDurationObject {
 }
 
 export type DurationLike = Duration | UnparsedDurationObject;
+
+export default Duration;
