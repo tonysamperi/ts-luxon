@@ -10,7 +10,6 @@ import { isNumber } from "./impl/util";
 import { Formatter } from "./impl/formatter";
 import { DATE_SHORT } from "./impl/formats";
 import { LocaleOptions } from "./types/locale";
-import Intl from "./types/intl-next";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";

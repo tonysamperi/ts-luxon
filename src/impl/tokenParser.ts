@@ -12,7 +12,6 @@ import {
 import { Zone } from "../zone";
 import { DateTime } from "../datetime";
 import { ConflictingSpecificationError } from "../errors";
-import Intl from "../types/intl-next";
 
 const missingFtp = "missing Intl.DateTimeFormat.formatToParts support";
 
@@ -228,10 +227,10 @@ interface TokensForPartTypes {
     "short"?: string;
 }
 
-const partTypeStyleToTokenVal: { [key in SlimDateTimeFormatPartTypes]: TokensForPartTypes | string } = {
+const partTypeStyleToTokenVal: Partial<{ [key in SlimDateTimeFormatPartTypes]: TokensForPartTypes | string }> = {
     year: {
         "2-digit": "yy",
-        numeric: "yyyyy"
+        numeric: "yyyy"
     },
     month: {
         numeric: "M",

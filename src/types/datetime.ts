@@ -3,7 +3,6 @@ import { DateTime } from "../datetime";
 import { Zone } from "../zone";
 import { FormatToken } from "../impl/formatter";
 import { Locale } from "../impl/locale";
-import Intl from "./intl-next";
 
 export interface SetZoneOptions {
     keepCalendarTime?: boolean;

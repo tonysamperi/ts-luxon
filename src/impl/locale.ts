@@ -10,12 +10,12 @@ import * as English from "./english";
 import { Settings } from "../settings";
 import { DateTime } from "../datetime";
 import { IANAZone } from "../zones/IANAZone";
-import Intl from "../types/intl-next";
 import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "../types/common";
 import { LocaleOptions, NumberingSystem, CalendarSystem, WeekSettings } from "../types/locale";
 import { Zone } from "../zone";
 import { ZoneOffsetOptions } from "../types/zone";
 import { LocaleCache } from "./locale-cache";
+import {FormatterOptions} from "./formatter";
 
 function parseLocaleString(localeStr: string): [string, NumberingSystem?, CalendarSystem?] {
     // I really want to avoid writing a BCP 47 parser
@@ -126,7 +126,7 @@ class PolyNumberFormatter {
     private _inf?: Readonly<Intl.NumberFormat>;
     private readonly _padTo: number;
 
-    constructor(intl: string, forceSimple: boolean, opts: Intl.NumberFormatOptions) {
+    constructor(intl: string, forceSimple: boolean, opts: FormatterOptions) {
         const { padTo, floor, ...otherOpts } = opts;
         this._padTo = padTo || 0;
         this._floor = floor || false;
@@ -288,7 +288,7 @@ class PolyRelFormatter {
         }
     }
 
-    formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit): string[] {
+    formatToParts(count: number, unit: Intl.RelativeTimeFormatUnit) {
         if (this._rtf) {
             return this._rtf.formatToParts(count, unit);
         }

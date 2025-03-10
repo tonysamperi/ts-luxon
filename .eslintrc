@@ -275,6 +275,10 @@
                 "format": [
                     "UPPER_CASE"
                 ]
+            },
+            {
+                "selector": "import",
+                "format": null
             }
         ]
     }

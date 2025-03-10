@@ -16,7 +16,7 @@ I realized moment wasn't suitable anymore for my projects, but I couldn't wait t
 ## Upgrading to 5.x
 Compared to v4 here I only changed how the library is built and the outputs.
 It should be completely transparent to the user given the adjustments to the package.json and given the fact that the es6 export of v4 is **interpreted as CJS anyways**.
-I'm working on adding a real ESM module output to v5, but it seems there's no way of making the two cohexist.
+I'm working on adding a real ESM module output to v5, but it seems there's no way of making the two coexist.
 
 ## Upgrading to 4.x
 

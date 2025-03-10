@@ -31,7 +31,6 @@ import { Settings } from "./settings";
 import { Invalid } from "./types/invalid";
 import { NumberingSystem } from "./types/locale";
 import { ToISOTimeOptions } from "./types/datetime";
-import Intl from "./types/intl-next";
 import { DateTime } from "./datetime";
 
 // unit conversion constants

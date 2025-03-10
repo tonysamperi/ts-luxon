@@ -7,7 +7,6 @@ import { Duration } from "../duration";
 import { StringUnitLength } from "../types/common";
 import { DurationUnit } from "../types/duration";
 import { ZoneOffsetFormat } from "../types/zone";
-import Intl from "../types/intl-next";
 import { Interval } from "../interval";
 
 function stringifyTokens(
@@ -58,7 +57,7 @@ export interface FormatToken {
     val: string;
 }
 
-interface FormatterOptions extends Intl.DateTimeFormatOptions {
+export interface FormatterOptions extends Intl.DateTimeFormatOptions {
     allowZ?: boolean;
     floor?: boolean;
     forceSimple?: boolean;
@@ -429,7 +428,7 @@ export class Formatter {
 
             return padStart(n, p);
         }
-        const opts: Intl.NumberFormatOptions = { ...this._opts };
+        const opts: FormatterOptions = { ...this._opts };
         if (p > 0) {
             opts.padTo = p;
         }

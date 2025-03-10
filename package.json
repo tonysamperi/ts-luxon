@@ -1,9 +1,22 @@
 {
     "name": "ts-luxon",
-    "version": "5.1.0",
+    "version": "6.0.0-beta.0",
     "license": "MIT",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "author": "Tony Samperi",
+    "main": "./dist/cjs/index.cjs",
+    "module": "./dist/esm/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/esm/index.mjs",
+        "require": "./dist/cjs/index.cjs",
+        "default": "./dist/umd/index.js"
+    },
+    "files": [
+        "dist/**",
+        "README.md"
+    ],
     "keywords": [
         "date",
         "immutable",
@@ -14,28 +27,12 @@
         "url": "git+https://github.com/tonysamperi/ts-luxon.git"
     },
     "homepage": "https://tonysamperi.github.io/ts-luxon/",
-    "type": "commonjs",
-    "main": "./dist/ts-luxon.umd.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "node": "./dist/ts-luxon.cjs.js",
-            "require": "./dist/ts-luxon.cjs.js",
-            "default": "./dist/ts-luxon.umd.js"
-        }
-    },
-    "files": [
-        "dist/**",
-        "README.md"
-    ],
     "engines": {
         "node": ">=20"
     },
     "scripts": {
         "prepublishOnly": "node ./test/test-dist.mjs",
-        "build": "npm run clean && npm run build:umd && npm run build:cjs",
-        "build:cjs": "webpack --config ./webpack.cjs.config.js",
+        "build": "npm run clean && npm run build:umd && node esbuild.config.mjs",
         "build:umd": "webpack --config ./webpack.umd.config.js",
         "clean": "rimraf dist",
         "jest": "jest",
@@ -55,6 +52,7 @@
         "benchmark": "^2.0.0",
         "codecov": "^3.0.0",
         "documentation": "^14.0.0",
+        "esbuild": "^0.25.1",
         "eslint": "^8.47.0",
         "jest": "^29.6.4",
         "rimraf": "^5.0.7",

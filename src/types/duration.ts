@@ -2,7 +2,6 @@ import { ConversionAccuracy } from "./common";
 import { NumberingSystem } from "./locale";
 import { Locale } from "../impl/locale";
 import { Invalid } from "./invalid";
-import Intl from "./intl-next";
 import { LocalWeekDateTime, LocalWeekDateTimePlurals } from "./datetime";
 
 export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds" | keyof LocalWeekDateTime>;

@@ -1,4 +1,4 @@
-import * as tsLuxon from "../dist/ts-luxon.umd.js";
+import * as tsLuxon from "../dist/umd/ts-luxon.js";
 import pkg from "../package.json" with { type: "json" };
 
 if (pkg.version !== tsLuxon.VERSION) {

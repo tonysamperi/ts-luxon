@@ -1,8 +1,7 @@
-import { formatOffset, parseZoneInfo, isUndefined, objToLocalTS } from "../impl/util";
-import { Zone } from "../zone";
-import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone";
-import { InvalidZoneError } from "../errors";
-import Intl from "../types/intl-next";
+import {formatOffset, parseZoneInfo, isUndefined, objToLocalTS} from "../impl/util";
+import {Zone} from "../zone";
+import {ZoneOffsetOptions, ZoneOffsetFormat} from "../types/zone";
+import {InvalidZoneError} from "../errors";
 
 let dtfCache: Record<string, Intl.DateTimeFormat> = {};
 
@@ -20,7 +19,8 @@ function makeDTF(zone: string) {
                 second: "2-digit",
                 era: "short"
             });
-        } catch {
+        }
+        catch {
             throw new InvalidZoneError(zone);
         }
     }
@@ -49,7 +49,7 @@ function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
     const formatted = dtf.formatToParts(date);
     const filled = [];
     for (let i = 0; i < formatted.length; i++) {
-        const { type, value } = formatted[i];
+        const {type, value} = formatted[i];
         const pos = typeToPos[type] as number;
 
         if (type === "era") {
@@ -69,8 +69,38 @@ let ianaZoneCache: Record<string, IANAZone> = {};
  * @implements {Zone}
  */
 export class IANAZone extends Zone {
-    private readonly _zoneName: string;
+
+    /** @override **/
+    get isUniversal() {
+        return false;
+    }
+
+    /** @override **/
+    get isValid() {
+        return this._valid;
+    }
+
+    /** @override **/
+    get name() {
+        return this._zoneName;
+    }
+
+    /** @override **/
+    get type() {
+        return "iana";
+    }
+
     private readonly _valid: boolean;
+    private readonly _zoneName: string;
+
+    private constructor(name: string) {
+        super();
+        /** @private **/
+        this._zoneName = name;
+        /** @private **/
+        this._valid = IANAZone.isValidZone(name);
+    }
+
 
     /**
      * @param {string} name - Zone name
@@ -82,15 +112,6 @@ export class IANAZone extends Zone {
             ianaZoneCache[name] = new IANAZone(name);
         }
         return ianaZoneCache[name];
-    }
-
-    /**
-     * Reset local caches. Should only be necessary in testing scenarios.
-     * @return {void}
-     */
-    static resetCache() {
-        ianaZoneCache = {};
-        dtfCache = {};
     }
 
     /**
@@ -119,39 +140,26 @@ export class IANAZone extends Zone {
             return false;
         }
         try {
-            new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
+            new Intl.DateTimeFormat("en-US", {timeZone: zone}).format();
             return true;
-        } catch (e) {
+        }
+        catch (e) {
             return false;
         }
     }
 
-    private constructor(name: string) {
-        super();
-        /** @private **/
-        this._zoneName = name;
-        /** @private **/
-        this._valid = IANAZone.isValidZone(name);
+    /**
+     * Reset local caches. Should only be necessary in testing scenarios.
+     * @return {void}
+     */
+    static resetCache() {
+        ianaZoneCache = {};
+        dtfCache = {};
     }
 
     /** @override **/
-    get type() {
-        return "iana";
-    }
-
-    /** @override **/
-    get name() {
-        return this._zoneName;
-    }
-
-    /** @override **/
-    get isUniversal() {
-        return false;
-    }
-
-    /** @override **/
-    offsetName(ts: number, { format, locale }: ZoneOffsetOptions = {}) {
-        return parseZoneInfo(ts, format, locale, this.name);
+    equals(other: Zone) {
+        return other.type === "iana" && other.name === this.name;
     }
 
     /** @override **/
@@ -195,12 +203,8 @@ export class IANAZone extends Zone {
     }
 
     /** @override **/
-    equals(other: Zone) {
-        return other.type === "iana" && other.name === this.name;
+    offsetName(ts: number, {format, locale}: ZoneOffsetOptions = {}) {
+        return parseZoneInfo(ts, format, locale, this.name);
     }
 
-    /** @override **/
-    get isValid() {
-        return this._valid;
-    }
 }

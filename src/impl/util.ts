@@ -11,7 +11,6 @@ import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/du
 import { Settings } from "../settings";
 import { dayOfWeek, isoWeekdayToLocal } from "./conversions";
 
-import Intl from "../types/intl-next";
 import { WeekSettings } from "../types/locale";
 
 /**
@@ -245,7 +244,7 @@ export function untruncateYear(year: number): number {
 
 export function parseZoneInfo(
   ts: number,
-  offsetFormat?: string,
+  offsetFormat?: Intl.DateTimeFormatOptions["timeZoneName"],
   locale?: string,
   timeZone?: string
 ): string {

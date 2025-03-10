@@ -10,10 +10,10 @@ webpackCommon.module.rules.push({
 module.exports = {
     ...webpackCommon,
     entry: {
-        'ts-luxon.umd': './src/index.ts'
+        'ts-luxon': './src/index.ts'
     },
     output: {
-        path: resolve('dist'),
+        path: resolve('dist/umd'),
         globalObject: "this",
         filename: '[name].js',
         library: {
@@ -22,4 +22,4 @@ module.exports = {
         },
         umdNamedDefine: true
     }
-};  
+};
