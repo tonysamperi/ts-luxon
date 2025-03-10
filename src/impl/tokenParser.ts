@@ -230,7 +230,7 @@ interface TokensForPartTypes {
 const partTypeStyleToTokenVal: Partial<{ [key in SlimDateTimeFormatPartTypes]: TokensForPartTypes | string }> = {
     year: {
         "2-digit": "yy",
-        numeric: "yyyy"
+        numeric: "yyyyy"
     },
     month: {
         numeric: "M",
