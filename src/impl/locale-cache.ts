@@ -1,4 +1,3 @@
-import Intl from "../types/intl-next";
 import ListFormat = Intl.ListFormat;
 
 /**

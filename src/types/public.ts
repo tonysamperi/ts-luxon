@@ -5,7 +5,3 @@ export * from "./info";
 export * from "./interval";
 export * from "./locale";
 export * from "./zone";
-
-import Intl from "./intl-next";
-
-export { Intl };

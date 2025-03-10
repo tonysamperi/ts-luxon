@@ -1,5 +1,3 @@
-import Intl from "../types/intl-next";
-
 /**
  * @private
  */

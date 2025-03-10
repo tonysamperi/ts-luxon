@@ -21,9 +21,13 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "strictNullChecks": false,
+        "skipLibCheck": true,
         "moduleResolution": "node",
         "baseUrl": "./",
         "paths": {
+            "intl-next": [
+                "./src/types/intl-next"
+            ],
             "ts-luxon": [
                 "./dist"
             ],
