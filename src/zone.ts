@@ -1,5 +1,5 @@
-import {ZoneIsAbstractError} from "./errors";
-import {ZoneOffsetOptions, ZoneOffsetFormat} from "./types/zone";
+import {ZoneIsAbstractError} from "./errors.js";
+import {ZoneOffsetOptions, ZoneOffsetFormat} from "./types/zone.js";
 
 // Prefixing the parameter names with a _ confuses ESDoc
 function silenceUnusedWarning(...args: unknown[]) {

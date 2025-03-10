@@ -1,13 +1,13 @@
-import * as English from "./english";
-import * as Formats from "./formats";
-import { padStart } from "./util";
-import { Locale, PolyDateFormatter } from "./locale";
-import { DateTime } from "../datetime";
-import { Duration } from "../duration";
-import { StringUnitLength } from "../types/common";
-import { DurationUnit } from "../types/duration";
-import { ZoneOffsetFormat } from "../types/zone";
-import { Interval } from "../interval";
+import * as English from "./english.js";
+import * as Formats from "./formats.js";
+import { padStart } from "./util.js";
+import { Locale, PolyDateFormatter } from "./locale.js";
+import { DateTime } from "../datetime.js";
+import { Duration } from "../duration.js";
+import { StringUnitLength } from "../types/common.js";
+import { DurationUnit } from "../types/duration.js";
+import { ZoneOffsetFormat } from "../types/zone.js";
+import { Interval } from "../interval.js";
 
 function stringifyTokens(
     splits: FormatToken[],

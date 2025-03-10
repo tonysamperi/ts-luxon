@@ -12,7 +12,7 @@
             "esnext"
         ],
         "allowJs": true,
-        "importHelpers": true,
+        "importHelpers": false,
         "declaration": true,
         "sourceMap": true,
         "rootDir": "./src",

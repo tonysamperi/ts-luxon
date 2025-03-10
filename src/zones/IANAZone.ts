@@ -1,7 +1,7 @@
-import {formatOffset, parseZoneInfo, isUndefined, objToLocalTS} from "../impl/util";
-import {Zone} from "../zone";
-import {ZoneOffsetOptions, ZoneOffsetFormat} from "../types/zone";
-import {InvalidZoneError} from "../errors";
+import {formatOffset, parseZoneInfo, isUndefined, objToLocalTS} from "../impl/util.js";
+import {Zone} from "../zone.js";
+import {ZoneOffsetOptions, ZoneOffsetFormat} from "../types/zone.js";
+import {InvalidZoneError} from "../errors.js";
 
 let dtfCache: Record<string, Intl.DateTimeFormat> = {};
 

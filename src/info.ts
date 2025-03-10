@@ -1,14 +1,14 @@
-import { DateTime } from "./datetime";
-import { Settings } from "./settings";
-import { Locale } from "./impl/locale";
-import { IANAZone } from "./zones/IANAZone";
-import { Zone } from "./zone";
-import { normalizeZone } from "./impl/zoneUtil";
+import { DateTime } from "./datetime.js";
+import { Settings } from "./settings.js";
+import { Locale } from "./impl/locale.js";
+import { IANAZone } from "./zones/IANAZone.js";
+import { Zone } from "./zone.js";
+import { normalizeZone } from "./impl/zoneUtil.js";
 
-import { hasRelative, hasLocaleWeekInfo } from "./impl/util";
-import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common";
-import { InfoOptions, InfoCalendarOptions, InfoUnitOptions, Features } from "./types/info";
-import { ZoneLike } from "./types/zone";
+import { hasRelative, hasLocaleWeekInfo } from "./impl/util.js";
+import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "./types/common.js";
+import { InfoOptions, InfoCalendarOptions, InfoUnitOptions, Features } from "./types/info.js";
+import { ZoneLike } from "./types/zone.js";
 
 /**
  * The Info class contains static methods for retrieving general time and date related data. For example, it has methods for finding out if a time zone has a DST, for listing the months in any supported locale, and for discovering which of Luxon features are available in the current environment.

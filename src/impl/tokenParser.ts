@@ -1,17 +1,17 @@
-import { parseMillis, untruncateYear, signedOffset, isDefined } from "./util";
-import { Formatter, FormatToken } from "./formatter";
-import { FixedOffsetZone } from "../zones/fixedOffsetZone";
-import { IANAZone } from "../zones/IANAZone";
-import { digitRegex, parseDigits } from "./digits";
-import { Locale } from "./locale";
+import { parseMillis, untruncateYear, signedOffset, isDefined } from "./util.js";
+import { Formatter, FormatToken } from "./formatter.js";
+import { FixedOffsetZone } from "../zones/fixedOffsetZone.js";
+import { IANAZone } from "../zones/IANAZone.js";
+import { digitRegex, parseDigits } from "./digits.js";
+import { Locale } from "./locale.js";
 import {
     GenericDateTime,
     ExplainedFormat,
     GenericDateTimeExtended
-} from "../types/datetime";
-import { Zone } from "../zone";
-import { DateTime } from "../datetime";
-import { ConflictingSpecificationError } from "../errors";
+} from "../types/datetime.js";
+import { Zone } from "../zone.js";
+import { DateTime } from "../datetime.js";
+import { ConflictingSpecificationError } from "../errors.js";
 
 const missingFtp = "missing Intl.DateTimeFormat.formatToParts support";
 

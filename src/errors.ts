@@ -1,5 +1,5 @@
 // these aren't really private, but nor are they really useful to document
-import { Invalid } from "./types/invalid";
+import { Invalid } from "./types/invalid.js";
 
 /**
  * @private

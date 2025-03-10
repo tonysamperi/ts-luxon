@@ -3,9 +3,9 @@
         "./tsconfig.json"
     ],
     "compilerOptions": {
-        "module": "esnext",
-        "target": "esnext",
-        "moduleResolution": "bundler",
+        "module": "NodeNext",
+        "target": "es6",
+        "moduleResolution": "NodeNext",
         "outDir": "dist"
     }
 }

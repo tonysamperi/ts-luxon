@@ -1,15 +1,15 @@
-import { DateTime, DateTimeLike } from "./datetime";
-import { Duration, DurationLike } from "./duration";
-import { InvalidArgumentError, InvalidIntervalError } from "./errors";
-import { ToISOTimeOptions, DateTimeOptions } from "./types/datetime";
-import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
-import { IntervalObject } from "./types/interval";
-import { Invalid } from "./types/invalid";
-import { Settings } from "./settings";
-import { isNumber } from "./impl/util";
-import { Formatter } from "./impl/formatter";
-import { DATE_SHORT } from "./impl/formats";
-import { LocaleOptions } from "./types/locale";
+import { DateTime, DateTimeLike } from "./datetime.js";
+import { Duration, DurationLike } from "./duration.js";
+import { InvalidArgumentError, InvalidIntervalError } from "./errors.js";
+import { ToISOTimeOptions, DateTimeOptions } from "./types/datetime.js";
+import { DurationUnit, DurationOptions, DurationObject } from "./types/duration.js";
+import { IntervalObject } from "./types/interval.js";
+import { Invalid } from "./types/invalid.js";
+import { Settings } from "./settings.js";
+import { isNumber } from "./impl/util.js";
+import { Formatter } from "./impl/formatter.js";
+import { DATE_SHORT } from "./impl/formats.js";
+import { LocaleOptions } from "./types/locale.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";

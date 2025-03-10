@@ -1,4 +1,4 @@
-import { Zone } from "../zone";
+import { Zone } from "../zone.js";
 
 export interface ZoneOffsetOptions {
   format?: "short" | "long";

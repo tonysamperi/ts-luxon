@@ -1,8 +1,8 @@
-import * as Formats from "./formats";
-import { pick } from "./util";
-import { UnitLength, StringUnitLength } from "../types/common";
-import { DateTime } from "../datetime";
-import { Duration } from "../duration";
+import * as Formats from "./formats.js";
+import { pick } from "./util.js";
+import { UnitLength, StringUnitLength } from "../types/common.js";
+import { DateTime } from "../datetime.js";
+import { Duration } from "../duration.js";
 
 function stringify(obj: Record<string, unknown>) {
     return JSON.stringify(obj, Object.keys(obj).sort());
