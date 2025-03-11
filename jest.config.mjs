@@ -35,8 +35,6 @@ export default {
     globals: {},
     collectCoverageFrom: [
         "src/**/*.ts",
-        "!src/zone.ts",
-        "!src/index.d.ts",
-        "!src/types/intl.d.ts"
+        "!src/zone.ts"
     ]
 };

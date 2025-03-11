@@ -7,7 +7,7 @@
     ],
     "compilerOptions": {
         "module": "CommonJS",
-        "target": "es5",
+        "target": "es6",
         "lib": [
             "esnext"
         ],
@@ -16,6 +16,7 @@
         "declaration": true,
         "sourceMap": true,
         "rootDir": "./src",
+        "baseUrl": "./",
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -23,18 +24,6 @@
         "strictNullChecks": false,
         "skipLibCheck": true,
         "moduleResolution": "node",
-        "baseUrl": "./",
-        "paths": {
-            "intl-next": [
-                "./src/types/intl-next"
-            ],
-            "ts-luxon": [
-                "./dist"
-            ],
-            "ts-luxon/*": [
-                "./dist/*"
-            ]
-        },
         "esModuleInterop": true,
         "outDir": "dist"
     }
