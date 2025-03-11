@@ -1,18 +1,10 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
+        "module": "CommonJS",
+        "target": "ESNext",
         "sourceMap": true,
         "rootDir": "./",
-        "baseUrl": "./",
-        "paths": {
-            "ts-luxon": [
-                "../dist"
-            ],
-            "ts-luxon/*": [
-                "../dist/*"
-            ]
-        }
+        "baseUrl": "./"
     },
     "exclude": [
         "node_modules"

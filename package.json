@@ -1,53 +1,61 @@
 {
     "name": "ts-luxon",
-    "version": "6.0.0-beta.3",
+    "version": "6.0.0-beta.4",
     "author": "Tony Samperi",
     "description": "Typescript version of the \"Immutable date wrapper\"",
-    "type": "module",
-    "typings": "./dist/index.d.ts",
+    "type":  "module",
+    "typings": "./dist/types/index.d.cts",
     "main": "./dist/cjs/index.cjs",
-    "module": "./dist/index.js",
+    "module": "./dist/esm/index.js",
     "browser": "dist/cjs/index.cjs",
     "unpkg": "./dist/cjs/index.cjs",
     "exports": {
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/node/index.cjs"
+            "import": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/esm/index.mjs"
+            },
+            "require": {
+                "types": "./dist/types/index.d.cts",
+                "default": "./dist/node/index.cjs"
+            }
         },
         "./package.json": "./package.json"
     },
     "sideEffects": false,
     "files": [
         "dist/**",
+        "!dist/raw-esm/**",
         "README.md"
     ],
     "engines": {
         "node": ">=18"
+    },
+    "scripts": {
+        "benchmark": "ts-node benchmarks/index.ts",
+        "build": "npm run clean && node build.config.mjs",
+        "clean": "rimraf dist",
+        "codecov": "codecov",
+        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
+        "jest": "jest",
+        "lint": "tslint --project tsconfig.json",
+        "prepublishOnly": "node ./test/test-dist.mjs",
+        "publish:beta": "npm publish --tag beta",
+        "test": "jest --coverage",
+        "typedoc": "typedoc src/index.ts --excludePrivate --excludeProtected --out dist/api-docs "
     },
     "homepage": "https://tonysamperi.github.io/ts-luxon/",
     "license": "MIT",
     "keywords": [
         "date",
         "immutable",
-        "typescript"
+        "typescript",
+        "luxon",
+        "ts-luxon"
     ],
     "repository": {
         "type": "git",
         "url": "git+https://github.com/tonysamperi/ts-luxon.git"
-    },
-    "scripts": {
-        "prepublishOnly": "node ./test/test-dist.mjs",
-        "build": "npm run clean && node build.config.mjs",
-        "clean": "rimraf dist",
-        "jest": "jest",
-        "test": "jest --coverage",
-        "lint": "tslint --project tsconfig.json",
-        "typedoc": "typedoc src/index.ts --excludePrivate --excludeProtected --out dist/api-docs ",
-        "benchmark": "ts-node benchmarks/index.ts",
-        "codecov": "codecov",
-        "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
-        "publish:beta": "npm publish --tag beta"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^28.0.3",
