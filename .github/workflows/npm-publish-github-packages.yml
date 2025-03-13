@@ -21,7 +21,7 @@ jobs:
             -   run: npm run build
             -   run: |
                     pkgversion=$(node -p -e "require('./package.json').version")
-                    prerelease=$(echo "$pkgversion" | grep -oP '(?<=-)[^.]+')
+                    prerelease=$(node -p "require('./package.json').version.split('-')[1]?.split('.')[0] || ''")
                     echo checking prerelease marker: $prerelease
                     if [[ "$pkgversion" =~ \.0\.0$ ]]; then
                         echo "New major version detected. Removing 'next' dist-tag..."
