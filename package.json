@@ -41,7 +41,7 @@
         "codecov": "codecov",
         "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
         "jest": "jest",
-        "lint": "tslint --project tsconfig.json",
+        "lint": "eslint && tsc --noEmit",
         "prepublishOnly": "node ./test/test-dist.mjs",
         "publish:beta": "npm publish --tag beta",
         "publish:next": "npm publish --tag next",
