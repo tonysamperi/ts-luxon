@@ -5,12 +5,12 @@ import {
     parseMillis,
     isUndefined,
     parseFloating
-} from "./util";
-import * as English from "./english";
-import { FixedOffsetZone } from "../zones/fixedOffsetZone";
-import { IANAZone } from "../zones/IANAZone";
-import { Zone } from "../zone";
-import { GenericDateTime } from "../types/datetime";
+} from "./util.js";
+import * as English from "./english.js";
+import { FixedOffsetZone } from "../zones/fixedOffsetZone.js";
+import { IANAZone } from "../zones/IANAZone.js";
+import { Zone } from "../zone.js";
+import { GenericDateTime } from "../types/datetime.js";
 
 /*
  * This file handles parsing for well-specified formats. Here's how it works:
@@ -161,10 +161,11 @@ function extractISODuration(match: RegExpExecArray): any {
     }];
 }
 
-// These are a little brain dead. EDT *should* tell us that we're in, say, America/New_York
+// These are a little brain-dead. EDT *should* tell us that we're in, say, America/New_York
 // and not just that we're in -240 *right now*. But since I don't think these are used that often
 // I'm just going to ignore that
 const obsOffsets: Record<string, number> = {
+    /* eslint-disable @typescript-eslint/naming-convention */
     GMT: 0,
     EDT: -4 * 60,
     EST: -5 * 60,
@@ -174,6 +175,7 @@ const obsOffsets: Record<string, number> = {
     MST: -7 * 60,
     PDT: -7 * 60,
     PST: -8 * 60
+    /* eslint-enable @typescript-eslint/naming-convention */
 };
 
 function fromStrings(weekdayStr: string, yearStr: string, monthStr: string, dayStr: string, hourStr: string, minuteStr: string, secondStr: string) {

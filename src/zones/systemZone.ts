@@ -1,6 +1,6 @@
-import { formatOffset, parseZoneInfo } from "../impl/util";
-import { Zone } from "../zone";
-import { ZoneOffsetFormat, ZoneOffsetOptions } from "../types/zone";
+import {formatOffset, parseZoneInfo} from "../impl/util.js";
+import {Zone} from "../zone.js";
+import {ZoneOffsetFormat, ZoneOffsetOptions} from "../types/zone.js";
 
 let singleton: SystemZone | null = null;
 
@@ -21,33 +21,23 @@ export class SystemZone extends Zone {
     }
 
     /** @override **/
-    get type() {
-        return "system";
-    }
-
-    /** @override **/
-    get name() {
-        return new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    }
-
-    /** @override **/
     get isUniversal() {
         return false;
     }
 
     /** @override **/
-    offsetName(ts: number, { format, locale }: ZoneOffsetOptions) {
-        return parseZoneInfo(ts, format, locale);
+    get isValid() {
+        return true;
     }
 
     /** @override **/
-    formatOffset(ts: number, format: ZoneOffsetFormat) {
-        return formatOffset(this.offset(ts), format);
+    get name(): string {
+        return new Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
 
     /** @override **/
-    offset(ts: number) {
-        return -new Date(ts).getTimezoneOffset();
+    get type(): "system" {
+        return "system";
     }
 
     /** @override **/
@@ -56,7 +46,19 @@ export class SystemZone extends Zone {
     }
 
     /** @override **/
-    get isValid() {
-        return true;
+    formatOffset(ts: number, format: ZoneOffsetFormat) {
+        return formatOffset(this.offset(ts), format);
     }
+
+
+    /** @override **/
+    offset(ts: number) {
+        return -new Date(ts).getTimezoneOffset();
+    }
+
+    /** @override **/
+    offsetName(ts: number, {format, locale}: ZoneOffsetOptions) {
+        return parseZoneInfo(ts, format, locale);
+    }
+
 }

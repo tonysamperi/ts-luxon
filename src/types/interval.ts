@@ -1,6 +1,6 @@
-import { DateTime } from "../datetime";
+import { DateTime } from "../datetime.js";
 
 export interface IntervalObject {
-  start?: DateTime;
   end?: DateTime;
+  start?: DateTime;
 }

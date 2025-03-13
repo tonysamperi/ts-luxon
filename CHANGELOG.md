@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.0.0 (Luxon next 3.5.0)
+* Added support for esm
+* Removed umd bundle
+
 ## 5.1.0 (Luxon next 3.5.0)
 * Add lastMoment getter to Interval (#1280)
 * Create LocaleCache to optimize maintenance and readability of the various locale caches (#1642)

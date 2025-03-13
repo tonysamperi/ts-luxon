@@ -6,6 +6,6 @@
         "module": "CommonJS",
         "target": "esnext",
         "moduleResolution": "node",
-        "outDir": "dist"
+        "outDir": "dist/cjs"
     }
 }

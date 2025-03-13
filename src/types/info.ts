@@ -1,5 +1,5 @@
-import { CalendarSystem, NumberingSystem } from "./locale";
-import { Locale } from "../impl/locale";
+import { CalendarSystem, NumberingSystem } from "./locale.js";
+import { Locale } from "../impl/locale.js";
 
 export interface InfoOptions {
     locale?: string;

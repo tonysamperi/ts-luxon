@@ -1,12 +1,13 @@
 {
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": "tsconfig.esm.json",
         "tsconfigRootDir": "./",
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint/eslint-plugin"
+        "@typescript-eslint/eslint-plugin",
+        "import"
     ],
     "extends": [
         "plugin:@typescript-eslint/recommended"
@@ -21,6 +22,14 @@
         "*.js"
     ],
     "rules": {
+        "import/extensions": [
+            "error",
+            "always",
+            {
+                "ignorePackages": true,
+                "ts": true
+            }
+        ],
         "accessor-pairs": [
             "error",
             {
@@ -36,7 +45,7 @@
         ],
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/interface-name-prefix": "off",
-        "@typescript-eslint/explicit-function-return-type": "warn",
+        "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-inferrable-types": "off",
@@ -275,6 +284,10 @@
                 "format": [
                     "UPPER_CASE"
                 ]
+            },
+            {
+                "selector": "import",
+                "format": null
             }
         ]
     }

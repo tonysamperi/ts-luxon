@@ -1,14 +1,13 @@
-import * as English from "./english";
-import * as Formats from "./formats";
-import { padStart } from "./util";
-import { Locale, PolyDateFormatter } from "./locale";
-import { DateTime } from "../datetime";
-import { Duration } from "../duration";
-import { StringUnitLength } from "../types/common";
-import { DurationUnit } from "../types/duration";
-import { ZoneOffsetFormat } from "../types/zone";
-import Intl from "../types/intl-next";
-import { Interval } from "../interval";
+import * as English from "./english.js";
+import * as Formats from "./formats.js";
+import { padStart } from "./util.js";
+import { Locale, PolyDateFormatter } from "./locale.js";
+import { DateTime } from "../datetime.js";
+import { Duration } from "../duration.js";
+import { StringUnitLength } from "../types/common.js";
+import { DurationUnit } from "../types/duration.js";
+import { ZoneOffsetFormat } from "../types/zone.js";
+import { Interval } from "../interval.js";
 
 function stringifyTokens(
     splits: FormatToken[],
@@ -58,7 +57,7 @@ export interface FormatToken {
     val: string;
 }
 
-interface FormatterOptions extends Intl.DateTimeFormatOptions {
+export interface FormatterOptions extends Intl.DateTimeFormatOptions {
     allowZ?: boolean;
     floor?: boolean;
     forceSimple?: boolean;
@@ -429,7 +428,7 @@ export class Formatter {
 
             return padStart(n, p);
         }
-        const opts: Intl.NumberFormatOptions = { ...this._opts };
+        const opts: FormatterOptions = { ...this._opts };
         if (p > 0) {
             opts.padTo = p;
         }

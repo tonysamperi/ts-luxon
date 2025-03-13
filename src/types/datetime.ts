@@ -1,9 +1,8 @@
-import { NumberingSystem, LocaleOptions } from "./locale";
-import { DateTime } from "../datetime";
-import { Zone } from "../zone";
-import { FormatToken } from "../impl/formatter";
-import { Locale } from "../impl/locale";
-import Intl from "./intl-next";
+import { NumberingSystem, LocaleOptions } from "./locale.js";
+import { DateTime } from "../datetime.js";
+import { Zone } from "../zone.js";
+import { FormatToken } from "../impl/formatter.js";
+import { Locale } from "../impl/locale.js";
 
 export interface SetZoneOptions {
     keepCalendarTime?: boolean;

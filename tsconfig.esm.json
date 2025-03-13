@@ -3,9 +3,10 @@
         "./tsconfig.json"
     ],
     "compilerOptions": {
-        "module": "esnext",
-        "target": "esnext",
-        "moduleResolution": "bundler",
-        "outDir": "dist"
+        "module": "NodeNext",
+        "target": "es6",
+        "moduleResolution": "NodeNext",
+        "outDir": "dist/raw-esm",
+        "declarationDir": "dist/types"
     }
 }

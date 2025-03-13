@@ -7,17 +7,17 @@ import {
     weeksInWeekYear,
     isInteger,
     isDefined, FALLBACK_WEEK_SETTINGS
-} from "./util";
+} from "./util.js";
 import {
     TimeObject,
     WeekDateTime,
     GregorianDateTime,
     OrdinalDateTime,
     GenericDateTimeExtended
-} from "../types/datetime";
-import { Invalid } from "../types/invalid";
-import { ConflictingSpecificationError } from "../errors";
-import { Locale } from "./locale";
+} from "../types/datetime.js";
+import { Invalid } from "../types/invalid.js";
+import { ConflictingSpecificationError } from "../errors.js";
+import { Locale } from "./locale.js";
 
 const nonLeapLadder = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 const leapLadder = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];

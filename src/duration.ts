@@ -7,11 +7,11 @@ import {
     ORDERED_UNITS,
     REVERSE_ORDERED_UNITS,
     HUMAN_ORDERED_UNITS
-} from "./impl/util";
-import { Locale } from "./impl/locale";
-import { Formatter } from "./impl/formatter";
-import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser";
-import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from "./errors";
+} from "./impl/util.js";
+import { Locale } from "./impl/locale.js";
+import { Formatter } from "./impl/formatter.js";
+import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser.js";
+import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from "./errors.js";
 import {
     DurationObject,
     DurationOptions,
@@ -25,14 +25,13 @@ import {
     ConversionMatrixUnit,
     ConversionMatrix,
     DurationConfig as Config
-} from "./types/duration";
-import { ConversionAccuracy } from "./types/common";
-import { Settings } from "./settings";
-import { Invalid } from "./types/invalid";
-import { NumberingSystem } from "./types/locale";
-import { ToISOTimeOptions } from "./types/datetime";
-import Intl from "./types/intl-next";
-import { DateTime } from "./datetime";
+} from "./types/duration.js";
+import { ConversionAccuracy } from "./types/common.js";
+import { Settings } from "./settings.js";
+import { Invalid } from "./types/invalid.js";
+import { NumberingSystem } from "./types/locale.js";
+import { DateTime } from "./datetime.js";
+import {ToISOTimeOptions} from "./types/datetime.js";
 
 // unit conversion constants
 // tslint:disable-next-line:naming-convention
@@ -1137,3 +1136,5 @@ export class Duration implements NormalizedDurationObject {
 }
 
 export type DurationLike = Duration | UnparsedDurationObject;
+
+export default Duration;

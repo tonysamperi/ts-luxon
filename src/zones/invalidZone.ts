@@ -1,4 +1,4 @@
-import { Zone } from "../zone";
+import {Zone} from "../zone.js";
 
 /**
  * A zone that failed to parse. You should never need to instantiate this.
@@ -6,48 +6,51 @@ import { Zone } from "../zone";
  */
 export class InvalidZone extends Zone {
 
-  constructor(private _zoneName: string) {
-    super();
-    Object.setPrototypeOf(this, InvalidZone.prototype);
-  }
+    /** @override **/
+    get isUniversal(): boolean {
+        return false;
+    }
 
-  /** @override **/
-  get type(): "invalid" {
-    return "invalid";
-  }
 
-  /** @override **/
-  get name(): string {
-    return this._zoneName;
-  }
+    /** @override **/
+    get isValid(): false {
+        return false;
+    }
 
-  /** @override **/
-  get isUniversal(): boolean {
-    return false;
-  }
 
-  /** @override **/
-  offsetName(): null {
-    return null;
-  }
+    /** @override **/
+    get name(): string {
+        return this._zoneName;
+    }
 
-  /** @override **/
-  formatOffset(): "" {
-    return "";
-  }
+    /** @override **/
+    get type(): "invalid" {
+        return "invalid";
+    }
 
-  /** @override **/
-  offset(): number {
-    return NaN;
-  }
+    constructor(private _zoneName: string) {
+        super();
+        Object.setPrototypeOf(this, InvalidZone.prototype);
+    }
 
-  /** @override **/
-  equals(): false {
-    return false;
-  }
+    /** @override **/
+    equals(): false {
+        return false;
+    }
 
-  /** @override **/
-  get isValid(): false {
-    return false;
-  }
+    /** @override **/
+    formatOffset(): "" {
+        return "";
+    }
+
+    /** @override **/
+    offset(): number {
+        return NaN;
+    }
+
+    /** @override **/
+    offsetName(): null {
+        return null;
+    }
+
 }

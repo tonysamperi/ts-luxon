@@ -1,4 +1,4 @@
-import { DayOfWeek } from "./common";
+import { DayOfWeek } from "./common.js";
 
 export type NumberingSystem =
   | "arab"

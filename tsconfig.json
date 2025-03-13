@@ -7,30 +7,23 @@
     ],
     "compilerOptions": {
         "module": "CommonJS",
-        "target": "es5",
+        "target": "es6",
         "lib": [
             "esnext"
         ],
         "allowJs": true,
-        "importHelpers": true,
+        "importHelpers": false,
         "declaration": true,
         "sourceMap": true,
         "rootDir": "./src",
+        "baseUrl": "./",
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "strictNullChecks": false,
+        "skipLibCheck": true,
         "moduleResolution": "node",
-        "baseUrl": "./",
-        "paths": {
-            "ts-luxon": [
-                "./dist"
-            ],
-            "ts-luxon/*": [
-                "./dist/*"
-            ]
-        },
         "esModuleInterop": true,
         "outDir": "dist"
     }

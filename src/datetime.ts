@@ -1,10 +1,10 @@
-import { Duration, DurationLike } from "./duration";
-import { Interval } from "./interval";
-import { Settings } from "./settings";
-import { Info } from "./info";
-import { Formatter } from "./impl/formatter";
-import { FixedOffsetZone } from "./zones/fixedOffsetZone";
-import { Locale } from "./impl/locale";
+import { Duration, DurationLike } from "./duration.js";
+import { Interval } from "./interval.js";
+import { Settings } from "./settings.js";
+import { Info } from "./info.js";
+import { Formatter } from "./impl/formatter.js";
+import { FixedOffsetZone } from "./zones/fixedOffsetZone.js";
+import { Locale } from "./impl/locale.js";
 import {
     isDefined,
     isUndefined,
@@ -21,17 +21,17 @@ import {
     objToLocalTS,
     padStart,
     PLURAL_MAPPING
-} from "./impl/util";
-import { normalizeZone } from "./impl/zoneUtil";
-import { diff } from "./impl/diff";
-import { parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL } from "./impl/regexParser";
+} from "./impl/util.js";
+import { normalizeZone } from "./impl/zoneUtil.js";
+import { diff } from "./impl/diff.js";
+import { parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL } from "./impl/regexParser.js";
 import {
     parseFromTokens,
     explainFromTokens,
     formatOptsToTokens,
     expandMacroTokens,
     TokenParser
-} from "./impl/tokenParser";
+} from "./impl/tokenParser.js";
 import {
     gregorianToWeek,
     weekToGregorian,
@@ -42,15 +42,15 @@ import {
     hasInvalidOrdinalData,
     hasInvalidTimeData,
     usesLocalWeekValues
-} from "./impl/conversions";
-import * as Formats from "./impl/formats";
+} from "./impl/conversions.js";
+import * as Formats from "./impl/formats.js";
 import {
     InvalidArgumentError,
     ConflictingSpecificationError,
     InvalidUnitError,
     InvalidDateTimeError
-} from "./errors";
-import { Zone } from "./zone";
+} from "./errors.js";
+import { Zone } from "./zone.js";
 import {
     ToISOTimeOptions,
     ToISOFormat,
@@ -68,13 +68,12 @@ import {
     TimeObject,
     InnerBuildObjectConfig,
     GenericDateTimePlurals, GenericDateTimeExtended, DateTimeOptions, ExplainedFormat
-} from "./types/datetime";
-import { DurationUnit, DurationOptions, DurationObject } from "./types/duration";
-import { LocaleOptions, CalendarSystem, NumberingSystem } from "./types/locale";
-import { ZoneLike } from "./types/zone";
-import { Invalid } from "./types/invalid";
-import Intl from "./types/intl-next";
-import { DayOfWeek } from "./types/common";
+} from "./types/datetime.js";
+import { DurationUnit, DurationOptions, DurationObject } from "./types/duration.js";
+import { LocaleOptions, CalendarSystem, NumberingSystem } from "./types/locale.js";
+import { ZoneLike } from "./types/zone.js";
+import { Invalid } from "./types/invalid.js";
+import { DayOfWeek } from "./types/common.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid DateTime";
@@ -986,7 +985,7 @@ export class DateTime {
      * @param {Object} opts - options to affect the creation
      * @param {string|Zone} [opts.zone="local"] - use this zone if no offset is specified in the input string itself. Will also convert the time to this zone
      * @param {boolean} [opts.setZone=false] - override the zone with a fixed-offset zone specified in the string itself, if it specifies one
-     * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+     * @param {string} [opts.locale="system's locale"] - a locale to set on the resulting DateTime instance
      * @param {string} [opts.outputCalendar] - the output calendar to set on the resulting DateTime instance
      * @param {string} [opts.numberingSystem] - the numbering system to set on the resulting DateTime instance
      * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
@@ -2580,3 +2579,5 @@ export class DateTime {
 }
 
 export type DateTimeLike = DateTime | Date | GenericDateTime;
+
+export default DateTime;

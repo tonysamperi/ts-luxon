@@ -1,6 +1,6 @@
-import { Duration } from "../duration";
-import { DateTime } from "../datetime";
-import { DurationUnit, DurationOptions, DurationObject } from "../types/duration";
+import { Duration } from "../duration.js";
+import { DateTime } from "../datetime.js";
+import { DurationUnit, DurationOptions, DurationObject } from "../types/duration.js";
 
 function dayDiff(earlier: DateTime, later: DateTime): number {
     const utcDayStart = (dt: DateTime): number =>
