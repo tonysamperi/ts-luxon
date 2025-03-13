@@ -7,6 +7,8 @@ import pkg from "./package.json" with {type: "json"};
 
 async function doBuild() {
     const {version} = pkg;
+    const isProd = process.env.NODE_ENV === "production";
+
     execSync("tsc -p tsconfig.esm.json", {stdio: "inherit"});
 
     await replaceInFile({
@@ -16,14 +18,13 @@ async function doBuild() {
     });
     // Duplicate the types index, to have all the typings recognized correctly
     await fs.copyFile("dist/types/index.d.ts", "dist/types/index.d.cts");
-    // execSync("tsc --project tsconfig.cjs.json", {stdio: "inherit"});
 
     await build({
         entryPoints: ["dist/raw-esm/**/*.js"],
         outdir: "dist/esm",
         format: "esm",
         bundle: !1,
-        minify: !1
+        minify: !1 // never minify as it's only a source to work on
     });
 
     await build({
@@ -31,16 +32,9 @@ async function doBuild() {
         outfile: "dist/cjs/index.cjs",
         format: "cjs",
         bundle: !0,
-        minify: !0
+        minify: isProd
     });
 
-    await build({
-        entryPoints: ["dist/raw-esm/index.js"],
-        bundle: !0,
-        platform: "node",
-        target: ["node12"],
-        outfile: "dist/node/index.cjs"
-    });
 }
 
 try {

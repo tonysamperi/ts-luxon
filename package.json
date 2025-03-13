@@ -1,13 +1,13 @@
 {
     "name": "ts-luxon",
-    "version": "6.0.0-beta.6",
+    "version": "6.0.0-next.0",
     "author": "Tony Samperi",
     "description": "Typescript version of the \"Immutable date wrapper\"",
     "type": "module",
     "typings": "./dist/types/index.d.cts",
     "main": "./dist/cjs/index.cjs",
     "module": "./dist/esm/index.js",
-    "unpkg": "./dist/node/index.cjs",
+    "unpkg": "./dist/cjs/index.cjs",
     "exports": {
         ".": {
             "import": {
@@ -16,11 +16,11 @@
             },
             "require": {
                 "types": "./dist/types/index.d.cts",
-                "default": "./dist/node/index.cjs"
+                "default": "./dist/cjs/index.cjs"
             },
             "browser": {
-                "types": "./dist/types/index.cts",
-                "default": "./dist/cjs/index.cjs"
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/esm/index.js"
             }
         },
         "./package.json": "./package.json"
@@ -36,7 +36,7 @@
     },
     "scripts": {
         "benchmark": "ts-node benchmarks/index.ts",
-        "build": "npm run clean && node build.config.mjs",
+        "build": "npm run clean && NODE_ENV=production node build.config.mjs",
         "clean": "rimraf dist",
         "codecov": "codecov",
         "check-doc-coverage": "grep '\"coverage\": \"100%\"' dist/docs/coverage.json",
@@ -44,6 +44,7 @@
         "lint": "tslint --project tsconfig.json",
         "prepublishOnly": "node ./test/test-dist.mjs",
         "publish:beta": "npm publish --tag beta",
+        "publish:next": "npm publish --tag next",
         "test": "jest --coverage",
         "typedoc": "typedoc src/index.ts --excludePrivate --excludeProtected --out dist/api-docs "
     },

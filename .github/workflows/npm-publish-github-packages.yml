@@ -21,8 +21,14 @@ jobs:
             -   run: npm run build
             -   run: |
                     pkgversion=$(node -p -e "require('./package.json').version")
-                    if [[ $pkgversion == *"beta"* ]]; then
-                        npm run publish:beta
+                    prerelease=$(echo "$pkgversion" | grep -oP '(?<=-)[^.]+')
+                    echo checking prerelease marker: $prerelease
+                    if [[ "$pkgversion" =~ \.0\.0$ ]]; then
+                        echo "New major version detected. Removing 'next' dist-tag..."
+                        npm dist-tag remove ts-luxon next
+                    fi
+                    if [[ -n "$prerelease" ]]; then
+                        npm run "publish:$prerelease"
                     else
                         npm publish
                     fi
