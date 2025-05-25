@@ -178,7 +178,7 @@ export class IANAZone extends Zone {
      */
     offset(ts: number) {
         const date = new Date(ts);
-        if (isNaN(+date) || !this._valid) {
+        if (!this._valid || isNaN(+date)) {
             return NaN;
         }
         const dtf = makeDTF(this.name);

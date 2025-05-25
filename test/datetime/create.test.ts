@@ -1,4 +1,4 @@
-import { DateTime } from "../../src";
+import { DateTime, Settings } from "../../src";
 import { Helpers } from "../helpers";
 
 // ------
@@ -771,11 +771,33 @@ test("private language subtags don't break unicode subtags", () => {
         {
             locale: "be-u-ca-coptic-nu-mong-x-twain",
             numberingSystem: "thai",
-            outputCalendar: "islamic",
+            outputCalendar: "islamic"
         }
     );
 
     expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
     expect(res.outputCalendar).toBe("islamic");
     expect(res.numberingSystem).toBe("thai");
+});
+
+test("DateTime.local works even after time zone change", () => {
+    // This test catches errors produced when guessOffsetForZone produces wildy wrong guesses
+    // This guards against a regression by broken caching in that method
+    Settings.resetCaches();
+    Helpers.withDefaultZone("America/Los_Angeles", () => {
+        expect(DateTime.local(2024).year).toBe(2024);
+    });
+    Helpers.withDefaultZone("America/Chicago", () => {
+        const dateTime = DateTime.local(2024, 11, 3, 0, 5, 0);
+        expect(dateTime.zoneName).toBe("America/Chicago");
+        expect(dateTime.toObject()).toEqual({
+            year: 2024,
+            month: 11,
+            day: 3,
+            hour: 0,
+            minute: 5,
+            second: 0,
+            millisecond: 0
+        });
+    });
 });

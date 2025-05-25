@@ -1531,7 +1531,7 @@ export class DateTime {
             return zone.offset(this._zoneOffsetTs);
         }
         const zoneName = zone.name;
-        if (!!this._zoneOffsetGuessCache.get(zoneName)) {
+        if (!this._zoneOffsetGuessCache.has(zoneName)) {
             this._zoneOffsetGuessCache.set(zoneName, zone.offset(this._zoneOffsetTs));
         }
 

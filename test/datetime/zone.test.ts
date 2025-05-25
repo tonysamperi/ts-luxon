@@ -1,4 +1,4 @@
-import { DateTime, Settings } from "../../src";
+import { DateTime, Settings, IANAZone } from "../../src";
 
 import { Helpers } from "../helpers";
 
@@ -342,4 +342,34 @@ test("DateTime#getPossibleOffsets() returns the possible DateTimes when at an am
     expect(possibleOffsets).toHaveLength(2);
     expect(possibleOffsets[0].toISO()).toBe("2023-10-29T02:30:00.000+02:00");
     expect(possibleOffsets[1].toISO()).toBe("2023-10-29T02:30:00.000+01:00");
+});
+
+// ------
+// #IANAZone
+// ------
+
+test("can parse zones with special JS keywords as invalid", () => {
+    for (const kw of ["constructor", "__proto__"]) {
+        const dt = DateTime.fromISO(`2020-01-01T11:22:33+01:00[${kw}]`);
+        expect(dt.invalidReason).toBe("unsupported zone");
+        expect(dt.invalidExplanation).toBe(`the zone "${kw}" is not supported`);
+    }
+});
+
+test("Special JS keywords produce invalid Zone", () => {
+    for (const kw of ["constructor", "__proto__"]) {
+        const zone = IANAZone.create(kw);
+        expect(zone.isValid).toBe(false);
+    }
+});
+
+test("Invalid Zones named after special JS keywords produce NaN offset", () => {
+    for (const kw of ["constructor", "__proto__"]) {
+        const zone = IANAZone.create(kw);
+        expect(zone.offset(1742926058000)).toBe(NaN);
+    }
+});
+
+test("Invalid zones produce NaN offset", () => {
+    expect(IANAZone.create("INVALID").offset(1742926058000)).toBe(NaN);
 });
