@@ -1,16 +1,16 @@
-import {formatOffset, parseZoneInfo, isUndefined, objToLocalTS} from "../impl/util.js";
-import {Zone} from "../zone.js";
-import {ZoneOffsetOptions, ZoneOffsetFormat} from "../types/zone.js";
-import {InvalidZoneError} from "../errors.js";
+import { formatOffset, parseZoneInfo, isUndefined, objToLocalTS } from "../impl/util.js";
+import { Zone } from "../zone.js";
+import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone.js";
+import { InvalidZoneError } from "../errors.js";
 
-let dtfCache: Record<string, Intl.DateTimeFormat> = {};
+const dtfCache: Map<string, Intl.DateTimeFormat> = new Map();
 
-function makeDTF(zone: string) {
-    if (!dtfCache[zone]) {
+function makeDTF(zoneName: string) {
+    if (!dtfCache.has(zoneName)) {
         try {
-            dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
+            dtfCache.set(zoneName, new Intl.DateTimeFormat("en-US", {
                 hour12: !1,
-                timeZone: zone,
+                timeZone: zoneName,
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -18,13 +18,13 @@ function makeDTF(zone: string) {
                 minute: "2-digit",
                 second: "2-digit",
                 era: "short"
-            });
+            }));
         }
         catch {
-            throw new InvalidZoneError(zone);
+            throw new InvalidZoneError(zoneName);
         }
     }
-    return dtfCache[zone];
+    return dtfCache.get(zoneName);
 }
 
 const typeToPos: Partial<Record<Intl.DateTimeFormatPartTypes, number>> = {
@@ -48,8 +48,10 @@ function hackyOffset(dtf: Intl.DateTimeFormat, date: Date) {
 function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
     const formatted = dtf.formatToParts(date);
     const filled = [];
-    for (let i = 0; i < formatted.length; i++) {
-        const {type, value} = formatted[i];
+    for (let i = 0;
+         i < formatted.length;
+         i++) {
+        const { type, value } = formatted[i];
         const pos = typeToPos[type] as number;
 
         if (type === "era") {
@@ -62,7 +64,7 @@ function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
     return filled;
 }
 
-let ianaZoneCache: Record<string, IANAZone> = {};
+const ianaZoneCache: Map<string, IANAZone> = new Map();
 
 /**
  * A zone identified by an IANA identifier, like America/New_York
@@ -108,10 +110,11 @@ export class IANAZone extends Zone {
      */
     static create(name: string) {
         // Recreate invalid IanaZones
-        if (!ianaZoneCache[name]) {
-            ianaZoneCache[name] = new IANAZone(name);
+        if (!ianaZoneCache.has(name)) {
+            ianaZoneCache.set(name, new IANAZone(name));
         }
-        return ianaZoneCache[name];
+
+        return ianaZoneCache.get(name);
     }
 
     /**
@@ -140,7 +143,7 @@ export class IANAZone extends Zone {
             return false;
         }
         try {
-            new Intl.DateTimeFormat("en-US", {timeZone: zone}).format();
+            new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
             return true;
         }
         catch (e) {
@@ -153,8 +156,8 @@ export class IANAZone extends Zone {
      * @return {void}
      */
     static resetCache() {
-        ianaZoneCache = {};
-        dtfCache = {};
+        ianaZoneCache.clear();
+        dtfCache.clear();
     }
 
     /** @override **/
@@ -167,10 +170,15 @@ export class IANAZone extends Zone {
         return formatOffset(this.offset(ts), format);
     }
 
-    /** @override **/
+    /**
+     * Return the offset in minutes for this zone at the specified timestamp.
+     * @override
+     * @param {number} ts - Epoch milliseconds for which to compute the offset
+     * @return {number}
+     */
     offset(ts: number) {
         const date = new Date(ts);
-        if (isNaN(+date)) {
+        if (isNaN(+date) || !this._valid) {
             return NaN;
         }
         const dtf = makeDTF(this.name);
@@ -203,7 +211,7 @@ export class IANAZone extends Zone {
     }
 
     /** @override **/
-    offsetName(ts: number, {format, locale}: ZoneOffsetOptions = {}) {
+    offsetName(ts: number, { format, locale }: ZoneOffsetOptions = {}) {
         return parseZoneInfo(ts, format, locale, this.name);
     }
 

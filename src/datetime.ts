@@ -391,7 +391,7 @@ export class DateTime {
      */
     static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
 
-    private static _zoneOffsetGuessCache: Map<Zone, number> = new Map();
+    private static _zoneOffsetGuessCache: Map<string, number> = new Map();
     private static _zoneOffsetTs: number;
 
     /**
@@ -1517,18 +1517,25 @@ export class DateTime {
      * single timestamp for all zones to make things a bit more predictable.
      * This is safe for quickDT (used by local() and utc()) because we don't fill in
      * higher-order units from tsNow (as we do in fromObject, this requires that
-     * offset is calculated from tsNow).
+     * the offset is calculated from tsNow).
+     * @param {Zone} zone
+     * @return {number}
      */
     private static _guessOffsetForZone(zone: Zone): number {
-        if (!this._zoneOffsetGuessCache.has(zone)) {
-            if (this._zoneOffsetTs === undefined) {
-                this._zoneOffsetTs = Settings.now();
-            }
-
-            this._zoneOffsetGuessCache.set(zone, zone.offset(this._zoneOffsetTs));
+        if (this._zoneOffsetTs === undefined) {
+            this._zoneOffsetTs = Settings.now();
+        }
+        // Do not cache anything but IANA zones, because it is not safe to do so.
+        // Guessing an offset which is not present in the zone can cause wrong results from fixOffset
+        if (zone.type !== "iana") {
+            return zone.offset(this._zoneOffsetTs);
+        }
+        const zoneName = zone.name;
+        if (!!this._zoneOffsetGuessCache.get(zoneName)) {
+            this._zoneOffsetGuessCache.set(zoneName, zone.offset(this._zoneOffsetTs));
         }
 
-        return this._zoneOffsetGuessCache.get(zone);
+        return this._zoneOffsetGuessCache.get(zoneName);
     }
 
     /**
@@ -2362,7 +2369,7 @@ export class DateTime {
     }
 
     /**
-     * Returns the epoch seconds of this DateTime.
+     * Returns the epoch seconds (including milliseconds in the fractional part) of this DateTime.
      * @return {number}
      */
     toSeconds(): number {
