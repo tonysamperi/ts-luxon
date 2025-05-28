@@ -3,6 +3,7 @@
 ## 6.0.0 (Luxon 3.6.0)
 * Fix broken caching in guessOffsetForZone 
 * Fix IANAZone instance and DTF caching when JS keywords are passed (#1688)
+* Add Fallback for `minimalDays` being removed from Intl.WeekInfo
 
 ## 6.0.0 (Luxon next 3.5.0)
 * Added support for esm

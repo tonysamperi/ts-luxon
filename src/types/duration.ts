@@ -62,6 +62,7 @@ export type NormalizedHumanDurationUnit = Exclude<NormalizedDurationUnit, "quart
 export interface DurationToHumanOptions {
     listStyle?: Intl.ListFormatOptions["style"];
     onlyHumanUnits?: boolean;
+    showZeros?: boolean;
 }
 
 export interface DurationConfig {

@@ -1364,7 +1364,7 @@ export class DateTime {
 
     static resetCache(): void {
         this._zoneOffsetTs = void 0;
-        this._zoneOffsetGuessCache = new Map();
+        this._zoneOffsetGuessCache.clear();
     }
 
     /**
