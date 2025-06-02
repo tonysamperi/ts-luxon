@@ -247,17 +247,17 @@ test("Duration#normalize moves fractions to lower-order units", () => {
     expect(Duration.fromObject({ years: 2.5, days: 0, hours: 0 }).normalize().toObject()).toEqual({
         years: 2,
         days: 182,
-        hours: 12,
+        hours: 12
     });
     expect(Duration.fromObject({ years: -2.5, days: 0, hours: 0 }).normalize().toObject()).toEqual({
         years: -2,
         days: -182,
-        hours: -12,
+        hours: -12
     });
     expect(Duration.fromObject({ years: 2.5, days: 12, hours: 0 }).normalize().toObject()).toEqual({
         years: 2,
         days: 194,
-        hours: 12,
+        hours: 12
     });
     expect(Duration.fromObject({ years: 2.5, days: 12.25, hours: 0 }).normalize().toObject()).toEqual(
         { years: 2, days: 194, hours: 18 }
@@ -331,4 +331,54 @@ test("Duration#valueOf returns as millisecond value (lower order units)", () => 
 test("Duration#valueOf value of the duration with lower and higher order units", () => {
     const dur = Duration.fromObject({ days: 2, seconds: 1 });
     expect(dur.valueOf()).toBe(172801000);
+});
+
+//------
+// #removeZeroes()
+//-------
+
+test("Duration#removeZeros leaves empty object if everything was zero", () => {
+    expect(Duration.fromObject({ years: 0, days: 0, hours: 0 }).removeZeroes().toObject()).toEqual({});
+});
+
+test("Duration#removeZeros removes units with zero value", () => {
+    expect(
+        Duration.fromObject({
+                    years: 1,
+                    months: 0,
+                    weeks: 1,
+                    days: 0,
+                    hours: 4,
+                    minutes: 0,
+                    seconds: 6,
+                    milliseconds: 0
+                })
+                .removeZeroes()
+                .toObject()
+    ).toEqual({
+        years: 1,
+        weeks: 1,
+        hours: 4,
+        seconds: 6
+    });
+});
+
+test("Duration#removeZeros removes nothing if no value is zero", () => {
+    const dur = {
+        years: 1,
+        months: 2,
+        weeks: 1,
+        days: 3,
+        hours: 4,
+        minutes: 5,
+        seconds: 6,
+        milliseconds: 7
+    };
+    expect(Duration.fromObject(dur).removeZeroes().toObject()).toEqual(dur);
+});
+
+test("Duration#removeZeros maintains invalidity", () => {
+    const dur = Duration.invalid("because").removeZeroes();
+    expect(dur.isValid).toBe(false);
+    expect(dur.invalidReason).toBe("because");
 });

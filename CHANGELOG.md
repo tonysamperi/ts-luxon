@@ -9,6 +9,7 @@
 * Rounding options for toRelative (#1685)
 * Allow escaping single quotes in format strings (#649)
 * Add "precision" parameter to toISO methods (#1670)
+* Only add minus sign on largest unit of negative durations when formatting (#1701)
 
 ## 6.0.0 (Luxon 3.6.0)
 * Fix broken caching in guessOffsetForZone 
