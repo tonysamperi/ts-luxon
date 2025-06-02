@@ -8,6 +8,7 @@
 * Accept lowercase t and z when parsing ISO timestamps
 * Rounding options for toRelative (#1685)
 * Allow escaping single quotes in format strings (#649)
+* Add "precision" parameter to toISO methods (#1670)
 
 ## 6.0.0 (Luxon 3.6.0)
 * Fix broken caching in guessOffsetForZone 

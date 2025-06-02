@@ -753,7 +753,7 @@ export class DateTime {
 
 
     // Private readonly fields
-    private _c: Readonly<GregorianDateTime>;
+    private readonly _c: Readonly<GregorianDateTime>;
     private readonly _invalid: Invalid | null;
     private readonly _isLuxonDateTime: true;
     private _loc: Locale;
@@ -2054,19 +2054,23 @@ export class DateTime {
               suppressSeconds = false,
               suppressMilliseconds = false,
               includeOffset = true,
-              extendedZone = false
+              extendedZone = false,
+              precision = "milliseconds"
           }: ToISOTimeOptions = {}): string | null {
 
         if (!this.isValid) {
             return null;
         }
         const ext = format === "extended";
+        const normalizedPrecision = normalizeUnit(precision);
 
-        return [
-            this._toISODate(ext),
-            "T",
-            this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
-        ].join("");
+        let c = this._toISODate(ext, normalizedPrecision);
+        if (orderedUnits.indexOf(normalizedPrecision as keyof GregorianDateTime) >= 3) {
+            c += "T";
+        }
+        c += this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone, normalizedPrecision);
+
+        return c;
     }
 
     /**
@@ -2077,12 +2081,15 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
      * @return {string|null}
      */
-    toISODate({ format = "extended" }: { format?: ToISOFormat } = { format: "extended" }): string | null {
+    toISODate({ format = "extended", precision = "day" }: {
+        format?: ToISOFormat,
+        precision?: ToISOTimeOptions["precision"]
+    } = { format: "extended", precision: "day" }): string | null {
         if (!this.isValid) {
             return null;
         }
 
-        return this._toISODate(format === "extended");
+        return this._toISODate(format === "extended", normalizeUnit(precision));
     }
 
     /**
@@ -2094,10 +2101,12 @@ export class DateTime {
      * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
      * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
      * @param {string} [opts.format='extended'] - choose between the basic and extended format
+     * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34, second: 56 }).toISOTime({ precision: 'minute' }) //=> '07:34Z'
      * @return {string}
      */
     toISOTime({
@@ -2106,7 +2115,8 @@ export class DateTime {
                   includeOffset = true,
                   includePrefix = false,
                   extendedZone = false,
-                  format = "extended"
+                  format = "extended",
+                  precision = "milliseconds"
               }: ToISOTimeOptions = {}): string {
         if (!this.isValid) {
             return null;
@@ -2114,7 +2124,7 @@ export class DateTime {
 
         return [
             includePrefix ? "T" : "",
-            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
+            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset, extendedZone, normalizeUnit(precision))
         ].join("");
     }
 
@@ -2512,24 +2522,31 @@ export class DateTime {
         return dt._weekData as WeekDateTime;
     }
 
-    private _toISODate(extended: boolean): string {
+    private _toISODate(extended: boolean, precision?: keyof GenericDateTimeExtended): string {
         const longFormat = this._c.year > 9999 || this._c.year < 0;
         let c = "";
         if (longFormat && this._c.year >= 0) {
             c += "+";
         }
         c += padStart(this._c.year, longFormat ? 6 : 4);
-
+        if (precision === "year") {
+            return c;
+        }
         if (extended) {
             c += "-";
             c += padStart(this._c.month);
+            if (precision === "month") {
+                return c;
+            }
             c += "-";
-            c += padStart(this._c.day);
         }
         else {
             c += padStart(this._c.month);
-            c += padStart(this._c.day);
+            if (precision === "month") {
+                return c;
+            }
         }
+        c += padStart(this._c.day);
         return c;
     }
 
@@ -2537,26 +2554,47 @@ export class DateTime {
                        suppressSeconds: boolean,
                        suppressMilliseconds: boolean,
                        includeOffset: boolean,
-                       extendedZone?: boolean): string {
-        let c = padStart(this._c.hour);
-        if (extended) {
-            c += ":";
-            c += padStart(this._c.minute);
-            if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
-                c += ":";
-            }
-        }
-        else {
-            c += padStart(this._c.minute);
-        }
-
-        if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
-            c += padStart(this._c.second);
-
-            if (this._c.millisecond !== 0 || !suppressMilliseconds) {
-                c += ".";
-                c += padStart(this._c.millisecond, 3);
-            }
+                       extendedZone?: boolean,
+                       precision?: keyof GenericDateTimeExtended): string {
+        const showSeconds = !suppressSeconds || this._c.millisecond !== 0 || this._c.second !== 0;
+        let c = "";
+        switch (precision) {
+            case "day":
+            case "month":
+            case "year":
+                break;
+            default:
+                c += padStart(this._c.hour);
+                if (precision === "hour") {
+                    break;
+                }
+                if (extended) {
+                    c += ":";
+                    c += padStart(this._c.minute);
+                    if (precision === "minute") {
+                        break;
+                    }
+                    if (showSeconds) {
+                        c += ":";
+                        c += padStart(this._c.second);
+                    }
+                }
+                else {
+                    c += padStart(this._c.minute);
+                    if (precision === "minute") {
+                        break;
+                    }
+                    if (showSeconds) {
+                        c += padStart(this._c.second);
+                    }
+                }
+                if (precision === "second") {
+                    break;
+                }
+                if (showSeconds && (!suppressMilliseconds || this._c.millisecond !== 0)) {
+                    c += ".";
+                    c += padStart(this._c.millisecond, 3);
+                }
         }
 
         if (includeOffset) {

@@ -1,4 +1,5 @@
 import { DateTime, FixedOffsetZone, Zone, ZoneOffsetFormat, ZoneOffsetOptions } from "../../src";
+import { InvalidUnitError } from "../../src/errors";
 
 const dtMaker = () =>
         DateTime.fromObject({
@@ -160,6 +161,24 @@ test("DateTime#toISO() supports the extendedZone option", () => {
     );
 });
 
+test("DateTime#toISO({precision}) truncates time to desired precision", () => {
+    expect(dt.toISO({ precision: "millisecond" })).toBe("1982-05-25T09:23:54.123Z");
+    expect(dt.toISO({ precision: "second" })).toBe("1982-05-25T09:23:54Z");
+    expect(dt.toISO({ precision: "minute" })).toBe("1982-05-25T09:23Z");
+    expect(dt.toISO({ precision: "hours" })).toBe("1982-05-25T09Z");
+    expect(dt.toISO({ precision: "days" })).toBe("1982-05-25Z");
+    expect(dt.toISO({ precision: "months" })).toBe("1982-05Z");
+    expect(dt.toISO({ precision: "years" })).toBe("1982Z");
+});
+
+test("DateTime#toISO({precision}) throws when the precision is invalid", () => {
+    // @ts-expect-error
+    expect(() => dt.toISO({ precision: "ms" })).toThrow(InvalidUnitError);
+    // @ts-expect-error
+    expect(() => dt.toISO({ precision: "xxx" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISO({ precision: null })).toThrow(TypeError);
+});
+
 // ------
 // #toISODate()
 // ------
@@ -196,6 +215,25 @@ test("DateTime#toISODate() correctly pads negative years", () => {
         "-000010-01-01"
     );
 });
+
+test("DateTime#toISODate({precision}) truncates time to desired precision", () => {
+    expect(dt.toISODate({ precision: "millisecond" })).toBe("1982-05-25");
+    expect(dt.toISODate({ precision: "second" })).toBe("1982-05-25");
+    expect(dt.toISODate({ precision: "minute" })).toBe("1982-05-25");
+    expect(dt.toISODate({ precision: "hours" })).toBe("1982-05-25");
+    expect(dt.toISODate({ precision: "days" })).toBe("1982-05-25");
+    expect(dt.toISODate({ precision: "months" })).toBe("1982-05");
+    expect(dt.toISODate({ precision: "years" })).toBe("1982");
+});
+
+test("DateTime#toISODate({precision}) throws when the precision is invalid", () => {
+    // @ts-expect-error
+    expect(() => dt.toISODate({ precision: "ms" })).toThrow(InvalidUnitError);
+    // @ts-expect-error
+    expect(() => dt.toISODate({ precision: "xxx" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISODate({ precision: null })).toThrow(TypeError);
+});
+
 
 // ------
 // #toISOWeekDate()
@@ -261,6 +299,46 @@ test("DateTime#toISOTime can include the prefix", () => {
 
 test("DateTime#toISOTime() returns null for invalid DateTimes", () => {
     expect(invalid.toISOTime()).toBe(null);
+});
+
+test("DateTime#toISOTime({precision}) truncates time to desired precision", () => {
+    expect(dt.toISOTime({ precision: "millisecond" })).toBe("09:23:54.123Z");
+    expect(dt.toISOTime({ precision: "second" })).toBe("09:23:54Z");
+    expect(dt.toISOTime({ precision: "minute" })).toBe("09:23Z");
+    expect(dt.toISOTime({ precision: "hours" })).toBe("09Z");
+    expect(dt.toISOTime({ precision: "days" })).toBe("Z");
+    expect(dt.toISOTime({ precision: "months" })).toBe("Z");
+    expect(dt.toISOTime({ precision: "years" })).toBe("Z");
+});
+
+test("DateTime#toISOTime({precision}) throws when the precision is invalid", () => {
+    // @ts-expect-error
+    expect(() => dt.toISOTime({ precision: "ms" })).toThrow(InvalidUnitError);
+    // @ts-expect-error
+    expect(() => dt.toISOTime({ precision: "xxx" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISOTime({ precision: null })).toThrow(TypeError);
+});
+
+test("DateTime#toISOTime({precision, suppressSeconds}) suppresses when precision is > 'hour'", () => {
+    const dt2 = dt.set({ second: 0, millisecond: 0 });
+    expect(dt2.toISOTime({ precision: "year", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "month", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "day", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "hour", suppressSeconds: true })).toBe("09Z");
+    expect(dt2.toISOTime({ precision: "minute", suppressSeconds: true })).toBe("09:23Z");
+    expect(dt2.toISOTime({ precision: "second", suppressSeconds: true })).toBe("09:23Z");
+    expect(dt2.toISOTime({ precision: "millisecond", suppressSeconds: true })).toBe("09:23Z");
+});
+
+test("DateTime#toISOTime({precision, suppressMilliseconds}) suppresses when precision is > 'minute'", () => {
+    const dt2 = dt.set({ millisecond: 0 });
+    expect(dt2.toISOTime({ precision: "year", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "month", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "day", suppressSeconds: true })).toBe("Z");
+    expect(dt2.toISOTime({ precision: "hour", suppressMilliseconds: true })).toBe("09Z");
+    expect(dt2.toISOTime({ precision: "minute", suppressMilliseconds: true })).toBe("09:23Z");
+    expect(dt2.toISOTime({ precision: "second", suppressMilliseconds: true })).toBe("09:23:54Z");
+    expect(dt2.toISOTime({ precision: "millisecond", suppressMilliseconds: true })).toBe("09:23:54Z");
 });
 
 // ------
