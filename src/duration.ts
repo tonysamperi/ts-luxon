@@ -795,7 +795,7 @@ export class Duration implements NormalizedDurationObject {
      * @example Duration.fromObject({ years: 2, days: 0, hours: 0, minutes: 0 }).removeZeros().toObject() //=> { years: 2 }
      * @return {Duration}
      */
-    removeZeros() {
+    removeZeroes() {
         if (!this.isValid) {
             return this;
         }
