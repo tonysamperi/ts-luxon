@@ -3,6 +3,7 @@ import { DateTime } from "../datetime.js";
 import { Zone } from "../zone.js";
 import { FormatToken } from "../impl/formatter.js";
 import { Locale } from "../impl/locale.js";
+import { DurationUnit } from "./duration.js";
 
 export interface SetZoneOptions {
     keepCalendarTime?: boolean;
@@ -23,6 +24,7 @@ export interface ToRelativeOptions {
     padding?: number;
     /** Defaults to `true`. */
     round?: boolean;
+    rounding?: "trunc" | "round" | "expand" | "ceil" | "floor";
     style?: Intl.RelativeTimeFormatStyle;
     /** If omitted, the method will pick the unit. */
     unit?: Intl.RelativeTimeFormatUnit;
@@ -53,6 +55,7 @@ export interface ToISOTimeOptions {
     format?: ToISOFormat;
     includeOffset?: boolean;
     includePrefix?: boolean;
+    precision?: DurationUnit;
     suppressMilliseconds?: boolean;
     suppressSeconds?: boolean;
 }

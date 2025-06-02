@@ -76,11 +76,11 @@ function simpleParse(...keys: (keyof GenericDateTime)[]) {
 
 // ISO and SQL parsing
 export const IANA_REGEX = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
-const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;
+const offsetRegex = /(?:([Zz])|([+-]\d\d)(?::?(\d\d))?)/;
 const isoExtendedZone = `(?:${offsetRegex.source}?(?:\\[(${IANA_REGEX.source})\\])?)?`;
 const isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;
 const isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);
-const isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`);
+const isoTimeExtensionRegex = RegExp(`(?:[Tt]${isoTimeRegex.source})?`);
 const isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;
 const isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/;
 const isoOrdinalRegex = /(\d{4})-?(\d{3})/;

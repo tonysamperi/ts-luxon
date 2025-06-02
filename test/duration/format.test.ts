@@ -270,6 +270,15 @@ test("Duration#toFormat returns a lame string for invalid durations", () => {
     expect(Duration.invalid("because").toFormat("yy")).toBe("Invalid Duration");
 });
 
+test("Duration#toFormat shows negative sign on the largest unit", () => {
+    expect(Duration.fromObject({ years: -3, seconds: -45 }).toFormat("yyss")).toBe("-0345");
+    expect(
+        Duration.fromObject({ years: -3, seconds: -45 }).toFormat("'before'yy'between'ss'after'")
+    ).toBe("before-03between45after");
+    // Intentionally have the seconds not first to make sure years is still picked as the largest unit
+    expect(Duration.fromObject({ seconds: -45, years: -3 }).toFormat("ssyy")).toBe("45-03");
+});
+
 // ------
 // #humanize()
 // ------
@@ -296,7 +305,7 @@ test("Duration#toHuman accepts number format opts", () => {
     );
 });
 
-test("Duration#toHuman works in differt languages", () => {
+test("Duration#toHuman works in different languages", () => {
     expect(dur().reconfigure({ locale: "fr" }).toHuman()).toEqual(
         "1 an, 2 mois, 1 semaine, 3 jours, 4 heures, 5 minutes, 6 secondes, 7 millisecondes"
     );
@@ -314,7 +323,67 @@ test("Duration#toHuman doesn't return quarters and weeks when passing onlyHumanU
         quarters: 2,
         weeks: 2,
         days: 2
-    }).toHuman({onlyHumanUnits: !0})).toEqual(
+    }).toHuman({ onlyHumanUnits: !0 })).toEqual(
         "1 anno, 6 mesi e 16 giorni"
     );
+});
+
+test("Duration#toHuman accepts hiding of zero values", () => {
+    expect(
+        Duration.fromObject({
+            years: 1,
+            months: 0,
+            weeks: 1,
+            days: 0,
+            hours: 4,
+            minutes: 0,
+            seconds: 6,
+            milliseconds: 0
+        }).toHuman({ showZeros: false })
+    ).toEqual("1 anno, 1 settimana, 4 ore e 6 secondi");
+});
+
+test("Duration#toHuman handles undefined showZeros", () => {
+    expect(
+        Duration.fromObject({
+            years: 1,
+            months: 0,
+            weeks: 1,
+            days: 0,
+            hours: 4,
+            minutes: 0,
+            seconds: 6,
+            milliseconds: 0
+        }).toHuman({ showZeros: true })
+    ).toEqual("1 anno, 0 trimestri, 0 mesi, 1 settimana, 0 giorni, 4 ore, 0 minuti, 6 secondi e 0 millisecondi");
+
+    expect(
+        Duration.fromObject({
+            years: 1,
+            months: 0,
+            weeks: 1,
+            days: 0,
+            hours: 4,
+            minutes: 0,
+            seconds: 6,
+            milliseconds: 0
+        }, {
+            locale: "en-gb"
+        }).toHuman({ showZeros: true })
+    ).toEqual("1 year, 0 quarters, 0 months, 1 week, 0 days, 4 hours, 0 minutes, 6 seconds, 0 milliseconds");
+
+    expect(
+        Duration.fromObject({
+            years: 1,
+            months: 0,
+            weeks: 1,
+            days: 0,
+            hours: 4,
+            minutes: 0,
+            seconds: 6,
+            milliseconds: 0
+        }, {
+            locale: "fr-fr"
+        }).toHuman({ showZeros: true })
+    ).toEqual("1 an, 0 trimestres, 0 mois, 1 semaine, 0 jour, 4 heures, 0 minute, 6 secondes, 0 milliseconde");
 });

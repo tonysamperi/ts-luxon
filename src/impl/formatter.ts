@@ -5,7 +5,7 @@ import { Locale, PolyDateFormatter } from "./locale.js";
 import { DateTime } from "../datetime.js";
 import { Duration } from "../duration.js";
 import { StringUnitLength } from "../types/common.js";
-import { DurationUnit } from "../types/duration.js";
+import { DurationUnit, NormalizedDurationUnit } from "../types/duration.js";
 import { ZoneOffsetFormat } from "../types/zone.js";
 import { Interval } from "../interval.js";
 
@@ -89,7 +89,7 @@ export class Formatter {
         return TokenToFormatOpts[token];
     }
 
-    static parseFormat(fmt: string): {literal: boolean; val: string}[] {
+    static parseFormat(fmt: string): { literal: boolean; val: string }[] {
         // white-space is always considered a literal in user-provided formats
         // the " " token has a special meaning (see unitForToken)
         let current = null,
@@ -101,8 +101,12 @@ export class Formatter {
              i++) {
             const c = fmt.charAt(i);
             if (c === "'") {
-                if (currentFull.length > 0) {
-                    splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
+                // turn '' into a literal signal quote instead of just skipping the empty literal
+                if (currentFull.length > 0 || bracketed) {
+                    splits.push({
+                        literal: bracketed || /^\s+$/.test(currentFull),
+                        val: currentFull === "" ? "'" : currentFull
+                    });
                 }
                 current = null;
                 currentFull = "";
@@ -386,14 +390,20 @@ export class Formatter {
                     return undefined;
             }
         };
-        const tokenToString = (lildur: Duration) => (token: string) => {
-            const mapped = tokenToField(token);
-            if (mapped) {
-                return this.num(lildur.get(mapped), token.length);
-            }
-            else {
-                return token;
-            }
+        const tokenToString = (lildur: Duration, info: {
+            isNegativeDuration: boolean;
+            largestUnit: NormalizedDurationUnit
+        }) => {
+            return (token: string) => {
+                const mapped = tokenToField(token);
+                if (mapped) {
+                    const inversionFactor = info.isNegativeDuration && mapped !== info.largestUnit ? -1 : 1;
+                    return this.num(lildur.get(mapped) * inversionFactor, token.length);
+                }
+                else {
+                    return token;
+                }
+            };
         };
         const tokens = Formatter.parseFormat(format);
         const realTokens = tokens.reduce<string[]>((found, {
@@ -401,8 +411,14 @@ export class Formatter {
             val
         }) => (literal ? found : found.concat(val)), []);
         const collapsed = dur.shiftTo(...(realTokens.map(tokenToField).filter((t) => !!t) as DurationUnit[]));
+        const durationInfo = {
+            isNegativeDuration: collapsed.valueOf() < 0,
+            // this relies on "collapsed" being based on "shiftTo", which builds up the object
+            // in order
+            largestUnit: Object.keys(collapsed.toObject())[0] as NormalizedDurationUnit
+        };
 
-        return stringifyTokens(tokens, tokenToString(collapsed));
+        return stringifyTokens(tokens, tokenToString(collapsed, durationInfo));
     }
 
     formatInterval(interval: Interval, opts: FormatterOptions = {}): string {

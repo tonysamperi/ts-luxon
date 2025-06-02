@@ -391,7 +391,7 @@ export class DateTime {
      */
     static readonly TIME_WITH_SHORT_OFFSET = Formats.TIME_WITH_SHORT_OFFSET;
 
-    private static _zoneOffsetGuessCache: Map<Zone, number> = new Map();
+    private static _zoneOffsetGuessCache: Map<string, number> = new Map();
     private static _zoneOffsetTs: number;
 
     /**
@@ -753,7 +753,7 @@ export class DateTime {
 
 
     // Private readonly fields
-    private _c: Readonly<GregorianDateTime>;
+    private readonly _c: Readonly<GregorianDateTime>;
     private readonly _invalid: Invalid | null;
     private readonly _isLuxonDateTime: true;
     private _loc: Locale;
@@ -1364,7 +1364,7 @@ export class DateTime {
 
     static resetCache(): void {
         this._zoneOffsetTs = void 0;
-        this._zoneOffsetGuessCache = new Map();
+        this._zoneOffsetGuessCache.clear();
     }
 
     /**
@@ -1468,21 +1468,22 @@ export class DateTime {
      * @private
      */
     private static _diffRelative(start: DateTime, end: DateTime, opts: DiffRelativeOptions): string {
-        const round = isUndefined(opts.round) ? true : opts.round,
-            format = (c: number, unit: Intl.RelativeTimeFormatUnit): string => {
-                c = roundTo(c, round || opts.calendary ? 0 : 2, true);
-                const formatter = end._loc.clone(opts).relFormatter(opts);
-                return formatter.format(c, unit);
-            },
-            differ = (unit: Intl.RelativeTimeFormatUnit): number => {
-                if (opts.calendary) {
-                    if (!end.hasSame(start, unit)) {
-                        return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
-                    }
-                    return 0;
+        const round = isUndefined(opts.round) ? true : opts.round;
+        const rounding = isUndefined(opts.rounding) ? "trunc" : opts.rounding;
+        const format = (c: number, unit: Intl.RelativeTimeFormatUnit): string => {
+            c = roundTo(c, round || opts.calendary ? 0 : 2, opts.calendary ? "round" : rounding);
+            const formatter = end._loc.clone(opts).relFormatter(opts);
+            return formatter.format(c, unit);
+        };
+        const differ = (unit: Intl.RelativeTimeFormatUnit): number => {
+            if (opts.calendary) {
+                if (!end.hasSame(start, unit)) {
+                    return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
                 }
-                return end.diff(start, unit).get(unit);
-            };
+                return 0;
+            }
+            return end.diff(start, unit).get(unit);
+        };
 
         if (opts.unit) {
             return format(differ(opts.unit), opts.unit);
@@ -1517,18 +1518,25 @@ export class DateTime {
      * single timestamp for all zones to make things a bit more predictable.
      * This is safe for quickDT (used by local() and utc()) because we don't fill in
      * higher-order units from tsNow (as we do in fromObject, this requires that
-     * offset is calculated from tsNow).
+     * the offset is calculated from tsNow).
+     * @param {Zone} zone
+     * @return {number}
      */
     private static _guessOffsetForZone(zone: Zone): number {
-        if (!this._zoneOffsetGuessCache.has(zone)) {
-            if (this._zoneOffsetTs === undefined) {
-                this._zoneOffsetTs = Settings.now();
-            }
-
-            this._zoneOffsetGuessCache.set(zone, zone.offset(this._zoneOffsetTs));
+        if (this._zoneOffsetTs === undefined) {
+            this._zoneOffsetTs = Settings.now();
+        }
+        // Do not cache anything but IANA zones, because it is not safe to do so.
+        // Guessing an offset which is not present in the zone can cause wrong results from fixOffset
+        if (zone.type !== "iana") {
+            return zone.offset(this._zoneOffsetTs);
+        }
+        const zoneName = zone.name;
+        if (!this._zoneOffsetGuessCache.has(zoneName)) {
+            this._zoneOffsetGuessCache.set(zoneName, zone.offset(this._zoneOffsetTs));
         }
 
-        return this._zoneOffsetGuessCache.get(zone);
+        return this._zoneOffsetGuessCache.get(zoneName);
     }
 
     /**
@@ -2046,19 +2054,23 @@ export class DateTime {
               suppressSeconds = false,
               suppressMilliseconds = false,
               includeOffset = true,
-              extendedZone = false
+              extendedZone = false,
+              precision = "milliseconds"
           }: ToISOTimeOptions = {}): string | null {
 
         if (!this.isValid) {
             return null;
         }
         const ext = format === "extended";
+        const normalizedPrecision = normalizeUnit(precision);
 
-        return [
-            this._toISODate(ext),
-            "T",
-            this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
-        ].join("");
+        let c = this._toISODate(ext, normalizedPrecision);
+        if (orderedUnits.indexOf(normalizedPrecision as keyof GregorianDateTime) >= 3) {
+            c += "T";
+        }
+        c += this._toISOTime(ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone, normalizedPrecision);
+
+        return c;
     }
 
     /**
@@ -2069,12 +2081,15 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
      * @return {string|null}
      */
-    toISODate({ format = "extended" }: { format?: ToISOFormat } = { format: "extended" }): string | null {
+    toISODate({ format = "extended", precision = "day" }: {
+        format?: ToISOFormat,
+        precision?: ToISOTimeOptions["precision"]
+    } = { format: "extended", precision: "day" }): string | null {
         if (!this.isValid) {
             return null;
         }
 
-        return this._toISODate(format === "extended");
+        return this._toISODate(format === "extended", normalizeUnit(precision));
     }
 
     /**
@@ -2086,10 +2101,12 @@ export class DateTime {
      * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
      * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
      * @param {string} [opts.format='extended'] - choose between the basic and extended format
+     * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
      * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
+     * @example DateTime.utc().set({ hour: 7, minute: 34, second: 56 }).toISOTime({ precision: 'minute' }) //=> '07:34Z'
      * @return {string}
      */
     toISOTime({
@@ -2098,7 +2115,8 @@ export class DateTime {
                   includeOffset = true,
                   includePrefix = false,
                   extendedZone = false,
-                  format = "extended"
+                  format = "extended",
+                  precision = "milliseconds"
               }: ToISOTimeOptions = {}): string {
         if (!this.isValid) {
             return null;
@@ -2106,7 +2124,7 @@ export class DateTime {
 
         return [
             includePrefix ? "T" : "",
-            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset, extendedZone)
+            this._toISOTime(format === "extended", suppressSeconds, suppressMilliseconds, includeOffset, extendedZone, normalizeUnit(precision))
         ].join("");
     }
 
@@ -2362,7 +2380,7 @@ export class DateTime {
     }
 
     /**
-     * Returns the epoch seconds of this DateTime.
+     * Returns the epoch seconds (including milliseconds in the fractional part) of this DateTime.
      * @return {number}
      */
     toSeconds(): number {
@@ -2504,24 +2522,31 @@ export class DateTime {
         return dt._weekData as WeekDateTime;
     }
 
-    private _toISODate(extended: boolean): string {
+    private _toISODate(extended: boolean, precision?: keyof GenericDateTimeExtended): string {
         const longFormat = this._c.year > 9999 || this._c.year < 0;
         let c = "";
         if (longFormat && this._c.year >= 0) {
             c += "+";
         }
         c += padStart(this._c.year, longFormat ? 6 : 4);
-
+        if (precision === "year") {
+            return c;
+        }
         if (extended) {
             c += "-";
             c += padStart(this._c.month);
+            if (precision === "month") {
+                return c;
+            }
             c += "-";
-            c += padStart(this._c.day);
         }
         else {
             c += padStart(this._c.month);
-            c += padStart(this._c.day);
+            if (precision === "month") {
+                return c;
+            }
         }
+        c += padStart(this._c.day);
         return c;
     }
 
@@ -2529,26 +2554,47 @@ export class DateTime {
                        suppressSeconds: boolean,
                        suppressMilliseconds: boolean,
                        includeOffset: boolean,
-                       extendedZone?: boolean): string {
-        let c = padStart(this._c.hour);
-        if (extended) {
-            c += ":";
-            c += padStart(this._c.minute);
-            if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
-                c += ":";
-            }
-        }
-        else {
-            c += padStart(this._c.minute);
-        }
-
-        if (this._c.millisecond !== 0 || this._c.second !== 0 || !suppressSeconds) {
-            c += padStart(this._c.second);
-
-            if (this._c.millisecond !== 0 || !suppressMilliseconds) {
-                c += ".";
-                c += padStart(this._c.millisecond, 3);
-            }
+                       extendedZone?: boolean,
+                       precision?: keyof GenericDateTimeExtended): string {
+        const showSeconds = !suppressSeconds || this._c.millisecond !== 0 || this._c.second !== 0;
+        let c = "";
+        switch (precision) {
+            case "day":
+            case "month":
+            case "year":
+                break;
+            default:
+                c += padStart(this._c.hour);
+                if (precision === "hour") {
+                    break;
+                }
+                if (extended) {
+                    c += ":";
+                    c += padStart(this._c.minute);
+                    if (precision === "minute") {
+                        break;
+                    }
+                    if (showSeconds) {
+                        c += ":";
+                        c += padStart(this._c.second);
+                    }
+                }
+                else {
+                    c += padStart(this._c.minute);
+                    if (precision === "minute") {
+                        break;
+                    }
+                    if (showSeconds) {
+                        c += padStart(this._c.second);
+                    }
+                }
+                if (precision === "second") {
+                    break;
+                }
+                if (showSeconds && (!suppressMilliseconds || this._c.millisecond !== 0)) {
+                    c += ".";
+                    c += padStart(this._c.millisecond, 3);
+                }
         }
 
         if (includeOffset) {

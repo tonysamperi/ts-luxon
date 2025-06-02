@@ -1,5 +1,21 @@
 # Changelog
 
+## 6.1.0 (Luxon next 3.6.1)
+* Add Fallback for `minimalDays` being removed from Intl.WeekInfo
+* Fix various caches when JS keywords like "constructor" are used for names
+* Allow removing of zeroes for durations (duration.removeZeroes)
+* toHuman can hide zeroes through options (this doesn't break with quarters compared to the original Luxon) (#1679)
+* Accept lowercase t and z when parsing ISO timestamps
+* Rounding options for toRelative (#1685)
+* Allow escaping single quotes in format strings (#649)
+* Add "precision" parameter to toISO methods (#1670)
+* Only add minus sign on largest unit of negative durations when formatting (#1701)
+
+## 6.0.0 (Luxon 3.6.0)
+* Fix broken caching in guessOffsetForZone 
+* Fix IANAZone instance and DTF caching when JS keywords are passed (#1688)
+* Add Fallback for `minimalDays` being removed from Intl.WeekInfo
+
 ## 6.0.0 (Luxon next 3.5.0)
 * Added support for esm
 * Removed umd bundle

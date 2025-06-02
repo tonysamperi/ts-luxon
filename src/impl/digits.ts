@@ -82,21 +82,21 @@ export function parseDigits(str: string) {
 }
 
 // cache of {numberingSystem: {append: regex}}
-let digitRegexCache: Record<Partial<NumberingSystem>, Record<string, RegExp>> = {} as Record<Partial<NumberingSystem>, Record<string, RegExp>>;
+const digitRegexCache: Map<Partial<NumberingSystem>, Map<string, RegExp>> = new Map();
 
 export function resetDigitRegexCache(): void {
-    digitRegexCache = {} as Record<Partial<NumberingSystem>, Record<string, RegExp>>;
+    digitRegexCache.clear();
 }
 
 export function digitRegex({ numberingSystem }: Locale, append: string = ""): RegExp {
     const ns = numberingSystem || "latn" as NumberingSystem;
-
-    if (!digitRegexCache[ns]) {
-        digitRegexCache[ns] = {};
+    if (!digitRegexCache.has(ns)) {
+        digitRegexCache.set(ns, new Map());
     }
-    if (!digitRegexCache[ns][append]) {
-        digitRegexCache[ns][append] = new RegExp(`${numberingSystems[ns]}${append}`);
+    const appendCache = digitRegexCache.get(ns);
+    if (!appendCache.has(append)) {
+        appendCache.set(append, new RegExp(`${numberingSystems[ns]}${append}`));
     }
 
-    return digitRegexCache[ns][append];
+    return appendCache.get(append);
 }
