@@ -5,7 +5,7 @@
  */
 
 import { InvalidArgumentError } from "../errors.js";
-import { TimeObject, GregorianDateTime, GenericDateTimeExtended } from "../types/datetime.js";
+import { TimeObject, GregorianDateTime, GenericDateTimeExtended, ToRelativeOptions } from "../types/datetime.js";
 import { ZoneOffsetFormat } from "../types/zone.js";
 import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/duration.js";
 import { Settings } from "../settings.js";
@@ -55,9 +55,9 @@ export function hasRelative(): boolean {
 export function hasLocaleWeekInfo(): boolean {
     try {
         return (
-          typeof Intl !== "undefined" &&
-          !!Intl.Locale &&
-          ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype)
+            typeof Intl !== "undefined" &&
+            !!Intl.Locale &&
+            ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype)
         );
     }
     catch (e) {
@@ -104,10 +104,10 @@ export function validateWeekSettings(settings?: WeekSettings | void): WeekSettin
     }
     else {
         if (
-          !integerBetween(settings.firstDay, 1, 7) ||
-          !integerBetween(settings.minimalDays, 1, 7) ||
-          !Array.isArray(settings.weekend) ||
-          settings.weekend.some((v) => !integerBetween(v, 1, 7))
+            !integerBetween(settings.firstDay, 1, 7) ||
+            !integerBetween(settings.minimalDays, 1, 7) ||
+            !Array.isArray(settings.weekend) ||
+            settings.weekend.some((v) => !integerBetween(v, 1, 7))
         ) {
             throw new InvalidArgumentError("Invalid week settings");
         }
@@ -173,10 +173,24 @@ export function parseMillis(fraction: string | null | undefined): number {
     }
 }
 
-export function roundTo(value: number, digits: number, towardZero = false): number {
-    const factor = 10 ** digits,
-      rounder = towardZero ? Math.trunc : Math.round;
-    return rounder(value * factor) / factor;
+export function roundTo(value: number, digits: number, rounding: ToRelativeOptions["rounding"] = "round"): number {
+    const factor = 10 ** digits;
+    switch (rounding) {
+        case "expand":
+            return value > 0
+                ? Math.ceil(value * factor) / factor
+                : Math.floor(value * factor) / factor;
+        case "trunc":
+            return Math.trunc(value * factor) / factor;
+        case "round":
+            return Math.round(value * factor) / factor;
+        case "floor":
+            return Math.floor(value * factor) / factor;
+        case "ceil":
+            return Math.ceil(value * factor) / factor;
+        default:
+            throw new RangeError(`Value rounding ${rounding} is out of range`);
+    }
 }
 
 // DATE BASICS
@@ -191,20 +205,20 @@ export function daysInYear(year: number): 366 | 365 {
 
 export function daysInMonth(year: number, month: number): number {
     const modMonth = floorMod(month - 1, 12) + 1,
-      modYear = year + (month - modMonth) / 12;
+        modYear = year + (month - modMonth) / 12;
     return [31, isLeapYear(modYear) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][modMonth - 1];
 }
 
 // convert a calendar object to a local timestamp (epoch, but with the offset baked in)
 export function objToLocalTS(obj: GregorianDateTime): number {
     let d: Date | number = Date.UTC(
-      obj.year,
-      obj.month - 1,
-      obj.day,
-      obj.hour,
-      obj.minute,
-      obj.second,
-      obj.millisecond
+        obj.year,
+        obj.month - 1,
+        obj.day,
+        obj.hour,
+        obj.minute,
+        obj.second,
+        obj.millisecond
     );
 
     // for legacy reasons, years between 0 and 99 are interpreted as 19XX; revert that
@@ -242,10 +256,10 @@ export function untruncateYear(year: number): number {
 // PARSING
 
 export function parseZoneInfo(
-  ts: number,
-  offsetFormat?: Intl.DateTimeFormatOptions["timeZoneName"],
-  locale?: string,
-  timeZone?: string
+    ts: number,
+    offsetFormat?: Intl.DateTimeFormatOptions["timeZoneName"],
+    locale?: string,
+    timeZone?: string
 ): string {
     const date = new Date(ts);
     const intlOpts = {
@@ -260,8 +274,8 @@ export function parseZoneInfo(
 
     const modified: Intl.DateTimeFormatOptions = { timeZoneName: offsetFormat, ...intlOpts };
     const parsed = new Intl.DateTimeFormat(locale, modified)
-      .formatToParts(date)
-      .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
+        .formatToParts(date)
+        .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
 
     return parsed ? parsed.value : null;
 }
@@ -276,7 +290,7 @@ export function signedOffset(offHourStr: string, offMinuteStr: string): number {
     }
 
     const offMin = parseInt(offMinuteStr, 10) || 0,
-      offMinSigned = offHour < 0 || Object.is(offHour, -0) ? -offMin : offMin;
+        offMinSigned = offHour < 0 || Object.is(offHour, -0) ? -offMin : offMin;
     return offHour * 60 + offMinSigned;
 }
 
@@ -309,8 +323,8 @@ export function normalizeObject(obj: Record<string, unknown>,
  */
 export function formatOffset(offset: number, format: ZoneOffsetFormat): string {
     const hours = Math.trunc(Math.abs(offset / 60)),
-      minutes = Math.trunc(Math.abs(offset % 60)),
-      sign = offset >= 0 ? "+" : "-";
+        minutes = Math.trunc(Math.abs(offset % 60)),
+        sign = offset >= 0 ? "+" : "-";
 
     switch (format) {
         case "short":

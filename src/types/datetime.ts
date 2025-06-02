@@ -23,6 +23,7 @@ export interface ToRelativeOptions {
     padding?: number;
     /** Defaults to `true`. */
     round?: boolean;
+    rounding?: "trunc" | "round" | "expand" | "ceil" | "floor";
     style?: Intl.RelativeTimeFormatStyle;
     /** If omitted, the method will pick the unit. */
     unit?: Intl.RelativeTimeFormatUnit;

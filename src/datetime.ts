@@ -1468,21 +1468,22 @@ export class DateTime {
      * @private
      */
     private static _diffRelative(start: DateTime, end: DateTime, opts: DiffRelativeOptions): string {
-        const round = isUndefined(opts.round) ? true : opts.round,
-            format = (c: number, unit: Intl.RelativeTimeFormatUnit): string => {
-                c = roundTo(c, round || opts.calendary ? 0 : 2, true);
-                const formatter = end._loc.clone(opts).relFormatter(opts);
-                return formatter.format(c, unit);
-            },
-            differ = (unit: Intl.RelativeTimeFormatUnit): number => {
-                if (opts.calendary) {
-                    if (!end.hasSame(start, unit)) {
-                        return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
-                    }
-                    return 0;
+        const round = isUndefined(opts.round) ? true : opts.round;
+        const rounding = isUndefined(opts.rounding) ? "trunc" : opts.rounding;
+        const format = (c: number, unit: Intl.RelativeTimeFormatUnit): string => {
+            c = roundTo(c, round || opts.calendary ? 0 : 2, opts.calendary ? "round" : rounding);
+            const formatter = end._loc.clone(opts).relFormatter(opts);
+            return formatter.format(c, unit);
+        };
+        const differ = (unit: Intl.RelativeTimeFormatUnit): number => {
+            if (opts.calendary) {
+                if (!end.hasSame(start, unit)) {
+                    return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
                 }
-                return end.diff(start, unit).get(unit);
-            };
+                return 0;
+            }
+            return end.diff(start, unit).get(unit);
+        };
 
         if (opts.unit) {
             return format(differ(opts.unit), opts.unit);
