@@ -10675,7 +10675,7 @@ __metadata:
     ng-packagr: "npm:^16.0.0"
     prismjs: "npm:^1.29.0"
     rxjs: "npm:^7.4.0"
-    ts-luxon: "npm:^6.0.0"
+    ts-luxon: "npm:^6.1.0"
     ts-node: "npm:^10.9.1"
     tsickle: "npm:^0.46.3"
     tslib: "npm:^2.3.1"
@@ -10686,10 +10686,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"ts-luxon@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "ts-luxon@npm:6.0.0"
-  checksum: 10c0/94004eca41654e205fb81240a14e29be4c6f242df088a8b2c4e8d5d26acc09a163f758138695608fe79d1dd0cc935fc6091c1ca38ae50dca1f5953b540484384
+"ts-luxon@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "ts-luxon@npm:6.1.0"
+  checksum: 10c0/88ce9df1ae64100068b5a81b1c1c796c80c41dde54c38ea44138cbd9c61139e448371f001e90e3430ec8899a25c2234a940353ec9a09282478e6fd2c6697ec9b
   languageName: node
   linkType: hard
 

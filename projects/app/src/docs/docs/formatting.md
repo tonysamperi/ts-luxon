@@ -167,6 +167,11 @@ You may escape strings using single quotes:
 DateTime.now().toFormat("HH 'hours and' mm 'minutes'"); //=> '20 hours and 55 minutes'
 ```
 
+Single quotes themselves can be escaped by doubling them:
+```js
+DateTime.now().toFormat("MMM d ''yy"); //=> Apr 7 '25
+```
+
 ### Standalone vs format tokens
 
 Some tokens have a "standalone" and "format" version. Some languages require different forms of a word based on whether
