@@ -1,13 +1,13 @@
 import * as English from "./english.js";
 import * as Formats from "./formats.js";
-import { padStart } from "./util.js";
-import { Locale, PolyDateFormatter } from "./locale.js";
-import { DateTime } from "../datetime.js";
-import { Duration } from "../duration.js";
-import { StringUnitLength } from "../types/common.js";
-import { DurationUnit, NormalizedDurationUnit } from "../types/duration.js";
-import { ZoneOffsetFormat } from "../types/zone.js";
-import { Interval } from "../interval.js";
+import {padStart} from "./util.js";
+import {Locale, PolyDateFormatter} from "./locale.js";
+import {DateTime} from "../datetime.js";
+import {Duration} from "../duration.js";
+import {StringUnitLength} from "../types/common.js";
+import {DurationUnit, NormalizedDurationUnit} from "../types/duration.js";
+import {ZoneOffsetFormat} from "../types/zone.js";
+import {Interval} from "../interval.js";
 
 function stringifyTokens(
     splits: FormatToken[],
@@ -63,6 +63,7 @@ export interface FormatterOptions extends Intl.DateTimeFormatOptions {
     forceSimple?: boolean;
     format?: ZoneOffsetFormat;
     padTo?: number;
+    signMode?: Intl.NumberFormatOptions["signDisplay"] | "negativeLargestOnly" | "all";
 }
 
 /**
@@ -120,7 +121,7 @@ export class Formatter {
             }
             else {
                 if (currentFull.length > 0) {
-                    splits.push({ literal: /^\s+$/.test(currentFull), val: currentFull });
+                    splits.push({literal: /^\s+$/.test(currentFull), val: currentFull});
                 }
                 currentFull = c;
                 current = c;
@@ -128,14 +129,14 @@ export class Formatter {
         }
 
         if (currentFull.length > 0) {
-            splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
+            splits.push({literal: bracketed || /^\s+$/.test(currentFull), val: currentFull});
         }
 
         return splits;
     }
 
     dtFormatter(dt: DateTime, opts: Intl.DateTimeFormatOptions = {}): PolyDateFormatter {
-        return this._loc.dtFormatter(dt, { ...this._opts, ...opts });
+        return this._loc.dtFormatter(dt, {...this._opts, ...opts});
     }
 
     formatDateTime(dt: DateTime, opts?: Intl.DateTimeFormatOptions): string {
@@ -156,16 +157,16 @@ export class Formatter {
             meridiem = () =>
                 knownEnglish
                     ? English.meridiemForDateTime(dt)
-                    : string({ hour: "numeric", hourCycle: "h12" }, "dayPeriod"),
+                    : string({hour: "numeric", hourCycle: "h12"}, "dayPeriod"),
             month = (length: StringUnitLength, standalone: boolean) =>
                 knownEnglish
                     ? English.monthForDateTime(dt, length)
-                    : string(standalone ? { month: length } : { month: length, day: "numeric" }, "month"),
+                    : string(standalone ? {month: length} : {month: length, day: "numeric"}, "month"),
             weekday = (length: StringUnitLength, standalone: boolean) =>
                 knownEnglish
                     ? English.weekdayForDateTime(dt, length)
                     : string(
-                        standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
+                        standalone ? {weekday: length} : {weekday: length, month: "long", day: "numeric"},
                         "weekday"
                     ),
             maybeMacro = (token: string) => {
@@ -178,7 +179,7 @@ export class Formatter {
                 }
             },
             era = (length: StringUnitLength) =>
-                knownEnglish ? English.eraForDateTime(dt, length) : string({ era: length }, "era"),
+                knownEnglish ? English.eraForDateTime(dt, length) : string({era: length}, "era"),
             tokenToString = (token: string): string => {
                 // Where possible: https://cldr.unicode.org/translation/date-time/date-time-symbols
                 switch (token) {
@@ -216,19 +217,19 @@ export class Formatter {
                     // offset
                     case "Z":
                         // like +6
-                        return formatOffset({ format: "narrow", allowZ: this._opts.allowZ });
+                        return formatOffset({format: "narrow", allowZ: this._opts.allowZ});
                     case "ZZ":
                         // like +06:00
-                        return formatOffset({ format: "short", allowZ: this._opts.allowZ });
+                        return formatOffset({format: "short", allowZ: this._opts.allowZ});
                     case "ZZZ":
                         // like +0600
-                        return formatOffset({ format: "techie", allowZ: this._opts.allowZ });
+                        return formatOffset({format: "techie", allowZ: this._opts.allowZ});
                     case "ZZZZ":
                         // like EST
-                        return dt.zone.offsetName(dt.ts, { format: "short", locale: this._loc.locale }) || "";
+                        return dt.zone.offsetName(dt.ts, {format: "short", locale: this._loc.locale}) || "";
                     case "ZZZZZ":
                         // like Eastern Standard Time
-                        return dt.zone.offsetName(dt.ts, { format: "long", locale: this._loc.locale }) || "";
+                        return dt.zone.offsetName(dt.ts, {format: "long", locale: this._loc.locale}) || "";
                     // zone
                     case "z":
                         // like America/New_York
@@ -238,9 +239,9 @@ export class Formatter {
                         return meridiem();
                     // dates
                     case "d":
-                        return useDateTimeFormatter ? string({ day: "numeric" }, "day") : this.num(dt.day);
+                        return useDateTimeFormatter ? string({day: "numeric"}, "day") : this.num(dt.day);
                     case "dd":
-                        return useDateTimeFormatter ? string({ day: "2-digit" }, "day") : this.num(dt.day, 2);
+                        return useDateTimeFormatter ? string({day: "2-digit"}, "day") : this.num(dt.day, 2);
                     // weekdays - standalone
                     case "c":
                         // like 1
@@ -271,12 +272,12 @@ export class Formatter {
                     case "L":
                         // like 1
                         return useDateTimeFormatter
-                            ? string({ month: "numeric", day: "numeric" }, "month")
+                            ? string({month: "numeric", day: "numeric"}, "month")
                             : this.num(dt.month);
                     case "LL":
                         // like 01, doesn't seem to work
                         return useDateTimeFormatter
-                            ? string({ month: "2-digit", day: "numeric" }, "month")
+                            ? string({month: "2-digit", day: "numeric"}, "month")
                             : this.num(dt.month, 2);
                     case "LLL":
                         // like Jan
@@ -291,12 +292,12 @@ export class Formatter {
                     case "M":
                         // like 1
                         return useDateTimeFormatter
-                            ? string({ month: "numeric" }, "month")
+                            ? string({month: "numeric"}, "month")
                             : this.num(dt.month);
                     case "MM":
                         // like 01
                         return useDateTimeFormatter
-                            ? string({ month: "2-digit" }, "month")
+                            ? string({month: "2-digit"}, "month")
                             : this.num(dt.month, 2);
                     case "MMM":
                         // like Jan
@@ -310,21 +311,21 @@ export class Formatter {
                     // years
                     case "y":
                         // like 2014
-                        return useDateTimeFormatter ? string({ year: "numeric" }, "year") : this.num(dt.year);
+                        return useDateTimeFormatter ? string({year: "numeric"}, "year") : this.num(dt.year);
                     case "yy":
                         // like 14
                         return useDateTimeFormatter
-                            ? string({ year: "2-digit" }, "year")
+                            ? string({year: "2-digit"}, "year")
                             : this.num(parseInt(dt.year.toString().slice(-2), 10), 2);
                     case "yyyy":
                         // like 0012
                         return useDateTimeFormatter
-                            ? string({ year: "numeric" }, "year")
+                            ? string({year: "numeric"}, "year")
                             : this.num(dt.year, 4);
                     case "yyyyyy":
                         // like 000012
                         return useDateTimeFormatter
-                            ? string({ year: "numeric" }, "year")
+                            ? string({year: "numeric"}, "year")
                             : this.num(dt.year, 6);
                     // eras
                     case "G":
@@ -370,6 +371,7 @@ export class Formatter {
     }
 
     formatDurationFromString(dur: Duration, format: string): string {
+        const invertLargest = this._opts.signMode === "negativeLargestOnly" ? -1 : 1;
         const tokenToField = (token: string): DurationUnit | undefined => {
             switch (token[0]) {
                 case "S":
@@ -382,6 +384,8 @@ export class Formatter {
                     return "hours";
                 case "d":
                     return "days";
+                case "w":
+                    return "weeks";
                 case "M":
                     return "months";
                 case "y":
@@ -390,15 +394,22 @@ export class Formatter {
                     return undefined;
             }
         };
-        const tokenToString = (lildur: Duration, info: {
-            isNegativeDuration: boolean;
-            largestUnit: NormalizedDurationUnit
-        }) => {
+        const tokenToString = (lildur: Duration, info: { isNegativeDuration: boolean; largestUnit: NormalizedDurationUnit }) => {
             return (token: string) => {
                 const mapped = tokenToField(token);
                 if (mapped) {
-                    const inversionFactor = info.isNegativeDuration && mapped !== info.largestUnit ? -1 : 1;
-                    return this.num(lildur.get(mapped) * inversionFactor, token.length);
+                    const inversionFactor = info.isNegativeDuration && mapped !== info.largestUnit ? invertLargest : 1;
+                    let signDisplay: FormatterOptions["signMode"];
+                    if (this._opts.signMode === "negativeLargestOnly" && mapped !== info.largestUnit) {
+                        signDisplay = "never";
+                    }
+                    else if (this._opts.signMode === "all") {
+                        signDisplay = "always";
+                    }
+                    else {
+                        signDisplay = "auto";
+                    }
+                    return this.num(lildur.get(mapped) * inversionFactor, token.length, signDisplay);
                 }
                 else {
                     return token;
@@ -434,19 +445,22 @@ export class Formatter {
         if (this._systemLoc === void 0) {
             this._systemLoc = this._loc.redefaultToSystem();
         }
-        const df = this._systemLoc.dtFormatter(dt, { ...this._opts, ...opts });
+        const df = this._systemLoc.dtFormatter(dt, {...this._opts, ...opts});
         return df.format();
     }
 
-    num(n: number, p = 0): string {
+    num(n: number, p = 0, signDisplay?: Intl.NumberFormatOptions["signDisplay"]): string {
         // we get some perf out of doing this here, annoyingly
         if (this._opts.forceSimple) {
 
             return padStart(n, p);
         }
-        const opts: FormatterOptions = { ...this._opts };
+        const opts: Intl.NumberFormatOptions & { padTo?: number; floor?: boolean } = {...this._opts};
         if (p > 0) {
             opts.padTo = p;
+        }
+        if (signDisplay) {
+            opts.signDisplay = signDisplay;
         }
 
         return this._loc.numberFormatter(opts).format(n);

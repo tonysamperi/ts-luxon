@@ -1,15 +1,15 @@
-import { DateTime, DateTimeLike } from "./datetime.js";
-import { Duration, DurationLike } from "./duration.js";
-import { InvalidArgumentError, InvalidIntervalError } from "./errors.js";
-import { ToISOTimeOptions, DateTimeOptions } from "./types/datetime.js";
-import { DurationUnit, DurationOptions, DurationObject } from "./types/duration.js";
-import { IntervalObject } from "./types/interval.js";
-import { Invalid } from "./types/invalid.js";
-import { Settings } from "./settings.js";
-import { isNumber } from "./impl/util.js";
-import { Formatter } from "./impl/formatter.js";
-import { DATE_SHORT } from "./impl/formats.js";
-import { LocaleOptions } from "./types/locale.js";
+import {DateTime, DateTimeLike} from "./datetime.js";
+import {Duration, DurationLike} from "./duration.js";
+import {InvalidArgumentError, InvalidIntervalError} from "./errors.js";
+import {ToISOTimeOptions, DateTimeOptions} from "./types/datetime.js";
+import {DurationUnit, DurationOptions, DurationObject} from "./types/duration.js";
+import {IntervalObject} from "./types/interval.js";
+import {Invalid} from "./types/invalid.js";
+import {Settings} from "./settings.js";
+import {isNumber} from "./impl/util.js";
+import {Formatter} from "./impl/formatter.js";
+import {DATE_SHORT} from "./impl/formats.js";
+import {LocaleOptions} from "./types/locale.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";
@@ -73,7 +73,8 @@ interface Config {
 export class Interval {
 
     /**
-     * Returns the end of the Interval
+     * Returns the end of the Interval.
+     * This is the first instant that is not part of the interval (Interval is half-open).
      */
     get end(): DateTime | null {
         return this.isValid ? this._e : null;
@@ -247,7 +248,7 @@ export class Interval {
             throw new InvalidIntervalError(invalid);
         }
         else {
-            return new Interval({ invalid });
+            return new Interval({invalid});
         }
     }
 
@@ -299,8 +300,8 @@ export class Interval {
 
         const results = [],
             ends = intervals.map(i => [
-                { time: i._s, type: "s" },
-                { time: i._e, type: "e" }
+                {time: i._s, type: "s"},
+                {time: i._e, type: "e"}
             ]),
             flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
             arr = flattened.sort((a, b) => +a.time - +b.time);
@@ -380,7 +381,7 @@ export class Interval {
         const start = this.start.startOf(unit, opts);
         let end;
         if (opts?.useLocaleWeeks) {
-            end = this.end.reconfigure({ locale: start.locale });
+            end = this.end.reconfigure({locale: start.locale});
         }
         else {
             end = this.end;
@@ -396,8 +397,8 @@ export class Interval {
      */
     difference(...intervals: Interval[]): Interval[] {
         return Interval.xor([this as Interval].concat(intervals))
-                       .map(i => this.intersection(i))
-                       .filter(i => i && !i.isEmpty()) as Interval[];
+            .map(i => this.intersection(i))
+            .filter(i => i && !i.isEmpty()) as Interval[];
     }
 
     /**
@@ -409,7 +410,7 @@ export class Interval {
         if (!this.isValid) {
             return [];
         }
-        return this.splitBy({ milliseconds: this.length() / numberOfParts }).slice(0, numberOfParts);
+        return this.splitBy({milliseconds: this.length() / numberOfParts}).slice(0, numberOfParts);
     }
 
     /**
@@ -541,7 +542,7 @@ export class Interval {
      * @param {DateTime} values.end - the ending DateTime
      * @return {Interval}
      */
-    set({ start, end }: IntervalObject = {}): Interval {
+    set({start, end}: IntervalObject = {}): Interval {
         if (!this.isValid) {
             return this;
         }
@@ -632,7 +633,7 @@ export class Interval {
      * representations.
      * @return {string}
      */
-    toFormat(dateFormat: string, { separator = " - " }: { separator?: string } = {}): string {
+    toFormat(dateFormat: string, {separator = " - "}: { separator?: string } = {}): string {
         if (!this.isValid) {
             return INVALID;
         }

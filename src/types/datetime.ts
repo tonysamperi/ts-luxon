@@ -149,9 +149,11 @@ export interface InnerBuildObjectConfig {
     containsGregor: boolean;
     containsOrdinal: boolean;
     loc: Locale;
+    minDaysInFirstWeek: number;
     normalized: { [key: string]: number; };
     obj: Partial<GregorianDateTime & WeekDateTime & OrdinalDateTime>;
     offsetProvis: number;
+    startOfWeek: number;
     useWeekData: number | boolean;
     zoneToUse: Zone;
 }

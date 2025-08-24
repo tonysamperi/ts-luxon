@@ -1,7 +1,7 @@
-import { formatOffset, parseZoneInfo, isUndefined, objToLocalTS } from "../impl/util.js";
-import { Zone } from "../zone.js";
-import { ZoneOffsetOptions, ZoneOffsetFormat } from "../types/zone.js";
-import { InvalidZoneError } from "../errors.js";
+import {formatOffset, parseZoneInfo, isUndefined, objToLocalTS} from "../impl/util.js";
+import {Zone} from "../zone.js";
+import {ZoneOffsetOptions, ZoneOffsetFormat} from "../types/zone.js";
+import {InvalidZoneError} from "../errors.js";
 
 const dtfCache: Map<string, Intl.DateTimeFormat> = new Map();
 
@@ -51,7 +51,7 @@ function partsOffset(dtf: Intl.DateTimeFormat, date: Date) {
     for (let i = 0;
          i < formatted.length;
          i++) {
-        const { type, value } = formatted[i];
+        const {type, value} = formatted[i];
         const pos = typeToPos[type] as number;
 
         if (type === "era") {
@@ -97,10 +97,13 @@ export class IANAZone extends Zone {
 
     private constructor(name: string) {
         super();
+        const normalizedName = IANAZone.normalizeZone(name);
         /** @private **/
-        this._zoneName = name;
+        this._valid = normalizedName != null;
+        // For backwards compatibility we only normalize in casing, otherwise would also normalize something like
+        // EST5EDT to America/New_York.
         /** @private **/
-        this._valid = IANAZone.isValidZone(name);
+        this._zoneName = normalizedName && normalizedName.toLowerCase() === name.toLowerCase() ? normalizedName : name;
     }
 
 
@@ -138,16 +141,30 @@ export class IANAZone extends Zone {
      * @example IANAZone.isValidZone("Sport~~blorp") //=> false
      * @return {boolean}
      */
-    static isValidZone(zone: string): boolean {
+    static isValidZone(zone: string) {
+        return IANAZone.normalizeZone(zone) != null;
+    }
+
+    /**
+     * Normalize the name of the provided IANA zone or return null
+     * if it is not a valid IANA zone.
+     * @param {string} zone - The string to normalize
+     * @example IANAZone.normalizeZone("America/New_York") //=> "America/New_York"
+     * @example IANAZone.normalizeZone("america/NEw_York") //=> "America/New_York"
+     * @example IANAZone.normalizeZone("EST5EDT") //=> "America/New_York"
+     * @example IANAZone.normalizeZone("Fantasia/Castle") //=> null
+     * @example IANAZone.normalizeZone("Sport~~blorp") //=> null
+     * @return {string|null}
+     */
+    static normalizeZone(zone: string) {
         if (!zone) {
-            return false;
+            return null;
         }
         try {
-            new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
-            return true;
+            return new Intl.DateTimeFormat("en-US", {timeZone: zone}).resolvedOptions().timeZone;
         }
         catch (e) {
-            return false;
+            return null;
         }
     }
 
@@ -211,7 +228,7 @@ export class IANAZone extends Zone {
     }
 
     /** @override **/
-    offsetName(ts: number, { format, locale }: ZoneOffsetOptions = {}) {
+    offsetName(ts: number, {format, locale}: ZoneOffsetOptions = {}) {
         return parseZoneInfo(ts, format, locale, this.name);
     }
 

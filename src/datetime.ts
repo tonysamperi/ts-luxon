@@ -506,7 +506,7 @@ export class DateTime {
     }
 
     /**
-     * Get the week year according to the locale. Different locales assign week numbers (and therefor week years)
+     * Get the week year, according to the locale. Different locales assign week numbers (and therefor week years)
      * differently, see localWeekNumber.
      */
     get localWeekYear(): number {
@@ -515,7 +515,7 @@ export class DateTime {
 
     /**
      * Get the day of the week according to the locale.
-     * 1 is the first day of the week and 7 is the last day of the week.
+     * 1 is the first day of the week, and 7 is the last day of the week.
      * If the locale assigns Sunday as the first day of the week, then a date which is a Sunday will return 1,
      */
     get localWeekday(): number {
@@ -1099,8 +1099,13 @@ export class DateTime {
         }
 
         const loc = Locale.fromObject(opts);
+        /**
+         * [TS]: Original luxon here created the function "normalizeUnitWithLocalWeeks", but I don't think it's needed.
+         * So I handled local week units in the "normalizeObject" function.
+         */
         const normalized = normalizeObject(obj as Record<string, any>, normalizeUnit);
-
+        // This function modifies the normalized object, so order matters. Needs to be here to get correct values for all the constants below
+        const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, loc);
         const tsNow = Settings.now(),
             offsetProvis = isNumber(opts.specificOffset)
                 ? opts.specificOffset
@@ -1129,10 +1134,9 @@ export class DateTime {
         }
 
         const useWeekData = definiteWeekDef || (normalized.weekday && !containsGregor);
-        const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, loc);
         // configure ourselves to deal with gregorian dates or week stuff
         const tmpNow: GregorianDateTime = tsToObj(tsNow, offsetProvis);
-        const config = {
+        const config: InnerBuildObjectConfig = {
             containsGregor,
             containsOrdinal,
             loc,
@@ -1140,7 +1144,9 @@ export class DateTime {
             obj,
             offsetProvis,
             useWeekData,
-            zoneToUse
+            zoneToUse,
+            minDaysInFirstWeek,
+            startOfWeek
         };
         /*
          * For future refactors here, I assume the original had a lot of duplicated code,
@@ -1437,7 +1443,7 @@ export class DateTime {
 
         // compute the actual time
         const gregorian = config.useWeekData
-                ? weekToGregorian(config.normalized as unknown as WeekDateTime)
+                ? weekToGregorian(config.normalized as unknown as WeekDateTime, config.minDaysInFirstWeek, config.startOfWeek)
                 : config.containsOrdinal
                     ? ordinalToGregorian(config.normalized as unknown as OrdinalDateTime)
                     : config.normalized,
@@ -2604,13 +2610,17 @@ export class DateTime {
             else if (this._o < 0) {
                 c += "-";
                 c += padStart(Math.trunc(-this._o / 60));
-                c += ":";
+                if (extended) {
+                    c += ":";
+                }
                 c += padStart(Math.trunc(-this._o % 60));
             }
             else {
                 c += "+";
                 c += padStart(Math.trunc(this._o / 60));
-                c += ":";
+                if (extended) {
+                    c += ":";
+                }
                 c += padStart(Math.trunc(this._o % 60));
             }
         }
