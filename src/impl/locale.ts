@@ -7,14 +7,14 @@ import {
     validateWeekSettings
 } from "./util.js";
 import * as English from "./english.js";
-import { Settings } from "../settings.js";
-import { DateTime } from "../datetime.js";
-import { IANAZone } from "../zones/IANAZone.js";
-import { DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths } from "../types/common.js";
-import { LocaleOptions, NumberingSystem, CalendarSystem, WeekSettings } from "../types/locale.js";
-import { Zone } from "../zone.js";
-import { ZoneOffsetOptions } from "../types/zone.js";
-import { LocaleCache } from "./locale-cache.js";
+import {Settings} from "../settings.js";
+import {DateTime} from "../datetime.js";
+import {IANAZone} from "../zones/IANAZone.js";
+import {DayOfWeek, StringUnitLength, UnitLength, WeekUnitLengths} from "../types/common.js";
+import {LocaleOptions, NumberingSystem, CalendarSystem, WeekSettings} from "../types/locale.js";
+import {Zone} from "../zone.js";
+import {ZoneOffsetOptions} from "../types/zone.js";
+import {LocaleCache} from "./locale-cache.js";
 
 function parseLocaleString(localeStr: string): [string, NumberingSystem?, CalendarSystem?] {
     // I really want to avoid writing a BCP 47 parser
@@ -50,7 +50,7 @@ function parseLocaleString(localeStr: string): [string, NumberingSystem?, Calend
             selectedStr = smaller;
         }
 
-        const { numberingSystem, calendar } = options;
+        const {numberingSystem, calendar} = options;
 
         return [selectedStr, numberingSystem as NumberingSystem, calendar as CalendarSystem];
     }
@@ -125,16 +125,13 @@ class PolyNumberFormatter {
     private _inf?: Readonly<Intl.NumberFormat>;
     private readonly _padTo: number;
 
-    constructor(intl: string, forceSimple: boolean, opts: Intl.NumberFormatOptions & {
-        padTo?: number;
-        floor?: boolean
-    }) {
-        const { padTo, floor, ...otherOpts } = opts;
+    constructor(intl: string, forceSimple: boolean, opts: Intl.NumberFormatOptions & { padTo?: number; floor?: boolean }) {
+        const {padTo, floor, ...otherOpts} = opts;
         this._padTo = padTo || 0;
         this._floor = floor || false;
 
         if (!forceSimple || Object.keys(otherOpts).length > 0) {
-            const intlOpts: Intl.NumberFormatOptions = { useGrouping: false, ...opts };
+            const intlOpts: Intl.NumberFormatOptions = {useGrouping: false, ...opts};
             if (this._padTo > 0) {
                 intlOpts.minimumIntegerDigits = padTo;
             }
@@ -195,7 +192,7 @@ export class PolyDateFormatter {
                 // Not all fixed-offset zones like Etc/+4:30 are present in tzdata so
                 // we manually apply the offset and substitute the zone as needed.
                 z = "UTC";
-                this._dt = dt.offset === 0 ? dt : dt.setZone("UTC").plus({ minutes: dt.offset });
+                this._dt = dt.offset === 0 ? dt : dt.setZone("UTC").plus({minutes: dt.offset});
                 this._originalZone = dt.zone;
             }
         }
@@ -209,7 +206,7 @@ export class PolyDateFormatter {
         else {
             // Custom zones can have any offset / offsetName, so we just manually apply the offset and substitute the zone as needed.
             z = "UTC";
-            this._dt = dt.setZone("UTC").plus({ minutes: dt.offset });
+            this._dt = dt.setZone("UTC").plus({minutes: dt.offset});
             this._originalZone = dt.zone;
         }
         const intlOpts = {
@@ -224,8 +221,8 @@ export class PolyDateFormatter {
             // If we have to substitute in the actual zone name, we have to use
             // formatToParts so that the timezone can be replaced.
             return this.formatToParts()
-                       .map(({ value }) => value)
-                       .join("");
+                .map(({value}) => value)
+                .join("");
         }
 
         return this.dtf.format(this._dt.toJSDate());
@@ -270,7 +267,7 @@ class PolyRelFormatter {
     private _rtf?: Readonly<Intl.RelativeTimeFormat>;
 
     constructor(locale: Intl.UnicodeBCP47LocaleIdentifier, isEnglish: boolean, opts: Intl.RelativeTimeFormatOptions) {
-        this._opts = { style: "long", ...opts };
+        this._opts = {style: "long", ...opts};
         if (!isEnglish && hasRelative()) {
             this._rtf = LocaleCache.getCachedRTF(locale, opts);
         }
@@ -354,8 +351,8 @@ export class Locale {
         this.outputCalendar = outputCalendar || parsedOutputCalendar;
         this._intl = intlConfigString(this.locale, this.numberingSystem, this.outputCalendar);
         this._weekSettings = weekSettings;
-        this._weekdaysCache = { format: {}, standalone: {} };
-        this._monthsCache = { format: {}, standalone: {} };
+        this._weekdaysCache = {format: {}, standalone: {}};
+        this._monthsCache = {format: {}, standalone: {}};
         this._meridiemCache = undefined;
         this._eraCache = {};
         this._specifiedLocale = specifiedLocale;
@@ -373,7 +370,7 @@ export class Locale {
         return new Locale(localeR, numberingSystemR, outputCalendarR, weekSettingsR, specifiedLocale);
     }
 
-    static fromObject({ locale, numberingSystem, outputCalendar, weekSettings }: LocaleOptions = {}): Locale {
+    static fromObject({locale, numberingSystem, outputCalendar, weekSettings}: LocaleOptions = {}): Locale {
         return Locale.create(locale, numberingSystem, outputCalendar, weekSettings);
     }
 
@@ -416,7 +413,7 @@ export class Locale {
 
     eras(length: StringUnitLength): string[] {
         return listStuff(this, length, English.eras, len => {
-            const intl = { era: len };
+            const intl = {era: len};
 
             // This is problematic. Different calendars are going to define eras totally differently. What I need is the minimum set of dates
             // to definitely enumerate them.
@@ -434,11 +431,8 @@ export class Locale {
         const df = this.dtFormatter(dt, intlOptions),
             results = df.formatToParts(),
             matching = results.find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === field.toLowerCase());
-        if (!matching) {
-            throw new Error(`Invalid extract field ${field}`);
-        }
 
-        return matching.value;
+        return matching?.value;
     }
 
     getMinDaysInFirstWeek(): number {
@@ -498,7 +492,7 @@ export class Locale {
                     this._meridiemCache = [
                         DateTime.utc(2016, 11, 13, 9),
                         DateTime.utc(2016, 11, 13, 19)
-                    ].map(dt => this.extract(dt, { hour: "numeric", hourCycle: "h12" }, "dayPeriod"));
+                    ].map(dt => this.extract(dt, {hour: "numeric", hourCycle: "h12"}, "dayPeriod"));
                 }
 
                 return this._meridiemCache as string[];
@@ -507,26 +501,35 @@ export class Locale {
     }
 
     months(length: UnitLength, format: boolean = false): string[] {
-        return listStuff(this, length, English.months, len => {
-            const intl: Intl.DateTimeFormatOptions = format ? { month: len, day: "numeric" } : { month: len };
-            const formatStr = format ? "format" : "standalone";
-            if (!this._monthsCache[formatStr][len]) {
-                this._monthsCache[formatStr][len] = mapMonths(dt => this.extract(dt, intl, "month"));
+        return listStuff(this, length, English.months, () => {
+            // Workaround for "ja" locale: formatToParts does not label all parts of the month
+            // as "month" and for this locale there is no difference between "format" and "non-format".
+            // As such, just use format() instead of formatToParts() and take the whole string
+            const monthSpecialCase = this._intl === "ja" || this._intl.startsWith("ja-");
+            // @ts-expect-error - this will work
+            format &= !monthSpecialCase;
+            const intl = format ? {month: length, day: "numeric" as const} : {month: length},
+                formatStr = format ? "format" : "standalone";
+            if (!this._monthsCache[formatStr][length]) {
+                const mapper = !monthSpecialCase
+                    ? (dt: DateTime) => this.extract(dt, intl, "month")
+                    : (dt: DateTime) => this.dtFormatter(dt, intl).format();
+                this._monthsCache[formatStr][length] = mapMonths(mapper);
             }
-            return this._monthsCache[formatStr][len] as string[];
+            return this._monthsCache[formatStr][length];
         });
     }
 
-    numberFormatter(options: Intl.NumberFormatOptions = {}): PolyNumberFormatter {
+    numberFormatter(options: Intl.NumberFormatOptions & { padTo?: number; floor?: boolean } = {}): PolyNumberFormatter {
         return new PolyNumberFormatter(this._intl, this.fastNumbers, options);
     }
 
     redefaultToEN(alts: LocaleOptions = {}): Locale {
-        return this.clone({ ...alts, defaultToEN: true });
+        return this.clone({...alts, defaultToEN: true});
     }
 
     redefaultToSystem(alts: LocaleOptions = {}): Locale {
-        return this.clone({ ...alts, defaultToEN: false });
+        return this.clone({...alts, defaultToEN: false});
     }
 
     relFormatter(options: Intl.RelativeTimeFormatOptions = {}): PolyRelFormatter {
@@ -540,8 +543,8 @@ export class Locale {
     weekdays(length: WeekUnitLengths, format: boolean = false): string[] {
         return listStuff(this, length, English.weekdays, len => {
             const intl: Intl.DateTimeFormatOptions = format
-                ? { weekday: len, year: "numeric", month: "long", day: "numeric" }
-                : { weekday: len };
+                ? {weekday: len, year: "numeric", month: "long", day: "numeric"}
+                : {weekday: len};
             const formatStr = format ? "format" : "standalone";
             if (!this._weekdaysCache[formatStr][len]) {
                 this._weekdaysCache[formatStr][len] = mapWeekdays(dt => this.extract(dt, intl, "weekday"));
@@ -561,7 +564,7 @@ export class Locale {
             let data: any = "getWeekInfo" in locale ? locale.getWeekInfo() : locale.weekInfo;
             // minimalDays was removed from WeekInfo: https://github.com/tc39/proposal-intl-locale-info/issues/86
             if (!("minimalDays" in data)) {
-                data = { ...FALLBACK_WEEK_SETTINGS, ...data };
+                data = {...FALLBACK_WEEK_SETTINGS, ...data};
             }
             Locale._weekInfoCache.set(locString, data);
         }

@@ -1,5 +1,5 @@
-import { Info, WeekUnitLengths, UnitLength } from "../../src";
-import { Helpers } from "../helpers";
+import {Info, WeekUnitLengths, UnitLength} from "../../src";
+import {Helpers} from "../helpers";
 
 // ------
 // .months()
@@ -8,7 +8,7 @@ import { Helpers } from "../helpers";
 test("Info.months lists all the months", () => {
     expect(Info.months("long")).toEqual(Helpers.months_IT);
 
-    expect(Info.months("short", { locale: "en" })).toEqual([
+    expect(Info.months("short", {locale: "en"})).toEqual([
         "Jan",
         "Feb",
         "Mar",
@@ -23,7 +23,7 @@ test("Info.months lists all the months", () => {
         "Dec"
     ]);
 
-    expect(Info.months("narrow", { locale: "en" })).toEqual([
+    expect(Info.months("narrow", {locale: "en"})).toEqual([
         "J",
         "F",
         "M",
@@ -38,7 +38,7 @@ test("Info.months lists all the months", () => {
         "D"
     ]);
 
-    expect(Info.months("numeric", { locale: "en" })).toEqual([
+    expect(Info.months("numeric", {locale: "en"})).toEqual([
         "1",
         "2",
         "3",
@@ -53,7 +53,7 @@ test("Info.months lists all the months", () => {
         "12"
     ]);
 
-    expect(Info.months("2-digit", { locale: "en" })).toEqual([
+    expect(Info.months("2-digit", {locale: "en"})).toEqual([
         "01",
         "02",
         "03",
@@ -70,7 +70,7 @@ test("Info.months lists all the months", () => {
 });
 
 test("Info.months respects the numbering system", () => {
-    expect(Info.months("numeric", { locale: "en", numberingSystem: "beng" })).toEqual([
+    expect(Info.months("numeric", {locale: "en", numberingSystem: "beng"})).toEqual([
         "১",
         "২",
         "৩",
@@ -87,7 +87,7 @@ test("Info.months respects the numbering system", () => {
 });
 
 test("Info.months respects the calendar", () => {
-    expect(Info.months("long", { locale: "en", outputCalendar: "islamic" })).toEqual([
+    expect(Info.months("long", {locale: "en", outputCalendar: "islamic"})).toEqual([
         "Muharram",
         "Safar",
         "Rabiʻ I",
@@ -99,12 +99,12 @@ test("Info.months respects the calendar", () => {
         "Ramadan",
         "Shawwal",
         "Dhuʻl-Qiʻdah",
-        "Dhuʻl-Hijjah",
+        "Dhuʻl-Hijjah"
     ]);
 });
 
 test("Info.months respects the locale", () => {
-    expect(Info.months("numeric", { locale: "bn" })).toEqual([
+    expect(Info.months("numeric", {locale: "bn"})).toEqual([
         "১",
         "২",
         "৩",
@@ -119,23 +119,53 @@ test("Info.months respects the locale", () => {
         "১২"
     ]);
 
-    // these should arguably be 1月, 2月, etc, but this at least documents how it works
-    expect(Info.months("short", { locale: "ja-JP" })).toEqual([
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12"
+    // formatToParts outputs 月 as "literal" instead of "month", but it arguably is part of the name of the month.
+    // this tests that we correctly work around this
+    // see https://github.com/moment/luxon/issues/549
+    expect(Info.months("long", {locale: "ja-JP"})).toEqual([
+        "1月",
+        "2月",
+        "3月",
+        "4月",
+        "5月",
+        "6月",
+        "7月",
+        "8月",
+        "9月",
+        "10月",
+        "11月",
+        "12月"
+    ]);
+    expect(Info.months("short", {locale: "ja-JP"})).toEqual([
+        "1月",
+        "2月",
+        "3月",
+        "4月",
+        "5月",
+        "6月",
+        "7月",
+        "8月",
+        "9月",
+        "10月",
+        "11月",
+        "12月"
+    ]);
+    expect(Info.months("narrow", {locale: "ja-JP"})).toEqual([
+        "1月",
+        "2月",
+        "3月",
+        "4月",
+        "5月",
+        "6月",
+        "7月",
+        "8月",
+        "9月",
+        "10月",
+        "11月",
+        "12月"
     ]);
 
-    expect(Info.monthsFormat("long", { locale: "ru" })).toEqual([
+    expect(Info.monthsFormat("long", {locale: "ru"})).toEqual([
         "января",
         "февраля",
         "марта",
@@ -159,10 +189,10 @@ test("Info.months defaults to long names", () => {
 // .monthsFormat()
 // ------
 test("Info.monthsFormat lists all the months", () => {
-    expect(Info.monthsFormat("long", { locale: "en" })).toEqual(Helpers.months_EN);
+    expect(Info.monthsFormat("long", {locale: "en"})).toEqual(Helpers.months_EN);
 
     // this passes, but is wrong. These are the same as the standalone values
-    expect(Info.monthsFormat("long", { locale: "ru" })).toEqual([
+    expect(Info.monthsFormat("long", {locale: "ru"})).toEqual([
         "января",
         "февраля",
         "марта",
@@ -177,7 +207,7 @@ test("Info.monthsFormat lists all the months", () => {
         "декабря"
     ]);
 
-    expect(Info.monthsFormat("short", { locale: "en" })).toEqual([
+    expect(Info.monthsFormat("short", {locale: "en"})).toEqual([
         "Jan",
         "Feb",
         "Mar",
@@ -192,7 +222,7 @@ test("Info.monthsFormat lists all the months", () => {
         "Dec"
     ]);
 
-    expect(Info.monthsFormat("numeric", { locale: "en" })).toEqual([
+    expect(Info.monthsFormat("numeric", {locale: "en"})).toEqual([
         "1",
         "2",
         "3",
@@ -209,14 +239,14 @@ test("Info.monthsFormat lists all the months", () => {
 });
 
 test("Info.monthsFormat defaults to long names", () => {
-    expect(Info.monthsFormat(void 0, { locale: "it-IT" })).toEqual(Helpers.months_IT);
+    expect(Info.monthsFormat(void 0, {locale: "it-IT"})).toEqual(Helpers.months_IT);
 });
 
 // ------
 // .weekdays()
 // ------
 test("Info.weekdays lists all the weekdays", () => {
-    expect(Info.weekdays("long", { locale: "en-US" })).toEqual([
+    expect(Info.weekdays("long", {locale: "en-US"})).toEqual([
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -226,7 +256,7 @@ test("Info.weekdays lists all the weekdays", () => {
         "Sunday"
     ]);
 
-    expect(Info.weekdays("short", { locale: "en-US" })).toEqual([
+    expect(Info.weekdays("short", {locale: "en-US"})).toEqual([
         "Mon",
         "Tue",
         "Wed",
@@ -236,9 +266,9 @@ test("Info.weekdays lists all the weekdays", () => {
         "Sun"
     ]);
 
-    expect(Info.weekdays("narrow", { locale: "en" })).toEqual(["M", "T", "W", "T", "F", "S", "S"]);
+    expect(Info.weekdays("narrow", {locale: "en"})).toEqual(["M", "T", "W", "T", "F", "S", "S"]);
 
-    expect(Info.weekdays("long", { locale: "ru" })).toEqual([
+    expect(Info.weekdays("long", {locale: "ru"})).toEqual([
         "понедельник",
         "вторник",
         "среда",
@@ -265,7 +295,7 @@ test("Info.weekdays defaults to long names", () => {
 // .weekdaysFormat()
 // ------
 test("Info.weekdaysFormat lists all the weekdays", () => {
-    expect(Info.weekdaysFormat("long", { locale: "en" })).toEqual([
+    expect(Info.weekdaysFormat("long", {locale: "en"})).toEqual([
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -275,7 +305,7 @@ test("Info.weekdaysFormat lists all the weekdays", () => {
         "Sunday"
     ]);
 
-    expect(Info.weekdaysFormat("short", { locale: "en" })).toEqual([
+    expect(Info.weekdaysFormat("short", {locale: "en"})).toEqual([
         "Mon",
         "Tue",
         "Wed",
@@ -287,15 +317,15 @@ test("Info.weekdaysFormat lists all the weekdays", () => {
 });
 
 test("Info.weekdaysFormat defaults to long names", () => {
-    expect(Info.weekdaysFormat(void 0, { locale: "it-IT" })).toEqual(Helpers.days_IT);
+    expect(Info.weekdaysFormat(void 0, {locale: "it-IT"})).toEqual(Helpers.days_IT);
 });
 
 // ------
 // .meridiems()
 // ------
 test("Info.meridiems lists the meridiems", () => {
-    expect(Info.meridiems({ locale: "en" })).toEqual(["AM", "PM"]);
-    expect(Info.meridiems({ locale: "my" })).toEqual(["နံနက်", "ညနေ"]);
+    expect(Info.meridiems({locale: "en"})).toEqual(["AM", "PM"]);
+    expect(Info.meridiems({locale: "my"})).toEqual(["နံနက်", "ညနေ"]);
 });
 
 test("Info.meridiems defaults to the current locale", () => {
@@ -317,8 +347,8 @@ test("Info.eras lists both eras", () => {
         // "Before Christ", "Anno Domini" // US
         "avanti Cristo", "dopo Cristo" // IT
     ]);
-    expect(Info.eras("short", { locale: "fr" })).toEqual(["av. J.-C.", "ap. J.-C."]);
-    expect(Info.eras("long", { locale: "fr" })).toEqual(["avant Jésus-Christ", "après Jésus-Christ"]);
+    expect(Info.eras("short", {locale: "fr"})).toEqual(["av. J.-C.", "ap. J.-C."]);
+    expect(Info.eras("long", {locale: "fr"})).toEqual(["avant Jésus-Christ", "après Jésus-Christ"]);
 });
 
 // ------
@@ -330,9 +360,9 @@ test("Info English lists are not mutable", () => {
             "narrow", "short", "long", "numeric", "2-digit"
         ];
         const cachingMethods = [
-            { method: Info.weekdays, args: strUnitLength.slice(0, 3) as WeekUnitLengths[] },
-            { method: Info.months, args: strUnitLength.slice() },
-            { method: Info.eras, args: strUnitLength.slice(0, 2) }
+            {method: Info.weekdays, args: strUnitLength.slice(0, 3) as WeekUnitLengths[]},
+            {method: Info.months, args: strUnitLength.slice()},
+            {method: Info.eras, args: strUnitLength.slice(0, 2)}
         ];
 
         cachingMethods.forEach((item) => {
