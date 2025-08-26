@@ -10,6 +10,7 @@ import {isNumber} from "./impl/util.js";
 import {Formatter} from "./impl/formatter.js";
 import {DATE_SHORT} from "./impl/formats.js";
 import {LocaleOptions} from "./types/locale.js";
+import { parseISOIntervalEnd } from "./impl/regexParser.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";
@@ -192,40 +193,55 @@ export class Interval {
      * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
      */
     static fromISO(text: string, opts: DateTimeOptions = {}): Interval {
+        const { zone, setZone, ...restOpts } = opts || {};
         const [s, e] = (text || "").split("/", 2);
         if (s && e) {
             let start, startIsValid;
             try {
-                start = DateTime.fromISO(s, opts);
+                // we need to know the zone that was used in the string, so that we can
+                // default to it when parsing end, therefor use setZone: true
+                start = DateTime.fromISO(s, { ...restOpts, zone, setZone: true });
                 startIsValid = start.isValid;
-            }
-            catch (e) {
+            } catch (e) {
                 startIsValid = false;
             }
 
             let end, endIsValid;
             try {
-                end = DateTime.fromISO(e, opts);
+                const [vals, parsedZone] = parseISOIntervalEnd(e);
+                const endParseOpts = {
+                    ...restOpts,
+                    overrideNow: startIsValid ? start.valueOf() : null,
+                    zone: startIsValid ? start.zone : zone,
+                    setZone: true,
+                };
+                end = DateTime.parseDataToDateTime(vals, parsedZone, endParseOpts, "ISO 8601 Interval end", e);
                 endIsValid = end.isValid;
-            }
-            catch (e) {
+            } catch (e) {
                 endIsValid = false;
             }
 
+            // if we overrode the user's choice for setZone earlier, make up for it now
+            if (startIsValid && !setZone) {
+                start = start.setZone(zone);
+            }
+            if (endIsValid && !setZone) {
+                end = end.setZone(zone);
+            }
+
             if (startIsValid && endIsValid) {
-                return Interval.fromDateTimes(start as DateTime, end as DateTime);
+                return Interval.fromDateTimes(start, end);
             }
 
             if (startIsValid) {
                 const dur = Duration.fromISO(e, opts);
                 if (dur.isValid) {
-                    return Interval.after(start as DateTime, dur);
+                    return Interval.after(start, dur);
                 }
-            }
-            else if (endIsValid) {
+            } else if (endIsValid) {
                 const dur = Duration.fromISO(s, opts);
                 if (dur.isValid) {
-                    return Interval.before(end as DateTime, dur);
+                    return Interval.before(end, dur);
                 }
             }
         }

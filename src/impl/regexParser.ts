@@ -7,10 +7,10 @@ import {
     parseFloating
 } from "./util.js";
 import * as English from "./english.js";
-import { FixedOffsetZone } from "../zones/fixedOffsetZone.js";
-import { IANAZone } from "../zones/IANAZone.js";
-import { Zone } from "../zone.js";
-import { GenericDateTime } from "../types/datetime.js";
+import {FixedOffsetZone} from "../zones/fixedOffsetZone.js";
+import {IANAZone} from "../zones/IANAZone.js";
+import {Zone} from "../zone.js";
+import {GenericDateTime} from "../types/datetime.js";
 
 /*
  * This file handles parsing for well-specified formats. Here's how it works:
@@ -40,7 +40,7 @@ function combineExtractors(...extractors: CombinableExtractor[]) {
             .reduce<CombinableParseResult>(
                 ([mergedVals, mergedZone, cursor], ex) => {
                     const [val, zone, next] = ex(m, cursor);
-                    return [{ ...mergedVals, ...val }, zone || mergedZone, next];
+                    return [{...mergedVals, ...val}, zone || mergedZone, next];
                 },
                 [{}, null, 1]
             )
@@ -317,6 +317,39 @@ export function parseISODuration(s: string): ParseResult {
 
 export function parseISOTimeOnly(s: string) {
     return parse(s, [isoTimeOnly, combineExtractors(extractISOTime)]);
+}
+
+// ISO Interval parsing
+
+// Note: Do not optimize the outer non-capturing group, it is necessary, because the
+// regex is combined with other regexes and contains |
+const partialIsoIntervalEndDate = /(?:(?:(\d\d)-)?(\d\d)?|(?:W(\d\d)-)?(\d)|(\d{3}))/;
+const isoIntervalEndDateTime = combineRegexes(partialIsoIntervalEndDate, isoTimeExtensionRegex);
+
+const extractPartialIsoIntervalEndDate = simpleParse(
+    "month",
+    "day",
+    "weekNumber",
+    "weekday",
+    "ordinal"
+);
+
+const extractISOIntervalPartialDateAndTime = combineExtractors(
+    extractPartialIsoIntervalEndDate,
+    extractISOTime,
+    extractISOOffset,
+    extractIANAZone
+);
+
+export function parseISOIntervalEnd(s: string) {
+    return parse(
+        s,
+        [isoIntervalEndDateTime, extractISOIntervalPartialDateAndTime],
+        [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
+        [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
+        [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDateAndTime],
+        [isoTimeCombinedRegex, extractISOTimeAndOffset]
+    );
 }
 
 export function parseRFC2822Date(s: string) {

@@ -1,10 +1,10 @@
-import { Duration, DurationLike } from "./duration.js";
-import { Interval } from "./interval.js";
-import { Settings } from "./settings.js";
-import { Info } from "./info.js";
-import { Formatter } from "./impl/formatter.js";
-import { FixedOffsetZone } from "./zones/fixedOffsetZone.js";
-import { Locale } from "./impl/locale.js";
+import {Duration, DurationLike} from "./duration.js";
+import {Interval} from "./interval.js";
+import {Settings} from "./settings.js";
+import {Info} from "./info.js";
+import {Formatter} from "./impl/formatter.js";
+import {FixedOffsetZone} from "./zones/fixedOffsetZone.js";
+import {Locale} from "./impl/locale.js";
 import {
     isDefined,
     isUndefined,
@@ -22,9 +22,9 @@ import {
     padStart,
     PLURAL_MAPPING
 } from "./impl/util.js";
-import { normalizeZone } from "./impl/zoneUtil.js";
-import { diff } from "./impl/diff.js";
-import { parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL } from "./impl/regexParser.js";
+import {normalizeZone} from "./impl/zoneUtil.js";
+import {diff} from "./impl/diff.js";
+import {parseRFC2822Date, parseISODate, parseHTTPDate, parseSQL} from "./impl/regexParser.js";
 import {
     parseFromTokens,
     explainFromTokens,
@@ -50,7 +50,7 @@ import {
     InvalidUnitError,
     InvalidDateTimeError
 } from "./errors.js";
-import { Zone } from "./zone.js";
+import {Zone} from "./zone.js";
 import {
     ToISOTimeOptions,
     ToISOFormat,
@@ -69,11 +69,11 @@ import {
     InnerBuildObjectConfig,
     GenericDateTimePlurals, GenericDateTimeExtended, DateTimeOptions, ExplainedFormat
 } from "./types/datetime.js";
-import { DurationUnit, DurationOptions, DurationObject } from "./types/duration.js";
-import { LocaleOptions, CalendarSystem, NumberingSystem } from "./types/locale.js";
-import { ZoneLike } from "./types/zone.js";
-import { Invalid } from "./types/invalid.js";
-import { DayOfWeek } from "./types/common.js";
+import {DurationUnit, DurationOptions, DurationObject} from "./types/duration.js";
+import {LocaleOptions, CalendarSystem, NumberingSystem} from "./types/locale.js";
+import {ZoneLike} from "./types/zone.js";
+import {Invalid} from "./types/invalid.js";
+import {DayOfWeek} from "./types/common.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid DateTime";
@@ -127,33 +127,6 @@ function tsToObj(ts: number, offset: number): GregorianDateTime {
 // convert a calendar object to an epoch timestamp
 function objToTS(obj: GregorianDateTime, offset: number, zone: Zone): [number, number] {
     return fixOffset(objToLocalTS(obj), offset, zone);
-}
-
-// helper useful in turning the results of parsing into real dates
-// by handling the zone options
-function parseDataToDateTime(parsed: GenericDateTime | null | void,
-                             parsedZone: Zone | null,
-                             opts: DateTimeOptions,
-                             format: string,
-                             text: string,
-                             specificOffset?: number): DateTime {
-    const { setZone, zone } = opts;
-    if ((parsed && Object.keys(parsed).length !== 0) || parsedZone) {
-        const interpretationZone = parsedZone || zone;
-        // While null is not a suitable value for the arg default, void is.
-        const inst = DateTime.fromObject(parsed || void 0, {
-            ...opts,
-            zone: interpretationZone,
-            specificOffset
-        });
-
-        return setZone ? inst : inst.setZone(zone);
-    }
-    else {
-        return DateTime.invalid(
-            new Invalid("unparsable", `the input "${text}" can't be parsed as ${format}`)
-        );
-    }
 }
 
 // if you want to output a technical format (e.g. RFC 2822), this helper
@@ -451,7 +424,7 @@ export class DateTime {
         }
         else {
             return (
-                this.offset > this.set({ month: 1, day: 1 }).offset || this.offset > this.set({ month: 5 }).offset
+                this.offset > this.set({month: 1, day: 1}).offset || this.offset > this.set({month: 5}).offset
             );
         }
     }
@@ -559,7 +532,7 @@ export class DateTime {
      * @example DateTime.local(2017, 10, 30).monthLong //=> October
      */
     get monthLong(): string {
-        return this.isValid ? Info.months("long", { locObj: this._loc })[this.month - 1] : null;
+        return this.isValid ? Info.months("long", {locObj: this._loc})[this.month - 1] : null;
     }
 
     /**
@@ -568,7 +541,7 @@ export class DateTime {
      * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
      */
     get monthShort(): string {
-        return this.isValid ? Info.months("short", { locObj: this._loc })[this.month - 1] : null;
+        return this.isValid ? Info.months("short", {locObj: this._loc})[this.month - 1] : null;
     }
 
     /**
@@ -691,7 +664,7 @@ export class DateTime {
      * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
      */
     get weekdayLong(): string {
-        return this.isValid ? Info.weekdays("long", { locObj: this._loc })[this.weekday - 1] : null;
+        return this.isValid ? Info.weekdays("long", {locObj: this._loc})[this.weekday - 1] : null;
     }
 
     /**
@@ -700,7 +673,7 @@ export class DateTime {
      * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
      */
     get weekdayShort(): string {
-        return this.isValid ? Info.weekdays("short", { locObj: this._loc })[this.weekday - 1] : null;
+        return this.isValid ? Info.weekdays("short", {locObj: this._loc})[this.weekday - 1] : null;
     }
 
     /**
@@ -841,7 +814,7 @@ export class DateTime {
      * @returns {TokenParser} - opaque object to be used
      */
     static buildFormatParser(fmt: string, options: LocaleOptions = {}): TokenParser {
-        const { locale = null, numberingSystem = null } = options,
+        const {locale = null, numberingSystem = null} = options,
             localeToUse = Locale.fromOpts({
                 locale,
                 numberingSystem,
@@ -880,7 +853,7 @@ export class DateTime {
             throw new InvalidArgumentError("fromFormat requires an input string and a format");
         }
 
-        const { locale, numberingSystem } = opts,
+        const {locale, numberingSystem} = opts,
             localeToUse = Locale.fromOpts({
                 locale,
                 numberingSystem,
@@ -891,7 +864,7 @@ export class DateTime {
             return DateTime.invalid(invalid);
         }
         else {
-            return parseDataToDateTime(vals as GenericDateTimeExtended, parsedZone || null, opts, `format ${fmt}`, text, specificOffset);
+            return DateTime.parseDataToDateTime(vals as GenericDateTimeExtended, parsedZone || null, opts, `format ${fmt}`, text, specificOffset);
         }
     }
 
@@ -902,7 +875,7 @@ export class DateTime {
      * @param {DateTimeOptions} options - options taken by fromFormat()
      */
     static fromFormatExplain(text: string, fmt: string, options: DateTimeOptions = {}): ExplainedFormat {
-        const { locale, numberingSystem } = options,
+        const {locale, numberingSystem} = options,
             localeToUse = Locale.fromOpts({
                 locale,
                 numberingSystem,
@@ -927,7 +900,7 @@ export class DateTime {
                 "fromFormatParser requires an input string and a format parser"
             );
         }
-        const { locale = null, numberingSystem = null } = opts,
+        const {locale = null, numberingSystem = null} = opts,
             localeToUse = Locale.fromOpts({
                 locale,
                 numberingSystem,
@@ -941,13 +914,13 @@ export class DateTime {
             );
         }
 
-        const { result, zone, specificOffset, invalidReason } = formatParser.explainFromTokens(text);
+        const {result, zone, specificOffset, invalidReason} = formatParser.explainFromTokens(text);
 
         if (invalidReason) {
             return DateTime.invalid(invalidReason);
         }
         else {
-            return parseDataToDateTime(
+            return DateTime.parseDataToDateTime(
                 result,
                 zone,
                 opts,
@@ -976,7 +949,7 @@ export class DateTime {
     static fromHTTP(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseHTTPDate(text);
 
-        return parseDataToDateTime(vals, parsedZone, opts, "HTTP", text);
+        return DateTime.parseDataToDateTime(vals, parsedZone, opts, "HTTP", text);
     }
 
     /**
@@ -999,7 +972,7 @@ export class DateTime {
     static fromISO(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseISODate(text);
 
-        return parseDataToDateTime(vals, parsedZone, opts, "ISO 8601", text);
+        return DateTime.parseDataToDateTime(vals, parsedZone, opts, "ISO 8601", text);
     }
 
     /**
@@ -1105,16 +1078,16 @@ export class DateTime {
          */
         const normalized = normalizeObject(obj as Record<string, any>, normalizeUnit);
         // This function modifies the normalized object, so order matters. Needs to be here to get correct values for all the constants below
-        const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, loc);
-        const tsNow = Settings.now(),
-            offsetProvis = isNumber(opts.specificOffset)
-                ? opts.specificOffset
-                : zoneToUse.offset(tsNow),
-            containsOrdinal = isDefined(normalized.ordinal),
-            containsGregorYear = isDefined(normalized.year),
-            containsGregorMD = isDefined(normalized.month) || isDefined(normalized.day),
-            containsGregor = containsGregorYear || containsGregorMD,
-            definiteWeekDef = normalized.weekYear || normalized.weekNumber
+        const {minDaysInFirstWeek, startOfWeek} = usesLocalWeekValues(normalized, loc);
+        const tsNow = opts.overrideNow ?? Settings.now();
+        const offsetProvis = isNumber(opts.specificOffset)
+            ? opts.specificOffset
+            : zoneToUse.offset(tsNow);
+        const containsOrdinal = isDefined(normalized.ordinal);
+        const containsGregorYear = isDefined(normalized.year);
+        const containsGregorMD = isDefined(normalized.month) || isDefined(normalized.day);
+        const containsGregor = containsGregorYear || containsGregorMD;
+        const definiteWeekDef = normalized.weekYear || normalized.weekNumber
         ;
 
         // cases:
@@ -1185,7 +1158,7 @@ export class DateTime {
      */
     static fromRFC2822(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseRFC2822Date(text);
-        return parseDataToDateTime(vals, parsedZone, opts, "RFC 2822", text);
+        return DateTime.parseDataToDateTime(vals, parsedZone, opts, "RFC 2822", text);
     }
 
     /**
@@ -1211,7 +1184,7 @@ export class DateTime {
     static fromSQL(text: string, opts: DateTimeOptions = {}): DateTime {
         const [vals, parsedZone] = parseSQL(text);
 
-        return parseDataToDateTime(vals, parsedZone, opts, "SQL", text);
+        return DateTime.parseDataToDateTime(vals, parsedZone, opts, "SQL", text);
     }
 
     /**
@@ -1264,7 +1237,7 @@ export class DateTime {
         if (Settings.throwOnInvalid) {
             throw new InvalidDateTimeError(invalid);
         }
-        return new DateTime({ invalid });
+        return new DateTime({invalid});
     }
 
     /**
@@ -1357,6 +1330,34 @@ export class DateTime {
     }
 
     /**
+     * Helper useful in turning the results of parsing into real dates by handling the zone options
+     */
+    static parseDataToDateTime(parsed: GenericDateTime | null | void,
+                               parsedZone: Zone | null,
+                               opts: DateTimeOptions,
+                               format: string,
+                               text: string,
+                               specificOffset?: number): DateTime {
+        const {setZone, zone} = opts;
+        if ((parsed && Object.keys(parsed).length !== 0) || parsedZone) {
+            const interpretationZone = parsedZone || zone;
+            // While null is not a suitable value for the arg default, void is.
+            const inst = DateTime.fromObject(parsed || void 0, {
+                ...opts,
+                zone: interpretationZone,
+                specificOffset
+            });
+
+            return setZone ? inst : inst.setZone(zone);
+        }
+        else {
+            return DateTime.invalid(
+                new Invalid("unparsable", `the input "${text}" can't be parsed as ${format}`)
+            );
+        }
+    }
+
+    /**
      * Produce the format string for a set of options
      * @param formatOpts
      * @param localeOpts
@@ -1403,7 +1404,7 @@ export class DateTime {
         const [year, month, day, hour, minute, second, millisecond] = dateValues;
 
         opts.zone = FixedOffsetZone.utcInstance;
-        return this._quickDT({ year, month, day, hour, minute, second, millisecond }, opts);
+        return this._quickDT({year, month, day, hour, minute, second, millisecond}, opts);
     }
 
     /**
@@ -1602,7 +1603,7 @@ export class DateTime {
             ts = tsNow;
         }
 
-        return new DateTime({ ts, zone, loc, o });
+        return new DateTime({ts, zone, loc, o});
     }
 
     /**
@@ -1685,10 +1686,10 @@ export class DateTime {
      * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
      * @return {DateTime}
      */
-    endOf(unit: DurationUnit, { useLocaleWeeks = false }: { useLocaleWeeks?: boolean } = {}): DateTime {
-        return this.plus({ [unit]: 1 })
-                   .startOf(unit, { useLocaleWeeks })
-                   .minus({ milliseconds: 1 });
+    endOf(unit: DurationUnit, {useLocaleWeeks = false}: { useLocaleWeeks?: boolean } = {}): DateTime {
+        return this.plus({[unit]: 1})
+            .startOf(unit, {useLocaleWeeks})
+            .minus({milliseconds: 1});
     }
 
     /**
@@ -1747,7 +1748,7 @@ export class DateTime {
             c1.second === c2.second &&
             c1.millisecond === c2.millisecond
         ) {
-            return [this._clone({ ts: ts1 }), this._clone({ ts: ts2 })];
+            return [this._clone({ts: ts1}), this._clone({ts: ts2})];
         }
         return [this];
     }
@@ -1768,7 +1769,7 @@ export class DateTime {
         }
 
         const inputMs = otherDateTime.valueOf();
-        const adjustedToZone = this.setZone(otherDateTime.zone, { keepLocalTime: true });
+        const adjustedToZone = this.setZone(otherDateTime.zone, {keepLocalTime: true});
 
         return +adjustedToZone.startOf(unit) <= inputMs && inputMs <= +adjustedToZone.endOf(unit, opts);
     }
@@ -1820,7 +1821,7 @@ export class DateTime {
      */
     reconfigure(options: LocaleOptions): DateTime {
         const loc = this._loc.clone(options);
-        return this._clone({ loc });
+        return this._clone({loc});
     }
 
     /**
@@ -1830,12 +1831,12 @@ export class DateTime {
      * @return {Object}
      */
     resolvedLocaleOptions(opts = {}): { locale: string; numberingSystem: string; outputCalendar: string } {
-        const { locale, numberingSystem, calendar } = Formatter.create(
+        const {locale, numberingSystem, calendar} = Formatter.create(
             this._loc.clone(opts),
             opts
         ).resolvedOptions(this);
 
-        return { locale, numberingSystem, outputCalendar: calendar };
+        return {locale, numberingSystem, outputCalendar: calendar};
     }
 
     /**
@@ -1856,7 +1857,7 @@ export class DateTime {
         }
 
         const normalized = normalizeObject(values, normalizeUnit);
-        const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, this.loc);
+        const {minDaysInFirstWeek, startOfWeek} = usesLocalWeekValues(normalized, this.loc);
         const settingWeekStuff = isDefined(normalized.weekYear) || isDefined(normalized.weekNumber) || isDefined(normalized.weekday);
 
         const containsOrdinal = isDefined(normalized.ordinal),
@@ -1878,16 +1879,16 @@ export class DateTime {
         let mixed;
         if (settingWeekStuff) {
             mixed = weekToGregorian(
-                { ...gregorianToWeek(this._c, minDaysInFirstWeek, startOfWeek), ...normalized },
+                {...gregorianToWeek(this._c, minDaysInFirstWeek, startOfWeek), ...normalized},
                 minDaysInFirstWeek,
                 startOfWeek
             );
         }
         else if (!isUndefined(normalized.ordinal)) {
-            mixed = ordinalToGregorian({ ...gregorianToOrdinal(this._c), ...normalized });
+            mixed = ordinalToGregorian({...gregorianToOrdinal(this._c), ...normalized});
         }
         else {
-            mixed = { ...this.toObject(), ...normalized };
+            mixed = {...this.toObject(), ...normalized};
 
             // if we didn't set the day, but we ended up on an overflow date,
             // use the last day of the right month
@@ -1897,7 +1898,7 @@ export class DateTime {
         }
 
         const [ts, o] = objToTS(mixed, this._o, this.zone);
-        return this._clone({ ts, o });
+        return this._clone({ts, o});
     }
 
     /**
@@ -1907,7 +1908,7 @@ export class DateTime {
      * @return {DateTime}
      */
     setLocale(locale: string): DateTime {
-        return this.reconfigure({ locale });
+        return this.reconfigure({locale});
     }
 
     /**
@@ -1919,7 +1920,7 @@ export class DateTime {
      * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
      * @return {DateTime}
      */
-    setZone(zone: ZoneLike, { keepLocalTime = false, keepCalendarTime = false }: SetZoneOptions = {}): DateTime {
+    setZone(zone: ZoneLike, {keepLocalTime = false, keepCalendarTime = false}: SetZoneOptions = {}): DateTime {
         zone = normalizeZone(zone, Settings.defaultZone);
         if (zone.equals(this.zone)) {
             return this;
@@ -1934,7 +1935,7 @@ export class DateTime {
                 const asObj = this.toObject();
                 newTS = objToTS(asObj, offsetGuess, zone)[0];
             }
-            return this._clone({ ts: newTS, zone });
+            return this._clone({ts: newTS, zone});
         }
     }
 
@@ -1949,7 +1950,7 @@ export class DateTime {
      * @example DateTime.local(2014, 3, 3, 5, 30).startOf('day').toISOTime(); //=> '00:00.000-05:00'
      * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
      */
-    startOf(unit: DurationUnit, { useLocaleWeeks = false }: { useLocaleWeeks?: boolean } = {}): DateTime {
+    startOf(unit: DurationUnit, {useLocaleWeeks = false}: { useLocaleWeeks?: boolean } = {}): DateTime {
         if (!this.isValid) {
             return this;
         }
@@ -1984,7 +1985,7 @@ export class DateTime {
         if (normalizedUnit === "weeks") {
             if (useLocaleWeeks) {
                 const startOfWeek = this.loc.getStartOfWeek();
-                const { weekday } = this;
+                const {weekday} = this;
                 if (weekday < startOfWeek) {
                     o.weekNumber = this.weekNumber - 1;
                 }
@@ -2087,10 +2088,10 @@ export class DateTime {
      * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
      * @return {string|null}
      */
-    toISODate({ format = "extended", precision = "day" }: {
+    toISODate({format = "extended", precision = "day"}: {
         format?: ToISOFormat,
         precision?: ToISOTimeOptions["precision"]
-    } = { format: "extended", precision: "day" }): string | null {
+    } = {format: "extended", precision: "day"}): string | null {
         if (!this.isValid) {
             return null;
         }
@@ -2228,7 +2229,7 @@ export class DateTime {
      * @example DateTime.now().toObject() //=> { year: 2017, month: 4, day: 22, hour: 20, minute: 49, second: 42, millisecond: 268 }
      * @return {Object}
      */
-    toObject(opts: { includeConfig: boolean } = { includeConfig: !1 }): GregorianDateTime & Partial<LocaleOptions> {
+    toObject(opts: { includeConfig: boolean } = {includeConfig: !1}): GregorianDateTime & Partial<LocaleOptions> {
         if (!this.isValid) {
             return {} as GregorianDateTime;
         }
@@ -2275,7 +2276,7 @@ export class DateTime {
         if (!this.isValid) {
             return null;
         }
-        const base = options.base || DateTime.fromObject({}, { zone: this.zone });
+        const base = options.base || DateTime.fromObject({}, {zone: this.zone});
         const padding = options.padding ? (this < base ? -options.padding : options.padding) : 0;
         let units = ["years", "months", "days", "hours", "minutes", "seconds"] as Intl.RelativeTimeFormatUnit[];
         let unit = options.unit;
@@ -2313,7 +2314,7 @@ export class DateTime {
             return null;
         }
         return DateTime._diffRelative(
-            options.base || DateTime.fromObject({}, { zone: this.zone }),
+            options.base || DateTime.fromObject({}, {zone: this.zone}),
             this,
             {
                 ...options,
@@ -2369,7 +2370,7 @@ export class DateTime {
      * @example DateTime.now().toSQL({ includeZone: false }) //=> "05:15:16.345 America/New_York"
      * @return {string}
      */
-    toSQLTime({ includeOffset = !0, includeZone = !1, includeOffsetSpace = !0 }: ToSQLOptions = {}): string {
+    toSQLTime({includeOffset = !0, includeZone = !1, includeOffsetSpace = !0}: ToSQLOptions = {}): string {
         let fmt = "HH:mm:ss.SSS";
 
         if (includeZone || includeOffset) {
@@ -2485,7 +2486,7 @@ export class DateTime {
             o = this.zone.offset(ts);
         }
 
-        return { ts, o };
+        return {ts, o};
     }
 
     /**
@@ -2503,7 +2504,7 @@ export class DateTime {
             invalid: this._invalid || void 0
         };
 
-        return new DateTime({ ...current, ...alts, old: current });
+        return new DateTime({...current, ...alts, old: current});
     }
 
     private _possiblyCachedLocalWeekData(dt: DateTime): WeekDateTime {

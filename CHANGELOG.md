@@ -11,6 +11,7 @@
 * Fix normalization of localWeekYear in DateTime.fromObject
 * Fix locale week tests when minDays is not supported
 * Fix offset formatting in ISO strings for format=basic (#1660)
+* Add support for parsing partial end dates in ISO intervals (#1720)
 
 ## 6.1.0 (Luxon next 3.6.1)
 * Add Fallback for `minimalDays` being removed from Intl.WeekInfo

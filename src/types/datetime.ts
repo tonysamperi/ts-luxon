@@ -61,6 +61,7 @@ export interface ToISOTimeOptions {
 }
 
 export interface DateTimeOptions extends LocaleOptions {
+    overrideNow?: number;
     setZone?: boolean;
     specificOffset?: number;
     zone?: string | Zone;
