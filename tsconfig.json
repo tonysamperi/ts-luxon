@@ -9,7 +9,8 @@
         "module": "CommonJS",
         "target": "es6",
         "lib": [
-            "esnext"
+            "esnext",
+            "ESNext.Intl"
         ],
         "allowJs": true,
         "importHelpers": false,

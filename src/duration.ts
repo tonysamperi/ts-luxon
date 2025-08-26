@@ -8,10 +8,10 @@ import {
     REVERSE_ORDERED_UNITS,
     HUMAN_ORDERED_UNITS
 } from "./impl/util.js";
-import { Locale } from "./impl/locale.js";
-import { Formatter } from "./impl/formatter.js";
-import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser.js";
-import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from "./errors.js";
+import {Locale} from "./impl/locale.js";
+import {Formatter} from "./impl/formatter.js";
+import {parseISODuration, parseISOTimeOnly} from "./impl/regexParser.js";
+import {InvalidArgumentError, InvalidDurationError, InvalidUnitError} from "./errors.js";
 import {
     DurationObject,
     DurationOptions,
@@ -26,12 +26,12 @@ import {
     ConversionMatrix,
     DurationConfig as Config
 } from "./types/duration.js";
-import { ConversionAccuracy } from "./types/common.js";
-import { Settings } from "./settings.js";
-import { Invalid } from "./types/invalid.js";
-import { NumberingSystem } from "./types/locale.js";
-import { DateTime } from "./datetime.js";
-import { ToISOTimeOptions } from "./types/datetime.js";
+import {ConversionAccuracy} from "./types/common.js";
+import {Settings} from "./settings.js";
+import {Invalid} from "./types/invalid.js";
+import {NumberingSystem} from "./types/locale.js";
+import {DateTime} from "./datetime.js";
+import {ToISOTimeOptions} from "./types/datetime.js";
 
 // unit conversion constants
 // tslint:disable-next-line:naming-convention
@@ -49,9 +49,9 @@ export const lowOrderMatrix = {
         seconds: 24 * 60 * 60,
         milliseconds: 24 * 60 * 60 * 1000
     },
-    hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1000 },
-    minutes: { seconds: 60, milliseconds: 60 * 1000 },
-    seconds: { milliseconds: 1000 }
+    hours: {minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1000},
+    minutes: {seconds: 60, milliseconds: 60 * 1000},
+    seconds: {milliseconds: 1000}
 };
 // tslint:disable-next-line:naming-convention
 export const casualMatrix: ConversionMatrix = {
@@ -489,7 +489,7 @@ export class Duration implements NormalizedDurationObject {
      * @return {Duration}
      */
     static fromMillis(milliseconds: number, opts: DurationOptions = {}): Duration {
-        return Duration.fromObject({ milliseconds }, opts);
+        return Duration.fromObject({milliseconds}, opts);
     }
 
     /**
@@ -546,7 +546,7 @@ export class Duration implements NormalizedDurationObject {
             throw new InvalidDurationError(invalid);
         }
         else {
-            return new Duration({ invalid });
+            return new Duration({invalid});
         }
     }
 
@@ -700,7 +700,7 @@ export class Duration implements NormalizedDurationObject {
             result[unit] = asNumber(fn(this._values[unit] as number, unit));
         });
 
-        return this._clone(this, { values: result }, true);
+        return this._clone(this, {values: result}, true);
     }
 
     /**
@@ -730,7 +730,7 @@ export class Duration implements NormalizedDurationObject {
             negated[unit] = this._values[unit] === 0 ? 0 : -(this._values[unit] as number);
         });
 
-        return this._clone(this, { values: negated }, true);
+        return this._clone(this, {values: negated}, true);
     }
 
     /**
@@ -752,7 +752,7 @@ export class Duration implements NormalizedDurationObject {
         }
         const vals = this.toObject();
         normalizeValues(this._matrix, vals);
-        return this._clone(this, { values: vals }, !0);
+        return this._clone(this, {values: vals}, !0);
     }
 
     /**
@@ -775,7 +775,7 @@ export class Duration implements NormalizedDurationObject {
             }
         });
 
-        return this._clone(this, { values: result }, !0);
+        return this._clone(this, {values: result}, !0);
     }
 
     /**
@@ -783,9 +783,9 @@ export class Duration implements NormalizedDurationObject {
      * @example dur.reconfigure({ locale: 'en-GB' })
      * @return {Duration}
      */
-    reconfigure({ locale, numberingSystem, conversionAccuracy, matrix }: DurationOptions = {}): Duration {
-        const loc = this._loc.clone({ locale, numberingSystem });
-        const opts: Config = { loc, matrix, conversionAccuracy };
+    reconfigure({locale, numberingSystem, conversionAccuracy, matrix}: DurationOptions = {}): Duration {
+        const loc = this._loc.clone({locale, numberingSystem});
+        const opts: Config = {loc, matrix, conversionAccuracy};
 
         return this._clone(this, opts);
     }
@@ -801,7 +801,7 @@ export class Duration implements NormalizedDurationObject {
         }
         const vals = removeZeroes(this._values);
 
-        return this._clone(this, { values: vals }, true);
+        return this._clone(this, {values: vals}, true);
     }
 
     /**
@@ -814,7 +814,7 @@ export class Duration implements NormalizedDurationObject {
             return this;
         }
         const vals = removeZeroes(this.normalize().shiftToAll().toObject());
-        return this._clone(this, { values: vals }, true);
+        return this._clone(this, {values: vals}, true);
     }
 
     /**
@@ -833,7 +833,7 @@ export class Duration implements NormalizedDurationObject {
             ...normalizeObject(values as Record<string, number>, Duration.normalizeUnit)
         };
 
-        return this._clone(this, { values: mixed });
+        return this._clone(this, {values: mixed});
     }
 
     /**
@@ -890,7 +890,7 @@ export class Duration implements NormalizedDurationObject {
             }
         });
 
-        return this._clone(this, { values: built }, true).normalize();
+        return this._clone(this, {values: built}, true).normalize();
     }
 
 
@@ -927,18 +927,22 @@ export class Duration implements NormalizedDurationObject {
      * * `M` for months
      * * `y` for years
      * Notes:
-     * * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
-     * * Tokens can be escaped by wrapping with single quotes.
-     * * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations' conversion accuracy setting.
+     * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
+     * Tokens can be escaped by wrapping with single quotes.
+     * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations' conversion accuracy setting.
      * @param {string} fmt - the format string
      * @param {Object} opts - options
      * @param {boolean} [opts.floor=true] - floor numerical values
+     * @param {"negative"|"all"|"negativeLargestOnly"} [opts.signMode=negative] - How to handle signs
      * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("y d s") //=> "1 6 2"
      * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("yy dd sss") //=> "01 06 002"
      * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
+     * @example Duration.fromObject({ days: 6, seconds: 2 }).toFormat("d s", { signMode: "all" }) //=> "+6 +2"
+     * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "all" }) //=> "-6 -2"
+     * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "negativeLargestOnly" }) //=> "-6 2"
      * @return {string}
      */
-    toFormat(fmt: string, opts: DurationToFormatOptions = { floor: true }): string {
+    toFormat(fmt: string, opts: DurationToFormatOptions = {floor: true}): string {
         // reverse-compat since 1.2; we always round down now, never up, and we do it by default
         const fmtOpts = {
             ...opts,
@@ -956,7 +960,7 @@ export class Duration implements NormalizedDurationObject {
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
      * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
      * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
-     * @param {boolean} [opts.showZeros=true] - Show all units previously used by the duration even if they are zero
+     * @param {boolean} [opts.showZeroes=true] - Show all units previously used by the duration even if they are zero
      * @example
      * ```js
      * var dur = Duration.fromObject({ months: 1, weeks: 0, hours: 5, minutes: 6 })
@@ -970,9 +974,9 @@ export class Duration implements NormalizedDurationObject {
         if (!this.isValid) {
             return Duration._INVALID;
         }
-        const showZeroes = opts.showZeros === true;
+        const showZeroes = opts.showZeroes === true;
         const maxUnit: NormalizedHumanDurationUnit = this.getMaxUnit(!0);
-        const refUnits = !!opts.onlyHumanUnits ? HUMAN_ORDERED_UNITS : ORDERED_UNITS;
+        const refUnits = opts.onlyHumanUnits !== false ? HUMAN_ORDERED_UNITS : ORDERED_UNITS;
         const shifted = this.shiftTo(...refUnits.slice(refUnits.indexOf(maxUnit)));
         const shiftedValues = shifted.toObject();
         const l = refUnits
@@ -982,8 +986,8 @@ export class Duration implements NormalizedDurationObject {
                     return null;
                 }
                 return this._loc
-                           .numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) })
-                           .format(val);
+                    .numberFormatter({style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1)})
+                    .format(val);
             })
             .filter((n) => n);
 
@@ -993,8 +997,8 @@ export class Duration implements NormalizedDurationObject {
         } as Intl.ListFormatOptions;
 
         return this._loc
-                   .listFormatter(mergedOpts)
-                   .format(l);
+            .listFormatter(mergedOpts)
+            .format(l);
     }
 
     /**
@@ -1080,7 +1084,7 @@ export class Duration implements NormalizedDurationObject {
             includeOffset: false
         };
 
-        const dateTime = DateTime.fromMillis(millis, { zone: "UTC" });
+        const dateTime = DateTime.fromMillis(millis, {zone: "UTC"});
 
         return dateTime.toISOTime(opts);
     }
@@ -1143,7 +1147,7 @@ export class Duration implements NormalizedDurationObject {
     private _clone(dur: Duration, alts: Config, clear = false): Duration {
         // deep merge for vals
         const conf = {
-            values: clear ? alts.values : { ...dur._values, ...(alts.values || {}) },
+            values: clear ? alts.values : {...dur._values, ...(alts.values || {})},
             loc: dur._loc.clone(alts.loc),
             conversionAccuracy: alts.conversionAccuracy || dur.conversionAccuracy,
             matrix: alts.matrix || dur.matrix

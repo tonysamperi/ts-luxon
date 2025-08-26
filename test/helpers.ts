@@ -7,6 +7,7 @@ import {
 }
 // @ts-ignore
     from "../src";
+import {hasLocaleWeekInfo} from "../src/impl/util";
 
 export class Helpers {
 
@@ -61,7 +62,7 @@ export class Helpers {
     ];
 
     static atHour(hour: number) {
-        return DateTime.fromObject({ year: 2017, month: 5, day: 25 }).startOf("day").set({ hour });
+        return DateTime.fromObject({year: 2017, month: 5, day: 25}).startOf("day").set({hour});
     };
 
     static conversionAccuracy(duration: Duration) {
@@ -116,6 +117,17 @@ export class Helpers {
                 Settings[prop] = existing;
             }
         };
+    }
+
+    static supportsMinDaysInFirstWeek() {
+        if (!hasLocaleWeekInfo()) {
+            return false;
+        }
+        const locale = new Intl.Locale("en-US");
+        // @ts-expect-error we know this is a valid method
+        const wi = locale.getWeekInfo?.() ?? locale.weekInfo;
+
+        return "minimalDays" in wi;
     }
 
     // WITH
@@ -177,18 +189,18 @@ export class Helpers {
         });
     }
 
-    static withoutLocaleWeekInfo = function(name: string, f: () => void) {
+    static withoutLocaleWeekInfo = function (name: string, f: () => void) {
         const fullName = `With no Intl.Locale.weekInfo support, ${name}`;
         test(fullName, () => {
             const l = Intl.Locale;
             try {
-                // @ts-ignore
+                // @ts-expect-error no other way to override
                 Intl.Locale = undefined;
                 Settings.resetCaches();
                 f();
             }
             finally {
-                // @ts-ignore
+                // @ts-expect-error no other way to override
                 Intl.Locale = l;
             }
         });

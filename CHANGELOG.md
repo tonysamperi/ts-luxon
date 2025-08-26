@@ -1,5 +1,18 @@
 # Changelog
 
+## 6.2.0 (Luxon 3.7.1)
+* Duration.toHuman option renamed to `showZeroes` for consistency
+* Reject Infinity in Duration.fromDurationLike and other factory methods (#1711)
+* Workaround for Info.months in certain locales + improve JA
+* Improve documentation regarding Interval's half-openness (#1710)
+* Implement "signMode" on Duration#toFormat
+* Normalize string casing in IANA Zone names automatically
+* Add IANAZone.normalizeZone for full normalization
+* Fix normalization of localWeekYear in DateTime.fromObject
+* Fix locale week tests when minDays is not supported
+* Fix offset formatting in ISO strings for format=basic (#1660)
+* Add support for parsing partial end dates in ISO intervals (#1720)
+
 ## 6.1.0 (Luxon next 3.6.1)
 * Add Fallback for `minimalDays` being removed from Intl.WeekInfo
 * Fix various caches when JS keywords like "constructor" are used for names

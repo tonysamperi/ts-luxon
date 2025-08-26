@@ -1,15 +1,16 @@
-import { DateTime, DateTimeLike } from "./datetime.js";
-import { Duration, DurationLike } from "./duration.js";
-import { InvalidArgumentError, InvalidIntervalError } from "./errors.js";
-import { ToISOTimeOptions, DateTimeOptions } from "./types/datetime.js";
-import { DurationUnit, DurationOptions, DurationObject } from "./types/duration.js";
-import { IntervalObject } from "./types/interval.js";
-import { Invalid } from "./types/invalid.js";
-import { Settings } from "./settings.js";
-import { isNumber } from "./impl/util.js";
-import { Formatter } from "./impl/formatter.js";
-import { DATE_SHORT } from "./impl/formats.js";
-import { LocaleOptions } from "./types/locale.js";
+import {DateTime, DateTimeLike} from "./datetime.js";
+import {Duration, DurationLike} from "./duration.js";
+import {InvalidArgumentError, InvalidIntervalError} from "./errors.js";
+import {ToISOTimeOptions, DateTimeOptions} from "./types/datetime.js";
+import {DurationUnit, DurationOptions, DurationObject} from "./types/duration.js";
+import {IntervalObject} from "./types/interval.js";
+import {Invalid} from "./types/invalid.js";
+import {Settings} from "./settings.js";
+import {isNumber} from "./impl/util.js";
+import {Formatter} from "./impl/formatter.js";
+import {DATE_SHORT} from "./impl/formats.js";
+import {LocaleOptions} from "./types/locale.js";
+import { parseISOIntervalEnd } from "./impl/regexParser.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";
@@ -73,7 +74,8 @@ interface Config {
 export class Interval {
 
     /**
-     * Returns the end of the Interval
+     * Returns the end of the Interval.
+     * This is the first instant that is not part of the interval (Interval is half-open).
      */
     get end(): DateTime | null {
         return this.isValid ? this._e : null;
@@ -191,40 +193,55 @@ export class Interval {
      * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
      */
     static fromISO(text: string, opts: DateTimeOptions = {}): Interval {
+        const { zone, setZone, ...restOpts } = opts || {};
         const [s, e] = (text || "").split("/", 2);
         if (s && e) {
             let start, startIsValid;
             try {
-                start = DateTime.fromISO(s, opts);
+                // we need to know the zone that was used in the string, so that we can
+                // default to it when parsing end, therefor use setZone: true
+                start = DateTime.fromISO(s, { ...restOpts, zone, setZone: true });
                 startIsValid = start.isValid;
-            }
-            catch (e) {
+            } catch (e) {
                 startIsValid = false;
             }
 
             let end, endIsValid;
             try {
-                end = DateTime.fromISO(e, opts);
+                const [vals, parsedZone] = parseISOIntervalEnd(e);
+                const endParseOpts = {
+                    ...restOpts,
+                    overrideNow: startIsValid ? start.valueOf() : null,
+                    zone: startIsValid ? start.zone : zone,
+                    setZone: true,
+                };
+                end = DateTime.parseDataToDateTime(vals, parsedZone, endParseOpts, "ISO 8601 Interval end", e);
                 endIsValid = end.isValid;
-            }
-            catch (e) {
+            } catch (e) {
                 endIsValid = false;
             }
 
+            // if we overrode the user's choice for setZone earlier, make up for it now
+            if (startIsValid && !setZone) {
+                start = start.setZone(zone);
+            }
+            if (endIsValid && !setZone) {
+                end = end.setZone(zone);
+            }
+
             if (startIsValid && endIsValid) {
-                return Interval.fromDateTimes(start as DateTime, end as DateTime);
+                return Interval.fromDateTimes(start, end);
             }
 
             if (startIsValid) {
                 const dur = Duration.fromISO(e, opts);
                 if (dur.isValid) {
-                    return Interval.after(start as DateTime, dur);
+                    return Interval.after(start, dur);
                 }
-            }
-            else if (endIsValid) {
+            } else if (endIsValid) {
                 const dur = Duration.fromISO(s, opts);
                 if (dur.isValid) {
-                    return Interval.before(end as DateTime, dur);
+                    return Interval.before(end, dur);
                 }
             }
         }
@@ -247,7 +264,7 @@ export class Interval {
             throw new InvalidIntervalError(invalid);
         }
         else {
-            return new Interval({ invalid });
+            return new Interval({invalid});
         }
     }
 
@@ -299,8 +316,8 @@ export class Interval {
 
         const results = [],
             ends = intervals.map(i => [
-                { time: i._s, type: "s" },
-                { time: i._e, type: "e" }
+                {time: i._s, type: "s"},
+                {time: i._e, type: "e"}
             ]),
             flattened: IntervalBoundary[] = Array.prototype.concat(...ends),
             arr = flattened.sort((a, b) => +a.time - +b.time);
@@ -380,7 +397,7 @@ export class Interval {
         const start = this.start.startOf(unit, opts);
         let end;
         if (opts?.useLocaleWeeks) {
-            end = this.end.reconfigure({ locale: start.locale });
+            end = this.end.reconfigure({locale: start.locale});
         }
         else {
             end = this.end;
@@ -396,8 +413,8 @@ export class Interval {
      */
     difference(...intervals: Interval[]): Interval[] {
         return Interval.xor([this as Interval].concat(intervals))
-                       .map(i => this.intersection(i))
-                       .filter(i => i && !i.isEmpty()) as Interval[];
+            .map(i => this.intersection(i))
+            .filter(i => i && !i.isEmpty()) as Interval[];
     }
 
     /**
@@ -409,7 +426,7 @@ export class Interval {
         if (!this.isValid) {
             return [];
         }
-        return this.splitBy({ milliseconds: this.length() / numberOfParts }).slice(0, numberOfParts);
+        return this.splitBy({milliseconds: this.length() / numberOfParts}).slice(0, numberOfParts);
     }
 
     /**
@@ -541,7 +558,7 @@ export class Interval {
      * @param {DateTime} values.end - the ending DateTime
      * @return {Interval}
      */
-    set({ start, end }: IntervalObject = {}): Interval {
+    set({start, end}: IntervalObject = {}): Interval {
         if (!this.isValid) {
             return this;
         }
@@ -632,7 +649,7 @@ export class Interval {
      * representations.
      * @return {string}
      */
-    toFormat(dateFormat: string, { separator = " - " }: { separator?: string } = {}): string {
+    toFormat(dateFormat: string, {separator = " - "}: { separator?: string } = {}): string {
         if (!this.isValid) {
             return INVALID;
         }

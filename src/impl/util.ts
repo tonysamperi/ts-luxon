@@ -298,7 +298,7 @@ export function signedOffset(offHourStr: string, offMinuteStr: string): number {
 
 export function asNumber(value: unknown): number {
     const numericValue = Number(value);
-    if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue)) {
+    if (typeof value === "boolean" || value === "" || !Number.isFinite(numericValue)) {
         throw new InvalidArgumentError(`Invalid unit value ${value}`);
     }
     return numericValue;
@@ -311,7 +311,6 @@ export function normalizeObject(obj: Record<string, unknown>,
 
         return acc;
     }, {} as { [key: string]: number });
-
 }
 
 /**

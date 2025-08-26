@@ -111,3 +111,22 @@ test("IANAZone.isValid returns false for invalid zone names", () => {
     // @ts-ignore
     expect(IANAZone.create(null).isValid).toBe(false);
 });
+
+test("IANAZone.normalize normalizes the zone name", () => {
+    expect(IANAZone.normalizeZone("america/nEw_york")).toBe("America/New_York");
+    expect(IANAZone.normalizeZone("AMERICA/NEW_YORK")).toBe("America/New_York");
+    expect(IANAZone.normalizeZone("America/New_York")).toBe("America/New_York");
+    expect(IANAZone.normalizeZone("europe/paris")).toBe("Europe/Paris");
+    expect(IANAZone.normalizeZone("EUROPE/PARIS")).toBe("Europe/Paris");
+    expect(IANAZone.normalizeZone("Asia/Tokyo")).toBe("Asia/Tokyo");
+    expect(IANAZone.normalizeZone("Etc/GMT")).toBe("UTC");
+});
+
+test("IANAZone returns canonical zone name regardless of input casing", () => {
+    expect(IANAZone.create("america/nEw_york").name).toBe("America/New_York");
+    expect(IANAZone.create("AMERICA/NEW_YORK").name).toBe("America/New_York");
+    expect(IANAZone.create("America/New_York").name).toBe("America/New_York");
+    expect(IANAZone.create("europe/paris").name).toBe("Europe/Paris");
+    expect(IANAZone.create("EUROPE/PARIS").name).toBe("Europe/Paris");
+    expect(IANAZone.create("Asia/Tokyo").name).toBe("Asia/Tokyo");
+});

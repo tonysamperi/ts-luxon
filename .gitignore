@@ -10,3 +10,14 @@ transpiled/
 *.tgz
 docs/
 .run
+
+# Yarn berry
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+/test-e2e/.env
+/.env

@@ -1,8 +1,9 @@
-import { ConversionAccuracy } from "./common.js";
-import { NumberingSystem } from "./locale.js";
-import { Locale } from "../impl/locale.js";
-import { Invalid } from "./invalid.js";
-import { LocalWeekDateTime, LocalWeekDateTimePlurals } from "./datetime.js";
+import {FormatterOptions} from "../impl/formatter.js";
+import {ConversionAccuracy} from "./common.js";
+import {NumberingSystem} from "./locale.js";
+import {Locale} from "../impl/locale.js";
+import {Invalid} from "./invalid.js";
+import {LocalWeekDateTime, LocalWeekDateTimePlurals} from "./datetime.js";
 
 export type ConversionMatrixUnit = Exclude<NormalizedDurationUnit, "milliseconds" | keyof LocalWeekDateTime>;
 export type ConversionMatrix = Readonly<{ [keya in ConversionMatrixUnit]: { [keyb in NormalizedDurationUnit]?: number } }>;
@@ -42,6 +43,7 @@ export type DurationUnit = keyof DurationObject;
 export interface DurationToFormatOptions {
     floor?: boolean;
     round?: boolean;
+    signMode?: FormatterOptions["signMode"];
 }
 
 export interface NormalizedDurationObject {
@@ -62,7 +64,7 @@ export type NormalizedHumanDurationUnit = Exclude<NormalizedDurationUnit, "quart
 export interface DurationToHumanOptions {
     listStyle?: Intl.ListFormatOptions["style"];
     onlyHumanUnits?: boolean;
-    showZeros?: boolean;
+    showZeroes?: boolean;
 }
 
 export interface DurationConfig {
