@@ -50,7 +50,7 @@ All of these are parsable by `fromISO`:
 
 ### HTTP and RFC2822
 
-Luxon also provides parsing for strings formatted according to RFC 2822 and the HTTP header specs (RFC 850 and 1123):
+TSLuxon also provides parsing for strings formatted according to RFC 2822 and the HTTP header specs (RFC 850 and 1123):
 
 ```js
 DateTime.fromRFC2822("Tue, 01 Nov 2016 13:23:12 +0630");

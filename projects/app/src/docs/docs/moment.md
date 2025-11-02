@@ -26,21 +26,21 @@ This happens because the `plus` method returns a new instance, leaving `d1` unmo
 
 1. Months in TSLuxon are 1-indexed instead of 0-indexed like in Moment and the native Date type.
 1. Localizations and time zones are implemented by the native Intl API (or a polyfill of it), instead of by the library itself.
-1. Luxon has both a Duration type and an Interval type. The Interval type is like Twix.
+1. TSLuxon has both a Duration type and an Interval type. The Interval type is like Twix.
 
 ## Other API style differences
 
-1. Luxon methods often take option objects as their last parameter
-1. Luxon has different static methods for object creation (e.g. `fromISO`), as opposed to Moment's one function that dispatches based on the input
-1. Luxon parsers are very strict, whereas Moment's are more lenient.
-1. Luxon uses getters instead of accessor methods, so `dateTime.year` instead of `dateTime.year()`
-1. Luxon centralizes its "setters", like `dateTime.set({year: 2016, month: 4})` instead of `dateTime.year(2016).month(4)` like in Moment.
-1. Luxon's Durations are a separate top-level class.
-1. Arguments to Luxon's methods are not automatically coerced into Luxon instances. E.g. `m.diff('2017-04-01')` would be `dt.diff(DateTime.fromISO('2017-04-01'))`.
+1. TSLuxon methods often take option objects as their last parameter
+1. TSLuxon has different static methods for object creation (e.g. `fromISO`), as opposed to Moment's one function that dispatches based on the input
+1. TSLuxon parsers are very strict, whereas Moment's are more lenient.
+1. TSLuxon uses getters instead of accessor methods, so `dateTime.year` instead of `dateTime.year()`
+1. TSLuxon centralizes its "setters", like `dateTime.set({year: 2016, month: 4})` instead of `dateTime.year(2016).month(4)` like in Moment.
+1. TSLuxon's Durations are a separate top-level class.
+1. Arguments to TSLuxon's methods are not automatically coerced into TSLuxon instances. E.g. `m.diff('2017-04-01')` would be `dt.diff(DateTime.fromISO('2017-04-01'))`.
 
 ## DateTime method equivalence
 
-Here's a rough mapping of DateTime methods in Moment to ones in Luxon. I haven't comprehensively documented stuff that's in Luxon but not in Moment, just a few odds and ends that seemed obvious for inclusion; there are more. I've probably missed a few things too.
+Here's a rough mapping of DateTime methods in Moment to ones in TSLuxon. I haven't comprehensively documented stuff that's in TSLuxon but not in Moment, just a few odds and ends that seemed obvious for inclusion; there are more. I've probably missed a few things too.
 
 ### Creation
 

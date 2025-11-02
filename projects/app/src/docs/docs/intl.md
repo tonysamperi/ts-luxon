@@ -1,6 +1,6 @@
 # Intl
 
-Luxon uses the native Intl API to provide easy-to-use internationalization. A quick example:
+TSLuxon uses the native Intl API to provide easy-to-use internationalization. A quick example:
 
 ```js
 DateTime.now()
@@ -14,13 +14,13 @@ Please see the [install guide](install.md) for instructions on making sure your 
 
 ## How locales work
 
-Luxon DateTimes can be configured using [BCP 47](https://tools.ietf.org/html/rfc5646) locale strings specifying the language to use generating or interpreting strings. The native Intl API provides the actual internationalized strings; Luxon just wraps it with a nice layer of convenience and integrates the localization functionality into the rest of Luxon. The Mozilla MDN Intl docs have a [good description](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation) of how the `locale` argument works. In Luxon, the methods are different but the semantics are the same, except in that Luxon allows you to specify a numbering system and output calendar independently of the locale string.
+TSLuxon DateTimes can be configured using [BCP 47](https://tools.ietf.org/html/rfc5646) locale strings specifying the language to use generating or interpreting strings. The native Intl API provides the actual internationalized strings; TSLuxon just wraps it with a nice layer of convenience and integrates the localization functionality into the rest of TSLuxon. The Mozilla MDN Intl docs have a [good description](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation) of how the `locale` argument works. In TSLuxon, the methods are different but the semantics are the same, except in that TSLuxon allows you to specify a numbering system and output calendar independently of the locale string.
 
-The rest of this document will concentrate on what Luxon does when provided with locale information.
+The rest of this document will concentrate on what TSLuxon does when provided with locale information.
 
 ## Setting the locale
 
-`locale` is a property of Luxon object. Thus, locale is a sort of setting on the DateTime object, as opposed to an argument you provide the different methods that need internationalized.
+`locale` is a property of TSLuxon object. Thus, locale is a sort of setting on the DateTime object, as opposed to an argument you provide the different methods that need internationalized.
 
 You can generally set it at construction time:
 

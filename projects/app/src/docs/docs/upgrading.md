@@ -1,4 +1,14 @@
-# Upgrading Luxon
+# Upgrading TSLuxon
+
+## 5.x to 6.x
+This finally solves the coexistence of ESM and CJS.
+
+Many thanks to the autors of [arethetypeswrong](https://arethetypeswrong.github.io/) and [publint](https://publint.dev/), which were essential tools to debug and understand the package.json.
+
+## 4.x to 5.x
+Compared to v4 here I only changed how the library is built and the outputs.
+It should be completely transparent to the user given the adjustments to the package.json and given the fact that the es6 export of v4 is **interpreted as CJS anyways**.
+I'm working on adding a real ESM module output to v5, but it seems there's no way of making the two cohexist.
 
 ## 3.x to 4.0
 
