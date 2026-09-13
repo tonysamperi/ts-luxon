@@ -13,7 +13,7 @@ import { Zone } from "../zone.js";
 import { DateTime } from "../datetime.js";
 import { ConflictingSpecificationError } from "../errors.js";
 
-const missingFtp = "missing Intl.DateTimeFormat.formatToParts support";
+const missingFtpErrorMsg = "missing Intl.DateTimeFormat.formatToParts support";
 
 interface TokenForPart {
     literal: boolean;
@@ -38,19 +38,16 @@ function intUnit(regex: RegExp, post: (a: number) => number = (i: number): numbe
     return { regex, deser: ([s]) => post(parseDigits(s)) };
 }
 
-const spaceOrNBSPPattern = `[ ${String.fromCharCode(160)}]`;
-const spaceOrNBSPRegExp = new RegExp(spaceOrNBSPPattern, "g");
-
-function fixListRegex(s: string): string {
-    // make dots optional and also make them literal
-    // make space and non-breakable space characters interchangeable
-    return s.replace(/\./g, "\\.?").replace(spaceOrNBSPRegExp, spaceOrNBSPPattern);
+function fixListRegex(s: string) {
+    return s
+        .replace(/\./g, "\\.?") // make dots optional and also make them literal
+        .replace(/\s/g, "\\s"); // make all whitespace literals into any-whitespace-here markers
 }
 
-function stripInsensitivities(s: string): string {
+function stripInsensitivities(s: string) {
     return s
         .replace(/\./g, "") // ignore dots that were made optional
-        .replace(spaceOrNBSPRegExp, " ") // interchange space and nbsp
+        .replace(/\s/g, " ") // replace other whitespace with simple spaces
         .toLowerCase();
 }
 
@@ -211,7 +208,7 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
         };
 
     const unit = unitate(token) || {
-        invalidReason: missingFtp
+        invalidReason: missingFtpErrorMsg
     };
 
     return { ...unit, token };
