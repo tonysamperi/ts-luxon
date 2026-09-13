@@ -10,7 +10,7 @@ import {isNumber} from "./impl/util.js";
 import {Formatter} from "./impl/formatter.js";
 import {DATE_SHORT} from "./impl/formats.js";
 import {LocaleOptions} from "./types/locale.js";
-import { parseISOIntervalEnd } from "./impl/regexParser.js";
+import {parseISOIntervalEnd} from "./impl/regexParser.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const INVALID = "Invalid Interval";
@@ -193,16 +193,17 @@ export class Interval {
      * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
      */
     static fromISO(text: string, opts: DateTimeOptions = {}): Interval {
-        const { zone, setZone, ...restOpts } = opts || {};
+        const {zone, setZone, ...restOpts} = opts || {};
         const [s, e] = (text || "").split("/", 2);
         if (s && e) {
             let start, startIsValid;
             try {
                 // we need to know the zone that was used in the string, so that we can
                 // default to it when parsing end, therefor use setZone: true
-                start = DateTime.fromISO(s, { ...restOpts, zone, setZone: true });
+                start = DateTime.fromISO(s, {...restOpts, zone, setZone: true});
                 startIsValid = start.isValid;
-            } catch (e) {
+            }
+            catch (e) {
                 startIsValid = false;
             }
 
@@ -213,11 +214,12 @@ export class Interval {
                     ...restOpts,
                     overrideNow: startIsValid ? start.valueOf() : null,
                     zone: startIsValid ? start.zone : zone,
-                    setZone: true,
+                    setZone: true
                 };
                 end = DateTime.parseDataToDateTime(vals, parsedZone, endParseOpts, "ISO 8601 Interval end", e);
                 endIsValid = end.isValid;
-            } catch (e) {
+            }
+            catch (e) {
                 endIsValid = false;
             }
 
@@ -238,7 +240,8 @@ export class Interval {
                 if (dur.isValid) {
                     return Interval.after(start, dur);
                 }
-            } else if (endIsValid) {
+            }
+            else if (endIsValid) {
                 const dur = Duration.fromISO(s, opts);
                 if (dur.isValid) {
                     return Interval.before(end, dur);
@@ -451,7 +454,7 @@ export class Interval {
      */
     equals(other: Interval): boolean {
         if (!this.isValid || !other.isValid) {
-            return false;
+            return !1;
         }
 
         return this._s.equals(other._s) && this._e.equals(other._e);
@@ -463,7 +466,12 @@ export class Interval {
      * @return {boolean}
      */
     hasSame(unit: DurationUnit): boolean {
-        return this.isValid ? this.isEmpty() || this._e.minus(1).hasSame(this._s, unit) : false;
+        if (!this.isValid) {
+            return !1;
+        }
+        // For an empty interval, compare the endpoints directly so that endpoints
+        // in different zones (with differing local unit values) are respected.
+        return this.isEmpty() ? this._s.hasSame(this._e, unit) : this._e.minus(1).hasSame(this._s, unit);
     }
 
     /**

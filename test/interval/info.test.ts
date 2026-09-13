@@ -1,6 +1,6 @@
-import { DateTime, Interval } from "../../src";
+import {DateTime, Interval} from "../../src";
 
-import { Helpers } from "../helpers";
+import {Helpers} from "../helpers";
 
 const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fromISO(e)) as Interval;
 
@@ -9,14 +9,14 @@ const fromISOs = (s: string, e: string) => DateTime.fromISO(s).until(DateTime.fr
 // -------
 test("Interval#length defaults to milliseconds", () => {
     const n = DateTime.now(),
-        d = n.until(n.plus({ minutes: 1 })) as Interval;
+        d = n.until(n.plus({minutes: 1})) as Interval;
     expect(d.length()).toBe(60 * 1000);
 });
 
 test("Interval#length('days') returns 1 for yesterday", () => {
     const i = Helpers.atHour(13)
-                     .minus({ days: 1 })
-                     .until(Helpers.atHour(13)) as Interval;
+        .minus({days: 1})
+        .until(Helpers.atHour(13)) as Interval;
     expect(i.length("days")).toBe(1);
 });
 
@@ -72,27 +72,27 @@ test("Interval#count() returns NaN for invalid intervals", () => {
 test("Interval#toDuration creates a duration in those units", () => {
     const int = Interval.fromDateTimes(Helpers.atHour(9), Helpers.atHour(13));
 
-    expect(int.toDuration().toObject()).toEqual({ milliseconds: 4 * 3600 * 1000 });
-    expect(int.toDuration("milliseconds").toObject()).toEqual({ milliseconds: 4 * 3600 * 1000 });
-    expect(int.toDuration("seconds").toObject()).toEqual({ seconds: 4 * 3600 });
-    expect(int.toDuration("minutes").toObject()).toEqual({ minutes: 4 * 60 });
-    expect(int.toDuration("hours").toObject()).toEqual({ hours: 4 });
-    expect(int.toDuration("days").toObject()).toEqual({ days: 1 / 6 });
-    expect(int.toDuration("weeks").toObject()).toEqual({ weeks: 1 / (6 * 7) });
+    expect(int.toDuration().toObject()).toEqual({milliseconds: 4 * 3600 * 1000});
+    expect(int.toDuration("milliseconds").toObject()).toEqual({milliseconds: 4 * 3600 * 1000});
+    expect(int.toDuration("seconds").toObject()).toEqual({seconds: 4 * 3600});
+    expect(int.toDuration("minutes").toObject()).toEqual({minutes: 4 * 60});
+    expect(int.toDuration("hours").toObject()).toEqual({hours: 4});
+    expect(int.toDuration("days").toObject()).toEqual({days: 1 / 6});
+    expect(int.toDuration("weeks").toObject()).toEqual({weeks: 1 / (6 * 7)});
 });
 
 test("Interval#toDuration accepts multiple units", () => {
     const int = Interval.fromDateTimes(
-        Helpers.atHour(9).plus({ minutes: 3 }),
-        Helpers.atHour(13).plus({ minutes: 47 })
+        Helpers.atHour(9).plus({minutes: 3}),
+        Helpers.atHour(13).plus({minutes: 47})
     );
 
-    expect(int.toDuration(["hours", "minutes"]).toObject()).toEqual({ hours: 4, minutes: 44 });
+    expect(int.toDuration(["hours", "minutes"]).toObject()).toEqual({hours: 4, minutes: 44});
 });
 
 test("Interval#toDuration accepts duration options", () => {
     const int = Interval.fromDateTimes(Helpers.atHour(9), Helpers.atHour(13)),
-        dur = int.toDuration(["hours"], { conversionAccuracy: "longterm" });
+        dur = int.toDuration(["hours"], {conversionAccuracy: "longterm"});
     expect(dur.conversionAccuracy).toBe("longterm");
 });
 
@@ -153,31 +153,31 @@ test("Interval#isEmpty returns false for non-empty intervals", () => {
 // ------
 test("Interval#isBefore returns true for intervals fully before the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.minus({ days: 2 }), n.minus({ days: 1 }));
+        i = Interval.fromDateTimes(n.minus({days: 2}), n.minus({days: 1}));
     expect(i.isBefore(n)).toBe(true);
 });
 
 test("Interval#isBefore returns false for intervals containing the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.minus({ days: 2 }), n.plus({ days: 2 }));
+        i = Interval.fromDateTimes(n.minus({days: 2}), n.plus({days: 2}));
     expect(i.isBefore(n)).toBe(false);
 });
 
 test("Interval#isBefore returns false for intervals fully after the input ", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.plus({ days: 2 }), n.plus({ days: 3 }));
+        i = Interval.fromDateTimes(n.plus({days: 2}), n.plus({days: 3}));
     expect(i.isBefore(n)).toBe(false);
 });
 
 test("Interval#isBefore returns true for intervals ending at the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.minus({ days: 1 }), n);
+        i = Interval.fromDateTimes(n.minus({days: 1}), n);
     expect(i.isBefore(n)).toBe(true);
 });
 
 test("Interval#isBefore returns false for intervals just inside the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.minus({ days: 1 }), n);
+        i = Interval.fromDateTimes(n.minus({days: 1}), n);
     expect(i.isBefore(n.minus(1))).toBe(false);
 });
 
@@ -192,26 +192,26 @@ test("Interval#isBefore returns false for invalid intervals", () => {
 // -------
 test("Interval#isAfter returns true for intervals fully after the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.plus({ days: 1 }), n.plus({ days: 2 }));
+        i = Interval.fromDateTimes(n.plus({days: 1}), n.plus({days: 2}));
     expect(i.isAfter(n)).toBe(true);
 });
 
 test("Interval#isAfter returns false for intervals containing the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n.minus({ day: 2 }), n.plus({ days: 2 }));
+        i = Interval.fromDateTimes(n.minus({day: 2}), n.plus({days: 2}));
     expect(i.isAfter(n)).toBe(false);
 });
 
 test("Interval#isAfter returns false for fully before the input ", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
         // @ts-expect-error
-        i = Interval.fromDateTimes(n.minus({ day: 2 }), n.minus(1, "day"));
+        i = Interval.fromDateTimes(n.minus({day: 2}), n.minus(1, "day"));
     expect(i.isAfter(n)).toBe(false);
 });
 
 test("Interval#isAfter returns false for intervals beginning at the input", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n, n.plus({ days: 1 }));
+        i = Interval.fromDateTimes(n, n.plus({days: 1}));
     expect(i.isAfter(n)).toBe(false);
 });
 
@@ -226,19 +226,19 @@ test("Interval#isAfter returns false for invalid intervals", () => {
 // -------
 test("Interval#hasSame('day') returns true for durations on the same day", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n, n.plus({ hours: 5 }));
+        i = Interval.fromDateTimes(n, n.plus({hours: 5}));
     expect(i.hasSame("day")).toBe(true);
 });
 
 test("Interval#hasSame('day') returns true for durations that last until the next day", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n, n.plus({ hours: 20 }));
+        i = Interval.fromDateTimes(n, n.plus({hours: 20}));
     expect(i.hasSame("day")).toBe(false);
 });
 
 test("Interval#hasSame('day') returns true for durations durations ending at midnight", () => {
     const n = DateTime.fromISO("1982-05-25T06:00"),
-        i = Interval.fromDateTimes(n, n.plus({ days: 1 }).startOf("day"));
+        i = Interval.fromDateTimes(n, n.plus({days: 1}).startOf("day"));
     expect(i.hasSame("day")).toBe(true);
 });
 
@@ -257,4 +257,14 @@ test.each([
     const n = DateTime.fromISO(dt),
         i = Interval.fromDateTimes(n, n);
     expect(i.hasSame("day")).toBe(true);
+});
+
+test("Interval#hasSame respects the zones of an empty interval's endpoints", () => {
+    // Same instant, but the endpoints are in different zones so their local
+    // hours differ (12:15 in UTC+2 vs 11:15 in UTC+1).
+    const s = DateTime.fromISO("2023-01-01T10:15:00.000+00:00", {zone: "UTC+2"}),
+        e = DateTime.fromISO("2023-01-01T10:15:00.000+00:00", {zone: "UTC+1"}),
+        i = Interval.fromDateTimes(s, e);
+    expect(i.isEmpty()).toBe(true);
+    expect(i.hasSame("hour")).toBe(false);
 });
