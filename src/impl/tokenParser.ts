@@ -1,17 +1,17 @@
-import { parseMillis, untruncateYear, signedOffset, isDefined } from "./util.js";
-import { Formatter, FormatToken } from "./formatter.js";
-import { FixedOffsetZone } from "../zones/fixedOffsetZone.js";
-import { IANAZone } from "../zones/IANAZone.js";
-import { digitRegex, parseDigits } from "./digits.js";
-import { Locale } from "./locale.js";
+import {parseMillis, untruncateYear, signedOffset, isDefined} from "./util.js";
+import {Formatter, FormatToken} from "./formatter.js";
+import {FixedOffsetZone} from "../zones/fixedOffsetZone.js";
+import {IANAZone} from "../zones/IANAZone.js";
+import {digitRegex, parseDigits} from "./digits.js";
+import {Locale} from "./locale.js";
 import {
     GenericDateTime,
     ExplainedFormat,
     GenericDateTimeExtended
 } from "../types/datetime.js";
-import { Zone } from "../zone.js";
-import { DateTime } from "../datetime.js";
-import { ConflictingSpecificationError } from "../errors.js";
+import {Zone} from "../zone.js";
+import {DateTime} from "../datetime.js";
+import {ConflictingSpecificationError} from "../errors.js";
 
 const missingFtpErrorMsg = "missing Intl.DateTimeFormat.formatToParts support";
 
@@ -35,7 +35,7 @@ interface InvalidUnitParser {
 type CoreUnitParser = Omit<UnitParser, "token">;
 
 function intUnit(regex: RegExp, post: (a: number) => number = (i: number): number => i): CoreUnitParser {
-    return { regex, deser: ([s]) => post(parseDigits(s)) };
+    return {regex, deser: ([s]) => post(parseDigits(s))};
 }
 
 function fixListRegex(s: string) {
@@ -60,11 +60,11 @@ function oneOf(strings: string[], startIndex: number): CoreUnitParser {
 }
 
 function offset(regex: RegExp, groups: number): CoreUnitParser {
-    return { regex, deser: ([, h, m]) => signedOffset(h, m), groups };
+    return {regex, deser: ([, h, m]) => signedOffset(h, m), groups};
 }
 
 function simple(regex: RegExp): CoreUnitParser {
-    return { regex, deser: ([s]) => s };
+    return {regex, deser: ([s]) => s};
 }
 
 function escapeToken(value: string): string {
@@ -211,7 +211,7 @@ function unitForToken(token: FormatToken, loc: Locale): UnitParser | { invalidRe
         invalidReason: missingFtpErrorMsg
     };
 
-    return { ...unit, token };
+    return {...unit, token};
 }
 
 type SlimDateTimeFormatPartTypes = Exclude<Intl.DateTimeFormatPartTypes, "literal" | "era"> | "hour12" | "hour24";
@@ -273,7 +273,7 @@ const partTypeStyleToTokenVal: Partial<{ [key in SlimDateTimeFormatPartTypes]: T
 function tokenForPart(part: Intl.DateTimeFormatPart,
                       formatOpts: Intl.DateTimeFormatOptions,
                       resolvedOpts: Intl.ResolvedDateTimeFormatOptions): TokenForPart | void {
-    const { type, value } = part;
+    const {type, value} = part;
 
     if (type === "literal") {
         const isSpace = /^\s+$/.test(value);
@@ -346,7 +346,7 @@ function match(input: string, regex: RegExp, handlers: UnitParser[]): [RegExpMat
     return [matches, all];
 }
 
-function dateTimeFromMatches(matches: Record<string, string | number>): [GenericDateTimeExtended, Zone | null, number | undefined] {
+function dateTimeFromMatches(matches: Record<string, string | number>): [GenericDateTimeExtended, Zone | null, number | undefined, string | undefined] {
     const toField = (token: string): keyof GenericDateTimeExtended | null => {
         switch (token) {
             case "S":
@@ -398,8 +398,16 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
         matches.M = ((matches.q as number) - 1) * 3 + 1;
     }
 
+    let hourInvalidReason;
+
     if (isDefined(matches.h)) {
-        if (+matches.h < 12 && matches.a === 1) {
+        if (isDefined(matches.a) && (+matches.h < 1 || +matches.h > 12)) {
+            // "h" is the 12-hour token, so when a meridiem ("a") is also present the
+            // hour must be within [1, 12]. Anything else (e.g. "18:30 AM") is not a
+            // valid 12-hour time, so the result is invalid.
+            hourInvalidReason = `the 12-hour value "${matches.h}" is not in the [1, 12] range`;
+        }
+        else if (+matches.h < 12 && matches.a === 1) {
             matches.h = (matches.h as number) + 12;
         }
         else if (matches.h === 12 && matches.a === 0) {
@@ -424,7 +432,7 @@ function dateTimeFromMatches(matches: Record<string, string | number>): [Generic
         return r;
     }, {});
 
-    return [values, zone, specificOffset];
+    return [values, zone, specificOffset, hourInvalidReason];
 }
 
 let dummyDateTimeCache: DateTime | undefined;
@@ -484,13 +492,13 @@ export class TokenParser {
 
     explainFromTokens(input: string): ExplainedFormat {
         if (!this.isValid) {
-            return { input, tokens: this.tokens, invalidReason: this.invalidReason };
+            return {input, tokens: this.tokens, invalidReason: this.invalidReason};
         }
         else {
             const [rawMatches, matches] = match(input, this.regex, this.handlers),
-                [result, zone, specificOffset] = matches
+                [result, zone, specificOffset, parseInvalidReason] = matches
                     ? dateTimeFromMatches(matches)
-                    : [null, null, undefined];
+                    : [null, null, void 0, void 0];
             if (matches.hasOwnProperty("a") && matches.hasOwnProperty("H")) {
                 throw new ConflictingSpecificationError(
                     "Can't include meridiem when specifying 24-hour format"
@@ -504,7 +512,8 @@ export class TokenParser {
                 matches,
                 result,
                 zone,
-                specificOffset
+                specificOffset,
+                invalidReason: parseInvalidReason
             };
         }
     }
