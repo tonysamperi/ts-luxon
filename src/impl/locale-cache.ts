@@ -66,35 +66,29 @@ export class LocaleCache {
                     maximumFractionDigits: 0
                 });
 
-                formatter = {
-                    format: (value: number) => {
-                        const unit = Math.abs(value) === 1 ? singularUnit : pluralUnit;
-                        return `${numberFormatter.format(value)} ${unit}`;
-                    },
-                    formatToParts: (value: number) => {
-                        const unit = Math.abs(value) === 1 ? singularUnit : pluralUnit;
-                        return [{
-                            type: "literal",
-                            value: `${numberFormatter.format(value)} ${unit}`
-                        }];
-                    },
-                    resolvedOptions: () => ({
+                formatter = new Intl.NumberFormat(locString, options);
+                formatter.format = (value: number) => {
+                    const unit = Math.abs(value) === 1 ? singularUnit : pluralUnit;
+                    return `${numberFormatter.format(value)} ${unit}`;
+                };
+                formatter.formatToParts = (value: number) => {
+                    const unit = Math.abs(value) === 1 ? singularUnit : pluralUnit;
+                    return [{
+                        type: "literal",
+                        value: `${numberFormatter.format(value)} ${unit}`
+                    }];
+                };
+                const baseFormatter = formatter.resolvedOptions;
+                formatter.resolvedOptions = () => {
+                    return {
+                        ...baseFormatter(),
                         locale: locString,
                         numberingSystem: "latn",
                         style: "unit",
                         unit: "quarter",
-                        unitDisplay: "long",
-                        minimumIntegerDigits: 1,
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                        currencyDisplay: "symbol",
-                        currencySign: "standard",
-                        useGrouping: true,
-                        compactDisplay: "short",
-                        notation: "standard",
-                        signDisplay: "auto"
-                    })
-                } as Intl.NumberFormat;
+                        unitDisplay: "long"
+                    };
+                };
             }
             else {
                 formatter = new Intl.NumberFormat(locString, options);

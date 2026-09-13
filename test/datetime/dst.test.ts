@@ -1,10 +1,10 @@
-import { DateTime, Settings } from "../../src";
+import {DateTime, Settings} from "../../src";
 
 const dateTimeConstructors = {
     fromObject: (year: number, month: number, day: number, hour: number) =>
-        DateTime.fromObject({ year, month, day, hour }, { zone: "America/New_York" }),
+        DateTime.fromObject({year, month, day, hour}, {zone: "America/New_York"}),
     local: (year: number, month: number, day: number, hour: number) =>
-        DateTime.local(year, month, day, hour, { zone: "America/New_York" })
+        DateTime.local(year, month, day, hour, {zone: "America/New_York"})
 };
 
 for (const [name, local] of
@@ -14,6 +14,7 @@ for (const [name, local] of
             const d = local(2017, 3, 12, 2);
             expect(d.hour).toBe(3);
             expect(d.offset).toBe(-4 * 60);
+            expect(d.wasHole).toBe(true);
         });
 
         if (name == "fromObject") {
@@ -70,49 +71,49 @@ for (const [name, local] of
         }
 
         test("Adding an hour to land on the Spring Forward springs forward", () => {
-            const d = local(2017, 3, 12, 1).plus({ hour: 1 });
+            const d = local(2017, 3, 12, 1).plus({hour: 1});
             expect(d.hour).toBe(3);
             expect(d.offset).toBe(-4 * 60);
         });
 
         test("Subtracting an hour to land on the Spring Forward springs forward", () => {
-            const d = local(2017, 3, 12, 3).minus({ hour: 1 });
+            const d = local(2017, 3, 12, 3).minus({hour: 1});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-5 * 60);
         });
 
         test("Adding an hour to land on the Fall Back falls back", () => {
-            const d = local(2017, 11, 5, 0).plus({ hour: 2 });
+            const d = local(2017, 11, 5, 0).plus({hour: 2});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-5 * 60);
         });
 
         test("Subtracting an hour to land on the Fall Back falls back", () => {
-            let d = local(2017, 11, 5, 3).minus({ hour: 2 });
+            let d = local(2017, 11, 5, 3).minus({hour: 2});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-5 * 60);
 
-            d = d.minus({ hour: 1 });
+            d = d.minus({hour: 1});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-4 * 60);
         });
 
         test("Changing a calendar date to land on a hole bumps forward", () => {
-            let d = local(2017, 3, 11, 2).plus({ day: 1 });
+            let d = local(2017, 3, 11, 2).plus({day: 1});
             expect(d.hour).toBe(3);
             expect(d.offset).toBe(-4 * 60);
 
-            d = local(2017, 3, 13, 2).minus({ day: 1 });
+            d = local(2017, 3, 13, 2).minus({day: 1});
             expect(d.hour).toBe(3);
             expect(d.offset).toBe(-4 * 60);
         });
 
         test("Changing a calendar date to land on an ambiguous time chooses the closest one", () => {
-            let d = local(2017, 11, 4, 1).plus({ day: 1 });
+            let d = local(2017, 11, 4, 1).plus({day: 1});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-4 * 60);
 
-            d = local(2017, 11, 6, 1).minus({ day: 1 });
+            d = local(2017, 11, 6, 1).minus({day: 1});
             expect(d.hour).toBe(1);
             expect(d.offset).toBe(-5 * 60);
         });
@@ -160,9 +161,9 @@ describe("DateTime.local() with offset caching", () => {
     const edtDate = [2017, 5, 24, 15, 15, 14, 0];
     const estDate = [2017, 1, 15, 0, 0, 0, 0];
 
-    const timestamps = { EDT: edtTs, EST: estTs };
-    const dates = { EDT: edtDate, EST: estDate };
-    const zoneObj = { zone: "America/New_York" };
+    const timestamps = {EDT: edtTs, EST: estTs};
+    const dates = {EDT: edtDate, EST: estDate};
+    const zoneObj = {zone: "America/New_York"};
 
     for (const [cacheName, cacheTs] of
         Object.entries(timestamps)) {
@@ -195,4 +196,60 @@ describe("DateTime.local() with offset caching", () => {
             }
         }
     }
+});
+
+describe("DateTime maintains the wasHole setting properly", () => {
+    test("is false by default", () => {
+        expect(DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 4}, {zone: "America/New_York"}).wasHole).toBe(false);
+    });
+
+    test("is set on hole times", () => {
+        expect(DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}, {zone: "America/New_York"}).wasHole).toBe(true);
+    });
+
+    test("is set on hole times with DateTime.local", () => {
+        expect(DateTime.local(2017, 3, 12, 2, {zone: "America/New_York"}).wasHole).toBe(true);
+    });
+
+    test("is set on hole times with DateTime.fromISO", () => {
+        expect(DateTime.fromISO("2017-03-12T02:00:00", {zone: "America/New_York"}).wasHole).toBe(true);
+    });
+
+    test("is false when setting to non-hole", () => {
+        const fromHole = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2});
+        expect(fromHole.set({hour: 4}).wasHole).toBe(false);
+    });
+
+    test("is true when setting hole-time on time from hole", () => {
+        const dt = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}, {zone: "America/New_York"});
+        expect(dt.wasHole).toBe(true);
+        expect(dt.set({hour: 2}).wasHole).toBe(true);
+    });
+
+    test("is true when setting hole-time on time from non-hole", () => {
+        const dt = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 4}, {zone: "America/New_York"});
+        expect(dt.wasHole).toBe(false);
+        expect(dt.set({hour: 2}).wasHole).toBe(true);
+    });
+
+    test("is dropped on math", () => {
+        expect(
+            DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}).plus({hours: 2}).wasHole
+        ).toBe(false);
+    });
+
+    test("is kept on reconfigure", () => {
+        expect(
+            DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}, {zone: "America/New_York"}).reconfigure({
+                locale: "es-ES"
+            }).wasHole
+        ).toBe(true);
+    });
+
+    test("is dropped on rezoning", () => {
+        expect(
+            DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}).setZone("Europe/London")
+                .wasHole
+        ).toBe(false);
+    });
 });

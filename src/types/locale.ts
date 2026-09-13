@@ -42,7 +42,7 @@ export type CalendarSystem =
 export interface WeekSettings {
     firstDay: DayOfWeek;
     minimalDays: DayOfWeek;
-    weekend: [DayOfWeek, DayOfWeek];
+    weekend: DayOfWeek[];
 }
 
 export interface LocaleOptions {

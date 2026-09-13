@@ -4,6 +4,7 @@ import {
     isNumber,
     normalizeObject,
     roundTo,
+    snapFloatingPoint,
     ORDERED_UNITS,
     REVERSE_ORDERED_UNITS,
     HUMAN_ORDERED_UNITS
@@ -136,61 +137,6 @@ function eq(v1: number | undefined, v2: number | undefined): boolean {
     return v1 === v2;
 }
 
-// NB: mutates vals parameters
-function normalizeValues(matrix: ConversionMatrix, vals: NormalizedDurationObject): void {
-    // the logic below assumes the overall value of the duration is positive
-    // if this is not the case, factor is used to make it so
-    const factor = durationToMillis(matrix, vals) < 0 ? -1 : 1;
-
-    REVERSE_ORDERED_UNITS.reduce((previous, current) => {
-        if (!isUndefined(vals[current])) {
-            if (previous) {
-                const previousVal = vals[previous] * factor;
-                const conv = matrix[current as ConversionMatrixUnit][previous];
-
-                // if (previousVal < 0):
-                // lower order unit is negative (e.g. { years: 2, days: -2 })
-                // normalize this by reducing the higher order unit by the appropriate amount
-                // and increasing the lower order unit
-                // this can never make the higher order unit negative, because this function only operates
-                // on positive durations, so the amount of time represented by the lower order unit cannot
-                // be larger than the higher order unit
-                // else:
-                // lower order unit is positive (e.g. { years: 2, days: 450 } or { years: -2, days: 450 })
-                // in this case we attempt to convert as much as possible from the lower order unit into
-                // the higher order one
-                //
-                // Math.floor takes care of both of these cases, rounding away from 0
-                // if previousVal < 0 it makes the absolute value larger
-                // if previousVal >= it makes the absolute value smaller
-                const rollUp = Math.floor(previousVal / conv);
-                vals[current] += rollUp * factor;
-                vals[previous] -= rollUp * conv * factor;
-            }
-            return current;
-        }
-        else {
-            return previous;
-        }
-    }, null);
-
-    // try to convert any decimals into smaller units if possible
-    // for example for { years: 2.5, days: 0, seconds: 0 } we want to get { years: 2, days: 182, hours: 12 }
-    ORDERED_UNITS.reduce((previous, current) => {
-        if (!isUndefined(vals[current])) {
-            if (previous) {
-                const fraction = vals[previous] % 1;
-                vals[previous] -= fraction;
-                vals[current] += fraction * matrix[previous as ConversionMatrixUnit][current];
-            }
-            return current;
-        }
-        else {
-            return previous;
-        }
-    }, null);
-}
-
 // Remove all properties with a value of 0 from an object
 function removeZeroes(vals: DurationObject = {}): DurationObject {
     return Object.entries(vals).reduce((acc, [key, value]) => {
@@ -200,6 +146,16 @@ function removeZeroes(vals: DurationObject = {}): DurationObject {
 
         return acc;
     }, {} as DurationObject);
+}
+
+// Render a number for toISO(). JS prints very small magnitudes in exponential
+// notation (e.g. `1e-7`), which is not valid ISO 8601 and which fromISO() cannot
+// parse, so expand those to a plain decimal. (toFixed keeps exponential notation
+// for magnitudes >= 1e21, so very large durations are left untouched here.)
+function toISONumber(value: number) {
+    const str = `${value}`;
+
+    return str.includes("e") ? value.toFixed(20).replace(/\.?0+$/, "") : str;
 }
 
 /**
@@ -735,24 +691,18 @@ export class Duration implements NormalizedDurationObject {
 
     /**
      * Reduce this Duration to its canonical representation in its current units.
-     * Assuming the overall value of the Duration is positive, this means:
-     * - excessive values for lower-order units are converted to higher order units (if possible, see first and second example)
-     * - negative lower-order units are converted to higher order units (there must be such a higher order unit, otherwise
-     *   the overall value would be negative, see third example)
-     *
-     * If the overall value is negative, the result of this method is equivalent to `this.negate().normalize().negate()`.
+     * This is equivalent to `this.shiftTo()`.
      * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=> { years: 15, days: 255 }
      * @example Duration.fromObject({ days: 5000 }).normalize().toObject() //=> { days: 5000 }
      * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=> { hours: 11, minutes: 15 }
+     * @example Duration.fromObject({ years: 2.5, days: 0, hours: 0 }).normalize().toObject() //=> { years: 2, days: 182, hours: 12 }
      * @return {Duration}
      */
-    normalize(): Duration {
+    normalize() {
         if (!this.isValid) {
             return this;
         }
-        const vals = this.toObject();
-        normalizeValues(this._matrix, vals);
-        return this._clone(this, {values: vals}, !0);
+        return this.shiftTo();
     }
 
     /**
@@ -813,7 +763,7 @@ export class Duration implements NormalizedDurationObject {
         if (!this.isValid) {
             return this;
         }
-        const vals = removeZeroes(this.normalize().shiftToAll().toObject());
+        const vals = removeZeroes(this.shiftToAll().toObject());
         return this._clone(this, {values: vals}, true);
     }
 
@@ -842,57 +792,157 @@ export class Duration implements NormalizedDurationObject {
      * @return {Duration}
      */
     shiftTo(...units: DurationUnit[]): Duration {
-        if (!this.isValid || units.length === 0) {
+        if (!this.isValid) {
             return this;
         }
 
-        units = units.map((u: DurationUnit) => Duration.normalizeUnit(u));
+        if (units.length === 0) {
+            units = Object.keys(this._values) as (keyof NormalizedDurationObject)[];
+        }
+        else {
+            units = units.map((u) => Duration.normalizeUnit(u));
+        }
 
+        // built is the final result, accumulated is our "working copy" of things still to do
         const built: NormalizedDurationObject = {},
-            accumulated: NormalizedDurationObject = {},
-            vals: DurationObject = this.toObject();
-        let lastUnit: NormalizedDurationUnit;
+            accumulated: NormalizedDurationObject = this.toObject();
 
-        ORDERED_UNITS.forEach((k: NormalizedDurationUnit) => {
-            if (units.indexOf(k) >= 0) {
+        // Pass 1: Build up the target units largest to smallest.
+        //         Units grab as many whole units (e.g., grab "1 year" from "370 days") as they can from anything
+        //         still left in "accumulated".
+        //         Additionally, we accumulate the entire Duration in the smallest unit to determine
+        //         the overall sign of the target Duration.
+        let lastUnit: ConversionMatrixUnit | NormalizedDurationUnit;
+        let lastUnitTotal = 0;
+        for (let i = 0; i < ORDERED_UNITS.length; i++) {
+            const k = ORDERED_UNITS[i];
+            if (units.includes(k)) {
+                if (lastUnit) {
+                    // make sure lastUnitTotal stays in the correct unit
+                    lastUnitTotal *= this.matrix[lastUnit as ConversionMatrixUnit][k];
+                }
                 lastUnit = k;
 
                 let own = 0;
-
-                Object.keys(accumulated).forEach((ak: string) => {
-                    own += (this._matrix[ak as ConversionMatrixUnit][k] as number) * (accumulated[ak as NormalizedDurationUnit] as number);
-                    accumulated[ak as NormalizedDurationUnit] = 0;
-                });
-
-                // plus anything that's already in this unit
-                if (isNumber(vals[k])) {
-                    own += vals[k] as number;
+                // Grab as much as we can from "accumulated" into this unit.
+                for (const ak in accumulated) {
+                    const av = accumulated[ak as NormalizedDurationUnit];
+                    if (ak === k) {
+                        own += av;
+                    }
+                    else if (i > ORDERED_UNITS.indexOf(ak as NormalizedDurationUnit)) {
+                        // ak is a larger unit than us, meaning whatever we have accumulated for it must not
+                        // have fit into any higher unit. We down-convert it to this.
+                        const converted = this.matrix[ak as ConversionMatrixUnit][k as NormalizedDurationUnit] * av;
+                        own += converted;
+                        accumulated[ak as NormalizedDurationUnit] = 0;
+                    }
+                    else {
+                        // ak is a smaller unit than us, grab any overflow from it.
+                        // e.g., 125 minutes => 2 hours, 5 minutes
+                        const conv = this.matrix[k as ConversionMatrixUnit][ak as NormalizedDurationUnit];
+                        const toConvert = Math.trunc(av / conv);
+                        accumulated[ak as NormalizedDurationUnit] -= toConvert * conv;
+                        own += toConvert;
+                    }
                 }
 
-                const i = Math.trunc(own);
-                built[k] = i;
-                accumulated[k] = (own * 1000 - i * 1000) / 1000;
-
-                // otherwise, keep it in the wings to boil it later
+                own = snapFloatingPoint(own);
+                // only keep the integer part for now in the hopes of putting any decimal part
+                // into a smaller unit later
+                accumulated[k] = own % 1;
+                lastUnitTotal += built[k] = Math.trunc(own);
             }
-            else if (isNumber(vals[k])) {
-                accumulated[k] = vals[k];
-            }
-        });
+        }
 
-        // anything leftover becomes the decimal for the last unit
+        // anything leftover gets converted to the last unit
         // lastUnit must be defined since units is not empty
-        Object.keys(accumulated).forEach((key: string) => {
-            const v = accumulated[key as NormalizedDurationUnit] as number;
-            if (v !== 0) {
-                (built[lastUnit] as number) +=
-                    key === lastUnit ? v : v / (this._matrix[lastUnit as ConversionMatrixUnit][key as NormalizedDurationUnit] as number);
+        for (const key in accumulated) {
+            if (accumulated[key as NormalizedDurationUnit] !== 0) {
+                const toAdd =
+                    key === lastUnit ? accumulated[key] : accumulated[key as NormalizedDurationUnit] / this.matrix[lastUnit as ConversionMatrixUnit][key as NormalizedDurationUnit];
+                built[lastUnit] += toAdd;
+                lastUnitTotal += toAdd;
             }
-        });
+        }
 
-        return this._clone(this, {values: built}, true).normalize();
+        // Pass 2: ensure the unit signs are consistent with the overall sign according to lastUnitTotal
+        // Do this by "borrowing" from a higher unit.
+        // Note that we only work within the target units here to avoid unexpected intermediary conversions.
+        const overallSign = Math.sign(lastUnitTotal);
+        if (overallSign !== 0) {
+            for (let i = 0; i < REVERSE_ORDERED_UNITS.length; i++) {
+                const unit = REVERSE_ORDERED_UNITS[i];
+                if (unit in built) {
+                    const unitValue = built[unit];
+                    const unitSign = Math.sign(unitValue);
+                    if (unitSign !== 0 && unitSign !== overallSign) {
+                        // find the next largest unit that we have and "borrow" from it
+                        for (let j = i + 1; j < REVERSE_ORDERED_UNITS.length; j++) {
+                            const higherUnit = REVERSE_ORDERED_UNITS[j];
+                            if (higherUnit in built) {
+                                const conv = this.matrix[higherUnit as ConversionMatrixUnit][unit];
+                                // we want to an integer divide by "conv" and round away from zero.
+                                // For example: 3 hours, -122 minutes
+                                // => -122 / 60 => -3 hours to borrow so that we get 0 hours, 58 minutes
+                                // Another example: -3 hours, 122 minutes
+                                // => 122 / 60 => 3 hours to borrow so that we get 0 hours, -58 minutes
+                                const toBorrow = Math.trunc((unitValue + (conv - 1) * unitSign) / conv);
+                                built[higherUnit] += toBorrow;
+                                // this may leave a fractional part behind - it will be fixed below
+                                built[unit] -= toBorrow * conv;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Pass 3: ensure any fractional parts created by the sign redistribution above are
+        // distributed to lower order units again
+        for (let i = 0; i < ORDERED_UNITS.length; i++) {
+            const unit = ORDERED_UNITS[i];
+            // last unit keeps fractions
+            if (unit !== lastUnit && unit in built) {
+                const unitValue = built[unit];
+                if (!Number.isInteger(unitValue)) {
+                    // find the next unit down to convert it into
+                    for (let j = i + 1; j < ORDERED_UNITS.length; j++) {
+                        const smallerUnit = ORDERED_UNITS[j];
+                        if (smallerUnit in built) {
+                            const conv = this.matrix[unit as ConversionMatrixUnit][smallerUnit];
+                            const unitFrac = unitValue % 1;
+                            built[unit] = Math.trunc(unitValue);
+                            built[smallerUnit] += unitFrac * conv;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Pass 4: make sure any overflowing units get converted into a higher unit
+        for (let i = 0; i < REVERSE_ORDERED_UNITS.length; i++) {
+            const unit = REVERSE_ORDERED_UNITS[i];
+            if (units.includes(unit)) {
+                for (const ak in built) {
+                    if (i > REVERSE_ORDERED_UNITS.indexOf(ak as NormalizedDurationUnit)) {
+                        // unit is a larger unit than ak
+                        // try to up-convert any overflow in "ak"
+                        // for example, 61 minutes => 1 hour, 1 minute
+                        const conv = this.matrix[unit as ConversionMatrixUnit][ak as NormalizedDurationUnit];
+                        const av = built[ak as NormalizedDurationUnit];
+                        const toConvert = Math.trunc(av / conv);
+                        built[unit] += toConvert;
+                        built[ak as NormalizedDurationUnit] -= toConvert * conv;
+                    }
+                }
+            }
+        }
+
+        return this._clone(this, {values: built}, !0);
     }
-
 
     /**
      * Shift this Duration to all available units.
@@ -1018,30 +1068,30 @@ export class Duration implements NormalizedDurationObject {
         }
         let s = "P";
         if (this.years !== 0) {
-            s += this.years + "Y";
+            s += toISONumber(this.years) + "Y";
         }
         if (this.months !== 0 || this.quarters !== 0) {
-            s += this.months + this.quarters * 3 + "M";
+            s += toISONumber(this.months + this.quarters * 3) + "M";
         }
         if (this.weeks !== 0) {
-            s += this.weeks + "W";
+            s += toISONumber(this.weeks) + "W";
         }
         if (this.days !== 0) {
-            s += this.days + "D";
+            s += toISONumber(this.days) + "D";
         }
         if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) {
             s += "T";
         }
         if (this.hours !== 0) {
-            s += this.hours + "H";
+            s += toISONumber(this.hours) + "H";
         }
         if (this.minutes !== 0) {
-            s += this.minutes + "M";
+            s += toISONumber(this.minutes) + "M";
         }
         if (this.seconds !== 0 || this.milliseconds !== 0) {
             // this will handle "floating point madness" by removing extra decimal places
             // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
-            s += roundTo(this.seconds + this.milliseconds / 1000, 3) + "S";
+            s += toISONumber(roundTo(this.seconds + this.milliseconds / 1000, 3)) + "S";
         }
         if (s === "P") {
             s += "T0S";
@@ -1152,6 +1202,7 @@ export class Duration implements NormalizedDurationObject {
             conversionAccuracy: alts.conversionAccuracy || dur.conversionAccuracy,
             matrix: alts.matrix || dur.matrix
         };
+
         return new Duration(conf);
     }
 

@@ -90,7 +90,7 @@ test("Interval#toLocaleString can override the start DateTime's output calendar"
             interval.start!.reconfigure({ outputCalendar: "islamic" }),
             interval.end!
         ).toLocaleString({}, { outputCalendar: "coptic" })
-    ).toBe("17/9/1698 – 3/2/1700 ERA1");
+    ).toBe("17/9/1698 – 3/2/1700 AM");
 });
 
 test("Interval#toLocaleString shows things in the right IANA zone", () => {

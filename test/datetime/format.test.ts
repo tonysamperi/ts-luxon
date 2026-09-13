@@ -1,5 +1,5 @@
-import { DateTime, FixedOffsetZone, Zone, ZoneOffsetFormat, ZoneOffsetOptions } from "../../src";
-import { InvalidUnitError } from "../../src/errors";
+import {DateTime, FixedOffsetZone, Zone, ZoneOffsetFormat, ZoneOffsetOptions} from "../../src";
+import {InvalidUnitError} from "../../src/errors";
 
 const dtMaker = () =>
         DateTime.fromObject({
@@ -55,7 +55,7 @@ class CustomZone extends Zone {
         return this._offset;
     }
 
-    offsetName(_ms: number, { format }: ZoneOffsetOptions) {
+    offsetName(_ms: number, {format}: ZoneOffsetOptions) {
         return this._name.substring(0, format === "short" ? void 0 : 4);
     }
 
@@ -82,25 +82,25 @@ test("DateTime#toISO() shows 'Z' for UTC", () => {
 test("DateTime#toISO() shows the offset, unless explicitly asked", () => {
     const offsetted = dt.toUTC(-6 * 60);
     expect(offsetted.toISO()).toBe("1982-05-25T03:23:54.123-06:00");
-    expect(offsetted.toISO({ includeOffset: false })).toBe("1982-05-25T03:23:54.123");
+    expect(offsetted.toISO({includeOffset: false})).toBe("1982-05-25T03:23:54.123");
 });
 
 test("DateTime#toISO() supports the 'basic' format", () => {
-    expect(dt.toISO({ format: "basic" })).toBe("19820525T092354.123Z");
+    expect(dt.toISO({format: "basic"})).toBe("19820525T092354.123Z");
 });
 
 test("DateTime#toISO() suppresses [milli]seconds", () => {
-    const noZeroMilliseconds = { suppressMilliseconds: true };
+    const noZeroMilliseconds = {suppressMilliseconds: true};
     expect(dt.toISO(noZeroMilliseconds)).toBe("1982-05-25T09:23:54.123Z");
-    expect(dt.set({ millisecond: 0 }).toISO(noZeroMilliseconds)).toBe("1982-05-25T09:23:54Z");
+    expect(dt.set({millisecond: 0}).toISO(noZeroMilliseconds)).toBe("1982-05-25T09:23:54Z");
 
-    const noZeroSeconds = { suppressSeconds: true, suppressMilliseconds: true };
-    expect(dt.set({ millisecond: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23:54Z");
-    expect(dt.set({ seconds: 0, milliseconds: 0 }).toISO(noZeroSeconds)).toBe("1982-05-25T09:23Z");
+    const noZeroSeconds = {suppressSeconds: true, suppressMilliseconds: true};
+    expect(dt.set({millisecond: 0}).toISO(noZeroSeconds)).toBe("1982-05-25T09:23:54Z");
+    expect(dt.set({seconds: 0, milliseconds: 0}).toISO(noZeroSeconds)).toBe("1982-05-25T09:23Z");
 
-    const suppressOnlySeconds = { suppressSeconds: true };
-    expect(dt.set({ seconds: 0 }).toISO(suppressOnlySeconds)).toBe("1982-05-25T09:23:00.123Z");
-    expect(dt.set({ seconds: 0, milliseconds: 0 }).toISO(suppressOnlySeconds)).toBe(
+    const suppressOnlySeconds = {suppressSeconds: true};
+    expect(dt.set({seconds: 0}).toISO(suppressOnlySeconds)).toBe("1982-05-25T09:23:00.123Z");
+    expect(dt.set({seconds: 0, milliseconds: 0}).toISO(suppressOnlySeconds)).toBe(
         "1982-05-25T09:23Z"
     );
 });
@@ -113,18 +113,18 @@ test("DateTime#toISO() returns null for invalid DateTimes", () => {
 test("DateTime#toISO() rounds fractional timezone minute offsets", () => {
     expect(
         DateTime.fromMillis(-62090696591000)
-                .setZone("America/Chicago")
-                .toISO()
+            .setZone("America/Chicago")
+            .toISO()
     ).toBe("0002-06-04T10:26:13.000-05:50");
 });
 
 test("DateTime#toISO() handles long gregorian format", () => {
-    const negativeYear = dt.set({ year: 12345 });
+    const negativeYear = dt.set({year: 12345});
     expect(negativeYear.toISO()).toBe("+012345-05-25T09:23:54.123Z");
 });
 
 test("DateTime#toISO() handles negative years", () => {
-    const negativeYear = dt.set({ year: -12345 });
+    const negativeYear = dt.set({year: -12345});
     expect(negativeYear.toISO()).toBe("-012345-05-25T09:23:54.123Z");
 });
 
@@ -140,43 +140,43 @@ test("DateTime#toISO() renders 00:00 for non-offset but non utc datetimes", () =
 
 test("DateTime#toISO() supports the extendedZone option", () => {
     let zoned = dt.setZone("America/Chicago");
-    expect(zoned.toISO({ extendedZone: true })).toBe(
+    expect(zoned.toISO({extendedZone: true})).toBe(
         "1982-05-25T04:23:54.123-05:00[America/Chicago]"
     );
-    expect(zoned.toISO({ includeOffset: false, extendedZone: true })).toBe(
+    expect(zoned.toISO({includeOffset: false, extendedZone: true})).toBe(
         "1982-05-25T04:23:54.123[America/Chicago]"
     );
 
     zoned = dt.setZone("UTC+6");
-    expect(zoned.toISO({ extendedZone: true })).toBe("1982-05-25T15:23:54.123+06:00[Etc/GMT-6]");
-    expect(zoned.toISO({ includeOffset: false, extendedZone: true })).toBe(
+    expect(zoned.toISO({extendedZone: true})).toBe("1982-05-25T15:23:54.123+06:00[Etc/GMT-6]");
+    expect(zoned.toISO({includeOffset: false, extendedZone: true})).toBe(
         "1982-05-25T15:23:54.123[Etc/GMT-6]"
     );
 
     zoned = dt.setZone("UTC");
     // note no Z
-    expect(zoned.toISO({ extendedZone: true })).toBe("1982-05-25T09:23:54.123+00:00[Etc/UTC]");
-    expect(zoned.toISO({ includeOffset: false, extendedZone: true })).toBe(
+    expect(zoned.toISO({extendedZone: true})).toBe("1982-05-25T09:23:54.123+00:00[Etc/UTC]");
+    expect(zoned.toISO({includeOffset: false, extendedZone: true})).toBe(
         "1982-05-25T09:23:54.123[Etc/UTC]"
     );
 });
 
 test("DateTime#toISO({precision}) truncates time to desired precision", () => {
-    expect(dt.toISO({ precision: "millisecond" })).toBe("1982-05-25T09:23:54.123Z");
-    expect(dt.toISO({ precision: "second" })).toBe("1982-05-25T09:23:54Z");
-    expect(dt.toISO({ precision: "minute" })).toBe("1982-05-25T09:23Z");
-    expect(dt.toISO({ precision: "hours" })).toBe("1982-05-25T09Z");
-    expect(dt.toISO({ precision: "days" })).toBe("1982-05-25Z");
-    expect(dt.toISO({ precision: "months" })).toBe("1982-05Z");
-    expect(dt.toISO({ precision: "years" })).toBe("1982Z");
+    expect(dt.toISO({precision: "millisecond"})).toBe("1982-05-25T09:23:54.123Z");
+    expect(dt.toISO({precision: "second"})).toBe("1982-05-25T09:23:54Z");
+    expect(dt.toISO({precision: "minute"})).toBe("1982-05-25T09:23Z");
+    expect(dt.toISO({precision: "hours"})).toBe("1982-05-25T09Z");
+    expect(dt.toISO({precision: "days"})).toBe("1982-05-25Z");
+    expect(dt.toISO({precision: "months"})).toBe("1982-05Z");
+    expect(dt.toISO({precision: "years"})).toBe("1982Z");
 });
 
 test("DateTime#toISO({precision}) throws when the precision is invalid", () => {
     // @ts-expect-error
-    expect(() => dt.toISO({ precision: "ms" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISO({precision: "ms"})).toThrow(InvalidUnitError);
     // @ts-expect-error
-    expect(() => dt.toISO({ precision: "xxx" })).toThrow(InvalidUnitError);
-    expect(() => dt.toISO({ precision: null })).toThrow(TypeError);
+    expect(() => dt.toISO({precision: "xxx"})).toThrow(InvalidUnitError);
+    expect(() => dt.toISO({precision: null})).toThrow(TypeError);
 });
 
 // ------
@@ -191,7 +191,7 @@ test("DateTime#toISODate() is local to the zone", () => {
 });
 
 test("DateTime#toISODate() can output the basic format", () => {
-    expect(dt.toISODate({ format: "basic" })).toBe("19820525");
+    expect(dt.toISODate({format: "basic"})).toBe("19820525");
 });
 
 test("DateTime#toISODate() returns null for invalid DateTimes", () => {
@@ -200,38 +200,38 @@ test("DateTime#toISODate() returns null for invalid DateTimes", () => {
 
 test("DateTime#toISODate() returns ISO 8601 date in format [±YYYYY]", () => {
     expect(
-        DateTime.fromObject({ year: 118040, month: 5, day: 25 }, { zone: "utc" }).toISODate()
+        DateTime.fromObject({year: 118040, month: 5, day: 25}, {zone: "utc"}).toISODate()
     ).toBe("+118040-05-25");
     expect(
-        DateTime.fromObject({ year: -118040, month: 5, day: 25 }, { zone: "utc" }).toISODate()
+        DateTime.fromObject({year: -118040, month: 5, day: 25}, {zone: "utc"}).toISODate()
     ).toBe("-118040-05-25");
 });
 
 test("DateTime#toISODate() correctly pads negative years", () => {
-    expect(DateTime.fromObject({ year: -1, month: 1, day: 1 }, { zone: "utc" }).toISODate()).toBe(
+    expect(DateTime.fromObject({year: -1, month: 1, day: 1}, {zone: "utc"}).toISODate()).toBe(
         "-000001-01-01"
     );
-    expect(DateTime.fromObject({ year: -10, month: 1, day: 1 }, { zone: "utc" }).toISODate()).toBe(
+    expect(DateTime.fromObject({year: -10, month: 1, day: 1}, {zone: "utc"}).toISODate()).toBe(
         "-000010-01-01"
     );
 });
 
 test("DateTime#toISODate({precision}) truncates time to desired precision", () => {
-    expect(dt.toISODate({ precision: "millisecond" })).toBe("1982-05-25");
-    expect(dt.toISODate({ precision: "second" })).toBe("1982-05-25");
-    expect(dt.toISODate({ precision: "minute" })).toBe("1982-05-25");
-    expect(dt.toISODate({ precision: "hours" })).toBe("1982-05-25");
-    expect(dt.toISODate({ precision: "days" })).toBe("1982-05-25");
-    expect(dt.toISODate({ precision: "months" })).toBe("1982-05");
-    expect(dt.toISODate({ precision: "years" })).toBe("1982");
+    expect(dt.toISODate({precision: "millisecond"})).toBe("1982-05-25");
+    expect(dt.toISODate({precision: "second"})).toBe("1982-05-25");
+    expect(dt.toISODate({precision: "minute"})).toBe("1982-05-25");
+    expect(dt.toISODate({precision: "hours"})).toBe("1982-05-25");
+    expect(dt.toISODate({precision: "days"})).toBe("1982-05-25");
+    expect(dt.toISODate({precision: "months"})).toBe("1982-05");
+    expect(dt.toISODate({precision: "years"})).toBe("1982");
 });
 
 test("DateTime#toISODate({precision}) throws when the precision is invalid", () => {
     // @ts-expect-error
-    expect(() => dt.toISODate({ precision: "ms" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISODate({precision: "ms"})).toThrow(InvalidUnitError);
     // @ts-expect-error
-    expect(() => dt.toISODate({ precision: "xxx" })).toThrow(InvalidUnitError);
-    expect(() => dt.toISODate({ precision: null })).toThrow(TypeError);
+    expect(() => dt.toISODate({precision: "xxx"})).toThrow(InvalidUnitError);
+    expect(() => dt.toISODate({precision: null})).toThrow(TypeError);
 });
 
 
@@ -262,19 +262,19 @@ test("DateTime#toISOTime() won't suppress milliseconds by default", () => {
 });
 
 test("DateTime#toISOTime({suppressMilliseconds: true}) won't suppress milliseconds if they're nonzero", () => {
-    expect(dt.toISOTime({ suppressMilliseconds: true })).toBe("09:23:54.123Z");
+    expect(dt.toISOTime({suppressMilliseconds: true})).toBe("09:23:54.123Z");
 });
 
 test("DateTime#toISOTime({suppressMilliseconds: true}) will suppress milliseconds if they're zero", () => {
-    expect(dt.set({ millisecond: 0 }).toISOTime({ suppressMilliseconds: true })).toBe("09:23:54Z");
+    expect(dt.set({millisecond: 0}).toISOTime({suppressMilliseconds: true})).toBe("09:23:54Z");
 });
 
 test("DateTime#toISOTime({suppressSeconds: true}) won't suppress milliseconds if they're nonzero", () => {
-    expect(dt.toISOTime({ suppressSeconds: true })).toBe("09:23:54.123Z");
+    expect(dt.toISOTime({suppressSeconds: true})).toBe("09:23:54.123Z");
 });
 
 test("DateTime#toISOTime({suppressSeconds: true}) will suppress milliseconds if they're zero", () => {
-    expect(dt.set({ second: 0, millisecond: 0 }).toISOTime({ suppressSeconds: true })).toBe("09:23Z");
+    expect(dt.set({second: 0, millisecond: 0}).toISOTime({suppressSeconds: true})).toBe("09:23Z");
 });
 
 test("DateTime#toISOTime() handles other offsets", () => {
@@ -282,20 +282,20 @@ test("DateTime#toISOTime() handles other offsets", () => {
 });
 
 test("DateTime#toISOTime() can omit the offset", () => {
-    expect(dt.toISOTime({ includeOffset: false })).toBe("09:23:54.123");
+    expect(dt.toISOTime({includeOffset: false})).toBe("09:23:54.123");
 });
 
 test("DateTime#toISOTime() can output the basic format", () => {
-    expect(dt.toISOTime({ format: "basic" })).toBe("092354.123Z");
-    expect(dt.setZone("America/New_York").toISOTime({ format: "basic" })).toBe("052354.123-0400");
-    const dt2 = dt.set({ second: 0, millisecond: 0 });
-    expect(dt2.toISOTime({ format: "basic", suppressMilliseconds: true })).toBe("092300Z");
-    expect(dt2.toISOTime({ format: "basic", suppressSeconds: true })).toBe("0923Z");
+    expect(dt.toISOTime({format: "basic"})).toBe("092354.123Z");
+    expect(dt.setZone("America/New_York").toISOTime({format: "basic"})).toBe("052354.123-0400");
+    const dt2 = dt.set({second: 0, millisecond: 0});
+    expect(dt2.toISOTime({format: "basic", suppressMilliseconds: true})).toBe("092300Z");
+    expect(dt2.toISOTime({format: "basic", suppressSeconds: true})).toBe("0923Z");
 });
 
 test("DateTime#toISOTime can include the prefix", () => {
-    expect(dt.toISOTime({ includePrefix: true })).toBe("T09:23:54.123Z");
-    expect(dt.toISOTime({ format: "basic", includePrefix: true })).toBe("T092354.123Z");
+    expect(dt.toISOTime({includePrefix: true})).toBe("T09:23:54.123Z");
+    expect(dt.toISOTime({format: "basic", includePrefix: true})).toBe("T092354.123Z");
 });
 
 test("DateTime#toISOTime() returns null for invalid DateTimes", () => {
@@ -303,43 +303,43 @@ test("DateTime#toISOTime() returns null for invalid DateTimes", () => {
 });
 
 test("DateTime#toISOTime({precision}) truncates time to desired precision", () => {
-    expect(dt.toISOTime({ precision: "millisecond" })).toBe("09:23:54.123Z");
-    expect(dt.toISOTime({ precision: "second" })).toBe("09:23:54Z");
-    expect(dt.toISOTime({ precision: "minute" })).toBe("09:23Z");
-    expect(dt.toISOTime({ precision: "hours" })).toBe("09Z");
-    expect(dt.toISOTime({ precision: "days" })).toBe("Z");
-    expect(dt.toISOTime({ precision: "months" })).toBe("Z");
-    expect(dt.toISOTime({ precision: "years" })).toBe("Z");
+    expect(dt.toISOTime({precision: "millisecond"})).toBe("09:23:54.123Z");
+    expect(dt.toISOTime({precision: "second"})).toBe("09:23:54Z");
+    expect(dt.toISOTime({precision: "minute"})).toBe("09:23Z");
+    expect(dt.toISOTime({precision: "hours"})).toBe("09Z");
+    expect(dt.toISOTime({precision: "days"})).toBe("Z");
+    expect(dt.toISOTime({precision: "months"})).toBe("Z");
+    expect(dt.toISOTime({precision: "years"})).toBe("Z");
 });
 
 test("DateTime#toISOTime({precision}) throws when the precision is invalid", () => {
     // @ts-expect-error
-    expect(() => dt.toISOTime({ precision: "ms" })).toThrow(InvalidUnitError);
+    expect(() => dt.toISOTime({precision: "ms"})).toThrow(InvalidUnitError);
     // @ts-expect-error
-    expect(() => dt.toISOTime({ precision: "xxx" })).toThrow(InvalidUnitError);
-    expect(() => dt.toISOTime({ precision: null })).toThrow(TypeError);
+    expect(() => dt.toISOTime({precision: "xxx"})).toThrow(InvalidUnitError);
+    expect(() => dt.toISOTime({precision: null})).toThrow(TypeError);
 });
 
 test("DateTime#toISOTime({precision, suppressSeconds}) suppresses when precision is > 'hour'", () => {
-    const dt2 = dt.set({ second: 0, millisecond: 0 });
-    expect(dt2.toISOTime({ precision: "year", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "month", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "day", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "hour", suppressSeconds: true })).toBe("09Z");
-    expect(dt2.toISOTime({ precision: "minute", suppressSeconds: true })).toBe("09:23Z");
-    expect(dt2.toISOTime({ precision: "second", suppressSeconds: true })).toBe("09:23Z");
-    expect(dt2.toISOTime({ precision: "millisecond", suppressSeconds: true })).toBe("09:23Z");
+    const dt2 = dt.set({second: 0, millisecond: 0});
+    expect(dt2.toISOTime({precision: "year", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "month", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "day", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "hour", suppressSeconds: true})).toBe("09Z");
+    expect(dt2.toISOTime({precision: "minute", suppressSeconds: true})).toBe("09:23Z");
+    expect(dt2.toISOTime({precision: "second", suppressSeconds: true})).toBe("09:23Z");
+    expect(dt2.toISOTime({precision: "millisecond", suppressSeconds: true})).toBe("09:23Z");
 });
 
 test("DateTime#toISOTime({precision, suppressMilliseconds}) suppresses when precision is > 'minute'", () => {
-    const dt2 = dt.set({ millisecond: 0 });
-    expect(dt2.toISOTime({ precision: "year", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "month", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "day", suppressSeconds: true })).toBe("Z");
-    expect(dt2.toISOTime({ precision: "hour", suppressMilliseconds: true })).toBe("09Z");
-    expect(dt2.toISOTime({ precision: "minute", suppressMilliseconds: true })).toBe("09:23Z");
-    expect(dt2.toISOTime({ precision: "second", suppressMilliseconds: true })).toBe("09:23:54Z");
-    expect(dt2.toISOTime({ precision: "millisecond", suppressMilliseconds: true })).toBe("09:23:54Z");
+    const dt2 = dt.set({millisecond: 0});
+    expect(dt2.toISOTime({precision: "year", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "month", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "day", suppressSeconds: true})).toBe("Z");
+    expect(dt2.toISOTime({precision: "hour", suppressMilliseconds: true})).toBe("09Z");
+    expect(dt2.toISOTime({precision: "minute", suppressMilliseconds: true})).toBe("09:23Z");
+    expect(dt2.toISOTime({precision: "second", suppressMilliseconds: true})).toBe("09:23:54Z");
+    expect(dt2.toISOTime({precision: "millisecond", suppressMilliseconds: true})).toBe("09:23:54Z");
 });
 
 // ------
@@ -349,7 +349,7 @@ test("DateTime#toISOTime({precision, suppressMilliseconds}) suppresses when prec
 test("DateTime#toRFC2822() returns an RFC 2822 date", () => {
     expect(dt.toUTC().toRFC2822()).toBe("Tue, 25 May 1982 09:23:54 +0000");
     expect(dt.setZone("America/New_York").toRFC2822()).toBe("Tue, 25 May 1982 05:23:54 -0400");
-    expect(dt.set({ hour: 15 }).toRFC2822()).toBe("Tue, 25 May 1982 15:23:54 +0000");
+    expect(dt.set({hour: 15}).toRFC2822()).toBe("Tue, 25 May 1982 15:23:54 +0000");
 });
 
 test("DateTime#toRFC2822() returns null for invalid DateTimes", () => {
@@ -394,19 +394,19 @@ test("DateTime#toSQLTime() returns SQL time", () => {
 });
 
 test("DateTime#toSQLTime() accepts an includeOffset option", () => {
-    expect(dt.toUTC().toSQLTime({ includeOffset: false })).toBe("09:23:54.123");
-    expect(dt.setZone("America/New_York").toSQLTime({ includeOffset: false })).toBe("05:23:54.123");
+    expect(dt.toUTC().toSQLTime({includeOffset: false})).toBe("09:23:54.123");
+    expect(dt.setZone("America/New_York").toSQLTime({includeOffset: false})).toBe("05:23:54.123");
 });
 
 test("DateTime#toSQLTime() accepts an includeOffsetSpace option", () => {
-    expect(dt.setZone("America/New_York").toSQLTime({ includeOffsetSpace: false })).toBe(
+    expect(dt.setZone("America/New_York").toSQLTime({includeOffsetSpace: false})).toBe(
         "05:23:54.123-04:00"
     );
 });
 
 test("DateTime#toSQLTime() accepts an includeZone option", () => {
-    expect(dt.toUTC().toSQLTime({ includeZone: true })).toBe("09:23:54.123 UTC");
-    expect(dt.setZone("America/New_York").toSQLTime({ includeZone: true })).toBe(
+    expect(dt.toUTC().toSQLTime({includeZone: true})).toBe("09:23:54.123 UTC");
+    expect(dt.setZone("America/New_York").toSQLTime({includeZone: true})).toBe(
         "05:23:54.123 America/New_York"
     );
 });
@@ -425,15 +425,15 @@ test("DateTime#toSQL() returns SQL date time", () => {
 });
 
 test("DateTime#toSQL() accepts an includeOffset option", () => {
-    expect(dt.toUTC().toSQL({ includeOffset: false })).toBe("1982-05-25 09:23:54.123");
-    expect(dt.setZone("America/New_York").toSQL({ includeOffset: false })).toBe(
+    expect(dt.toUTC().toSQL({includeOffset: false})).toBe("1982-05-25 09:23:54.123");
+    expect(dt.setZone("America/New_York").toSQL({includeOffset: false})).toBe(
         "1982-05-25 05:23:54.123"
     );
 });
 
 test("DateTime#toSQL() accepts an includeZone option", () => {
-    expect(dt.toUTC().toSQL({ includeZone: true })).toBe("1982-05-25 09:23:54.123 UTC");
-    expect(dt.setZone("America/New_York").toSQL({ includeZone: true })).toBe(
+    expect(dt.toUTC().toSQL({includeZone: true})).toBe("1982-05-25 09:23:54.123 UTC");
+    expect(dt.setZone("America/New_York").toSQL({includeZone: true})).toBe(
         "1982-05-25 05:23:54.123 America/New_York"
     );
 });
@@ -457,44 +457,44 @@ test("DateTime#toString() returns something different for invalid DateTimes", ()
 // #toLocaleString()
 // -------
 test("DateTime#toLocaleString returns a sensible string by default", () => {
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString()).toBe("5/25/1982");
+    expect(dt.reconfigure({locale: "en-US"}).toLocaleString()).toBe("5/25/1982");
 });
 
 test("DateTime#toLocaleString lets the locale set the numbering system", () => {
-    expect(dt.reconfigure({ locale: "ja-JP" }).toLocaleString({ hour: "numeric" })).toBe("9時");
+    expect(dt.reconfigure({locale: "ja-JP"}).toLocaleString({hour: "numeric"})).toBe("9時");
 });
 
 test("DateTime#toLocaleString accepts locale settings from the dateTime", () => {
-    expect(dt.reconfigure({ locale: "be" }).toLocaleString()).toBe("25.5.1982");
+    expect(dt.reconfigure({locale: "be"}).toLocaleString()).toBe("25.5.1982");
 });
 
 test("DateTime#toLocaleString accepts numbering system settings from the dateTime", () => {
-    expect(dt.reconfigure({ numberingSystem: "beng" }).toLocaleString()).toBe("৫/২৫/১৯৮২");
+    expect(dt.reconfigure({numberingSystem: "beng"}).toLocaleString()).toBe("৫/২৫/১৯৮২");
 });
 
 test("DateTime#toLocaleString accepts output calendar settings from the dateTime", () => {
-    expect(dt.reconfigure({ outputCalendar: "islamic" }).toLocaleString()).toBe("8/2/1402 AH");
+    expect(dt.reconfigure({outputCalendar: "islamic"}).toLocaleString()).toBe("8/2/1402 AH");
 });
 
 test("DateTime#toLocaleString accepts options to the formatter", () => {
-    expect(dt.toLocaleString({ weekday: "short" }).indexOf("Tue") >= 0).toBeTruthy();
+    expect(dt.toLocaleString({weekday: "short"}).indexOf("Tue") >= 0).toBeTruthy();
 });
 
 test("DateTime#toLocaleString can override the dateTime's locale", () => {
-    expect(dt.reconfigure({ locale: "be" }).toLocaleString({}, { locale: "fr" })).toBe("25/05/1982");
+    expect(dt.reconfigure({locale: "be"}).toLocaleString({}, {locale: "fr"})).toBe("25/05/1982");
 });
 
 test("DateTime#toLocaleString can override the dateTime's numbering system", () => {
     // TODO: CHECK POSITION OF numberingSystem - first or second argument? luxon still has this in the first at commit "2.0 prep"
     expect(
-        dt.reconfigure({ numberingSystem: "beng" }).toLocaleString({}, { numberingSystem: "mong" })
+        dt.reconfigure({numberingSystem: "beng"}).toLocaleString({}, {numberingSystem: "mong"})
     ).toBe("᠕/᠒᠕/᠑᠙᠘᠒");
 });
 
 test("DateTime#toLocaleString can override the dateTime's output calendar", () => {
     expect(
-        dt.reconfigure({ outputCalendar: "islamic" }).toLocaleString({}, { outputCalendar: "coptic" })
-    ).toBe("9/17/1698 ERA1");
+        dt.reconfigure({outputCalendar: "islamic"}).toLocaleString({}, {outputCalendar: "coptic"})
+    ).toBe("9/17/1698 AM");
 });
 
 test("DateTime#toLocaleString() returns something different for invalid DateTimes", () => {
@@ -530,7 +530,7 @@ test("DateTime#toLocaleString() does the best it can with unsupported fixed-offs
 });
 
 test("DateTime#toLocaleString() does the best it can with unsupported fixed-offset zone with timeStyle full", () => {
-    expect(dt.setZone("UTC+4:30").toLocaleString({ timeStyle: "full" })).toBe("1:53:54\u202FPM UTC+4:30");
+    expect(dt.setZone("UTC+4:30").toLocaleString({timeStyle: "full"})).toBe("1:53:54\u202FPM UTC+4:30");
 });
 
 test("DateTime#toLocaleString() shows things in the right custom zone", () => {
@@ -546,22 +546,22 @@ test("DateTime#toLocaleString() shows things in the right custom zone when showi
 });
 
 test("DateTime#toLocaleString() shows things in the right custom zone with timeStyle full", () => {
-    expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString({ timeStyle: "full" })).toBe(
+    expect(dt.setZone(new CustomZone("CUSTOM", 30)).toLocaleString({timeStyle: "full"})).toBe(
         "9:53:54\u202FAM CUST"
     );
 });
 
 test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23\u202FAM");
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
+    expect(dt.reconfigure({locale: "en-US"}).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23\u202FAM");
+    expect(dt.reconfigure({locale: "en-US"}).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
 
     // France has 24-hour time by default
-    expect(dt.reconfigure({ locale: "fr" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("09:23");
-    expect(dt.reconfigure({ locale: "fr" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
+    expect(dt.reconfigure({locale: "fr"}).toLocaleString(DateTime.TIME_SIMPLE)).toBe("09:23");
+    expect(dt.reconfigure({locale: "fr"}).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("09:23");
 
     // For whatever reason, Spain doesn't prefix with "0"
-    expect(dt.reconfigure({ locale: "es" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23");
-    expect(dt.reconfigure({ locale: "es" }).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("9:23");
+    expect(dt.reconfigure({locale: "es"}).toLocaleString(DateTime.TIME_SIMPLE)).toBe("9:23");
+    expect(dt.reconfigure({locale: "es"}).toLocaleString(DateTime.TIME_24_SIMPLE)).toBe("9:23");
 });
 
 // I don't know what they expected to do and see but this doesn't make sense and doesn't pass in Luxon as well
@@ -570,7 +570,7 @@ test("DateTime#toLocaleString uses locale-appropriate time formats", () => {
 // });
 
 test("DateTime#toLocaleString() respects language tags", () => {
-    expect(dt.reconfigure({ locale: "en-US-u-hc-h23" }).toLocaleString(DateTime.TIME_SIMPLE)).toBe(
+    expect(dt.reconfigure({locale: "en-US-u-hc-h23"}).toLocaleString(DateTime.TIME_SIMPLE)).toBe(
         "09:23"
     );
 });
@@ -601,12 +601,12 @@ test("DateTime#resolvedLocaleOptions returns a thing", () => {
 
 test("DateTime#resolvedLocaleOptions reflects changes to the locale", () => {
     const res = DateTime.now()
-                        .reconfigure({
-                            locale: "be",
-                            numberingSystem: "mong",
-                            outputCalendar: "coptic"
-                        })
-                        .resolvedLocaleOptions();
+        .reconfigure({
+            locale: "be",
+            numberingSystem: "mong",
+            outputCalendar: "coptic"
+        })
+        .resolvedLocaleOptions();
 
     expect(res.locale).toBe("be-u-ca-coptic-nu-mong");
     expect(res.outputCalendar).toBe("coptic");
@@ -630,40 +630,40 @@ test("DateTime#resolvedLocaleOptions can override with options", () => {
 // ------
 
 test("DateTime#toLocaleParts returns a en-US by default", () => {
-    expect(dt.reconfigure({ locale: "en-US" }).toLocaleParts()).toEqual([
-        { type: "month", value: "5" },
-        { type: "literal", value: "/" },
-        { type: "day", value: "25" },
-        { type: "literal", value: "/" },
-        { type: "year", value: "1982" }
+    expect(dt.reconfigure({locale: "en-US"}).toLocaleParts()).toEqual([
+        {type: "month", value: "5"},
+        {type: "literal", value: "/"},
+        {type: "day", value: "25"},
+        {type: "literal", value: "/"},
+        {type: "year", value: "1982"}
     ]);
 });
 
 test("DateTime#toLocaleParts accepts locale settings from the dateTime", () => {
-    expect(dt.reconfigure({ locale: "be" }).toLocaleParts()).toEqual([
-        { type: "day", value: "25" },
-        { type: "literal", value: "." },
-        { type: "month", value: "5" },
-        { type: "literal", value: "." },
-        { type: "year", value: "1982" }
+    expect(dt.reconfigure({locale: "be"}).toLocaleParts()).toEqual([
+        {type: "day", value: "25"},
+        {type: "literal", value: "."},
+        {type: "month", value: "5"},
+        {type: "literal", value: "."},
+        {type: "year", value: "1982"}
     ]);
 });
 
 test("DateTime#toLocaleParts can override the dateTime's locale", () => {
-    expect(dt.reconfigure({ locale: "be" }).toLocaleParts({ locale: "fr" })).toEqual([
-        { type: "day", value: "25" },
-        { type: "literal", value: "/" },
-        { type: "month", value: "05" },
-        { type: "literal", value: "/" },
-        { type: "year", value: "1982" }
+    expect(dt.reconfigure({locale: "be"}).toLocaleParts({locale: "fr"})).toEqual([
+        {type: "day", value: "25"},
+        {type: "literal", value: "/"},
+        {type: "month", value: "05"},
+        {type: "literal", value: "/"},
+        {type: "year", value: "1982"}
     ]);
 });
 
 test("DateTime#toLocaleParts accepts date formatting options", () => {
     expect(dt.toLocaleParts(DateTime.TIME_24_SIMPLE)).toEqual([
-        { type: "hour", value: "09" },
-        { type: "literal", value: ":" },
-        { type: "minute", value: "23" }
+        {type: "hour", value: "09"},
+        {type: "literal", value: ":"},
+        {type: "minute", value: "23"}
     ]);
 });
 

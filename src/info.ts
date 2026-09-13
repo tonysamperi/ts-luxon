@@ -69,9 +69,9 @@ export class Info {
      * @param {string} [opts.locObj=null] - an existing locale object to use
      * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
      */
-    static getWeekendWeekdays({ locale, locObj }: { locale?: string; locObj?: Locale } = {}): [DayOfWeek, DayOfWeek] {
+    static getWeekendWeekdays({ locale, locObj }: { locale?: string; locObj?: Locale } = {}): DayOfWeek[] {
         // copy the array, because we cache it internally
-        return (locObj || Locale.create(locale)).getWeekendDays().slice() as [DayOfWeek, DayOfWeek];
+        return (locObj || Locale.create(locale)).getWeekendDays().slice();
     }
 
     /**

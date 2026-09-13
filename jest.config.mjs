@@ -12,6 +12,7 @@ export default {
         "^(\\.{1,2}/.*)\\.js$": "$1"
     },
     testEnvironment: "node",
+    setupFilesAfterEnv: ["<rootDir>/test/test-setup.js"],
     testRegex: "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     moduleFileExtensions: [
         "ts",

@@ -167,6 +167,7 @@ function extractISODuration(match: RegExpExecArray): any {
 const obsOffsets: Record<string, number> = {
     /* eslint-disable @typescript-eslint/naming-convention */
     GMT: 0,
+    UT: 0,
     EDT: -4 * 60,
     EST: -5 * 60,
     CDT: -5 * 60,

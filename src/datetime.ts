@@ -82,7 +82,7 @@ const MAX_DATE = 8.64e15;
 
 // find the right offset at a given local time. The o input is our guess, which determines which
 // offset we'll pick in ambiguous cases (e.g. there are two 3 AMs b/c Fallback DST)
-function fixOffset(localTS: number, o: number, tz: Zone): [number, number] {
+function fixOffset(localTS: number, o: number, tz: Zone): [number, number, boolean] {
     // Our UTC time is just a guess because our offset is just a guess
     let utcGuess = localTS - o * 60 * 1000;
 
@@ -91,7 +91,7 @@ function fixOffset(localTS: number, o: number, tz: Zone): [number, number] {
 
     // If so, offset didn't change and we're done
     if (o === o2) {
-        return [utcGuess, o];
+        return [utcGuess, o, false];
     }
 
     // If not, change the ts by the difference in the offset
@@ -100,11 +100,11 @@ function fixOffset(localTS: number, o: number, tz: Zone): [number, number] {
     // If that gives us the local time we want, we're done
     const o3 = tz.offset(utcGuess);
     if (o2 === o3) {
-        return [utcGuess, o2];
+        return [utcGuess, o2, false];
     }
 
-    // If it's different, we're in a hole time. The offset has changed, but the we don't adjust the time
-    return [localTS - Math.min(o2, o3) * 60 * 1000, Math.max(o2, o3)];
+    // If it's different, we're in a hole time. The offset has changed, but then we don't adjust the time
+    return [localTS - Math.min(o2, o3) * 60 * 1000, Math.max(o2, o3), true];
 }
 
 // convert an epoch timestamp into a calendar object with the given offset
@@ -125,7 +125,7 @@ function tsToObj(ts: number, offset: number): GregorianDateTime {
 }
 
 // convert a calendar object to an epoch timestamp
-function objToTS(obj: GregorianDateTime, offset: number, zone: Zone): [number, number] {
+function objToTS(obj: GregorianDateTime, offset: number, zone: Zone): [number, number, boolean] {
     return fixOffset(objToLocalTS(obj), offset, zone);
 }
 
@@ -227,6 +227,7 @@ interface Config extends DateTimeConfig {
         o: number;
         c: GregorianDateTime;
     };
+    wasHole?: boolean;
 }
 
 /**
@@ -631,6 +632,19 @@ export class DateTime {
     }
 
     /**
+     * Whether this DateTime was created from a "hole time" that can exist during DST due to the
+     * clocks moving forward.
+     *
+     * @example DateTime.local(2017, 3, 12, 2).wasHole; //=> true
+     * @example DateTime.local(2017, 3, 12, 4).wasHole; //=> false
+     *
+     * @return {boolean}
+     */
+    get wasHole(): boolean {
+        return this.isValid ? this._wasHole : null;
+    }
+
+    /**
      * Get the week number of the week year (1-52ish).
      * @see https://en.wikipedia.org/wiki/ISO_week_date
      * @example DateTime.local(2017, 5, 25).weekNumber //=> 21
@@ -733,6 +747,7 @@ export class DateTime {
     private _localWeekData?: WeekDateTime;
     private readonly _o: number;
     private readonly _ts: number;
+    private _wasHole: boolean;
     private _weekData: WeekDateTime | null;
     private readonly _zone: Readonly<Zone>;
 
@@ -754,12 +769,14 @@ export class DateTime {
          */
         this._ts = isUndefined(config.ts) ? Settings.now() : config.ts;
 
-        let o, c;
+        let c: GregorianDateTime | undefined = void 0; // Holds timestamp to object result
+        let o: number | undefined = void 0; // Offset
         if (!invalid) {
             const unchanged = !!config.old && config.old.ts === this._ts && config.old.zone.equals(zone);
 
             if (unchanged) {
-                [c, o] = [config.old.c, config.old.o];
+                c = config.old.c;
+                o = config.old.o;
             }
             else {
                 // If an offset has been passed + we have not been called from clone(), we can trust it and avoid the offset calculation.
@@ -791,6 +808,10 @@ export class DateTime {
          * @access private
          */
         this._c = c as GregorianDateTime;
+        /**
+         * @access private
+         */
+        this._wasHole = !!config.wasHole;
         /**
          * @access private
          */
@@ -1087,8 +1108,7 @@ export class DateTime {
         const containsGregorYear = isDefined(normalized.year);
         const containsGregorMD = isDefined(normalized.month) || isDefined(normalized.day);
         const containsGregor = containsGregorYear || containsGregorMD;
-        const definiteWeekDef = normalized.weekYear || normalized.weekNumber
-        ;
+        const definiteWeekDef = normalized.weekYear || normalized.weekNumber;
 
         // cases:
         // just a weekday -> this week's instance of that weekday, no worries
@@ -1448,12 +1468,13 @@ export class DateTime {
                 : config.containsOrdinal
                     ? ordinalToGregorian(config.normalized as unknown as OrdinalDateTime)
                     : config.normalized,
-            [tsFinal, offsetFinal] = objToTS(gregorian as unknown as GregorianDateTime, config.offsetProvis, config.zoneToUse),
+            [tsFinal, offsetFinal, wasHole] = objToTS(gregorian as unknown as GregorianDateTime, config.offsetProvis, config.zoneToUse),
             inst = new DateTime({
                 ts: tsFinal,
                 zone: config.zoneToUse,
                 o: offsetFinal,
-                loc: config.loc
+                loc: config.loc,
+                wasHole
             });
 
         // gregorian data + weekday serves only to validate
@@ -1579,7 +1600,7 @@ export class DateTime {
         const loc = Locale.fromObject(opts);
         const tsNow = Settings.now();
 
-        let ts, o;
+        let ts, o, wasHole;
 
         // assume we have the higher-order units
         if (isDefined(obj.year)) {
@@ -1597,13 +1618,13 @@ export class DateTime {
             }
 
             const offsetProvis = this._guessOffsetForZone(zone);
-            [ts, o] = objToTS(obj, offsetProvis, zone);
+            [ts, o, wasHole] = objToTS(obj, offsetProvis, zone);
         }
         else {
             ts = tsNow;
         }
 
-        return new DateTime({ts, zone, loc, o});
+        return new DateTime({ts, zone, loc, o, wasHole});
     }
 
     /**
@@ -1811,16 +1832,21 @@ export class DateTime {
     }
 
     /**
-     * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
-     * @param {Object} [options] - the options to set
-     * @param {string} [options.locale] - ;
-     * @param {CalendarSystem} [options.outputCalendar] - ;
-     * @param {NumberingSystem} [options.numberingSystem] - ;
+     * "Set" the locale, numberingSystem, outputCalendar, or weekSettings. Returns a newly-constructed DateTime.
+     * @param {Object} properties - the properties to set
+     * @param {string} [properties.locale] - the locale to set
+     * @param {string} [properties.numberingSystem] - the numbering system to set
+     * @param {string} [properties.outputCalendar] - the output calendar to set
+     * @param {Object} [properties.weekSettings] - the week settings to set
+     * @param {number} [properties.weekSettings.firstDay] - the first day of the week (1-7, Monday-Sunday)
+     * @param {number} [properties.weekSettings.minimalDays] - the minimum number of days in the first week
+     * @param {number[]} [properties.weekSettings.weekend] - the weekend days
      * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
+     * @example DateTime.local(2017, 5, 25).reconfigure({ weekSettings: { firstDay: 1 } })
      * @return {DateTime}
      */
-    reconfigure(options: LocaleOptions): DateTime {
-        const loc = this._loc.clone(options);
+    reconfigure({locale, numberingSystem, outputCalendar, weekSettings}: LocaleOptions = {}): DateTime {
+        const loc = this.loc.clone({locale, numberingSystem, outputCalendar, weekSettings});
         return this._clone({loc});
     }
 
@@ -1897,8 +1923,8 @@ export class DateTime {
             }
         }
 
-        const [ts, o] = objToTS(mixed, this._o, this.zone);
-        return this._clone({ts, o});
+        const [ts, o, wasHole] = objToTS(mixed, this._o, this.zone);
+        return this._clone({ts, o, wasHole});
     }
 
     /**
@@ -1930,12 +1956,13 @@ export class DateTime {
         }
         else {
             let newTS = this._ts;
+            let wasHole = !1;
             if (keepLocalTime || keepCalendarTime) {
                 const offsetGuess = zone.offset(this._ts);
                 const asObj = this.toObject();
-                newTS = objToTS(asObj, offsetGuess, zone)[0];
+                [newTS, , wasHole] = objToTS(asObj, offsetGuess, zone);
             }
-            return this._clone({ts: newTS, zone});
+            return this._clone({ts: newTS, zone, wasHole});
         }
     }
 
@@ -2266,7 +2293,7 @@ export class DateTime {
      * @param {string} [options.locale] - override the locale of this DateTime
      * @param {string} [options.numberingSystem] - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
      * @example DateTime.now().plus({ days: 1 }).toRelative() //=> "in 1 day"
-     * @example DateTime.now().setLocale("es").toRelative({ days: 1 }) //=> "dentro de 1 día"
+     * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelative() //=> "dentro de 1 día"
      * @example DateTime.now().plus({ days: 1 }).toRelative({ locale: "fr" }) //=> "dans 23 heures"
      * @example DateTime.now().minus({ days: 2 }).toRelative() //=> "2 days ago"
      * @example DateTime.now().minus({ days: 2 }).toRelative({ unit: "hours" }) //=> "48 hours ago"
@@ -2301,11 +2328,11 @@ export class DateTime {
      * Only internationalizes on platforms that supports Intl.RelativeTimeFormat.
      * @param {Object} options - options that affect the output
      * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
-     * @param {string} [options.locale] - override the locale of this DateTime
-     * @param {string} [options.unit] - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
-     * @param {string} [options.numberingSystem] - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
+     * @param {string} options.locale - override the locale of this DateTime
+     * @param {string} options.unit - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
+     * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
      * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar() //=> "tomorrow"
-     * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelative() //=> ""mañana"
+     * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelativeCalendar() //=> "mañana"
      * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
      * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
      */
@@ -2448,11 +2475,11 @@ export class DateTime {
      * create a new DT instance by adding a duration, adjusting for DSTs
      * Remember that compared to Luxon.js I don't need to pass the instance as argument here,
      * because it's a private member of the instance itself.
-     * Honestly don't know why he didn't do this way!
+     * Honestly don't know why they didn't do this way in the original luxon!
      * @param dur
      * @private
      */
-    private _adjustTime(dur: Duration): { ts: number; o: number } {
+    private _adjustTime(dur: Duration): { ts: number; o: number; wasHole: boolean } {
         const previousOffset = this._o,
             year = this._c.year + Math.trunc(dur.years),
             month = this._c.month + Math.trunc(dur.months) + Math.trunc(dur.quarters) * 3,
@@ -2478,7 +2505,8 @@ export class DateTime {
             }).as("milliseconds"),
             localTS = objToLocalTS(c);
 
-        let [ts, o] = fixOffset(localTS, previousOffset, this.zone);
+        // eslint-disable-next-line prefer-const
+        let [ts, o, wasHole] = fixOffset(localTS, previousOffset, this.zone);
 
         if (millisToAdd !== 0) {
             ts += millisToAdd;
@@ -2486,7 +2514,7 @@ export class DateTime {
             o = this.zone.offset(ts);
         }
 
-        return {ts, o};
+        return {ts, o, wasHole};
     }
 
     /**
@@ -2494,14 +2522,15 @@ export class DateTime {
      */
     // clone really means, "make a new object with these modifications". all "setters" really use this
     // to create a new object while only changing some of the properties
-    private _clone(alts: { ts?: number; zone?: Zone; loc?: Locale; o?: number }): DateTime {
+    private _clone(alts: Partial<Pick<DateTime, "ts" | "zone" | "loc" | "wasHole">> & { o?: number }): DateTime {
         const current = {
             ts: this._ts,
             zone: this.zone,
             c: this._c,
             o: this._o,
             loc: this._loc,
-            invalid: this._invalid || void 0
+            invalid: this._invalid || void 0,
+            wasHole: this.wasHole
         };
 
         return new DateTime({...current, ...alts, old: current});

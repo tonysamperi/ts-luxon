@@ -19,9 +19,10 @@ jobs:
         strategy:
             matrix:
                 node-version:
-                    - 20.19.4 # latest 20.x
-                    - 22.17.0 # latest 22.x
-                    - 24.4.1 # latest 24.x
+                    - 20.20.1 # latest 20.x
+                    - 22.22.1 # latest 22.x
+                    - 24.14.0 # latest 24.x
+                    - 25.8.1 # bleeding edge
 
         steps:
             -   uses: actions/checkout@v2
