@@ -1,9 +1,9 @@
 # TS Luxon
 
 [![MIT License][license-image]][license] [![Build Status][gh-actions-image]][gh-actions-url] [![NPM version][npm-version-image]][npm-url] [![Coverage Status][test-coverage-image]][test-coverage-url] ![PRs welcome][contributing-image]
-[![Size](https://img.shields.io/bundlephobia/minzip/ts-luxon)](https://unpkg.com/ts-luxon@latest/dist/cjs/index.cjs)
+[![Size](https://img.shields.io/bundlejs/size/ts-luxon)](https://bundlejs.com/?q=ts-luxon)
 
-TS Luxon is a library for working with dates and times in Javscript and Typescript.
+TS Luxon is a library for working with dates and times in JavaScript and TypeScript.
 
 This repo was initially created by [GillesDebunne]([initial-autor]) which of course started from [Luxon]([original-luxon]) itself.
 
