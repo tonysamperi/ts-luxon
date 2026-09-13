@@ -1832,16 +1832,21 @@ export class DateTime {
     }
 
     /**
-     * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
-     * @param {Object} [options] - the options to set
-     * @param {string} [options.locale] - ;
-     * @param {CalendarSystem} [options.outputCalendar] - ;
-     * @param {NumberingSystem} [options.numberingSystem] - ;
+     * "Set" the locale, numberingSystem, outputCalendar, or weekSettings. Returns a newly-constructed DateTime.
+     * @param {Object} properties - the properties to set
+     * @param {string} [properties.locale] - the locale to set
+     * @param {string} [properties.numberingSystem] - the numbering system to set
+     * @param {string} [properties.outputCalendar] - the output calendar to set
+     * @param {Object} [properties.weekSettings] - the week settings to set
+     * @param {number} [properties.weekSettings.firstDay] - the first day of the week (1-7, Monday-Sunday)
+     * @param {number} [properties.weekSettings.minimalDays] - the minimum number of days in the first week
+     * @param {number[]} [properties.weekSettings.weekend] - the weekend days
      * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
+     * @example DateTime.local(2017, 5, 25).reconfigure({ weekSettings: { firstDay: 1 } })
      * @return {DateTime}
      */
-    reconfigure(options: LocaleOptions): DateTime {
-        const loc = this._loc.clone(options);
+    reconfigure({locale, numberingSystem, outputCalendar, weekSettings}: LocaleOptions = {}): DateTime {
+        const loc = this.loc.clone({locale, numberingSystem, outputCalendar, weekSettings});
         return this._clone({loc});
     }
 

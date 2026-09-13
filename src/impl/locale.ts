@@ -455,7 +455,7 @@ export class Locale {
         }
     }
 
-    getWeekendDays(): [DayOfWeek, DayOfWeek] {
+    getWeekendDays(): DayOfWeek[] {
         return this.getWeekSettings().weekend;
     }
 
