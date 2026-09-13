@@ -1,6 +1,6 @@
-import { formatOffset, signedOffset } from "../impl/util.js";
-import { Zone } from "../zone.js";
-import { ZoneOffsetFormat } from "../types/zone.js";
+import {formatOffset, signedOffset} from "../impl/util.js";
+import {Zone} from "../zone.js";
+import {ZoneOffsetFormat} from "../types/zone.js";
 
 let singleton: FixedOffsetZone | null = null;
 
@@ -50,8 +50,8 @@ export class FixedOffsetZone extends Zone {
      * @override
      * @type {boolean}
      */
-    get isValid(): true {
-        return true;
+    get isValid() {
+        return this._valid;
     }
 
     /**
@@ -74,11 +74,14 @@ export class FixedOffsetZone extends Zone {
     }
 
     private readonly _fixed: number;
+    private _valid: boolean;
 
     constructor(offset: number) {
         super();
         /** @private **/
         this._fixed = offset;
+        /** @private **/
+        this._valid = Number.isInteger(offset);
     }
 
 
@@ -122,7 +125,7 @@ export class FixedOffsetZone extends Zone {
     /**
      * Returns the offset's value as a string
      * @override
-     * @param {number} ts - Epoch milliseconds for which to get the offset
+     * @param {number} _ts_ - Epoch milliseconds for which to get the offset
      * @param {string} format - What style of offset to return.
      *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
      * @return {string}
