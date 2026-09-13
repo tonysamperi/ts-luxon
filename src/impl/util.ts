@@ -4,13 +4,13 @@
  it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
  */
 
-import { InvalidArgumentError } from "../errors.js";
-import { TimeObject, GregorianDateTime, GenericDateTimeExtended, ToRelativeOptions } from "../types/datetime.js";
-import { ZoneOffsetFormat } from "../types/zone.js";
-import { NormalizedDurationUnit, NormalizedHumanDurationUnit } from "../types/duration.js";
-import { Settings } from "../settings.js";
-import { dayOfWeek, isoWeekdayToLocal } from "./conversions.js";
-import { WeekSettings } from "../types/locale.js";
+import {InvalidArgumentError} from "../errors.js";
+import {TimeObject, GregorianDateTime, GenericDateTimeExtended, ToRelativeOptions} from "../types/datetime.js";
+import {ZoneOffsetFormat} from "../types/zone.js";
+import {NormalizedDurationUnit, NormalizedHumanDurationUnit} from "../types/duration.js";
+import {Settings} from "../settings.js";
+import {dayOfWeek, isoWeekdayToLocal} from "./conversions.js";
+import {WeekSettings} from "../types/locale.js";
 
 /**
  * @private
@@ -272,7 +272,7 @@ export function parseZoneInfo(
         timeZone
     } as Intl.DateTimeFormatOptions;
 
-    const modified: Intl.DateTimeFormatOptions = { timeZoneName: offsetFormat, ...intlOpts };
+    const modified: Intl.DateTimeFormatOptions = {timeZoneName: offsetFormat, ...intlOpts};
     const parsed = new Intl.DateTimeFormat(locale, modified)
         .formatToParts(date)
         .find((m: Intl.DateTimeFormatPart) => m.type.toLowerCase() === "timezonename");
@@ -405,3 +405,9 @@ export const FALLBACK_WEEK_SETTINGS: WeekSettings = {
     minimalDays: 4,
     weekend: [6, 7]
 };
+
+export function snapFloatingPoint(val: number) {
+    const r = Math.round(val);
+
+    return Math.abs(val - r) < 4 * Number.EPSILON * Math.max(1, Math.abs(r)) ? r : val;
+}
