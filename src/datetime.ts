@@ -2328,11 +2328,11 @@ export class DateTime {
      * Only internationalizes on platforms that supports Intl.RelativeTimeFormat.
      * @param {Object} options - options that affect the output
      * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
-     * @param {string} [options.locale] - override the locale of this DateTime
-     * @param {string} [options.unit] - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
-     * @param {string} [options.numberingSystem] - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
+     * @param {string} options.locale - override the locale of this DateTime
+     * @param {string} options.unit - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
+     * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
      * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar() //=> "tomorrow"
-     * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelative() //=> ""mañana"
+     * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelativeCalendar() //=> "mañana"
      * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
      * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
      */
