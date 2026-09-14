@@ -1,5 +1,23 @@
 # Changelog
 
+## 6.4.0 (Luxon next 3.7.2)
+* Add `holeTime` property to DateTime (tells you which time was rejected)
+
+## 6.3.0 (Luxon next 3.7.2)
+* Rewrite Duration#shiftTo and normalize to do less "unintuitive" conversions (#1634 + #1620
+* Respect endpoint zones in hasSame for empty intervals (#1790)
+* Reject out-of-range 12-hour values with a meridiem in fromFormat (#1787)
+* Fix lost negative sign in Duration#toFormat when largest unit is zero (#1786)
+* Avoid exponential notation in Duration#toISO (#1784)
+* Accept the obsolete UT zone in fromRFC2822 (#1782)
+* Mark FixedOffsetZone invalid when constructed with a non-numeric offset (#1781)
+* toRelativeCalendar docs typo (#1771)
+* Added support info for Intl.DateTimeFormat.prototype.formatRange() (#1766)
+* Add weekSettings support to DateTime.reconfigure() (#1756)
+* Fix typings for weekdays being too strict
+* Add `wasHole` property to DateTime (#1753)
+* Fixes for v8
+
 ## 6.2.0 (Luxon 3.7.1)
 * Duration.toHuman option renamed to `showZeroes` for consistency
 * Reject Infinity in Duration.fromDurationLike and other factory methods (#1711)
