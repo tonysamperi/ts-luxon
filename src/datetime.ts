@@ -395,6 +395,46 @@ export class DateTime {
     }
 
     /**
+     * The local time originally requested when this DateTime was created from a DST hole,
+     * or `null` when it was not.
+     *
+     * DateTime normalizes hole times to the first valid local time after the DST change. For
+     * example, in America/New_York, a request for 02:30 on 2017-03-12 produces a DateTime at
+     * 03:30; in that case this getter returns `{ hour: 2, minute: 30, second: 0, millisecond: 0 }`.
+     * The time is derived from the zone transition and is not stored on the DateTime.
+     *
+     * @return {TimeObject | null}
+     */
+    get holeTime(): TimeObject {
+        if (!this.isValid || !this._wasHole) {
+            return void 0;
+        }
+
+        const finalOffset = this._o;
+        const normalizedLocalTS = objToLocalTS(this._c);
+
+        // A forward offset change can skip at most a day in the IANA time-zone database. Scan
+        // the two preceding days for the old offset, then validate the reverse transformation
+        // with fixOffset so this also works for non-hour transitions.
+        for (let hours = 1; hours <= 48; hours++) {
+            const originalOffset = this.zone.offset(this._ts - hours * 60 * 60 * 1000);
+            if (originalOffset >= finalOffset) {
+                continue;
+            }
+
+            const originalLocalTS = normalizedLocalTS - (finalOffset - originalOffset) * 60 * 1000,
+                [ts, , wasHole] = fixOffset(originalLocalTS, originalOffset, this.zone);
+            if (wasHole && ts === this._ts) {
+                const {hour, minute, second, millisecond} = tsToObj(originalLocalTS, 0);
+
+                return {hour, minute, second, millisecond};
+            }
+        }
+
+        return void 0;
+    }
+
+    /**
      * Get the hour of the day (0-23).
      * @example DateTime.local(2017, 5, 25, 9).hour //=> 9
      */

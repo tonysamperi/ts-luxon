@@ -199,6 +199,38 @@ describe("DateTime.local() with offset caching", () => {
 });
 
 describe("DateTime maintains the wasHole setting properly", () => {
+    test("retains the originally requested local time for a hole", () => {
+        const dt = DateTime.fromObject(
+            {year: 2017, month: 3, day: 12, hour: 2, minute: 30, second: 15, millisecond: 123},
+            {zone: "America/New_York"}
+        );
+
+        expect(dt.hour).toBe(3);
+        expect(dt.holeTime).toEqual({hour: 2, minute: 30, second: 15, millisecond: 123});
+    });
+
+    test("reconstructs a hole created by a non-hour offset change", () => {
+        const dt = DateTime.fromObject(
+            {year: 2017, month: 10, day: 1, hour: 2, minute: 15},
+            {zone: "Australia/Lord_Howe"}
+        );
+
+        expect(dt.toObject()).toMatchObject({hour: 2, minute: 45});
+        expect(dt.holeTime).toEqual({hour: 2, minute: 15, second: 0, millisecond: 0});
+    });
+
+    test("returns a fresh object for the originally requested local time", () => {
+        const dt = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}, {zone: "America/New_York"});
+        const holeTime = dt.holeTime!;
+        holeTime.hour = 10;
+
+        expect(dt.holeTime).toEqual({hour: 2, minute: 0, second: 0, millisecond: 0});
+    });
+
+    test("is void when the DateTime was not created from a hole", () => {
+        expect(DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 4}, {zone: "America/New_York"}).holeTime).toBe(void 0);
+    });
+
     test("is false by default", () => {
         expect(DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 4}, {zone: "America/New_York"}).wasHole).toBe(false);
     });
@@ -218,6 +250,7 @@ describe("DateTime maintains the wasHole setting properly", () => {
     test("is false when setting to non-hole", () => {
         const fromHole = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2});
         expect(fromHole.set({hour: 4}).wasHole).toBe(false);
+        expect(fromHole.set({hour: 4}).holeTime).toBe(void 0);
     });
 
     test("is true when setting hole-time on time from hole", () => {
@@ -230,6 +263,7 @@ describe("DateTime maintains the wasHole setting properly", () => {
         const dt = DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 4}, {zone: "America/New_York"});
         expect(dt.wasHole).toBe(false);
         expect(dt.set({hour: 2}).wasHole).toBe(true);
+        expect(dt.set({hour: 2}).holeTime).toEqual({hour: 2, minute: 0, second: 0, millisecond: 0});
     });
 
     test("is dropped on math", () => {
@@ -242,8 +276,8 @@ describe("DateTime maintains the wasHole setting properly", () => {
         expect(
             DateTime.fromObject({year: 2017, month: 3, day: 12, hour: 2}, {zone: "America/New_York"}).reconfigure({
                 locale: "es-ES"
-            }).wasHole
-        ).toBe(true);
+            }).holeTime
+        ).toEqual({hour: 2, minute: 0, second: 0, millisecond: 0});
     });
 
     test("is dropped on rezoning", () => {
