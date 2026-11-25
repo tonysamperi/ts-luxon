@@ -3,6 +3,8 @@
 [![MIT License][license-image]][license] [![Build Status][gh-actions-image]][gh-actions-url] [![NPM version][npm-version-image]][npm-url] [![Coverage Status][test-coverage-image]][test-coverage-url] ![PRs welcome][contributing-image]
 [![Size](https://img.shields.io/bundlejs/size/ts-luxon)](https://bundlejs.com/?q=ts-luxon)
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=000000)](https://www.buymeacoffee.com/tonysamperidev)
+
 TS Luxon is a library for working with dates and times in JavaScript and TypeScript.
 
 This repo was initially created by [GillesDebunne]([initial-autor]) which of course started from [Luxon]([original-luxon]) itself.
@@ -135,5 +137,4 @@ Please, read the CONTRIBUTING.md you can find in the master branch.
 [test-coverage-image]: https://codecov.io/gh/tonysamperi/ts-luxon/branch/master/graph/badge.svg
 
 [contributing-image]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg
-
 

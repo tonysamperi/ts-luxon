@@ -19,5 +19,7 @@ docs/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# .env
 /test-e2e/.env
 /.env
